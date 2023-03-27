@@ -1,0 +1,6 @@
+[book]
+authors = ["Lenny Peng"]
+language = "zh_CN"
+multilingual = false
+src = "src"
+title = "Yet another Chinese rust-lang book."
