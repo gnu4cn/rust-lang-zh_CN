@@ -4,3 +4,8 @@ language = "zh_CN"
 multilingual = false
 src = "src"
 title = "Yet another Chinese rust-lang book."
+
+[preprocessor.pagetoc]
+[output.html]
+additional-css = ["theme/pagetoc.css"]
+additional-js  = ["theme/pagetoc.js"]
