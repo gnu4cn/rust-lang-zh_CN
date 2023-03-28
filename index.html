@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html lang="zh_CN" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>序和前言 - Yet another Chinese rust-lang book.</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html" class="active">序和前言</a></li><li class="chapter-item expanded "><a href="Ch01_Getting_Started.html"><strong aria-hidden="true">1.</strong> 入门</a></li><li class="chapter-item expanded "><a href="Ch02_Programming_a_Guessing_Game.html"><strong aria-hidden="true">2.</strong> 编写一个猜数游戏</a></li><li class="chapter-item expanded "><a href="Ch03_Common_Programming_Concepts.html"><strong aria-hidden="true">3.</strong> 常见编程概念</a></li><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">进阶</li><li class="chapter-item expanded "><a href="Ch04_Understanding_Ownership.html"><strong aria-hidden="true">4.</strong> “掌握” 所有权</a></li><li class="chapter-item expanded "><a href="Ch05_Using_Structs_to_Structure_Related_Data.html"><strong aria-hidden="true">5.</strong> 使用结构体来对相关数据进行架构</a></li><li class="chapter-item expanded "><a href="Ch06_Enums_and_Pattern_Matching.html"><strong aria-hidden="true">6.</strong> 枚举与模式匹配</a></li><li class="chapter-item expanded "><a href="Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.html"><strong aria-hidden="true">7.</strong> 使用包、代码箱与模组对日趋增长的项目进行管理</a></li><li class="chapter-item expanded "><a href="Ch08_Common_Collections.html"><strong aria-hidden="true">8.</strong> 常用集合数据结构</a></li><li class="chapter-item expanded "><a href="Ch09_Error_Handling.html"><strong aria-hidden="true">9.</strong> 错误的处理</a></li><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">深入掌握</li><li class="chapter-item expanded "><a href="Ch10_Generic_Types_Traits_and_Lifetimes.html"><strong aria-hidden="true">10.</strong> 泛型、特质与生命周期</a></li><li class="chapter-item expanded "><a href="Ch11_Writing_Automated_Tests.html"><strong aria-hidden="true">11.</strong> 编写自动化测试</a></li><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">上篇总结 - 实操</li><li class="chapter-item expanded "><a href="Ch12_An_IO_Project_Building_a_Command_Line_Program.html"><strong aria-hidden="true">12.</strong> 一个文件系统 I/O 项目：构建一个命令行程序</a></li><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">下篇</li><li class="chapter-item expanded "><a href="Ch13_Functional_Language_Features_Iterators_and_Closures.html"><strong aria-hidden="true">13.</strong> 函数式编程语言特性：迭代器与闭包</a></li><li class="chapter-item expanded "><a href="Ch14_More_about_Cargo_and_Crates-io.html"><strong aria-hidden="true">14.</strong> Cargo 的其他方面及 Crates.io</a></li><li class="chapter-item expanded "><a href="Ch15_Smart_Pointers.html"><strong aria-hidden="true">15.</strong> 灵巧指针</a></li><li class="chapter-item expanded "><a href="Ch16_Fearless_Concurrency.html"><strong aria-hidden="true">16.</strong> 无惧并发</a></li><li class="chapter-item expanded "><a href="Ch17_Object_Oriented_Programming_Features_of_Rust.html"><strong aria-hidden="true">17.</strong> Rust 的面向对象编程特性</a></li><li class="chapter-item expanded "><a href="Ch18_Patterns_and_Matching.html"><strong aria-hidden="true">18.</strong> 模式与匹配</a></li><li class="chapter-item expanded "><a href="Ch19_Advanced_Features.html"><strong aria-hidden="true">19.</strong> 先进特性</a></li><li class="chapter-item expanded "><a href="Ch20_Final_Project_Building_a_Multithreaded_Web_Server.html"><strong aria-hidden="true">20.</strong> 最后项目：构建一个多线程的 Web 服务器</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Yet another Chinese rust-lang book.</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="rust-编程语言"><a class="header" href="#rust-编程语言">Rust 编程语言</a></h1>
+<p>原著：<a href="https://doc.rust-lang.org/book/">The Rust Programming Language</a></p>
+<p><em>原作者：Steve Klabnik 与 Carol Nichols, 及 Rust 社区</em></p>
+<p>此版本的教材，假定安装了 Rust <code>1.67.1</code> （发布于 2023-02-09）或更新版本。请参阅 <a href="docs/Ch01_Getting_Started.html#Installation">第 1 章的 “安装” 小节</a> 进行安装，或对已安装的 Rust 进行升级。</p>
+<pre><code class="language-console">$ rustc --version
+rustc 1.68.0 (2c8cc3432 2023-03-06)
+</code></pre>
+<h2 id="在线阅读"><a class="header" href="#在线阅读">在线阅读</a></h2>
+<ul>
+<li>
+<p><a href="https://rust-lang.xfoss.com">rust-lang.xfoss.com</a></p>
+</li>
+<li>
+<p>在 Gitbook 上可阅读此教程：<a href="https://rust.xfoss.com">Rust 编程语言</a></p>
+</li>
+</ul>
+<h2 id="简介"><a class="header" href="#简介">简介</a></h2>
+<p>欢迎来到 <em>Rust 编程语言</em>，一本 Rust 的介绍性书籍。Rust 编程语言帮助更快地编写出更可靠软件。在程序语言设计中，上层人机交互与底层控制，通常是不可调和的；Rust 挑战了这对矛盾。经由强力的技术能力与了不起的开发者体验，Rust 带来了对底层细节（譬如内存的使用）控制的同时，免去了传统上底层控制带来的一大堆麻烦。</p>
+<h2 id="rust-适用于哪些人群"><a class="header" href="#rust-适用于哪些人群">Rust 适用于哪些人群</a></h2>
+<p>对于相当多的人群，Rust 因为各种原因，都是理想选择。下面就来看看那些最重要群体中的一些人的情况。</p>
+<h3 id="开发者团队"><a class="header" href="#开发者团队">开发者团队</a></h3>
+<p>对于有着不同水平系统编程知识的开发者团队的协同来讲，Rust 正被证明是一种生产力工具。底层代码倾向于出现各种细微错误，这样的细微错误，对于其他编程语言，则只能经由广泛测试，和经验老道的开发者细致代码评审才能捕获到。而在 Rust 中，编译器通过拒绝编译这些难以捉摸的错误，包括并发错误，而扮演着看门人角色。通过与编译器一道工作，团队就可以将他们的时间，集中用在程序逻辑，而不是找寻错误上。</p>
+<p>Rust 还带给了系统编程世界，一些现代开发者工具：</p>
+<ul>
+<li><code>Cargo</code>，Rust 所包含的依赖管理器与构建工具，让整个 Rust 生态中添加依赖、编译与管理依赖，变得愉快并具一致性（<code>Cargo</code>, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem）；</li>
+<li><code>Rustfmt</code> 确保了不同开发者之间有着一致的编码风格；</li>
+<li>Rust 语言服务器驱动了用于代码补全与行内错误消息的集成开发环境。</li>
+</ul>
+<p>通过使用这些开发者工具，及其他一些 Rust 生态中的工具，开发者就可以在编写系统级代码时，颇具生产力了。</p>
+<h3 id="学生"><a class="header" href="#学生">学生</a></h3>
+<p>Rust 是为学生及那些对掌握系统概念感兴趣的人所准备的。运用 Rust，许多人都掌握了像是操作系统开发这样的知识点。Rust 社区非常欢迎并乐于回答学生们提出的问题。通过像是本书这样的努力，Rust 团队本身是要让更多人，尤其是那些刚开始编程的人们，可获取到系统概念。</p>
+<h3 id="商业公司"><a class="header" href="#商业公司">商业公司</a></h3>
+<p>已有上千家规模或大或小的商业公司，在生产中，为着不同任务使用着 Rust。这些任务包括了命令行工具、web 服务、运维工具、嵌入式装置、音视频分析与转码、加密货币、生物信息学、搜索引擎、物联网应用、机器学习，甚至Firefox web浏览器的主要部分等等。</p>
+<h3 id="开放源代码开发者"><a class="header" href="#开放源代码开发者">开放源代码开发者</a></h3>
+<p>Rust 是为着那些想要构建 Rust 编程语言本身、Rust 社区、Rust 开发者工具和库而准备的。我们希望你为 Rust 语言做出贡献。</p>
+<h3 id="看重运行速度与稳定性的人们"><a class="header" href="#看重运行速度与稳定性的人们">看重运行速度与稳定性的人们</a></h3>
+<p>Rust 是为那些渴求某门语言所提供速度与稳定性的人们准备的。这里说的运行速度，指的是使用 Rust 可创建出程序的运行速度，以及 Rust 所能达到的编写这些程序速度。Rust 编译器的检查，确保了功能补充与重构的稳定性。这稳定性是与那些不具备这些检查语言中的脆弱老旧代码相比得出的，开发者通常害怕去修改那些脆弱老旧代码。通过争取实现零代价的抽象，就有了那些在手动编写时，就立即编译到底层代码的上层特性，Rust 致力于实现在构造安全代码的同时，还取得了快速的代码编写与程序运行。</p>
+<p>Rust 语言也希望带给众多其他用户以支持；这里提到的只是一些最大的相关群体。总体来讲，Rust 最伟大的抱负，是要消除程序员们在过去数十年来，业已被迫接受的在安全性与生产力、开发和运行速度及人机交互上的妥协。请给 Rust 一个机会，然后看看 Rust 的选择是否适合于你。</p>
+<h2 id="本书读者群体"><a class="header" href="#本书读者群体">本书读者群体</a></h2>
+<p>本书假定你曾编写过其他某种编程语言的代码，至于何种编程语言并不重要。本书作者已尽力让其中的教学材料适合到有着宽泛编程背景的读者。这里不会花大量时间来解释编程为何物，以及该怎么来看待编程。若对编程一窍不通，那么最好找一本编程入门的书先看看。</p>
+<h2 id="怎样使用本书"><a class="header" href="#怎样使用本书">怎样使用本书</a></h2>
+<p>大体上，本书假定是要以从前往后的顺序进行阅读。后续章节是建立在较早章节的概念之上，而较早的章节不会深入某个话题的细节；在后续章节通常会回顾到那个话题。</p>
+<p>本书有两种章节：概念性章节与项目性章节。在概念章节，将对 Rust 某个方面的有所了解。而在项目性章节，就会构建出一些在一起的小程序，这些小程序运用了概念性章节中学到的东西。第 2、12 和 20 章，就是项目性章节；而剩下的，全都是概念性章节。</p>
+<p>第 1 章讲了怎样安装 Rust、怎样编写出 “Hello, world!” 程序，还有怎样使用 Rust 的包管理器及构建工具 <code>Cargo</code>。第 2 章是 Rust 语言的一个实操介绍。这里涵盖了上层的一些概念，而在后续章节则会提供到进一步的细节。若要立即动手编写代码，那么第 2 章就可以开始了。一开始你或许想要跳过第 3 章，这一章涵盖了与那些其他编程语言类似的一些 Rust 特性，而要直接前往到第 4 章，去了解 Rust 的所有权系统。不过若要细致了解 Rust，就应详细掌握 Rust 的每个细节设计之后，在移步到下一章节，或许也会跳过第 2 章直接到第 3 章，然后在想要将学到的细节知识应用到项目时，再回到第 2 章。</p>
+<p>第 5 章讨论了结构体和方法，同时第 6 章涵盖了枚举、<code>match</code> 表达式，和 <code>if let</code> 控制流结构。在构造 Rust 中的定制类型时，就会用到这些结构体和枚举。</p>
+<p>第 7 章将了解到 Rust 的模组系统，以及代码组织的隐私规则，还有 Rust 的公共应用编程接口（Application Programming Interface, API）。第 8 章讨论了一些常用的、由标准库提供的集合数据结构，诸如矢量、字符串及哈希图。第 9 章探索了 Rust 的错误处理思想与技巧。</p>
+<p>第 10 章涉及了范型、特质（traits） 与生命周期，他们赋予了定义出应用多种类型代码的能力。第 11 章全都是关于测试的内容，即便有着 Rust 的安全性保证，对于确保程序逻辑正确，测试仍是不可缺少的。第 12 章将构建一个我们自己的、用于在文件中搜索文本的 <code>grep</code> 命令行工具功能子集的版本。到这里，就会用到先前章节中所讨论的众多概念了。</p>
+<p>第 13 章对闭包（closures）和迭代进行了探索：闭包和迭代属于 Rust 来自函数式编程语言的特性。第 14 章，将更深入地对 <code>Cargo</code> 加以检视，并就如何与他人分享库的最佳实践进行探讨。第 15 章讨论标准库提供的一些灵巧指针，还有实现不同功能的 Rust 特质（traits）。</p>
+<p>第 16 章，将遍数并发编程的各种不同模型，并探讨 Rust 如何对大胆进行多线程编程的帮助。第 17 章将或许你所熟知面向对象编程的那些原则，与 Rust 下编程的习惯加以对比。</p>
+<p>第 18 章是模式与模式匹配的一个参考，这在 Rust 程序中，属于是概念表达的强大方式。第 19 章包含了一个诸多感兴趣的话题大杂烩，包括不安全的 Rust、宏，以及更多有关生命周期、特质（traits）、类型、函数与闭包等等的细节。</p>
+<p>第 20 章，将完成一个其中实现了底层线程化的 web 服务器！</p>
+<p>最后，还有一些包含了这门语言的有用信息的附录，这些附录则更多的像是参考的形式。附录 A 涵盖了 Rust 的关键字，附录 B 涵盖了 Rust 的运算符和符号，附录 C 涵盖了由标准库所提供的那些派生特质（derivable traits），附录 D 涵盖了一些有用的开发工具，还有附录 E 对 Rust 版本进行了解释。</p>
+<p>阅读本书并无定法：你要跳着去读，也是可以的！在遇到疑惑时，或许就不得不跳回去看看了。你只要怎么有效就行了。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+                            <a rel="next" href="Ch01_Getting_Started.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+                    <a rel="next" href="Ch01_Getting_Started.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

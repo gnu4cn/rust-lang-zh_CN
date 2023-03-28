@@ -1,7 +1,7 @@
 # Summary
 
 
-[序和前言](README.md)
+[序和前言](../README.md)
 
 - [入门](Ch01_Getting_Started.md)
 
