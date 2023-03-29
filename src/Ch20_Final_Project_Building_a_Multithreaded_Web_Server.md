@@ -478,3 +478,10 @@ fn handle_conn(mut stream: TcpStream) {
 **Turning Our Single-Thread Server into a Multithreaded Server**
 
 现在，这个服务器将依次处理每个请求，这意味着其将不会在前一个连接完成处理前，处理后一连接。若服务器收到了越来越多的请求，这种顺序执行就会越来越差。而若该服务器收到了一个要耗费较长时间处理的请求，即使后续的新请求可被快速处理，但其仍将不得不等待直到那个长时间请求完成。咱们需要修复这个问题，但首选，咱们将具体看看这个问题。
+
+
+### 在当前服务器实现下模拟一个慢速请求
+
+**Simulating a Slow Request in the Current Server Implemenation**
+
+咱们将看看一个慢速处理的请求，能怎样应用到咱们当前服务器实现的其他请求。
