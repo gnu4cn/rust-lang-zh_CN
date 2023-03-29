@@ -484,4 +484,4 @@ fn handle_conn(mut stream: TcpStream) {
 
 **Simulating a Slow Request in the Current Server Implemenation**
 
-咱们将看看一个慢速处理的请求，能怎样应用到咱们当前服务器实现的其他请求。
+咱们将看看一个慢速处理的请求，能怎样应用到咱们当前服务器实现的其他请求。下面清单 20-10 以将导致服务器在响应前睡眠 5 秒的一个模拟慢速请求，实现了对到 `/sleep` 请求的处理。
