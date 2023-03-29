@@ -58,49 +58,49 @@
       <!-- Provide site root to javascript -->
       <script>
         var path_to_root = "{{ path_to_root }}";
-var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "{{ preferred_dark_theme }}" : "{{ default_theme }}";
+        var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "{{ preferred_dark_theme }}" : "{{ default_theme }}";
       </script>
 
       <!-- Work around some values being stored in localStorage wrapped in quotes -->
       <script>
         try {
-          var theme = localStorage.getItem('mdbook-theme');
-          var sidebar = localStorage.getItem('mdbook-sidebar');
+                  var theme = localStorage.getItem('mdbook-theme');
+                  var sidebar = localStorage.getItem('mdbook-sidebar');
 
-          if (theme.startsWith('"') && theme.endsWith('"')) {
-            localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
-          }
+                  if (theme.startsWith('"') && theme.endsWith('"')) {
+                            localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                          }
 
-          if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
-            localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
-          }
-        } catch (e) { }
+                  if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                            localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                          }
+                } catch (e) { }
       </script>
 
       <!-- Set the theme before any content is loaded, prevents flash -->
       <script>
         var theme;
-try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
-if (theme === null || theme === undefined) { theme = default_theme; }
-var html = document.querySelector('html');
-html.classList.remove('no-js')
-html.classList.remove('{{ default_theme }}')
-html.classList.add(theme);
-html.classList.add('js');
+        try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+        if (theme === null || theme === undefined) { theme = default_theme; }
+        var html = document.querySelector('html');
+        html.classList.remove('no-js')
+        html.classList.remove('{{ default_theme }}')
+        html.classList.add(theme);
+        html.classList.add('js');
       </script>
 
       <!-- Hide / unhide sidebar before it is displayed -->
       <script>
         var html = document.querySelector('html');
-var sidebar = null;
-if (document.body.clientWidth >= 1080) {
-  try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
-  sidebar = sidebar || 'visible';
-} else {
-  sidebar = 'hidden';
-}
-html.classList.remove('sidebar-visible');
-html.classList.add("sidebar-" + sidebar);
+        var sidebar = null;
+        if (document.body.clientWidth >= 1080) {
+                  try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                  sidebar = sidebar || 'visible';
+                } else {
+                          sidebar = 'hidden';
+                        }
+        html.classList.remove('sidebar-visible');
+        html.classList.add("sidebar-" + sidebar);
       </script>
 
       <nav id="sidebar" class="sidebar" aria-label="Table of contents">
@@ -140,11 +140,6 @@ html.classList.add("sidebar-" + sidebar);
             <h3 class="menu-title">{{ book_title }}</h3>
 
             <div class="right-buttons">
-              <a href="https://rust-lang.xfoss.com" title="Yet another Chinese rust-lang book"
-                aria-label="Yet another Chinese rust-lang book">
-                ⚙️·Rust 官方书中文
-              </a>
-
               <a href="https://java.xfoss.com" title="Head First Java 中文版" aria-label="Head First Java 中文版">
                 ☕·Head First Java 中文
               </a>
@@ -152,11 +147,14 @@ html.classList.add("sidebar-" + sidebar);
                 🖧·60 天通过 CCNA
               </a>
               <a href="https://snippets.xfoss.com" title="代码片段与技术笔记，code snippets and tech notes"
-                aria-label="代码片段与技术笔记，code snippets and tech notes">
+                                                   aria-label="代码片段与技术笔记，code snippets and tech notes">
                 ✨·代码片段与技术笔记
               </a>
               <a href="https://ts.xfoss.com" title="TypeScript 教程" aria-label="TypeScript 教程">
                 📜·TypeScript 教程
+              </a>
+              <a href="https://books.xfoss.com" title="捐赠，donation" aria-label="捐赠，donation">
+                🎁·捐赠，donation
               </a>
 
               {{#if print_enable}}
@@ -194,10 +192,10 @@ html.classList.add("sidebar-" + sidebar);
           <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
           <script>
             document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
-document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
-  link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
-});
+            document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+            Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                          link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                        });
           </script>
 
           <div id="content" class="content">
@@ -244,18 +242,18 @@ Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
       <!-- Livereload script (if served using the cli tool) -->
       <script>
         const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-const wsAddress = wsProtocol + "//" + location.host + "/" + "{{{live_reload_endpoint}}}";
-const socket = new WebSocket(wsAddress);
-socket.onmessage = function (event) {
-  if (event.data === "reload") {
-    socket.close();
-    location.reload();
-  }
-};
+        const wsAddress = wsProtocol + "//" + location.host + "/" + "{{{live_reload_endpoint}}}";
+        const socket = new WebSocket(wsAddress);
+        socket.onmessage = function (event) {
+                  if (event.data === "reload") {
+                            socket.close();
+                            location.reload();
+                          }
+                };
 
-window.onbeforeunload = function() {
-  socket.close();
-}
+        window.onbeforeunload = function() {
+                  socket.close();
+                }
       </script>
       {{/if}}
 
@@ -264,17 +262,17 @@ window.onbeforeunload = function() {
       <script>
         var localAddrs = ["localhost", "127.0.0.1", ""];
 
-// make sure we don't activate google analytics if the developer is
-// inspecting the book locally...
-if (localAddrs.indexOf(document.location.hostname) === -1) {
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        // make sure we don't activate google analytics if the developer is
+        // inspecting the book locally...
+        if (localAddrs.indexOf(document.location.hostname) === -1) {
+                  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-  ga('create', '{{google_analytics}}', 'auto');
-  ga('send', 'pageview');
-}
+                  ga('create', '{{google_analytics}}', 'auto');
+                  ga('send', 'pageview');
+                }
       </script>
       {{/if}}
 
@@ -317,16 +315,16 @@ if (localAddrs.indexOf(document.location.hostname) === -1) {
       {{#if mathjax_support}}
       <script>
         window.addEventListener('load', function() {
-          MathJax.Hub.Register.StartupHook('End', function() {
-            window.setTimeout(window.print, 100);
-          });
-        });
+                  MathJax.Hub.Register.StartupHook('End', function() {
+                            window.setTimeout(window.print, 100);
+                          });
+                });
       </script>
       {{else}}
       <script>
         window.addEventListener('load', function() {
-          window.setTimeout(window.print, 100);
-        });
+                  window.setTimeout(window.print, 100);
+                });
       </script>
       {{/if}}
       {{/if}}
