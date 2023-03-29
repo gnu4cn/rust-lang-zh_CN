@@ -87,7 +87,7 @@ Rust 与 Cargo，均有着令到咱们所发布的包，易于为其他人找到
 /// ```
 /// let arg = 5;
 /// let answer = cargo_features_demo::add_one(arg);
-/// 
+///
 /// assert_eq! (6, answer);
 /// ```
 pub fn add_one(x: i32) -> i32 {
@@ -152,7 +152,7 @@ thread 'main' panicked at 'assertion failed: `(left == right)`
 stack backtrace:
    0:     0x5620cf499480 - std::backtrace_rs::backtrace::libunwind::trace::h32eb3e08e874dd27
                                at /rustc/897e37553bba8b42751c67658967889d11ecd120/library/std/src/../../backtrace/src/back                             trace/libunwind.rs:93:5
-   // ... 
+   // ...
   36:                0x0 - <unknown>
 
 
@@ -489,7 +489,7 @@ $ cargo yank --vers 0.1.0 --undo                                                
 抽出某个版本，*不会* 删除任何代码。比如，此操作就无法删除那些不小心上传的机密信息。若发生了机密信息被上传的情况，那么就必须立即重置这些机密信息。
 
 
-## Cargo 工作区
+## <a id="cargo-workspaces"></a>Cargo 工作区
 
 **Cargo Workspaces**
 
@@ -522,7 +522,7 @@ members = [
 ```console
 $ cargo new adder
      Created binary (application) `adder` package
-``` 
+```
 
 到这里，就可以通过运行 `cargo build`，构造这个工作区了。这个 `add` 目录下的那些文件，看起来应像下面这样：
 
@@ -562,7 +562,7 @@ members = [
 ```console
 $ cargo new add_one --lib                                                                        lennyp@vm-manjaro
      Created library `add_one` package
-``` 
+```
 
 这个 `add` 目录现在应该有这些目录与文件：
 
