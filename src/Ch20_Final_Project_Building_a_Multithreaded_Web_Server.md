@@ -484,4 +484,37 @@ fn handle_conn(mut stream: TcpStream) {
 
 **Simulating a Slow Request in the Current Server Implemenation**
 
-咱们将看看一个慢速处理的请求，能怎样应用到咱们当前服务器实现的其他请求。下面清单 20-10 以将导致服务器在响应前睡眠 5 秒的一个模拟慢速请求，实现了对到 `/sleep` 请求的处理。
+咱们将看看一个慢速处理的请求，能怎样影响那些到咱们当前服务器实现的其他请求。下面清单 20-10 以一个将导致服务器在响应前睡眠 5 秒的模拟慢速请求，实现了对到 `/sleep` 请求的处理。
+
+文件名：`src/main.rs`
+
+```rust
+#![allow(warnings)]
+use std::{
+    fs,
+    io::{prelude::*, BufReader},
+    net::{TcpListener, TcpStream},
+    thred,
+    time::Duration,
+};
+// --跳过代码--
+
+fn handle_conn(mut stream: TcpStream) {
+    // --跳过代码--
+
+    let (status_line, filename) = match &req_line[..] {
+        "GET / HTTP/1.1" => ( "HTTP/1.1 200 OK", "hello.html"),
+        "GET /sleep HTTP/1.1" => {
+            thread::sleep(Duration::from_secs(5));
+            ("HTTP/1.1 200 0K", "hello.html")
+        }
+        _ => ("HTTP/1.1 404 NOT FOUND", "404.html"),
+    };
+
+    // --跳过代码--
+}
+```
+
+*清单 20-10：通过睡眠 5 秒模拟慢速请求*
+
+
