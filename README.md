@@ -14,11 +14,8 @@ rustc 1.68.0 (2c8cc3432 2023-03-06)
 ```
 
 
-## 在线阅读
+在线阅读: [rust-lang.xfoss.com](https://rust-lang.xfoss.com)
 
-- [rust-lang.xfoss.com](https://rust-lang.xfoss.com)
-
-- 在 Gitbook 上可阅读此教程：[Rust 编程语言](https://rust.xfoss.com)
 
 ## 简介
 
