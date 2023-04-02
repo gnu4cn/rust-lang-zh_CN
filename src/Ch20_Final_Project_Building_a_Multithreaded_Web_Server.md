@@ -547,5 +547,22 @@ fn handle_conn(mut stream: TcpStream) {
 
 **Spawning a Thread for Each Request**
 
+首先，咱们来探讨一下若咱们的代码给每隔连接创建一个新线程，他看起来会怎样。正如早先所提到的，由于潜在地生成无限数目线程的那些问题，这样做不是咱们的最终计划，但其为首先得到一个运作多线程服务器的起点。随后咱们将添加线程池作为一项改进，且将这两种方案进行对比将更容易一些。下面清单 20-11 给出了把 `main` 构造为于那个 `for` 循环里，生成一个新线程来处理每个 TCP 流的一些修改。
 
+文件名：`src/main.rs`
 
+```rust
+fn main() {
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+
+    for stream in listener.incoming() {
+        let stream = stream.unwrap();
+
+        thread::spawn(|| {
+            handle_conn(stream);
+        });
+    }
+}
+```
+
+*清单 20-11：为每个 TCP 流生成一个新线程*
