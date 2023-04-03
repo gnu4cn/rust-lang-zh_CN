@@ -570,7 +570,7 @@ fn main() {
 如同咱们在第 16 章中所学到的，`thread::spawn` 讲创建出一个新线程，并于随后在新线程中，运行那个闭包中的代码。当咱们运行此代码，并在浏览器中加载 `/sleep`，随后在另外两个浏览器 Tab 页中加载 `/`，咱们就会看到到 `/` 的请求就不必等待 `/sleep` 请求完毕了。不过，如同咱们曾提到过的，因为咱们正不带任何限制地构造新线程，而最终将使系统不堪重负。
 
 
-#### 创建有限数目的线程
+#### <a id="creating-a-finite-number-of-threads"></a>创建有限数目的线程
 
 **Creating a Finite Number of Threads**
 
@@ -670,3 +670,16 @@ impl ThreadPool {
 下面来再次检查：
 
 ```console
+$ cargo check
+    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+error[E0599]: no method named `execute` found for struct `ThreadPool` in the current scope
+  --> src/main.rs:19:14
+   |
+19 |         pool.execute(|| {
+   |              ^^^^^^^ method not found in `ThreadPool`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `hello` due to previous error
+```
+
+现在的报错之所以出现，是因为在 `ThreadPool` 上咱们没有一个 `execute` 方法。回顾 ["创建有限数目的线程"](#creating-a-finite-number-of-threads) 小节到，咱们已决定咱们的线程池，应有一个类似与 `thread::spawn` 的接口。此外，

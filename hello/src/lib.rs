@@ -1,3 +1,4 @@
+#![allow(warnings)]
 pub struct ThreadPool;
 
 impl ThreadPool {
