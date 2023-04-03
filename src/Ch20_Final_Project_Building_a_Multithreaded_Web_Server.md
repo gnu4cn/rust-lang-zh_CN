@@ -575,4 +575,98 @@ fn main() {
 **Creating a Finite Number of Threads**
 
 
+咱们想要咱们的线程池，以类似的、熟悉的方式运作，而无需那些用到咱们 API 的代码有较大修改。下面清单 20-12 给出了咱们打算用到的 `ThreadPool`，而非 `thread::spawn`，的假想接口。
 
+文件名：`src/main.rs`
+
+```rust
+fn main() {
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(4);
+
+    for stream in listener.incoming() {
+        let stream = stream.unwrap();
+
+        pool.execute(|| {
+            handle_conn(stream);
+        });
+    }
+}
+```
+
+*清单 20-12：咱们设想的 `ThreadPool` 接口*
+
+咱们使用了 `ThreadPool::new` 来创建出有着可配置线程数目的新线程，在此示例中为四个线程。随后，在那个 `for` 循环中，`pool.execute` 有着与 `thread::spawn` 类似的接口，其中他会取个闭包，并将其给到线程池中的某个线程运行。这段代码尚不会编译，但咱们将进行尝试，如此编译器就会引导咱们如何修复他。
+
+
+#### 运行编译器驱动的开发，构建出 `ThreadPool`
+
+**Building `ThreadPool` Using Compiler Driven Development**
+
+请完成清单 20-12 中对 `src/main.rs` 的修改，然后咱们就来运用 `cargo check` 给出的编译器报错，驱动咱们的开发。下面就是咱们所得到的第一个报错：
+
+```console
+$ cargo check
+    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+error[E0433]: failed to resolve: use of undeclared type `ThreadPool`
+  --> src/main.rs:12:16
+   |
+12 |     let pool = ThreadPool::new(4);
+   |                ^^^^^^^^^^ use of undeclared type `ThreadPool`
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `hello` due to previous error
+```
+
+很棒！这个错误告诉我们，咱们需要一个 `ThreadPool` 类型或模组，因此咱们现在就将构建一个出来。咱们的 `ThreadPool` 实现，将独立于咱们的 web 服务器所完成工作的类型。因此，咱们就来将这个 `hello` 代码箱，从二进制代码箱切换为一个库代码箱，来保存咱们的 `ThreadPool` 实现。在咱们改变为库代码箱后，咱们就可以在打算用到线程池的任何项目，而不只是用来服务 web 请求中，也可以使用这个独立的线程池了。
+
+请创建一个包含了下面这个咱们目前所能有的 `ThreadPool` 结构体极简定义的 `src/lib.rs` 文件：
+
+文件名：`src/lib.rs`
+
+```rust
+pub struct ThreadPool;
+```
+
+随后编辑 `main.rs`，来通过加入下面的代码到 `src/main.rs` 顶部，将 `ThreadPool` 从那个库代码箱，带入作用域：
+
+文件名：`src/main.rs`
+
+```rust
+use hello::ThreadPool;
+```
+
+这段代码仍不会工作，但咱们就来再检查一边，以得到咱们需要解决的下一报错：
+
+```console
+$ cargo check
+    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+error[E0599]: no function or associated item named `new` found for struct `ThreadPool` in the current scope
+  --> src/main.rs:14:28
+   |
+14 |     let pool = ThreadPool::new(4);
+   |                            ^^^ function or associated item not found in `ThreadPool`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `hello` due to previous error
+```
+
+此报错表明，接下来咱们就要给 `ThreadPool` 创建一个名为 `new` 的关联函数。咱们还知道了那个 `new` 需要有一个可将 `4` 作为实参接收的形参，并应返回一个 `ThreadPool` 的实例。下面就来实现将有着那些特性的这个极简 `new` 函数：
+
+文件名：`src/lib.rs`
+
+```rust
+pub struct ThreadPool;
+
+impl ThreadPool {
+    pub fn new(size: usize) -> ThreadPool {
+        ThreadPool
+    }
+}
+```
+
+由于咱们清楚一个负的线程数目不会有任何意义，因此咱们选择了 `usize` 作为那个 `size` 参数的类型。咱们还知道咱们将使用这个 `4` 作为线程集合中原始的个数，那即使这个 `usize` 类型的目的所在，正如第三章的 [整数类型](Ch03_Common_Programming_Concepts.md#integer-types) 小节中曾讨论过的。
+
+下面来再次检查：
+
+```console
