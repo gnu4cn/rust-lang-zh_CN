@@ -682,4 +682,34 @@ For more information about this error, try `rustc --explain E0599`.
 error: could not compile `hello` due to previous error
 ```
 
-现在的报错之所以出现，是因为在 `ThreadPool` 上咱们没有一个 `execute` 方法。回顾 ["创建有限数目的线程"](#creating-a-finite-number-of-threads) 小节到，咱们已决定咱们的线程池，应有一个类似与 `thread::spawn` 的接口。此外，
+现在的报错之所以出现，是因为在 `ThreadPool` 上咱们没有一个 `execute` 方法。回顾 ["创建有限数目的线程"](#creating-a-finite-number-of-threads) 小节到，咱们已决定咱们的线程池，应有一个类似与 `thread::spawn` 的接口。此外，咱们将实现这个 `execute` 函数，如此其便会取那个给到他的闭包，并将其交给线程池中的某个空闲进程运行。
+
+咱们将在 `ThreadPool` 上定义这个 `execute` 方法，来取一个闭包作为参数。回顾第 13 章中 [“将捕获值迁移出闭包与 `Fn` 特质”](Ch13_Functional_Language_Features_Iterators_and_Closures.md#moving-captured-values-out-of-closures-and-the-Fn-traits) 到咱们可以三种不同特质，将闭包取作参数：`Fn`、`FnMut` 与 `FnOnce`。咱们需要确定出这里要使用何种类别的闭包。咱们清楚咱们将以完成一些类似于标准库的 `thread::spawn` 实现类似的东西结束，因此咱们就可以看看 `thread::spawn` 的签名在其参数上有些什么。文档给出咱们下面的东西：
+
+```rust
+pub fn spawn<F, T>(f: F) -> JoinHandle<T>
+    where
+        F: FnOnce() -> T,
+        F: Send + 'static,
+        T: Send + 'static,
+```
+
+其中的 `F` 类型参数，就是咱们在这里所关心的那个；那个 `T` 类型参数于返回值相关，而咱们并不关心那个。咱们可以看出，`spawn` 使用 `FnOnce` 作为 `F` 上的特质边界。由于咱们将最终将把咱们在 `execute` 中获得的实参，传递给 `spawn`，因此这或许也正是咱们想要的。由于为运行某个请求的线程，将只执行那个请求的闭包一次，而这是与 `FnOnce` 中的 `Once` 是相匹配的，故咱们可以进一步确信，`FnOnce` 便是咱们要用到的特质。
+
+其中的 `F` 类型参数，还有着特质边界 `Send` 与生命周期边界 `'static`，在咱们这种情况下他们是有用的：咱们需要 `Send` 来将闭包，从一个线程转移到另一线程，并由于咱们不知道那个线程将耗时多久来执行，因此而需要 `'static`。下面咱们就来在 `ThreadPool` 上，创建出将取到有着这些边界的，类型 `F` 的泛型参数的 `execute` 方法：
+
+文件名：`src/lib.rs`
+
+```rust
+#![allow(warnings)]
+pub struct ThreadPool;
+
+impl ThreadPool {
+    pub fn execute<F>(&self, f: F)
+        where
+            F: FnOnce() + Send + 'static,
+    {
+
+    }
+}
+```

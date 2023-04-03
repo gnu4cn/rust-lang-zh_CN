@@ -75,7 +75,7 @@ fn main() {
     let user_pref1 = Some(ShirtColor::Red);
     let giveaway1 = store.giveaway(user_pref1);
     println! (
-        "选项为 {:?} 的用户，得到了 {:?}", 
+        "选项为 {:?} 的用户，得到了 {:?}",
         user_pref1, giveaway1
     );
 
@@ -138,9 +138,9 @@ let expensive_closure = |num: u32| -> u32 {
 
 ```rust
 fn  add_one_v1   (x: u32) -> u32 { x + 1 };
-let add_one_v2 = |x: u32| -> u32 { x + 1 }; 
-let add_one_v3 = |x|             { x + 1 }; 
-let add_one_v4 = |x|               x + 1  ; 
+let add_one_v2 = |x: u32| -> u32 { x + 1 };
+let add_one_v3 = |x|             { x + 1 };
+let add_one_v4 = |x|               x + 1  ;
 ```
 
 第一行给出了一个函数定义，而第二行则给出的是一个完整注解过的闭包定义。在第三行中，这里移除了那个闭包定义的类型注解。在第四行，就移出了那对花括号，由于这个闭包的函数体只有一个表达式，因此这对花括号是可选的。这些全都是有效的定义，在他们被调用时，都会产生出同样的行为。由于 `add_one_v3` 与 `add_one_v4` 中的那些类型将从他们的用法中推断出来，因此这两个行就需要被执行的闭包，能够被编译。这一点与 `let v = Vec::new();` 要么需要类型注解，或是需要有某种类型的值插入到这个 `Vec` 中，Rust 才能够推断出他的类型类相似。
@@ -281,7 +281,7 @@ fn main() {
 这里生成了一个新线程，将一个闭包作为参数给到这个线程来运行（we spawn a new thread, giving the thread a closure to run as an argument）。其中闭包的函数体，打印出这个清单。在代码清单 13-4 中，由于不可变引用是打印那里清单所需的最少量权限，因此那里的闭包只使用了不可变引用对 `list` 加以了捕获。而在这个示例中，即使其中的闭包函数体只需要不可变引用，这里仍需要通过把那个 `move` 关键字放置于闭包定义的开头，指明那个 `list` 应被迁移到该闭包中。这个新线程可能在主线程其余部分执行完毕之前就执行结束，或主线程可能先结束。若主线程仍保有 `list` 的所有权，而在新线程结束之前就结束，而丢弃掉 `list`，那么在那个线程中的 `list` 就会成为无效。因此，编译器就要求其中的 `list` ，被迁移到那个给到新线程的闭包中，如此那个引用就将有效。请尝试去掉这个 `move` 关键字，或在那个闭包被之后使用 `list`，来看看会得到什么编译器错误！
 
 
-### 将捕获到的值迁移出闭包与 `Fn` 特质
+### <a id="moving-captured-values-out-of-closures-and-the-Fn-traits"></a>将捕获到的值迁移出闭包与 `Fn` 特质
 
 **Moving Captured Values Out of Closures and the `Fn` Traits**
 
@@ -759,8 +759,8 @@ impl Config {
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
-        Ok(Config { 
-            query, 
+        Ok(Config {
+            query,
             file_path,
             ignore_case,
         })
@@ -794,7 +794,7 @@ fn main() {
         eprintln! ("解析参数时遇到问题：{err}");
         process::exit(1);
     });
-    
+
     // --跳过代码--
 }
 ```
@@ -866,8 +866,8 @@ impl Config {
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
-        Ok(Config { 
-            query, 
+        Ok(Config {
+            query,
             file_path,
             ignore_case,
         })
@@ -890,7 +890,7 @@ impl Config {
 
 ```rust
 pub fn search<'a>(
-    query: &str, 
+    query: &str,
     contents: &'a str
 ) -> Vec<&'a str> {
     let mut results = Vec::new();
@@ -913,7 +913,7 @@ pub fn search<'a>(
 
 ```rust
 pub fn search<'a>(
-    query: &str, 
+    query: &str,
     contents: &'a str
 ) -> Vec<&'a str> {
     contents
@@ -932,7 +932,7 @@ pub fn search<'a>(
 
 ```rust
 pub fn search_insensitive<'a>(
-    query: &str, 
+    query: &str,
     contents: &'a str
 ) -> Vec<&'a str> {
     let query = query.to_lowercase();
