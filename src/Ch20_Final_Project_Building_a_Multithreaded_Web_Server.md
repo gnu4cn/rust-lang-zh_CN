@@ -892,3 +892,17 @@ impl Worker {
 #### 经由通道把请求发送给线程
 
 **Sending Requests to Threads via Channels**
+
+接下来咱们将要解决的，便是所给到 `thread::spawn` 的那些闭包什么也没做的问题。当前，咱们在那个 `execute` 方法中，获取到了咱们打算执行的那个闭包。但咱们需要于那个 `ThreadPool` 创建期间，在咱们创建出各个 `Worker` 时，给到 `thread::spawn` 一个闭包。
+
+咱们想要咱们刚创建出的那些 `Worker` 结构体，从一个保存在 `ThreadPool` 中的队列中获取要运行的代码，并把那些代码发送他的线程运行。
+
+第 16 章中咱们学过的通道 -- 两个线程间通信的一种简单方式 -- 对于这个用例将是最佳的。咱们将使用一个函数的通道，作为作业队列，the queue of jobs，而 `execute` 将把来自 `ThreadPool` 的某项作业，发送到那些 `Worker` 实例，其将把该项作业，发送给他的线程。下面便是这个方案：
+
+1. `ThreadPool` 将创建出一个通道，并保存于 `sender` 上；
+2. 每个 `Worker` 实例，将保存于 `receiver` 上；
+3. 咱们将创建出将保存那些咱们打算下发到通道上闭包的一个新 `Job` 结构体；
+4. `execute` 方法将经由那个 `sender`，发送其打算执行的作业；
+5. 在 `Worker` 实例的线程中，其将遍历其 `receiver` 并执行其所接收到的任何作业的闭包。
+
+
