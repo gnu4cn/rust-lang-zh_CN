@@ -809,3 +809,15 @@ impl ThreadPool {
 ```
 
 *清单 20-14：为保存那些线程而给 `ThreadPool` 创建一个矢量值*
+
+由于咱们正使用 `thread::JoinHandle` 作为 `ThreadPool` 中那个矢量值条目的类型，因此咱们已将 `std::thread` 带入到这个库代码箱的作用域。
+
+一旦收到有效的大小，咱们的 `ThreadPool` 就会创建出可保存 `size` 个条目的一个新矢量值。那个 `with_capacity` 函数，执行的是与 `Vec::new` 同意的任务，但有个重要的不同之处：他会预先分配那个矢量值中的空间。由于咱们清楚咱们需要在那个矢量值中存储 `size` 个元素，那么预先完成这种分配，相比使用在有元素插入时调整自身的 `Vec::new`，就会稍微更具效率。
+
+在再度运行 `cargo check` 时，其应成功。
+
+#### 负责将代码从 `ThreadPool` 发送给某个线程的 `Worker` 结构体
+
+**A `Worker` Struct Responsible for Sending Code from the `ThreadPoll` to a Thread**
+
+
