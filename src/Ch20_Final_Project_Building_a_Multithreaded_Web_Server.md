@@ -835,4 +835,60 @@ impl ThreadPool {
 4. 在 `Thread::new` 中，会使用那个 `for` 循环的计数器，来生成一个 `id`、用那个 `id` 创建出一个新的 `Worker`，并将该 `Worker` 存储在那个矢量值中。
 
 
+若咱们准备挑战一下，那么请尝试在查看清单 20-15 中代码之前，自己实现这些修改。
 
+准备好了吗？下面就是有着一种做出前面那些修改的一种方式的清单 20-15。
+
+文件名：`src/lib.rs`
+
+```rust
+use std::thread;
+
+pub struct ThreadPool {
+    workers: Vec<Worker>,
+}
+
+impl ThreadPool {
+    // --跳过代码--
+    pub fn new(size: usize) -> ThreadPool {
+        assert! (size > 0);
+
+        let mut threads = Vec::with_capacity(size);
+
+        for _ in 0..size {
+            workers.push(Worker::new(id));
+        }
+
+        ThreadPool { workers }
+    }
+    // --跳过代码--
+}
+
+struct Worker {
+    id: usize,
+    thread: thread::JoinHandle<()>,
+}
+
+impl Worker {
+    fn new(id: usize) -> Worker {
+        let thread = thread::spawn(|| {});
+
+        Worker { id, thread }
+    }
+}
+```
+
+*清单 20-15：将 `ThreadPool` 修改为保存 `Worker` 实例而非直接保存线程*
+
+由于 `ThreadPool` 现在保存的是一些 `Worker` 实例而非 `JoinHandle<()>` 实例，因此咱们已将其上那个字段的名字，从 `threads` 修改为了 `workers`。咱们将那个 `for` 循环中的计数器，用作给 `Worker::new` 的参数，同时咱们将每个新的 `Worker`，存储在那个名为 `workers` 的矢量值中。
+
+外部代码（就像 `src/main.rs` 中咱们的服务器），无需知悉 `ThreadPool` 里某个 `Worker` 结构体使用方面的实现细节，因此咱们是将这个 `Worker` 结构体及其 `new` 函数，构造为了私有。`Worker::new` 函数使用了咱们给他的那个 `id`，并将经由使用空闭包而生成一个新线程，而创建出的一个 `JoinHandle<()>` 实例存储起来。
+
+
+> 注意：若操作系统因没有足够系统资源而无法创建出一个线程，那么 `thread::spawn` 就将终止运行。那样的话，即使一些线程创建可能成功，也将导致咱们整个服务器终止运行。为简化起见，这种实现做法是无可厚非的，但在生产的线程池实现中，咱们就大概打算使用 [`std::thread::Builder`](https://doc.rust-lang.org/std/thread/struct.Builder.html) 与他的返回 `Result` 的 [`spawn`](https://doc.rust-lang.org/std/thread/struct.Builder.html#method.spawn) 方法了。
+
+这段代码将编译，并将咱们指定给 `ThreadPool::new` 数目的 `Worker` 实例存储起来。但咱们 *仍* 未处理咱们在 `execute` 中得到的闭包。接下来就要看看怎样完成那一步。
+
+#### 经由通道把请求发送给线程
+
+**Sending Requests to Threads via Channels**
