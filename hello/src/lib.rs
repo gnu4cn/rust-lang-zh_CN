@@ -1,4 +1,6 @@
 #![allow(warnings)]
+use std::thread;
+
 pub struct ThreadPool {
     threads: Vec<thread::JoinHandle<()>>,
 }
