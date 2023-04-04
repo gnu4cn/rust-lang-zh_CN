@@ -727,5 +727,57 @@ $ cargo check
 
 > 注意：咱们或许听说过与有着严格编译器语言，比如 Haskell 与 Rust，有关的一种说法，即 “若代码编译了，他就会工作。” 然而这种说法并非一概而论。咱们的项目编译了，但他绝对什么也没干！若咱们是在构建一个真实、完整的项目，那么此时就将是开始编写检查代码编译与否，*以及* 是否具有咱们想要的行为的单元测试的好时机。
 
+#### 在 `new` 中验证线程数目
+
+**Validating the Number of Threads in `new`**
+
+咱们没有对 `new` 与 `execute` 的参数做任何事情。下面就来以咱们打算的行为，实现这两个函数的函数体。咱们来构思一下 `new`，作为开始。早先由于负的线程数目没有意义，因此咱们给那个 `size` 参数，选择了一个无符号整数类型。不过尽管零也是相当有效的 `usize`，但零个线程的线程池，同样是无意义的。咱们将在返回一个 `ThreadPool` 实例前，添加检查 `size` 大于零的代码，并在程序收到一个零时，通过使用 `assert!` 宏，让程序终止运行，如下面清单 20-13 中所示。
+
+文件名：`src/lib.rs`
+
+```rust
+impl ThreadPool {
+    /// 创建出一个新的 ThreadPool。
+    ///
+    /// 其中的 size 为线程池中线程的数目。
+    ///
+    /// # 终止运行
+    ///
+    /// 这个 `new` 函数将在 size 为零时终止运行。
+    pub fn new(size: usize) -> ThreadPool {
+        assert! (size > 0);
+
+        ThreadPool
+    }
+
+    // --跳过代码--
+}
+```
+
+*清单 20-13：将 `ThreadPool` 实现为在 `size` 为零时终止运行*
+
+咱们还以一些文档注释，doc comments，给咱们的 `ThreadPool` 结构体添加了一些文档。请注意咱们通过添加如同第 14 章中曾讨论过的，一个会呼出咱们的函数可能终止运行时的那些情形的小节，而遵循了良好的文档实践。请尝试运行 `cargo doc --open` 并点击那个 `ThreadPool` 结构体，来看到为 `new` 生成的文档看起来是怎样的！
+
+与其如咱们在这里所做的添加这个 `assert!` 宏，咱们则可把 `new` 改为 `build`，并像咱们曾在清单 12-9 中那个 I/O 项目里的 `Config::build` 下所做的那样，返回一个 `Result`。但咱们已经决定，在此示例中是在尝试创建一个，其中全部线程都不应是不可恢复错误的线程池。若你觉得信心满满，那就请编写一个名为 `build`，有着下面签名的函数，来与这个 `new` 函数相比较：
+
+```rust
+pub fn build(size: usize) -> Result<ThreadPool, PoolCreationError> {
+```
+
+#### 创建空间来存储这些线程
+
+**Creating Space to Store the Threads**
+
+既然咱们有了获悉咱们有着要在线程池中存储线程有效数目的一种办法了，咱们便可以创建出这些线程，并在返回这个 `ThreadPool` 结构体前，将他们存储在该结构体中。但是咱们要怎么 “存储” 一个线程呢？下面又来看看那个 `thread::spawn` 签名：
+
+```rust
+pub fn spawn<F, T>(f: F) -> JoinHandle<T>
+    where
+        F: FnOnce() -> T,
+        F: Send + 'static,
+        T: Send + 'static,
+```
+
+`spawn` 函数返回了一个 `JoinHandle<T>`，其中的 `T` 为闭包所返回的类型。咱们也来尝试使用 `JoinHandle`，并观察会发生什么。在咱们的用例中，咱们传递给线程池的闭包，将处理 TCP 连接，而不会返回任何东西，因此其中的 `T` 将是单元类型 `()`。
 
 
