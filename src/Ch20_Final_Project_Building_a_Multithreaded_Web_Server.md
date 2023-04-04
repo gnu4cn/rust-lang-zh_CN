@@ -780,4 +780,32 @@ pub fn spawn<F, T>(f: F) -> JoinHandle<T>
 
 `spawn` 函数返回了一个 `JoinHandle<T>`，其中的 `T` 为闭包所返回的类型。咱们也来尝试使用 `JoinHandle`，并观察会发生什么。在咱们的用例中，咱们传递给线程池的闭包，将处理 TCP 连接，而不会返回任何东西，因此其中的 `T` 将是单元类型 `()`。
 
+下面清单 20-14 中的代码将会编译，但尚不会创建任何线程。咱们已将 `ThreadPool` 的定义，修改为保存了一个 `thread::JoinHandle<()>` 实例的矢量值，以 `size` 大小初始化了这个矢量值，还建立了一个将运行某些代码来创建出那些线程的 `for` 循环，并返回了一个包含着这些线程的 `ThreadPool` 实例。
 
+文件名：`src/lib.rs`
+
+```rust
+use std::thread;
+
+pub struct ThreadPool {
+    threads: Vec<thread::JoinHandle<()>>,
+}
+
+impl ThreadPool {
+    // --跳过代码--
+    pub fn new(size: usize) -> ThreadPool {
+        assert! (size > 0);
+
+        let mut threads = Vec::with_capacity(size);
+
+        for _ in 0..size {
+            // 创建出一些线程并将他们存储在那个矢量中
+        }
+
+        ThreadPool { threads }
+    }
+    // --跳过代码--
+}
+```
+
+*清单 20-14：为保存那些线程而给 `ThreadPool` 创建一个矢量值*

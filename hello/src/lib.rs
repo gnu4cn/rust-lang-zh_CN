@@ -1,5 +1,7 @@
 #![allow(warnings)]
-pub struct ThreadPool;
+pub struct ThreadPool {
+    threads: Vec<thread::JoinHandle<()>>,
+}
 
 impl ThreadPool {
     /// 创建出一个新的 ThreadPool。
@@ -12,7 +14,13 @@ impl ThreadPool {
     pub fn new(size: usize) -> ThreadPool {
         assert! (size > 0);
 
-        ThreadPool
+        let mut threads = Vec::with_capacity(size);
+
+        for _ in 0..size {
+            // 创建出一些线程并将他们存储在那个矢量中
+        }
+
+        ThreadPool { threads }
     }
 
     pub fn execute<F>(&self, f: F)
