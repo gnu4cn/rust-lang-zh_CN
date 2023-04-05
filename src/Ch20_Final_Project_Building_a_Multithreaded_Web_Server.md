@@ -905,4 +905,40 @@ impl Worker {
 4. `execute` 方法将经由那个 `sender`，发送其打算执行的作业；
 5. 在 `Worker` 实例的线程中，其将遍历其 `receiver` 并执行其所接收到的任何作业的闭包。
 
+咱们来通过在 `ThreadPool::new` 中创建一个通道，并在 `ThreadPool` 实例中保存 `send` 开始，如下清单 20-16 中所示。其中的 `Job` 结构体现在没有保存任何东西，但将保存咱们下发到通道项目类型。
+
+文件名：`src/lib.rs`
+
+```rust
+use std::{sync::mpsc, thread};
+
+pub struct ThreadPool {
+    workers: Vec<Worker>,
+    sender: mpsc::Sender<Job>,
+}
+
+struct Job;
+
+impl ThreadPool {
+    // --跳过代码--
+    pub fn new(size: usize) -> ThreadPool {
+        assert! (size > 0);
+
+        let (sender, receiver) = mpsc::channel();
+
+        let mut workers = Vec::with_capacity(size);
+
+        for id in 0..size {
+            workers.push(Worker::new(id));
+        }
+
+        ThreadPool { workers, sender }
+    }
+
+    // --跳过代码--
+}
+```
+
+*清单 20-16：将 `ThreadPool` 修改为存储传递 `Job` 实例通道的 `sender`*
+
 
