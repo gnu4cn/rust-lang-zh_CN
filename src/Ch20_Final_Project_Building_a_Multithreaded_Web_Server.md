@@ -1001,4 +1001,86 @@ For more information about this error, try `rustc --explain E0382`.
 error: could not compile `hello` due to previous error
 ```
 
+这段代码试图将 `receiver` 传递给多个 `Worker` 实例。正如回顾到第 16 章，这样做不会工作：Rust 所提供的通道实现，属于多 `producer`、单 `consumer` 的。这意味着咱们不能只克隆通道的消费端来修复这段代码。咱们也不打算将一条消息，多次发送给多个消费者；咱们是要一个带有多个 `worker` 的消息列表，如此每条消息，都将被一次性处理。
+
+此外，从通道队列里取出一项作业，还涉及到令 `receiver` 可变，因此这些县城就需要一种共用与修改 `receiver` 的安全方式；否则，咱们就会面临竞争情形（如同第 16 章中所讲到的）。
+
+回顾第 16 章中曾讨论过的线程安全灵巧指针：为在多个线程间共用所有权，以及实现这些线程修改值，咱们需要用到 `Arc<Mutex<T>>`。`Arc` 类型将实现多个 `worker` 都拥有那个 `receiver`，而 `Mutex` 将确保某个时刻只有一个 `worker` 从 `receiver` 获取一项作业。下面清单 20-18 给出了咱们需要作出的修改。
+
+文件名：`src/lib.rs`
+
+```rust
+use std::{
+    sync::{mpsc, Arc, Mutex}, 
+    thread,
+};
+// --跳过代码--
+
+impl ThreadPool {
+    // --跳过代码--
+    pub fn new(size: usize) -> ThreadPool {
+        assert! (size > 0);
+
+        let (sender, receiver) = mpsc::channel();
+
+        let receiver = Arc::new(Mutex::new(receiver));
+
+        let mut workers = Vec::with_capacity(size);
+
+        for id in 0..size {
+            workers.push(Worker::new(id, Arc::clone(&receiver)));
+        }
+
+        ThreadPool { workers, sender }
+    }
+
+    // --跳过代码--
+}
+
+// --跳过代码--
+
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+        // --跳过代码--
+    }
+}
+```
+
+*清单 20-18：运用 `Arc` 与 `Mutex` 在那些 `worker` 间共用 `receiver`*
+
+在 `ThreadPool::new` 中，咱们把 `receiver` 放入到一个 `Arc` 与一个 `Mutex` 中。对于各个新 `worker`，咱们克隆了那个 `Arc`，从而增加了引用计数，这样那些 `worker` 就可以共用 `receiver` 的所有权。
+
+有了这些修改，代码就会编译了！咱们就要达到目的了！
+
+
+#### 实现 `execute` 方法
+
+**Implementing the `execute` method**
+
+咱们来最终实现那个 `ThreadPool` 上的 `execute` 方法。咱们还将把 `Job` 从结构体，修改为保存着 `execute` 接收到闭包类型的特质对象的类型别名。正如第 19 章 [“使用类型别名创建类型同义词”](Ch19_Advanced_Features.md#creating-type-synonyms-with-type-aliases) 小节中曾讨论过的，类型别名实现了为易于使用而将长类型构造缩短。请看看下面清单 20-19.
+
+文件名：`src/lib.rs`
+
+```rust
+// --跳过代码--
+
+type Job = Box<dyn FnOnce() + Send + 'static>;
+
+impl ThreadPool {
+    // --跳过代码--
+
+    pub fn execute<F>(&self, f: F)
+        where
+            F: FnOnce() + Send + 'static,
+    {
+        let job = Box::new(f);
+
+        self.sender.send(job).unwrap();
+    }
+}
+// --跳过代码--
+```
+
+*清单 20-19：为保存着各个闭包的 `Box` 创建出 `Job` 类型别名，并于随后把该项作业下发到通道*
+
 

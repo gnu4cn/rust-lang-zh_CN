@@ -951,7 +951,7 @@ Rust 的类型系统有着一些到目前为止咱们曾提到过但尚未讨论
 新类型还可以隐藏内部实现。比如，咱们可提供一个 `People` 类型，来封装一个存储着某人与其名字关联的 ID 的 `HashMap<i32, String>`。使用 `People` 的代码，只需与咱们提供的公开 API，比如某个将名字字符串添加到 `People` 集合的方法交互；那些代码将不需要知悉咱们在内部分配了`i32` 的 ID 给那些名字。新型模式是达成，咱们曾在第 17 章讨论过的 [“隐藏实现细节的封装”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#encapsulation-that-hides-implementation-details") 的一种轻量方式。
 
 
-### 使用类型别名创建类型同义词
+### <a id="creating-type-synonyms-with-type-aliases"></a>使用类型别名创建类型同义词
 
 **Creating Type Synonyms with Type Aliases**
 
