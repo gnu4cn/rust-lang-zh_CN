@@ -941,4 +941,64 @@ impl ThreadPool {
 
 *清单 20-16：将 `ThreadPool` 修改为存储传递 `Job` 实例通道的 `sender`*
 
+在 `ThreadPool::new` 中，咱们创建出来咱们的新通道，并让线程池保存了该通道的 `sender`。这段代码将成功编译。
+
+下面就来尝试在这个线程池创建出该通道时，把其 `receiver` 传入各个 `worker`。咱们清楚咱们是要在那些 `workers` 生成的线程中使用这个 `receiver`，因此咱们将在那个闭包中，引用这个 `receiver` 参数。下面清单 20-17 中的代码尚不会很好地编译。
+
+文件名：`src/lib.rs`
+
+```rust
+impl ThreadPool {
+    // --跳过代码--
+    pub fn new(size: usize) -> ThreadPool {
+        assert! (size > 0);
+
+        let (sender, receiver) = mpsc::channel();
+
+        let mut workers = Vec::with_capacity(size);
+
+        for id in 0..size {
+            workers.push(Worker::new(id, receiver));
+        }
+
+        ThreadPool { workers, sender }
+    }
+
+    // --跳过代码--
+}
+
+// --跳过代码--
+impl Worker {
+    fn new(id: usize, receiver: mpsc::Receiver<Job>) -> Worker {
+        let thread = thread::spawn(|| {
+            receiver;
+        });
+
+        Worker { id, thread }
+    }
+}
+```
+
+*清单 20-17：将 `receiver` 传递给 `workers`*
+
+咱们作出了一些小而简单直接的修改：咱们把那个 `receiver` 传入到 `Worker::new`，并随后在那个闭包里使用了他。
+
+当咱们尝试检查这段代码时，就会得到如下报错：
+
+```console
+$ cargo check
+    Checking hello v0.1.0 (/home/peng/rust-lang-zh_CN/hello)
+error[E0382]: use of moved value: `receiver`
+  --> src/lib.rs:27:42
+   |
+22 |         let (sender, receiver) = mpsc::channel();
+   |                      -------- move occurs because `receiver` has type `std::sync::mpsc::Receiver<Job>`, which does not implement the `Copy` trait
+...
+27 |             workers.push(Worker::new(id, receiver));
+   |                                          ^^^^^^^^ value moved here, in previous iteration of loop
+
+For more information about this error, try `rustc --explain E0382`.
+error: could not compile `hello` due to previous error
+```
+
 
