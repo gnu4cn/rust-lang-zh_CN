@@ -1329,4 +1329,8 @@ impl Drop for ThreadPool {
 
 **Signaling to the Threads to Stop Listening for Jobs**
 
+在咱们已做出的全部修改下，咱们的代码会不带任何错误的编译了。但是，坏消息是这些代码尚不会按照咱们想要的方式运作。问题关键在于，由 `Worker` 实例的线程运行的闭包中的逻辑：此刻，咱们调用了 `join`，但由于线程是在一直 `loop` 查找作业，所以那样做将不会关闭线程。若咱们以咱们当前的 `drop` 实现丢弃咱们的 `ThreadPool`，那么主线程将一直阻塞于等待第一个线程结束。
+
+为修复这个问题，咱们将需要 `ThreadPool` 的 `drop` 实现中的一个修改，以及其后的 `Worker` 循环中的一个修改。
+
 
