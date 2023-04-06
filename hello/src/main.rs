@@ -29,7 +29,7 @@ fn handle_conn(mut stream: TcpStream) {
     let (status_line, filename) = match &req_line[..] {
         "GET / HTTP/1.1" => ( "HTTP/1.1 200 OK", "hello.html"),
         "GET /sleep HTTP/1.1" => {
-            thread::sleep(Duration::from_secs(10));
+            thread::sleep(Duration::from_secs(30));
             ("HTTP/1.1 200 0K", "hello.html")
         }
         _ => ("HTTP/1.1 404 NOT FOUND", "404.html"),
