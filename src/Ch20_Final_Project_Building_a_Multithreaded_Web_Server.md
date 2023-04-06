@@ -599,7 +599,7 @@ fn main() {
 咱们使用了 `ThreadPool::new` 来创建出有着可配置线程数目的新线程，在此示例中为四个线程。随后，在那个 `for` 循环中，`pool.execute` 有着与 `thread::spawn` 类似的接口，其中他会取个闭包，并将其给到线程池中的某个线程运行。这段代码尚不会编译，但咱们将进行尝试，如此编译器就会引导咱们如何修复他。
 
 
-#### 运行编译器驱动的开发，构建出 `ThreadPool`
+#### 运用编译器驱动的开发，构建出 `ThreadPool`
 
 **Building `ThreadPool` Using Compiler Driven Development**
 
@@ -1237,5 +1237,96 @@ note: `JoinHandle::<T>::join` takes ownership of the receiver `self`, which move
 For more information about this error, try `rustc --explain E0507`.
 error: could not compile `hello` due to previous error
 ```
+
+这个报错告诉我们，由于咱们只有各个 `worker` 的可变借用，而 `join` 会取得其参数的所有权，因此咱们无法调用 `join`。为解决这个额外难题，咱们就需要将线程从拥有 `thread` 的 `Worker` 实例迁出，如此 `join` 就可以消费那个线程了。咱们曾在清单 17-15 中这样做过：若 `Worker` 保存的是一个 `Option<thread::JoinHandle<()>>`，那么咱们就可以在 `Option` 上调用 `take` 方法，来将 `Some` 变种中的那个值迁出，并在其位置处留下一个 `None`。也就是说，正运行的一个 `Worker`，将有着 `thread` 中的一个 `Some` 变种，而当咱们打算清理某个 `Worker` 时，咱们就将以 `None` 来替换 `Some`，如此那个 `Worker` 就没有了要运行的线程了。
+
+因此咱们就明白了咱们是要如下更新 `Worker` 的定义：
+
+文件名：`src/lib.rs`
+
+```rust
+struct Worker {
+    id: usize,
+    thread: Option<thread::JoinHandle<()>>,
+}
+```
+
+现在咱们来依靠编译器，找出其他需要修改的地方。对此代码进行检查，咱们会得到两个报错：
+
+```console
+$ cargo check
+    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+error[E0308]: mismatched types
+  --> src/lib.rs:62:22
+   |
+62 |         Worker { id, thread }
+   |                      ^^^^^^ expected enum `Option`, found struct `JoinHandle`
+   |
+   = note: expected enum `Option<JoinHandle<()>>`
+            found struct `JoinHandle<_>`
+help: try wrapping the expression in `Some`
+   |
+62 |         Worker { id, thread: Some(thread) }
+   |                      +++++++++++++      +
+
+error[E0599]: no method named `join` found for enum `Option` in the current scope
+  --> src/lib.rs:71:27
+   |
+71 |             worker.thread.join().unwrap();
+   |                           ^^^^ method not found in `Option<JoinHandle<()>>`
+   |
+note: the method `join` exists on the type `JoinHandle<()>`
+  --> /rustc/2c8cc343237b8f7d5a3c3703e3a87f2eb2c54a74/library/std/src/thread/mod.rs:1589:5
+help: consider using `Option::expect` to unwrap the `JoinHandle<()>` value, panicking if the value is an `Option::None`
+   |
+71 |             worker.thread.expect("REASON").join().unwrap();
+   |                          +++++++++++++++++
+
+Some errors have detailed explanations: E0308, E0599.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `hello` due to 2 previous errors
+```
+
+咱们来解决那第二个错误，其指向了 `Worker::new` 末尾的代码；在创建新 `Worker` 时，咱们需要把那个 `thread` 值封装在 `Some` 中。请做出如下修改来修复这个错误：
+
+文件名：`src/lib.rs`
+
+```rust
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+        // --跳过代码--
+
+        Worker {
+            id,
+            thread: Some(thread),
+        }
+    }
+}
+```
+
+第一个错误是在咱们的 `Drop` 实现中，早先咱们曾提到，咱们原本打算调用这个 `Option` 值上的 `take`，来将 `thread` 从 `worker` 中迁出。下面的修改就将这样做：
+
+文件名：`src/lib.rs`
+
+```rust
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        for worker in &mut self.workers {
+            println! ("关闭 worker {}", worker.id);
+
+            if let Some(thread) = worker.thread.take() {
+                thread.join().unwrap();
+            }
+        }
+    }
+}
+```
+
+正如曾在第 17 章中讨论过的那样，`Option` 上的 `take` 方法，会将那个 `Some` 变种取出，并在其位置处留下 `None`。咱们使用了 `if let` 来解构那个 `Some` 而得到了那个线程；随后咱们在线程上调用了 `join`。若某个 `worker` 的线程已经是 `None`，那么咱们就知道那个 `worker` 已经让他的线程清理掉了，因此在那种情况下什么也不会发生。
+
+
+### 通知线程停止收听作业
+
+**Signaling to the Threads to Stop Listening for Jobs**
 
 
