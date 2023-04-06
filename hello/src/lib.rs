@@ -62,3 +62,13 @@ impl Worker {
         Worker { id, thread }
     }
 }
+
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        for worker in &mut self.workers {
+            println! ("关闭 worker {}", worker.id);
+
+            worker.thread.join().unwrap();
+        }
+    }
+}

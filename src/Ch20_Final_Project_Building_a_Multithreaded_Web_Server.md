@@ -1196,5 +1196,46 @@ impl Worker {
 
 **Implementing the `Drop` Trait on `ThreadPool`**
 
+咱们来以在咱们的线程池上实现 `Drop` 开始。当线程池被丢弃时，咱们的那些线程就都应归拢，join 一下，以确保他们完成他们的工作。下面清单 20-22 给出了 `Drop` 实现的首次尝试；此代码尚不会很好地编译。
+
+文件名：`src/lib.rs`
+
+```rust
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        for worker in &mut self.workers {
+            println! ("关闭 worker {}", worker.id);
+
+            worker.thread.join().unwrap();
+        }
+    }
+}
+```
+
+*清单 20-22：在线程池超出作用域时归拢各个线程*
+
+> 注：关于线程的 `join` 方法，请参考 [Java Thread.join详解](https://zhuanlan.zhihu.com/p/57927767)，[Joining Threads in Java](https://www.geeksforgeeks.org/joining-threads-in-java/)。
+
+首选，咱们遍历了线程池中 `workers` 的各个线程。由于 `self` 是个可变引用，且咱们还需要能修改 `worker`，因此咱们为这个遍历使用了 `&mut`。对于各个 `worker`，咱们打印了讲到这个特定 `worker` 正要关闭的一条消息，并在随后在那个 `worker` 的线程上调用了 `join`。当到 `join` 的这个调用失败时，咱们便使用 `unwrap` 来令到 Rust 终止运行，并进入到非优雅有序关闭。
+
+下面时在咱们编译这代码时，得到的报错信息：
+
+```console
+$ cargo check
+    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+error[E0507]: cannot move out of `worker.thread` which is behind a mutable reference
+  --> src/lib.rs:71:13
+   |
+71 |             worker.thread.join().unwrap();
+   |             ^^^^^^^^^^^^^ ------ `worker.thread` moved due to this method call
+   |             |
+   |             move occurs because `worker.thread` has type `JoinHandle<()>`, which does not implement the `Copy` trait
+   |
+note: `JoinHandle::<T>::join` takes ownership of the receiver `self`, which moves `worker.thread`
+  --> /rustc/2c8cc343237b8f7d5a3c3703e3a87f2eb2c54a74/library/std/src/thread/mod.rs:1589:17
+
+For more information about this error, try `rustc --explain E0507`.
+error: could not compile `hello` due to previous error
+```
 
 
