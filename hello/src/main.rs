@@ -1,4 +1,3 @@
-#![allow(warnings)]
 use hello::ThreadPool;
 
 use std::{

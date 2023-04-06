@@ -1120,19 +1120,36 @@ impl Worker {
 
 ```console
 $ cargo run
-    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
-     Running `target\debug\hello.exe`
-Worker 0 获取到一项作业；执行中。
+   Compiling hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+warning: field `workers` is never read
+ --> src/lib.rs:7:5
+  |
+6 | pub struct ThreadPool {
+  |            ---------- field in this struct
+7 |     workers: Vec<Worker>,
+  |     ^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` on by default
+
+warning: fields `id` and `thread` are never read
+  --> src/lib.rs:48:5
+   |
+47 | struct Worker {
+   |        ------ fields in this struct
+48 |     id: usize,
+   |     ^^
+49 |     thread: thread::JoinHandle<()>,
+   |     ^^^^^^
+
+warning: `hello` (lib) generated 2 warnings
+    Finished dev [unoptimized + debuginfo] target(s) in 0.60s
+     Running `target/debug/hello`
 Worker 1 获取到一项作业；执行中。
+Worker 0 获取到一项作业；执行中。
 Worker 2 获取到一项作业；执行中。
 Worker 3 获取到一项作业；执行中。
+Worker 1 获取到一项作业；执行中。
 Worker 0 获取到一项作业；执行中。
-Worker 1 获取到一项作业；执行中。
-Worker 1 获取到一项作业；执行中。
-Worker 2 获取到一项作业；执行中。
-Worker 3 获取到一项作业；执行中。
-Worker 0 获取到一项作业；执行中。
-Worker 1 获取到一项作业；执行中。
 ```
 
 成功了！咱们现在有了一个会异步执行 TCP 连接的线程池。绝不会有超过四个线程被创建出来，因此在服务器收到很多请求时，咱们的系统将不会过载。在咱们构造了一个到 `/sleep` 的请求时，服务器通过让另一线程运行别的一些请求，而将能服务这些请求。
@@ -1164,3 +1181,20 @@ impl Worker {
 这段代码将会编译及运行，但不会产生所需的线程行为：慢速请求仍将导致别的请求等待被处理。至于原因则有点微妙：由于锁的所有权是基于 `lock` 方法返回的 `LockResult<MutexGuard<T>>` 中，`MutexGuard<T>` 的生命周期，因此这个 `Mutex` 结构体没有公开的 `unlock` 方法。在编译时，借用检查器可于随后，就除非咱们拿着 `Mutex` 所守卫的某项资源的锁，否则无法访问该项资源这一规则强制加以检查。但是，若咱们没有注意到 `MutexGuard<T>` 的生命周期，那么这样的实现同样能导致锁相较预期被占用更长时间。
 
 由于在 `let` 之下，等号右侧的表达式中用到的任何临时值，都会在 `let` 语句结束时被立即丢弃，因此使用了 `let job = receiver.lock().unwrap().recv().unwrap();` 的清单 20-20 中代码是工作的。但是，`while let`（以及 `if let` 与 `match`） 则是在相关代码块结束前，不会丢弃那些临时值。在清单 20-21 中，锁会在到 `job()` 的调用其将保持被持有，这意味着别的 `worker` 就没法收到作业。
+
+
+## 优雅有序关闭与清理
+
+**Graceful Shutdown and Cleanup**
+
+清单 20-20 中的代码，经由线程池而如咱们所设想的那样，异步响应请求。咱们会收到有关 `workers`、`id` 及 `thread` 这三个，咱们未以直接方式用到字段的一些告警，这些告警就提醒了咱们，咱们没有清理任何东西。当咱们使用不那么优雅的 `Ctrl + c` 方式，来挂起主线程时，全部其他线程也会被立即停止，即使他们处于服务某个请求中。
+
+接下来，咱们随后将实现 `Drop` 特质，以在线程池中各个线程上调用 `join`，如此这些线程便可以在关闭前，完成他们正工作于其上的请求。随后咱们将实现一种告知线程他们应停止接受新请求并关闭的方法。为观察这方面代码的运作，咱们将把咱们的服务器，修改为在有序关闭其线程池之前，只接受两个请求。
+
+
+### 实现 `ThreadPool` 上的 `Drop` 特质
+
+**Implementing the `Drop` Trait on `ThreadPool`**
+
+
+
