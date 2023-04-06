@@ -1011,7 +1011,7 @@ error: could not compile `hello` due to previous error
 
 ```rust
 use std::{
-    sync::{mpsc, Arc, Mutex}, 
+    sync::{mpsc, Arc, Mutex},
     thread,
 };
 // --跳过代码--
@@ -1081,6 +1081,32 @@ impl ThreadPool {
 // --跳过代码--
 ```
 
-*清单 20-19：为保存着各个闭包的 `Box` 创建出 `Job` 类型别名，并于随后把该项作业下发到通道*
+*清单 20-19：为保存着各个闭包的 `Box` 创建出 `Job` 类型别名，并于随后把作业下发到通道*
+
+使用咱们在 `execute` 中得到的闭包创建出一个新的 `Job` 实例后，咱们便把那项作业下发到通道的发送端。对于发送失败的情形，咱们调用了 `send` 上的 `unwrap` 方法。在比如咱们停止全部线程执行，即表示接收端已停止接收新消息时，发送失败就可能发生。在那个时刻，咱们是无法停止咱们的线程执行的：只要这个线程池存在，咱们的线程就会继续执行。咱们使用 `unwrap` 的原因，就是咱们清楚这样的失败情况不会发生，但编译器是不了解这点的。
+
+但咱们还没有大功告成！在 `worker` 里，传递给 `thread::spawn` 的闭包，仍然只 *引用* 了通道的接收端。相反，咱们需要闭包一直循环，向通道接收端请求一项作业，并在其获取到一项作业时运行该项作业。下面咱们就来完成下面清单 20-20 中所给出的对 `Worker::new` 的修改。
+
+文件名：`src/lib.rs`
+
+```rust
+// --跳过代码--
+
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+        let thread = thread::spawn(move || loop {
+            let job = receiver.lock().unwrap().recv().unwrap();
+
+            println! ("Worker {id} 获取到一项作业；执行中。");
+
+            job();
+        });
+
+        Worker { id, thread }
+    }
+}
+```
+
+*清单 20-20：在 `worker` 的线程中接收并执行作业*
 
 

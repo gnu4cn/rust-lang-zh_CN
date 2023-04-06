@@ -1,6 +1,6 @@
 #![allow(warnings)]
 use std::{
-    sync::{mpsc, Arc, Mutex}, 
+    sync::{mpsc, Arc, Mutex},
     thread,
 };
 
@@ -52,8 +52,12 @@ struct Worker {
 
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(|| {
-            receiver;
+        let thread = thread::spawn(move || loop {
+            let job = receiver.lock().unwrap().recv().unwrap();
+
+            println! ("Worker {id} 获取到一项作业；执行中。");
+
+            job();
         });
 
         Worker { id, thread }
