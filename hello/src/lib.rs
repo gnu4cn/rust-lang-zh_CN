@@ -33,7 +33,7 @@ impl ThreadPool {
 
         ThreadPool {
             workers,
-            sender: Some<sender>,
+            sender: Some(sender),
         }
     }
 
@@ -69,11 +69,19 @@ struct Worker {
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let job = receiver.lock().unwrap().recv().unwrap();
+            let message = receiver.lock().unwrap().recv();
 
-            println! ("Worker {id} 获取到一项作业；执行中。");
+            match message {
+                Ok(job) => {
+                    println! ("Worker {id} 获取到一项作业；执行中。");
 
-            job();
+                    job();
+                }
+                Err(_) => {
+                    println! ("Worker {id} 已断开链接；关闭中。");
+                    break;
+                }
+            }
         });
 
         Worker {
