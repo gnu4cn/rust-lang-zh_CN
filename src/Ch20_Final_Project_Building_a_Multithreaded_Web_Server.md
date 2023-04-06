@@ -1333,4 +1333,51 @@ impl Drop for ThreadPool {
 
 为修复这个问题，咱们将需要 `ThreadPool` 的 `drop` 实现中的一个修改，以及其后的 `Worker` 循环中的一个修改。
 
+首选，咱们将把 `ThreadPool` 的 `drop` 实现，修改为在等待线程结束前显式地丢弃 `sender`。下面清单 20-23 给出了对 `ThreadPool` 显示丢弃 `sender` 的修改。为能将 `send` 从 `ThreadPool` 迁出，咱们使用了与咱们曾对线程做过的同样 `Option` 于 `take` 技巧：
 
+文件名：`src/lib.rs`
+
+```rust
+pub struct ThreadPool {
+    workers: Vec<Worker>,
+    sender: Option<mpsc::Sender<Job>>,
+}
+// --跳过代码--
+impl ThreadPool {
+    pub fn new(size: usize) -> ThreadPool {
+        // --跳过代码--
+
+        ThreadPool {
+            workers,
+            sender: Some<sender>,
+        }
+    }
+
+    pub fn execute<F>(&self, f: F)
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        let job = Box::new(f);
+
+        self.sender.as_ref().unwrap().send(job).unwrap();
+    }
+}
+
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        drop(self.sender.take());
+
+        for worker in &mut self.workers {
+            println! ("关闭 worker {}", worker.id);
+
+            if let Some(thread) = worker.thread.take() {
+                thread.join().unwrap();
+            }
+        }
+    }
+}
+```
+
+*清单 20-23：在归拢那些 `worker` 线程前显式丢弃 `sender`*
+
+丢弃 `sender` 就会关闭通道，这表明将不会有其余消息发出。
