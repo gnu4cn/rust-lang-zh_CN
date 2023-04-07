@@ -199,4 +199,8 @@ fn main() {
 | `br"..."`, `br#"..."`, `br##"..."##` 等等 | 原始字节字符串字面值，是原始与字节字符串字面值的结合 |
 | `'...'` | 字符字面值 |
 | `b'...'` | ASCII 字节字面值 |
+| <code>&vert;...&vert; expr</code> | 闭包 |
+| `!` | 发散函数下总是空的底部类型，always empty bottom type for diverging functions |
+| `_` | “忽略，ignored” 模式绑定；还用于令到整数字面值可读，also used to make integer literals readable |
+
 
