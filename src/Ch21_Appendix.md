@@ -173,7 +173,7 @@ fn main() {
 | `@` | `ident @ pat` | 模式绑定 |  |
 | `^` | `var ^ expr` | 按位异或运算 | `BitXor` |
 | `^=` | `var ^= expr` | 按位异或运算并赋值 | `BitXorAssign` |
-| <code>|</code> | <code>pat | pat</code> | 模式选择，pattern alternatives |  |
+| `\|` | `pat \| pat` | 模式选择，pattern alternatives |  |
 | <code>|</code> | <code>expr | expr</code> | 按位或运算 | `BitOr` |
 | <code>|=</code> | <code>var |= expr</code> | 按位或运算并赋值 | `BitOrAssign` |
 | <code>||</code> | <code>expr || expr</code> | 短路逻辑或运算 |  |
@@ -190,7 +190,7 @@ fn main() {
 **表 B-2：独立语法，Stand-Alone Syntax**
 
 | 符号 | 说明 |
-| ：--- | ：--- |
+| :--- | :--- |
 | `'ident` | 命名的生命周期或循环标签 |
 | `...u8`, `...i32`, `...f64`, `...usize` 等等 | 指定类型的数字字面值 |
 | `"..."` | 字符串字面值 |
