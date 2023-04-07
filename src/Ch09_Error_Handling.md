@@ -36,7 +36,7 @@ fn main() {
 
 
 ```console
-$ cargo run                                                         
+$ cargo run
    Compiling error_handling_demo v0.1.0 (/home/lenny/rust-lang/error_handling_demo)
     Finished dev [unoptimized + debuginfo] target(s) in 0.40s
      Running `target/debug/error_handling_demo`
@@ -229,7 +229,7 @@ fn main() {
         Err(e) => match e.kind() {
             ErrorKind::NotFound => match File::create("hello.txt") {
                 Ok(fc) => fc,
-                Err(error) => panic! ("创建该文件时出现问题：{:?}", error), 
+                Err(error) => panic! ("创建该文件时出现问题：{:?}", error),
             },
             other_error => panic! ("打开文件出现问题：{:?}", other_error),
         },

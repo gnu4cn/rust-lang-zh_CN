@@ -173,10 +173,10 @@ fn main() {
 | `@` | `ident @ pat` | 模式绑定 |  |
 | `^` | `var ^ expr` | 按位异或运算 | `BitXor` |
 | `^=` | `var ^= expr` | 按位异或运算并赋值 | `BitXorAssign` |
-| `\|` | `pat | pat` | 模式选择，pattern alternatives |  |
-| `\|` | `expr | expr` | 按位或运算 | `BitOr` |
-| `\|=` | `var |= expr` | 按位或运算并赋值 | `BitOrAssign` |
-| `\|\|` | `expr || expr` | 短路逻辑或运算 |  |
+| <code>|</code> | <code>pat | pat</code> | 模式选择，pattern alternatives |  |
+| <code>|</code> | <code>expr | expr</code> | 按位或运算 | `BitOr` |
+| <code>|=</code> | <code>var |= expr</code> | 按位或运算并赋值 | `BitOrAssign` |
+| <code>||</code> | <code>expr || expr</code> | 短路逻辑或运算 |  |
 | `?` | `expr?` | 错误传递 |  |
 
 ### 非运算符的符号
