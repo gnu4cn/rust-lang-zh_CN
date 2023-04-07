@@ -145,7 +145,7 @@ fn main() {
 | `-` | `- expr` | 算术取反运算 | `Neg` |
 | `-` | `expr - expr` | 算术减法运算 | `Sub` |
 | `-=` | `var -= expr` | 算术减法运算并赋值 | `SubAssign` |
-| `->` | `fn(...) -> type`, `|...| -> type` | 函数与闭包的返回值类型 |  |
+| `->` | `fn(...) -> type`, <code>&vert;...&vert; -> type</code> | 函数与闭包的返回值类型 |  |
 | `.` | `expr.ident` | 成员访问 |  |
 | `..` | `..`, `expr..`, `..expr`, `expr..expr` | 排除右侧的范围语法字面值 | `PartialOrd` |
 | `..=` | `..=expr`, `expr..=expr` | 包含右侧范围语法字面值 | `PartialOrd` |
@@ -173,10 +173,10 @@ fn main() {
 | `@` | `ident @ pat` | 模式绑定 |  |
 | `^` | `var ^ expr` | 按位异或运算 | `BitXor` |
 | `^=` | `var ^= expr` | 按位异或运算并赋值 | `BitXorAssign` |
-| `︱` | `pat︱pat` | 模式选择，pattern alternatives |  |
-| `︱` | `expr︱expr` | 按位或运算 | `BitOr` |
-| `︱=` | `var ︱= expr` | 按位或运算并赋值 | `BitOrAssign` |
-| `︱︱` | `expr︱︱expr` | 短路逻辑或运算 |  |
+| <code>&vert;</code> | <code>pat &vert; pat</code> | 模式选择，pattern alternatives | |
+| <code>&vert;</code> | <code>expr &vert; expr</code> | 按位或（OR）运算 | `BitOr` |
+| <code>&vert;=</code> | <code>var &vert;= expr</code> | 按位或（OR）运算并赋值 | `BitOrAssign` |
+| <code>&vert;&vert;</code> | <code>expr &vert;&vert; expr</code> | 短路逻辑或运算，Short-circuiting logical OR | |
 | `?` | `expr?` | 错误传递 |  |
 
 ### 非运算符的符号
