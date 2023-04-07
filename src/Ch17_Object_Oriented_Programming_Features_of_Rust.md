@@ -340,7 +340,7 @@ error: could not compile `simple_gui` due to previous error
 此报错让咱们明白，要么咱们传递给 `Screen` 了某个不是咱们想要传递的东西，那么就应传递另一个类型，要么咱们应在 `String` 上实现 `Draw`，从而 `Screen` 便可以调用其上的 `draw` 方法。
 
 
-### 特质对象执行动态调遣
+### <a id="trait-object-perform-dynamic-dispatch"></a>特质对象执行动态调遣
 
 **Trait Object Perform Dynamic Dispatch**
 

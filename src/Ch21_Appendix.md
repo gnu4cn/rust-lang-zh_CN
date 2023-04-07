@@ -14,3 +14,61 @@
 
 - `as` - 执行原生强制转换，primitive casting，消除包含着某个项目的特定特质歧义，disambiguate the specific trait containing a item，或重命名 `use` 语句中的项目；
 - `async` - 返回一个 `Future` 类型值，而非阻塞当前线程；
+- `await` - 在某个 `Future` 值的结果准备好前，暂停程序执行;
+- `break` - 立即退出某个循环；
+- `const` - 定义出常量项目或常量原始指针；
+- `continue` - 继续下一循环迭代；
+- `crate` - 在模组路径中，指向代码箱根;
+- `dyn` - 动态调遣到某个特质对象，参考 [特质对象执行动态调遣](Ch17_Object_Oriented_Programming_Features_of_Rust.md#trait-object-perform-dynamic-dispatch);
+- `else` - `if` 的回退，及 `if let` 控制流的构件；
+- `extern` - 链接外部函数或变量；
+- `false` - 布尔值假的字面值；
+- `fn` - 定义出某个函数或函数指针类型；
+- `for` - 对某个迭代器的项目加以迭代、实现某个特质，或指明某个更高级别的生命周期，a higher-ranked lifetime;
+- `if` - 基于某个条件表达式结果的分支；
+- `impl` - 实现固有或特质功能，implement inherent or trait functionality;
+- `in` - `for` 循环语法的一部分；
+- `let` - 绑定某个变量；
+- `loop` - 无条件地循环；
+- `match` - 将某个值与模式匹配；
+- `mod` - 定义出模组；
+- `move` - 领导闭包取得其所有捕获值的所有权；
+- `mut` - 注解出引用、原始指针或模式绑定等中的可变性；
+- `pub` - 注解出结构体、`impl` 代码块或模组等中的公开可见性；
+- `ref` - 按引用绑定；
+- `return` - 自函数返回值；
+- `Self` - 咱们正定义或实现中类型的类型别名；
+- `self` - 方法主体，method subject，或当前模组；
+- `static` - 在整个程序执行过程持续有效的全局变量或生命周期；
+- `struct` - 定义出某个结构体；
+- `super` - 当前模组的父模组；
+- `trait` - 定义出某个特质；
+- `true` - 布尔值真的字面值；
+- `type` - 定义出某个类型别名或关联类型；
+- `union` - 定义出某个 [联合体](https://doc.rust-lang.org/reference/items/unions.html)，是在联合体声明时用到的唯一关键字;
+- `unsafe` - 注解非安全代码、函数、特质或一些实现；
+- `use` - 将符号带入到作用域;
+- `where` - 注解约束某个类型的子句；
+- `while` - 基于某个表达式结果而有条件的循环。
+
+### 为今后使用保留的关键字
+
+以下关键字尚无任何功能，但被 Rust 为今后的潜在使用而保留。
+
+- `abstract`
+- `become`
+- `box`
+- `do`
+- `final`
+- `macro`
+- `override`
+- `priv`
+- `try`
+- `typeof`
+- `unsized`
+- `virtual`
+- `yield`
+
+### <a id="raw-pointers"></a>原始标识符
+
+
