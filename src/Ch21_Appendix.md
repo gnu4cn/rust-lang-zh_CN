@@ -69,6 +69,44 @@
 - `virtual`
 - `yield`
 
-### <a id="raw-pointers"></a>原始标识符
+### <a id="raw-identifiers"></a>原始标识符
+
+*原始标识符，raw identifiers* 属于允许实现使用一般不被允许关键字的语法。是通过在关键字前加上前缀 `r#`，使用原始标识符的。
+
+比如，`match` 是个关键字。在咱们尝试编译下面这个使用 `match` 作其名字的函数时：
+
+文件名：`src/main.rs`
+
+```rust
+fn match(needle: &str, haystack: &str) -> bool {
+    haystack.contains(needle)
+}
+```
+
+咱们将得到这样的报错：
+
+```console
+error: expected identifier, found keyword `match`
+ --> src/main.rs:1:4
+  |
+1 | fn match(needle: &str, haystack: &str) -> bool {
+  |    ^^^^^ expected identifier, found keyword
+```
+
+该报错显示咱们无法将关键字 `match` 用作函数标识符。要将 `match` 用作函数名字，咱们就需要使用原始标识符语法，像下面这样：
+
+文件名：`src/main.rs`
+
+```rust
+fn r#match(needle: &str, haystack: &str) -> bool {
+    haystack.contains(needle)
+}
+
+fn main() {
+    assert! (r#match("foo", "foobar"));
+}
+```
+
+此代码将不带任何错误地编译。请注意那个函数的定义中，与 `main` 中该函数被调用处其名字上的 `r#` 前缀。
 
 
