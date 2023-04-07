@@ -1,4 +1,4 @@
 book
 target
 Cargo.lock
-./*.html
+/index.html
