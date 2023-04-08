@@ -247,4 +247,17 @@ fn main() {
 | `T: ?Sized` | 允许泛型参数为动态大小类型 |
 | `'a + trait`, `trait + trait` | 复合的类型约束 |
 
+下表 B-6 展示了出现在宏调用或定义上下文中，并指明了某个项目上属性的一些符号。
+
+**<small>B-6：宏与属性</small>**
+
+| 符号 | 说明 |
+| :--- | :--- |
+| `#[meta]` | 外层属性 |
+| `#![meta]` | 内层熟悉 |
+| `$ident` | 宏代换，macro substitution |
+| `$ident:kind` | 宏捕获 |
+| `$(...) ...` | 宏重复，macro repetition |
+| `ident! (...)`, `ident! {...}`, `ident! [...]` | 宏调用，macro invocation |
+
 
