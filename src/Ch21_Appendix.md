@@ -222,3 +222,29 @@ fn main() {
 表 B-4 展示了出现在运用泛型参数上下文中的一些符号。
 
 **<small>表 B-4：泛型</small>**
+
+| 符号 | 说明 |
+| ：--- | ：--- |
+| `path<...>` | 指明类型中的泛型参数（比如，`Vec<u8>`） |
+| `path::<...>`, `method::<...>` | 指明表达式中泛型、函数或方法的参数；通常这被称作涡轮鱼语法，turbofish（比如，`"42".parse::<i32>()`，关于 Rust 的 turbofish 语法，请参考：[What is Rust's turbofish](https://techblog.tonsser.com/posts/what-is-rusts-turbofish)），[RUST 中的 turbofish 语法（一）](https://www.jianshu.com/p/9107685ece03) ... |
+| `fn ident<...> ...` | 定义出泛型函数 |
+| `struct ident<...> ...` | 定义出泛型结构体 |
+| `enum ident<...> ...` | 定义出泛型枚举 |
+| `impl<...> ...` | 定义出泛型实现 |
+| `for<...> type` | 高阶声明周期边界，higher-ranked lifetime bounds |
+| `type<ident=type>` | 其中一个或更多的关联类型有着指定赋值的某种泛型（a generic type where one or more associated types have specific assignments，比如，`Iterator<Item=T>`）
+
+下表 B-5 展示了出现在使用特质边界的约束性泛型参数上下文中的一些符号，table B-5 shows symbols that appear in the context of constraining generic type parameters with trait bounds。
+
+**<small>B-5：特质边界约束，Trait Bound Constrains</small>**
+
+| 符号 | 说明 |
+| :--- | :--- |
+| `T: U` | 泛型参数 `T` 受实现了 `U` 的类型约束 |
+| `T: 'a` | 泛型 `T` 必须要比生命周期 `'a` 活得更久，generic type `T` must outlive lifetime `'a`（意思是该类型不能间接地包含任何生命周期短于 `'a` 的引用） |
+| `T: 'static` | 泛型 `T` 不包含除 `'static` 的引用外的其他引用 |
+| `'b: 'a` | 泛型生命周期 `'b` 必须要比 `'a` 存活得更久 |
+| `T: ?Sized` | 允许泛型参数为动态大小类型 |
+| `'a + trait`, `trait + trait` | 复合的类型约束 |
+
+
