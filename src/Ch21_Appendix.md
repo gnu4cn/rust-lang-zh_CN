@@ -310,4 +310,8 @@ fn main() {
 | `expr[..]`, `expr[a..]`, `expr[..b]`, `expr[a..b]` | 用到了 `Range`、`RangeFrom`、`RangeTo` 或 `RangeFull` 作为 “索引”的，带有集合切片集合索引，collection indexing pretending to be collection slicing, using `Range`, `RangeFrom`, `RangeTo`, or `RangeFull` as the "index" |
 
 
+## 附录 C：派生特质
 
+**Appendix C: Derivable Traits**
+
+本书的多个不同地方，咱们都曾讨论过 `derive` 属性，咱们可将其应用到结构体或枚举定义。
