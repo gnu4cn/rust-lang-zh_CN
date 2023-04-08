@@ -7,7 +7,7 @@
 - Rust 的包管理器和构建系统 Cargo 的使用。
 
 
-## <a id="installation"></a>安装
+## <a id="installation"></a> 安装
 
 第一步即是安装 Rust。这里将通过 `rustup` 这个用于管理 Rust 版本及相关工具的命令行工具，来下载 Rust。要下载 Rust，就需要互联网连接。
 
@@ -64,7 +64,7 @@ $ rustup update
 $ rustup self uninstall
 ```
 
-## <a id="troubleshooting"></a>故障排除
+## <a id="troubleshooting"></a> 故障排除
 
 要检查当前是否安装了 Rust, 请开启一个 `shell` 并敲入这行命令：
 
@@ -116,7 +116,7 @@ $ cd hello_world
 > cd hello_world
 ```
 
-### <a id="writing-and-running-a-rust-program"></a>编写及运行 Rust 程序
+### <a id="writing-and-running-a-rust-program"></a> 编写及运行 Rust 程序
 
 接下来，就要构造一个源代码文件，并命名为 `main.rs`。Rust 文件总是以 `.rs` 扩展名结束。若要在文件名中是一多个单词，那么请使用下划线来将这些单词隔开。比如，请使用 `hello_world.rs` 而不是 `helloworld.rs`。
 

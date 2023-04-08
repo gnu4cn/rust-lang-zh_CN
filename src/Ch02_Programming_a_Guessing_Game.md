@@ -108,7 +108,7 @@ fn main() {
 
 这段代码在打印提示消息，表明该游戏是什么及正在请求用户输入。
 
-## <a id="storing-values-with-variables"></a>使用变量保存那些值
+## <a id="storing-values-with-variables"></a> 使用变量保存那些值
 
 接下来，就要创建一个 *变量（variable）* 来存储用户输入，像下面这样：
 
@@ -152,7 +152,7 @@ let mut bananas = 5; // 可变（mutable）
 
 其中的 `&` 表明该参数是个 *引用（reference）*，而引用则是一种无需将数据多次拷贝到内存中的情况下，就可以实现代码多个部分对该数据进行读写的特性（注：在 C 家族语言中，`&`表示内存地址，因此 Rust 中的引用，与指针有类似之处）。引用是一项复杂特性，同时 Rust 的主要优点之一，就是安全而便利地运用引用的方式。对于完成这个猜数游戏，是不必对这些细节有过多了解的。现在要明白的是，与变量类似，引用默认也是不可变的。因此，这里就要写上 `&mut guess` 而不是 `&guess`，来令到这个到 `guess` 的引用为可变的。（第 4 章将更详细地对引用进行解释。）
 
-## <a id="handling-potential-failure-with-the-result-type"></a>处理潜在的带有 `Result` 的程序失效
+## <a id="handling-potential-failure-with-the-result-type"></a> 处理潜在的带有 `Result` 的程序失效
 
 **Handle Potential Failure with the `Result` Type**
 
@@ -240,7 +240,7 @@ $ cargo run                ✔
 此刻，这游戏的第一部分就算完成了：这里正从键盘获取到输入，并随后将输入打印出来。
 
 
-## <a id="generating-a-random-number"></a>生成秘密数字
+## <a id="generating-a-random-number"></a> 生成秘密数字
 
 接下来，就需要生成一个用户将要试着去猜的秘密数字了。生成的秘密数字应每次都不相同，这样这游戏在多次玩的时候才有趣。为了不让这个游戏太难，这里要用一个 `1` 到 `100` 之间的随机数。Rust 在其标准库中尚未包含随机数功能。不过 Rust 团队还真的提供了一个 [`rand` 代码箱](https://crates.io/crates/rand)，这里就姑且把这样的代码箱，称之为功能吧。
 
@@ -426,7 +426,7 @@ $ cargo run                                                           ✔ 
 
 就会得到不同的随机数字，并且他们都应是 `1` 到 `100` 之间的数字。非常棒！
 
-## <a id="comparing-the-guess-to-the-secret-number"></a>将猜数与秘数相比较
+## <a id="comparing-the-guess-to-the-secret-number"></a> 将猜数与秘数相比较
 
 既然有了用户输入和随机数，就可以加以比较了。比较的步骤在下面的清单 2-4 中给出了。请注意这个代码还不会编译，原因后面会解释。
 
@@ -599,7 +599,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 敲入 `quit` 就会退出这游戏，不过正如所注意到的，这样做将就要敲入别的非数字输入。至少可以是这种做法是次优的；这里想要在猜到了正确数字时，游戏也要停止。
 
-## <a id="quitting-after-a-correct-guess"></a>猜对后的退出
+## <a id="quitting-after-a-correct-guess"></a> 猜对后的退出
 
 下面就来通过添加一条 `break` 语句，将游戏编程为在用户赢了时退出：
 

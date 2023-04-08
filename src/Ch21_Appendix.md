@@ -260,4 +260,54 @@ fn main() {
 | `$(...) ...` | 宏重复，macro repetition |
 | `ident! (...)`, `ident! {...}`, `ident! [...]` | 宏调用，macro invocation |
 
+下表 B-7 展示了创建注释的一些符号。
+
+**<small>表 B-7：注释</small>**
+
+| 符号 | 说明 |
+| :--- | :--- |
+| `//` | 注释行 |
+| `//!` | 内层行文档注释，inner line doc comment |
+| `///` | 外层行文档注释，outter line doc comment |
+| `/*...*/` | 注释块 |
+| `/*!...*/` | 内层块文档注释，inner block doc comment |
+| `/**...*/` | 外层块文档注释，outter block doc comment |
+
+下表 B-8 展示了出现于用到元组上下文中的一些符号。
+
+**<small>元组</small>**
+
+| 符号 | 说明 |
+| :--- | :--- |
+| `()` | 空元组（又叫单元值），同时属于字面值与类型 |
+| `(expr)` | 元括号括起来的表达式，parenthesized expression |
+| `(expr,)` | 单一元素的元组表达式 |
+| `(type,)` | 单一元素的元组类型，single-element tuple type |
+| `(expr, ...)` | 元组表达式 |
+| `(type, ...)` | 元组类型，tuple type |
+| `expr(expr, ...)` | 函数调用表达式；还用于初始化一些元组的 `struct` 以及元组的 `enum` 变种，function call expression; also used to initialize tuple `struct`s and tuple `enum` vairants |
+| `expr.0`, `expr.1` 等等 | 对元组进行索引 |
+
+下表 B-9 展示了其中用到花括号上下文中的一些符号。
+
+**<small>表 B-9：花括号</small>**
+
+| 符号 | 说明 |
+| :--- | :--- |
+| `{...}` | 代码块表达式 |
+| `Type {...}` | `struct` 的字面值 |
+
+下表 B-10 展示了其中用到方括号上下文中的一些符号。
+
+**<small>表 B-10：方括号</small>**
+
+| 符号 | 说明 |
+| :--- | :--- |
+| `[...]` | 数组的字面值 |
+| `[expr; len]` | 包含着 `expr` 的 `len` 拷贝数组的字面值 |
+| `[type; len]` | 包含着 `len` 个 `type` 的实例数组的字面值 |
+| `expr[expr]` | 对集合进行索引，collection indexing。是可过载的 `(Index, IndexMut)`，overloadable `(Index, IndexMut)` |
+| `expr[..]`, `expr[a..]`, `expr[..b]`, `expr[a..b]` | 用到了 `Range`、`RangeFrom`、`RangeTo` 或 `RangeFull` 作为 “索引”的，带有集合切片集合索引，collection indexing pretending to be collection slicing, using `Range`, `RangeFrom`, `RangeTo`, or `RangeFull` as the "index" |
+
+
 

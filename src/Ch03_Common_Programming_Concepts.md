@@ -183,7 +183,7 @@ error: could not compile `variables` due to previous error
 现在已经完成变量运行机制的探讨，接卸来就要看看这些变量可以有的那些其余数据类型了。
 
 
-## <a id="data-types"></a>数据类型
+## <a id="data-types"></a> 数据类型
 
 Rust 的所有值，都属于某种确切的 *数据类型（data type）*，数据类型告诉 Rust 所指定的是何种数据，进而 Rust 才知道该怎样使用那个数据。接下来会看看两个数据类型的子集：标量（scalar）类型与复合（compound）类型。
 
@@ -219,7 +219,7 @@ fn main() {
 
 *标量* 类型，表示单个值。Rust 有着四个主要的标量类型：整数、浮点数、布尔值与字符。这些类型，其他语言也有。下面就深入看看他们在 Rust 中是怎样工作的。
 
-### <a id="integer-types"></a>整形（Integer Types）
+### <a id="integer-types"></a> 整形（Integer Types）
 
 *整数* 是不带小数部分的数。在第 2 章中就已用到一种整数类型，即 `u32` 类型。这种类型声明表示变量关联的值，应是个无符号的、占据 32 个二进制位空间的整数（有符号整数以 `i` 而不是 `u` 开头）。下面的表 3-1 给出了 Rust 中内建的那些整数类型。可使用这些变种中的任何一个，取声明出某个整数值的类型。
 
@@ -363,7 +363,7 @@ fn main() {
 
 *复合类型（compound types）* 可将多个值组合成一个类型。Rust 有着两个原生的复合类型：元组与数组（tuples and arrays）。
 
-### <a id="the-tuple-type"></a>元组类型
+### <a id="the-tuple-type"></a> 元组类型
 
 元组是将数个不同类型的值，组合成一个复合类型的一般方式。元组是固定长度的：一旦被声明出来，他们的大小就无法扩大或缩小了。
 
@@ -1170,7 +1170,7 @@ fn main() {
 此代码结构，消除了使用 `loop`、`if`、`else`、及 `break` 实现同样结构时，很多不可缺少的嵌套，且此结构更为清晰。在条件保持为真期间，代码就会运行；否则，他将退出循环。
 
 
-### <a id="looping-through-a-collection-with-for"></a>使用 `for` 对集合进行遍历
+### <a id="looping-through-a-collection-with-for"></a> 使用 `for` 对集合进行遍历
 
 可选择使用 `while` 结构，来对集合，诸如数组，的那些元素进行循环。作为示例，下面清单 3-4 中的循环，将打印出数组 `a` 中的各个元素。
 
