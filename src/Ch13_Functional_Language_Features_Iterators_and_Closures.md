@@ -184,7 +184,7 @@ error: could not compile `closure-example` due to previous error
 这里第一次是以 `String` 值调用的 `example_closure`，编译器便推断出了该闭包 `x` 与返回值的类型为 `String`。这些类型随后便被锁定于 `example_closure` 中的那个闭包里了，而在接下来尝试以不同类型，使用这同样的闭包时，就得到了一个类型错误。
 
 
-### <a id="capturing-reference-or-moving-ownership"></a>捕获引用抑或迁移所有权
+### 捕获引用抑或迁移所有权
 
 **Capturing Reference or Moving Ownership**
 
@@ -281,7 +281,7 @@ fn main() {
 这里生成了一个新线程，将一个闭包作为参数给到这个线程来运行（we spawn a new thread, giving the thread a closure to run as an argument）。其中闭包的函数体，打印出这个清单。在代码清单 13-4 中，由于不可变引用是打印那里清单所需的最少量权限，因此那里的闭包只使用了不可变引用对 `list` 加以了捕获。而在这个示例中，即使其中的闭包函数体只需要不可变引用，这里仍需要通过把那个 `move` 关键字放置于闭包定义的开头，指明那个 `list` 应被迁移到该闭包中。这个新线程可能在主线程其余部分执行完毕之前就执行结束，或主线程可能先结束。若主线程仍保有 `list` 的所有权，而在新线程结束之前就结束，而丢弃掉 `list`，那么在那个线程中的 `list` 就会成为无效。因此，编译器就要求其中的 `list` ，被迁移到那个给到新线程的闭包中，如此那个引用就将有效。请尝试去掉这个 `move` 关键字，或在那个闭包被之后使用 `list`，来看看会得到什么编译器错误！
 
 
-### <a id="moving-captured-values-out-of-closures-and-the-Fn-traits"></a>将捕获到的值迁移出闭包与 `Fn` 特质
+### 将捕获到的值迁移出闭包与 `Fn` 特质
 
 **Moving Captured Values Out of Closures and the `Fn` Traits**
 

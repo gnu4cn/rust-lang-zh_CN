@@ -25,7 +25,7 @@ Erich Gamma、Richard Helm、Ralph Johnson 及 John Vlissides 等的合著 *Desi
 运用这个定义，Rust 便是面向对象的：结构体与枚举均有着数据，而 `impl` 块则提供了结构体与枚举上的那些方法。即使有着方法的那些结构体与枚举未*被称作* 对象，根据 The Gang of Four 的对象定义，他们提供了同样的功能。
 
 
-### <a id="encapsulation-that-hides-implementation-details"></a>隐藏了实现细节的封装
+### 隐藏了实现细节的封装
 
 **Encapsulation that Hides Implementation Details**
 
@@ -115,7 +115,7 @@ impl AveragedCollection {
 由于这些原因，Rust 便采取了运用特质对象，而非继承的方法。接下来就要看看特质对象是如何实现 Rust 中的多态。
 
 
-## <a id="using-trait-objects-that-allow-for-values-of-different-types"></a>使用允许不同类型值的特质对象
+## 使用允许不同类型值的特质对象
 
 **Using Trait Objects That Allow for Values of Different Types**
 
@@ -135,7 +135,7 @@ impl AveragedCollection {
 **Defining a Trait for Common Behavior**
 
 
-为了实现咱们想要 `gui` 所拥有的行为，咱们将定义将有着一个名为 `draw` 方法的名为 `Draw` 特质。随后咱们就可以定义取 *特质对象，a trait object* 的一个矢量。特质对象会同时指向实现了这个指定特质的某个类型，以及用于在运行时查找那个类型上特质方法的一张表。咱们是通过指定某种指针，比如某个 `&` 的引用，或某个 `Box<T>` 的灵巧指针，接着便是 `dyn` 关键字，以及随后指明相关特质，创建出特质对象。（在第 19 章的 [“动态大小类型与 `Sized` 特质”](Ch19_Advanced_Features.md#dynamically-sized-types-and-the-sized-trait) 小节咱们将讲到特质对象必须使用指针的原因。）在泛型或具体类型处，咱们就可以使用特质对象。而不论在何处使用特质对象，Rust 的类型系统都会确保在编译时，在那样的上下文中的任何值，都将实现该特质对象的特质。于是，咱们就无需掌握编译时的所有可能类型了。
+为了实现咱们想要 `gui` 所拥有的行为，咱们将定义将有着一个名为 `draw` 方法的名为 `Draw` 特质。随后咱们就可以定义取 *特质对象，a trait object* 的一个矢量。特质对象会同时指向实现了这个指定特质的某个类型，以及用于在运行时查找那个类型上特质方法的一张表。咱们是通过指定某种指针，比如某个 `&` 的引用，或某个 `Box<T>` 的灵巧指针，接着便是 `dyn` 关键字，以及随后指明相关特质，创建出特质对象。（在第 19 章的 [“动态大小类型与 `Sized` 特质”](Ch19_Advanced_Features.md#动态大小的类型与-sized-特质) 小节咱们将讲到特质对象必须使用指针的原因。）在泛型或具体类型处，咱们就可以使用特质对象。而不论在何处使用特质对象，Rust 的类型系统都会确保在编译时，在那样的上下文中的任何值，都将实现该特质对象的特质。于是，咱们就无需掌握编译时的所有可能类型了。
 
 
 咱们已经提到过，在 Rust 中，咱们避免将结构体与枚举称为 “对象”，是为了将二者与其他语言中的对象区别开来。在结构体或枚举中，结构体字段中的数据，与 `impl` 代码块中的行为是分开的，而在其他语言中，数据与行为被结合为通常被标称为对象的这么一个概念。然而，特质对象由于其结合了数据与行为，而 *真的* 更像其他语言中的对象。但从无法添加数据到特质对象上看，特质对象是不同于传统的对象的。特质对象并不如其他语言中的对象那样普遍的有用：其特定用途为实现共用行为的抽象。
@@ -340,11 +340,11 @@ error: could not compile `simple_gui` due to previous error
 此报错让咱们明白，要么咱们传递给 `Screen` 了某个不是咱们想要传递的东西，那么就应传递另一个类型，要么咱们应在 `String` 上实现 `Draw`，从而 `Screen` 便可以调用其上的 `draw` 方法。
 
 
-### <a id="trait-object-perform-dynamic-dispatch"></a>特质对象执行动态调遣
+### 特质对象执行动态调遣
 
 **Trait Object Perform Dynamic Dispatch**
 
-回顾第 10 章中 [“运用了泛型的代码性能问题”](Ch10_Generic_Types_Traits_and_Lifetimes.md#performance-of-code-using-generics) 小节中，在泛型之上运用特质边界时，咱们关于由编译器所完成的单一化过程，the monomorphization process 的讨论：编译器会为咱们在泛型参数处，用到的各个具体类型，而产生出非通用的函数及方法实现。单一化过程所产生的代码，便是在进行 *静态调遣，static dispatch*，这是编译器清楚，咱们在编译时调用的为哪个方法时的情况。这与 *动态调遣，dynamic dispatch* 是相反的，动态调遣是编译器在编译时，无法区分出咱们所调用的为何方法时的情况。在动态调遣情况下，编译器产生出将在运行时，得出要调用方法的代码。
+回顾第 10 章中 [“运用了泛型的代码性能问题”](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题) 小节中，在泛型之上运用特质边界时，咱们关于由编译器所完成的单一化过程，the monomorphization process 的讨论：编译器会为咱们在泛型参数处，用到的各个具体类型，而产生出非通用的函数及方法实现。单一化过程所产生的代码，便是在进行 *静态调遣，static dispatch*，这是编译器清楚，咱们在编译时调用的为哪个方法时的情况。这与 *动态调遣，dynamic dispatch* 是相反的，动态调遣是编译器在编译时，无法区分出咱们所调用的为何方法时的情况。在动态调遣情况下，编译器产生出将在运行时，得出要调用方法的代码。
 
 在咱们运用特质对象时，Rust 就必须使用动态调遣。对于全部可能与用到特质对象代码一起使用的类型，编译器并无掌握，因此他就不明白要调用何种类型上的哪个方法。相反，在运行时，Rust 会使用特质对象内部的指针，来掌握要调用哪个方法。这种做法会导致静态调遣下所不会发生的运行时开销。动态调遣还会阻止编译器内联某个方法代码的抉择，这就相应地阻止了一些优化。然而，咱们却真切地获得了，如同咱们在清单 17-5 中所编写的代码那样的灵活性，同时才能够支持清单 17-9 中那样的情况，如此其便是一种需要考量的取舍了。when we use trait objects, Rust must use dynamic dispatch. The compiler doesn't know all the types that might be used with the code that's using trait objects, so it doesn't know which method implemented on which type to call. Instead, at runtime, Rust uses the pointers inside the trait object to know which method to call. This lookup incurs a runtime cost that doesn't occur with static dispatch. Dynamic dispatch also prevents the compiler from choosing to inline a method's code, which in turn prevents some optimizations. However, we did get extra flexibility in the code that we wrote in Listing 17-5 and were able to support in Listing 17-9, so it's a trade-off to consider.
 
@@ -632,7 +632,7 @@ impl Post {
 
 由于咱们要的是到 `Option<T>` 内部值的一个引用，而非该值的所有权，因此咱们调用了 `Option<T>` 上的 `as_ref` 方法。由于 `state` 是个 `Option<Box<dyn State>>`，在咱们调用 `as_ref` 时，就会返回一个 `Option<&Box<dyn State>>`。而若咱们没有调用 `as_ref`，那么由于咱们无法无法把 `state` 迁移出那个借用的函数参数 `&self`，而将得到一个报错。
 
-咱们随后调用了 `unwrap` 方法（标准库 `Option<T>` 类型上的），由于咱们清楚，`Post` 上的那些方法，会确保 `state` 将在这些方法完成时，始终包含某个 `Some` 值，因此咱们就明白，这个`unwrap` 是绝不会终止运行的。这便是第 9 章 [咱们相比与编译器掌握着更多信息的情形](Ch09_Error_Handling.md#cases-in-which-you-have-more-information-than-the-compiler) 小节所讲到的情形之一：即咱们明白某个 `Option<T>` 不可能是个 `None` 值，尽管编译器无法掌握这一点。
+咱们随后调用了 `unwrap` 方法（标准库 `Option<T>` 类型上的），由于咱们清楚，`Post` 上的那些方法，会确保 `state` 将在这些方法完成时，始终包含某个 `Some` 值，因此咱们就明白，这个`unwrap` 是绝不会终止运行的。这便是第 9 章 [相比与编译器咱们掌握着更多信息的情形](Ch09_Error_Handling.md#相比于编译器代码编写者掌握了更多信息的情形) 小节所讲到的情形之一：即咱们明白某个 `Option<T>` 不可能是个 `None` 值，尽管编译器无法掌握这一点。
 
 到 `unwrap` 方法这里，当咱们在 `&Box<dyn State>` 上调用 `content` 方法时，强制解引用转换，deref coercion 就会在那个 `&` 及 `Box` 上发挥作用，从而 `content` 方法就将在实现了 `State` 特质的类型上，最终被调用到。而那就意味着咱们需要把 `content` 添加到 `State` 特质的定义，而那正是咱们把根据咱们所有的状态，返回什么样的内容，这种逻辑要放入的地方，如下清单 17-18 中所示：
 
@@ -725,7 +725,7 @@ error: could not compile `simple_blog` due to previous error
 
 至于另一个缺点，便是咱们重复了一些逻辑。为消除一些重复，咱们就可能会尝试构造 `State` 特质上，返回 `self` 的 `request_review` 于 `approve` 两个方法的默认实现；然而，由于该特质不清楚那个具体的 `self` 将为何物，因此这会违反对象安全性，violate object safety。咱们希望能够将 `State` 作为特质对象使用，因此咱们就需要他的那些方法是对象安全的。
 
-其他代码重复包括了 `Post` 上 `request_review` 与 `approve` 两个方法的一些相似实现。这两个方法都委托给了那个 `Option` 的 `state` 字段中值上的同一方法，并将 `state` 字段的值，设置到方法的结果。若咱们在 `Post` 上有着大量的遵循这种模式的方法，咱们就会考虑定义出一个宏，defining a macro，来消除这种重复（请参阅第 19 章中 ["宏，Macros"](Ch19_Advanced_Features.md#macros) 小节）。
+其他代码重复包括了 `Post` 上 `request_review` 与 `approve` 两个方法的一些相似实现。这两个方法都委托给了那个 `Option` 的 `state` 字段中值上的同一方法，并将 `state` 字段的值，设置到方法的结果。若咱们在 `Post` 上有着大量的遵循这种模式的方法，咱们就会考虑定义出一个宏，defining a macro，来消除这种重复（请参阅第 19 章中 ["宏，Macros"](Ch19_Advanced_Features.md#关于宏) 小节）。
 
 经由这种完全按照面向对象模式下所定义的状态模式，来实现这种模式，咱们就没有利用上原本所能利用的 Rust 的全部优势。下面就来看看，咱们可对那个 `simple_blog` 能做出的，可将无效状态与无效状态转换，构造为编译时错误的一些改变。
 

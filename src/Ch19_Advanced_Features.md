@@ -455,7 +455,7 @@ fn main() {}
 运用 `unsafe` 来采取上述五种做法（超能力）没有什么过错，或者不受欢迎。但由于编译器无法助力于保持内存安全，因此要让 `unsafe` 代码正确就更为棘手一些。在有使用 `unsafe` 代码的某种理由时，就可以这样做，而在问题出现时，显式的 `unsafe` 注解，就会令到排查问题原因更为容易。
 
 
-## <a id="advanced-traits"></a>高级特质
+## 高级特质
 
 在第 10 章 [“特质：定义共用行为”](Ch10_Generic_Types_Traits_and_Lifetimes.md#trait-defining-shared-behavior) 小节中，咱们曾首先涉及到特质，但咱们不曾讨论更为高级的那些细节。现在咱们对 Rust 有了更多了解，咱们就可以深入本质，get into the nitty-gritty。
 
@@ -892,7 +892,7 @@ impl fmt::Display for Point {
 随后在 `Point` 上实现 `OutlinePrint` 就将成功编译，而咱们就可以在 `Point` 实例上调用 `outline_print` 来将其实现在星号轮廓里了。
 
 
-### <a id="using-the-newtype-pattern-to-implement-external-traits-on-external-types"></a>使用新型模式在外层类型上实现外层的特质
+### 使用新型模式在外层类型上实现外层的特质
 
 **Using the Newtype Pattern to Implement External Traits on External Types**
 
@@ -951,7 +951,7 @@ Rust 的类型系统有着一些到目前为止咱们曾提到过但尚未讨论
 新类型还可以隐藏内部实现。比如，咱们可提供一个 `People` 类型，来封装一个存储着某人与其名字关联的 ID 的 `HashMap<i32, String>`。使用 `People` 的代码，只需与咱们提供的公开 API，比如某个将名字字符串添加到 `People` 集合的方法交互；那些代码将不需要知悉咱们在内部分配了`i32` 的 ID 给那些名字。新型模式是达成，咱们曾在第 17 章讨论过的 [“隐藏实现细节的封装”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#encapsulation-that-hides-implementation-details") 的一种轻量方式。
 
 
-### <a id="creating-type-synonyms-with-type-aliases"></a>使用类型别名创建类型同义词
+### 使用类型别名创建类型同义词
 
 **Creating Type Synonyms with Type Aliases**
 
@@ -1341,7 +1341,7 @@ fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
 宏与函数的另一重要区别，便是咱们必须于某个文件中调用宏 *之前*，定义好他们或将他们带入到作用域中，这一点与可在任何地方定义并在任何地方调用的函数相反。
 
 
-### <a id="declarative-macros-with-macro_rules-for-general-metaprogramming"></a>用于通用元编程的带有 `macro_rules!` 的声明式宏
+### 用于通用元编程的带有 `macro_rules!` 的声明式宏
 
 
 **Declarative Macros with `macro_rules!` for General Metaprogramming**

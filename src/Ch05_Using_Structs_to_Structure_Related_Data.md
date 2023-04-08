@@ -136,7 +136,7 @@ fn main() {
 请注意结构体更新语法，像赋值一样使用了 `=`；这是由于结构体更新语法迁移了数据，就跟在之前的 ["变量与数据互动方式：迁移"](Ch04_Understanding_Ownership.md#ways-variables-and-data-interact-move) 小节中看到的那样。在此示例中，在创建了 `user2` 之后，由于变量 `user1` 中的 `username` 字段中的 `String` 值，已被迁移到 `user2` 中了，因此就再也不能使用变量 `user1` 了。若给到 `user2` 的 `email` 及 `username` 字段都是新的 `String` 值，而因此只使用来自 `user1` 的 `active` 和 `sign_in_count` 值，那么在创建了 `user2` 之后，`user1` 仍将是有效的。因为 `active` 和 `sign_in_count` 的类型，都是实现了 `Copy` 特质的类型，因此就会应用在 [唯栈数据：拷贝](Ch04_Understanding_Ownership.md#stack-only-data-copy) 小节中的行为表现。
 
 
-### <a id="using-tuple-structs-without-named-fields-to-create-different-types"></a>使用不带命名字段的元组结构体来创建不同类型
+### 使用不带命名字段的元组结构体来创建不同类型
 
 **Using Tuple Structs without Named Fields to Create Different Types**
 
@@ -349,7 +349,7 @@ fn area(rectangle: &Rectangle) -> u32 {
 `area` 函数会访问那个 `Rectangle` 实例的 `width` 和 `height` 字段。`area` 的函数签名现在表达的正是这里想要的了：使用 `Rectangle` 的 `width` 和 `height` 字段，计算出他的面积。这就传达出了这里的宽与高是相互关联，同时这样做还给到了这些值描述性的名称，而非使用之前元组的索引 `0` 和 `1` 了。这在代码清晰上得了一分。
 
 
-### <a id="adding-useful-functionality-with-derived-traits"></a>使用派生特质加入有用功能
+### 使用派生特质加入有用功能
 
 **Adding Useful Functionality with Derived Traits**
 
@@ -500,7 +500,7 @@ cargo run
 *方法* 与函数类似：是以 `fn` 关键字和一个名称，来声明出方法，方法可以有参数和返回值，同时包含了在某个地方方法被调用时，运行的一些代码。与函数不同的地方在于，方法是在结构体（或者枚举或特质对象，关于枚举即特质对象，将分别在第 6 和 17 章讲到）的语境里面定义的，且方法的首个参数将始终是 `self`，这个 `self` 表示方法被调用的那个结构体实例本身。
 
 
-### <a id="defining-methods"></a>方法的定义
+### 方法的定义
 
 下面就来将那个将一个 `Rectangle` 实例作为参数的 `area` 函数，修改为定义在 `Rectangle` 结构体上的 `area` 方法，如下清单 5-13 所示：
 
@@ -569,8 +569,8 @@ fn main() {
 
 通常，但并非总是这样，在给到方法与某个字段同样名字时，要的是让那个方法返回与其同名字段中的值，而不会去干别的事情。像这样的方法，就叫做 *获取器（getters）*，而 Rust 并未像其他语言所做的那样，自动实现结构体字段的获取器。由于可将字段构造为私有，而将方法构造为公开，而由此实现对作为类型的公开 API一部分的字段的只读访问。在第 7 章中就会讨论到何为公开与私有，以及怎样将字段或方法指定为公开或私有。
 
-#### <a id="where-is-the-arrow-operator"></a>`->` 操作符（the `->` operator）哪去了呢？
->
+#### `->` 操作符（the `->` operator）哪去了呢？
+
 > 在 C 和 C++ 中，方法调用会用到两个操作符：直接调用在对象上的方法时，要用到 `.`，而在对象的指针上调用方法时，则要用 `->` 操作符，这时还先要对该指针解除引用。换句话说，在 `object` 是个指针时，`object -> something()` 是类似于 `(*object) -> something()` 的。
 > Rust 并无 `->` 操作符的等价操作符；相反，Rust 有着一项名为 *自动引用与解引用（automatic referencing and dereferencing）* 的特性。而方法调用就是 Rust 中有着这种行为表现的少数几个地方之一。
 >

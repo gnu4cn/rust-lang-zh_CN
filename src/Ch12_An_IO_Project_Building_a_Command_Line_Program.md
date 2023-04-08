@@ -215,7 +215,7 @@ To an admiring bog!
 下面就来通过对这里的项目进行重构，来解决这四个问题。
 
 
-### <a id="separation-of-concerns-for-binary-projects"></a>二进制程序项目的关注点分离
+### 二进制程序项目的关注点分离
 
 **Separation of Concerns for Binary Projects**
 

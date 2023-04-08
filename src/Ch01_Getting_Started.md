@@ -7,7 +7,7 @@
 - Rust 的包管理器和构建系统 Cargo 的使用。
 
 
-## <a id="installation"></a> 安装
+## 安装
 
 第一步即是安装 Rust。这里将通过 `rustup` 这个用于管理 Rust 版本及相关工具的命令行工具，来下载 Rust。要下载 Rust，就需要互联网连接。
 
@@ -64,7 +64,7 @@ $ rustup update
 $ rustup self uninstall
 ```
 
-## <a id="troubleshooting"></a> 故障排除
+## 问题排除
 
 要检查当前是否安装了 Rust, 请开启一个 `shell` 并敲入这行命令：
 
@@ -116,7 +116,7 @@ $ cd hello_world
 > cd hello_world
 ```
 
-### <a id="writing-and-running-a-rust-program"></a> 编写及运行 Rust 程序
+### 编写及运行 Rust 程序
 
 接下来，就要构造一个源代码文件，并命名为 `main.rs`。Rust 文件总是以 `.rs` 扩展名结束。若要在文件名中是一多个单词，那么请使用下划线来将这些单词隔开。比如，请使用 `hello_world.rs` 而不是 `helloworld.rs`。
 
@@ -148,7 +148,7 @@ Hello, World!
 Hello, World!
 ```
 
-而不论所在操作系统为何，字符串 `Hello, World!` 都应打印到终端。而若没有看到这个输出，那么请回到安装小节的 [“故障排除”](#troubleshooting) 部分获取帮助。
+而不论所在操作系统为何，字符串 `Hello, World!` 都应打印到终端。而若没有看到这个输出，那么请回到安装小节的 [“问题排除”](#问题排除) 部分获取帮助。
 
 如确实打印出了 `Hello, World!`，那么恭喜你！你已正式编写除了一个 Rust 程序了。那就让你成为了一名 Rust 程序员了 -- 欢迎！
 
@@ -232,7 +232,7 @@ Cargo 是 Rust 的构建系统和包管理器。由于 Cargo 处理了很多任�
 
 对于最简单的那些 Rust 程序，比如才写的那个，是没有任何依赖的。因此若使用 Cargo 来构建这个 `Hello, World!` 项目，那么就只会用到 Cargo 处理代码构建的部分。而随着更为复杂 Rust 程序的编写，就会添加依赖，而在开始一个用到 Cargo 的项目时，完成依赖添加就会容易得多。
 
-由于广大 Rust 项目都用到了 Cargo，本书其余部分就假定了也使用 Cargo。若使用了在 [安装](#installation) 小节中提到的官方安装器进行的 Rust 安装，那么Cargo就已与 Rust 一起安装好了。而若是以其他方式安装的 Rust，那么就要通过在终端中敲入下面的命令，来检查 Cargo 是否已安装妥当：
+由于广大 Rust 项目都用到了 Cargo，本书其余部分就假定了也使用 Cargo。若使用了在 [安装](#安装) 小节中提到的官方安装器进行的 Rust 安装，那么Cargo就已与 Rust 一起安装好了。而若是以其他方式安装的 Rust，那么就要通过在终端中敲入下面的命令，来检查 Cargo 是否已安装妥当：
 
 ```console
 $ cargo --version

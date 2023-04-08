@@ -155,7 +155,7 @@ error: could not compile `vec_demo` due to previous error
 > **请注意**：更多有关 `Vec<T>` 类型的实现细节，请参考 [Rust 专论（The Rustonomicon）](https://doc.rust-lang.org/nomicon/vec/vec.html)。
 
 
-### <a id="iterating-over-the-values-in-a-vector"></a>对矢量中那些值的迭代
+### 对矢量中那些值的迭代
 
 要依次访问矢量中的各个元素，就要迭代全部元素，而非使用那些索引值，一次访问一个了。下面清单 8-8 展示了怎样使用 `for` 循环，来获取到一个 `i32` 矢量值中各个元素的不可变引用，并将这些元素打印出来。
 
@@ -325,7 +325,7 @@ Rust 标准库还包含了一些其他字符串类型，比如 `OsString`、`OsS
 作为上面代码的结果，`s` 将包含 `lol`。
 
 
-#### <a id="concatenation-with-the-plus-operator-or-the-format-macro"></a> 使用 `+` 运算符或 `format!` 宏的字符串连接
+####  使用 `+` 运算符或 `format!` 宏的字符串连接
 
 通常，会想要将两个既有字符串合在一起。完成此操作的一种方式，就是使用 `+` 运算符，如下清单 8-18 中所示。
 

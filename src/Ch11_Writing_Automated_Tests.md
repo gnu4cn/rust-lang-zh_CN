@@ -24,7 +24,7 @@
 下面就来看看，Rust 专为编写进行这些操作的测试，而提供到一些特性，包括 `test` 属性（the `test` attribute）、几个宏，以及 `should_panic` 属性（the `should_panic` attribute）。
 
 
-### <a id="the-anatomy-of-a-test-function"></a>测试函数剖析
+### 测试函数剖析
 
 **The Anatomy of a Test Function**
 

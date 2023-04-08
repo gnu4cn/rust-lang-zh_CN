@@ -54,7 +54,7 @@ fn main() {
 
 这里将变量 `b`，定义为有个指向值 `5` 的 `Box` 类型值，值 `5` 被分配在堆上的。此程序将打印出 `b = 5`；在此示例中，即可以与该数据在栈上类似的方式，访问那个匣子中的数据。就跟所有自有值一样（just like any owned value），在某个匣子超出作用域，即 `b` 不处于 `main` 的最后时，他就会被解除内存分配。这种内存解除分配，既发生于这个匣子（存储在栈上的），同时也发生于匣子所指向的数据（存储于内存堆上）。
 
-### <a id="enabling-recursive-types-with-boxes"></a>使用匣子数据结构，实现递归数据类型
+### 使用匣子数据结构，实现递归数据类型
 
 **Enabling Recursive Types with Boxes**
 
@@ -204,7 +204,7 @@ fn main() {
 `Box<T>` 类型之所以是灵巧指针，是由于他实现了 `Deref` 特质，这就实现了像引用那样，对待 `Box<T>` 类型的值。在某个 `Box<T>` 值超出作用域时，又由于 `Box<T>` 的那个 `Drop` 实现，那么该匣子所指向的内存堆数据就会被清理。相比本章其余部分将讨论到的由其他灵巧指针所提供到的功能，这两个特质甚至将会更为重要。下面就来更深入地探讨一下这两个特质。
 
 
-## <a id="treating-smart-pointers-like-regular-references-with-deref-trait"></a>在 `Deref` 特质下，像常规引用那样看待灵巧指针
+## 在 `Deref` 特质下，像常规引用那样看待灵巧指针
 
 **Treating Smart Pointers Like Regular References with `Deref` Trait**
 

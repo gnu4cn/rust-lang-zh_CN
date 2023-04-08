@@ -186,7 +186,7 @@ crate
 模组树或许会令人想到计算机上文件系统的目录树；这可是一个极为恰当的类比！就跟文件系统中的目录一样，使用模组是为对代码进行组织。而正如目录中的那些文件，这里需要一种找到那些模组的方法。
 
 
-## <a id="paths-for-referring-to-an-item-in-the-module-tree"></a> 用于引用目录树中项目的路径
+##  用于引用目录树中项目的路径
 
 **Paths for Referring to an Item in the Module Tree**
 
@@ -272,7 +272,7 @@ error: could not compile `restaurant` due to 2 previous errors
 
 Rust 选择了让模组系统以这种方式发挥作用，从而默认就将内部实现细节给隐藏了。如此一来，就清楚可修改内部代码的哪些部分，而不会破坏外层代码。尽管如此，Rust 还是提供了通过使用 `pub` 关键字，把某个程序项目构造为公共项目，而将子模组代码的内层部分，暴露给外层祖辈模组的选项。
 
-### <a id="exposing-paths-with-the-pub-keyword"></a> 使用 `pub` 关键字对路径进行暴露
+###  使用 `pub` 关键字对路径进行暴露
 
 下面回到清单 7-4 中，告知 `hosting` 模组为私有的那个错误。这里希望在父模组中的 `eat_at_restaurant` 函数，有着到那个 `hosting` 子模组中的 `add_to_waitlist` 函数的访问权限，因此就要将该模组，以 `pub` 关键字标记起来，如下面清单 7-5 中所示。
 
@@ -561,7 +561,7 @@ error: could not compile `restaurant` due to previous error; 1 warning emitted
 
 请注意这里还有那个 `use` 在其作用域中已不再被使用的一个告警！为修复此问题，就同时要将那个 `use` 语句，移入到那个 `customer` 模组内部，或者在那个子 `customer` 模组内部，以 `super::hosting` 来引用父模组中的那个快捷方式。
 
-### <a id="creating-idiomatic-use-path"></a>创建惯用 `use` 路径
+### 创建惯用 `use` 路径
 
 在上面的清单 7-11 中，你或许会想，为什么那里指定了 `use crate::front_of_house::hosting`，并随后在 `eat_at_restaurant` 函数中调用了 `hosting::add_to_waitlist`，而不是将那个 `use` 路径，指定为一直到那个 `add_to_waitlist` 函数，以达到同样目的，即如下清单 7-13 中那样。
 
@@ -777,7 +777,7 @@ use std::collections::*;
 通常是在测试时，要将正在测试的全部程序项目带入到 `tests` 模组，才使用这个全局操作符；在第 11 章中的 [怎样编写测试](Ch11_Writing_Automated_Tests.md#how-to-write-tests) 小节，就会讲到这个问题。在序曲模式（the prelude pattern）中，有时也会用到全局操作符：请参阅 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html#other-preludes)，了解有关更多序曲模式的知识。
 
 
-## <a id="separating-modules-into-different-files"></a>将模组拆分为不同文件
+## 将模组拆分为不同文件
 
 **Separating Modules into Different Files**
 
@@ -835,7 +835,7 @@ pub fn add_to_waitlist() {}
 
 相反如果将 `hosting.rs` 放在 `src` 目录，那么编译器就会以为 `hosting.rs` 的代码，是在声明于代码箱根部的 `hosting` 模组中的，而不是那个 `front_of_house` 模组的子模组中的。为了获取模组代码，而要查看那些文件方面的编译器规则，就表明这些目录与文件，甚为紧密地于模组树结构相匹配。
 
-#### <a id="alternate-file-paths"></a> 备用文件路径
+####  备用文件路径
 
 >
 > 本小节讲的是 Rust 编译器所用到的最惯用的文件路径；但较早的文件路径仍被支持。

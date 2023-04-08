@@ -108,7 +108,7 @@ fn main() {
 
 这段代码在打印提示消息，表明该游戏是什么及正在请求用户输入。
 
-## <a id="storing-values-with-variables"></a> 使用变量保存那些值
+## 使用变量保存那些值
 
 接下来，就要创建一个 *变量（variable）* 来存储用户输入，像下面这样：
 
@@ -122,14 +122,14 @@ fn main() {
 let apples = 5;
 ```
 
-这行代码创建了一个新的名为 `apples` 的变量，并将其绑定到了值 `5`。在 Rust 中，默认变量是不可变的（immutable）。在后续第 3 章的 [变量及可变性](Ch03_Common_Programming_Concepts.md#variables-and-mutability) 小节，将对此概念加以讨论。而要让变量可变，就要将变量名字前加上 `mut` 关键字：
+这行代码创建了一个新的名为 `apples` 的变量，并将其绑定到了值 `5`。在 Rust 中，默认变量是不可变的（immutable）。在后续第 3 章的 [变量及可变性](Ch03_Common_Programming_Concepts.md#变量及可变性) 小节，将对此概念加以讨论。而要让变量可变，就要将变量名字前加上 `mut` 关键字：
 
 ```rust
 let apples = 5; // 不可变（immutable）
 let mut bananas = 5; // 可变（mutable）
 ```
 
-> 注意：这里的 `//` 语法，开始了一条持续到那个行结束的代码注释。Rust 会忽略注释中的全部内容。在 [第 3 章](Ch03_Common_Programming_Concepts.md#comments) 将更加详细地讨论代码注释。
+> 注意：这里的 `//` 语法，开始了一条持续到那个行结束的代码注释。Rust 会忽略注释中的全部内容。在 [第 3 章](Ch03_Common_Programming_Concepts.md#注释) 将更加详细地讨论代码注释。
 
 回到这个猜数游戏程序，那么此刻就明白了那个 `let mut guess` 将引入一个名为 `guess` 的可变变量。而那个等号（`=`），则是告诉 Rust，现在要将某个东西绑定到该变量了。等号右边就是要绑定到 `guess` 的那个值，而这个值则是调用 `String::new` 的结果，这个 `String::new`，则又是一个返回一个 `String` 实例的函数。`String` 是由标准库提供的一个字符串类型，为一个可增大的、经 UTF-8 位编码的文本（a growable, UTF-8 encoded bit of text）。
 
@@ -152,7 +152,7 @@ let mut bananas = 5; // 可变（mutable）
 
 其中的 `&` 表明该参数是个 *引用（reference）*，而引用则是一种无需将数据多次拷贝到内存中的情况下，就可以实现代码多个部分对该数据进行读写的特性（注：在 C 家族语言中，`&`表示内存地址，因此 Rust 中的引用，与指针有类似之处）。引用是一项复杂特性，同时 Rust 的主要优点之一，就是安全而便利地运用引用的方式。对于完成这个猜数游戏，是不必对这些细节有过多了解的。现在要明白的是，与变量类似，引用默认也是不可变的。因此，这里就要写上 `&mut guess` 而不是 `&guess`，来令到这个到 `guess` 的引用为可变的。（第 4 章将更详细地对引用进行解释。）
 
-## <a id="handling-potential-failure-with-the-result-type"></a> 处理潜在的带有 `Result` 的程序失效
+## 处理潜在的带有 `Result` 的程序失效
 
 **Handle Potential Failure with the `Result` Type**
 
@@ -170,7 +170,7 @@ io::stdin().read_line(&mut guess).expect("读取输入失败");
 
 不过这样的一个长代码行，难于阅读，因此最好将其分开为多个断行。在以 `.method_name()` 语法调用方法时，通过引入另起一行及缩进，来将长的代码行拆分为短代码行，通常是明智的。下面就来说说这一行完成了什么。
 
-前面讲过，`read_line`方法将用户敲入的东西，放入到传递给他的那个字符串中，然而 `read_line` 还会返回一个值 -- 在此实例中，返回的就是一个 `io::Result` 类型值。Rust 在他的标准库中，有着数个名为 `Result` 的类型：这是一个泛型的 `Result`，对于那些子模组都有着特定版本，比如这里的 `io::Result`。`Result` 的那些类型都属于 [枚举（enumerations）](Ch06_Enums_and_Pattern_Matching.md#enums)，枚举常被写为 `enums`，枚举有着一套被称作 *变种（variants）* 的可能值。枚举常常是和 `match` 关键字一起使用的，而 `match` 则是一种条件判断，在符合某个条件时，就可以很方便地根据枚举中的哪个变种，来执行不同代码。
+前面讲过，`read_line`方法将用户敲入的东西，放入到传递给他的那个字符串中，然而 `read_line` 还会返回一个值 -- 在此实例中，返回的就是一个 `io::Result` 类型值。Rust 在他的标准库中，有着数个名为 `Result` 的类型：这是一个泛型的 `Result`，对于那些子模组都有着特定版本，比如这里的 `io::Result`。`Result` 的那些类型都属于 [枚举，enumerations](Ch06_Enums_and_Pattern_Matching.md#定义一个枚举)，枚举常被写为 `enums`，枚举有着一套被称作 *变种（variants）* 的可能值。枚举常常是和 `match` 关键字一起使用的，而 `match` 则是一种条件判断，在符合某个条件时，就可以很方便地根据枚举中的哪个变种，来执行不同代码。
 
 第 6 章将深入涵盖到枚举数据结构。而这些 `Result` 类型的目的，则是对错误处理信息进行编码。
 
@@ -240,7 +240,7 @@ $ cargo run                ✔
 此刻，这游戏的第一部分就算完成了：这里正从键盘获取到输入，并随后将输入打印出来。
 
 
-## <a id="generating-a-random-number"></a> 生成秘密数字
+## 生成秘密数字
 
 接下来，就需要生成一个用户将要试着去猜的秘密数字了。生成的秘密数字应每次都不相同，这样这游戏在多次玩的时候才有趣。为了不让这个游戏太难，这里要用一个 `1` 到 `100` 之间的随机数。Rust 在其标准库中尚未包含随机数功能。不过 Rust 团队还真的提供了一个 [`rand` 代码箱](https://crates.io/crates/rand)，这里就姑且把这样的代码箱，称之为功能吧。
 
@@ -426,7 +426,7 @@ $ cargo run                                                           ✔ 
 
 就会得到不同的随机数字，并且他们都应是 `1` 到 `100` 之间的数字。非常棒！
 
-## <a id="comparing-the-guess-to-the-secret-number"></a> 将猜数与秘数相比较
+## 将猜数与秘数相比较
 
 既然有了用户输入和随机数，就可以加以比较了。比较的步骤在下面的清单 2-4 中给出了。请注意这个代码还不会编译，原因后面会解释。
 
@@ -514,7 +514,7 @@ let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
 
 这里将这个新变量，绑定到了表达式 `guess.trim().parse()`。该表达式中的 `guess` 援引的是原来那个包含着字符串形式输入的 `guess`。而作用在 `String` 实例上的 `trim` 方法，将消除开头和结尾的全部空白，必须要进行这个操作，才能将字符串转换到 `u32` 类型，`u32`只能包含数字数据。为了满足到 `read_line` 并输入他们的猜数，用户必须要按下回车键，这样就会将一个换行字符添加到那个字符串。比如在用户敲入了 `5` 然后按下回车键时，`guess`看起来就会是这样：`5\n`。其中的 `\n` 表示 “换行（newline）”。（在 Windows 上，按下回车键会导致一个回车字符和一个换行字符，即 `\r\n`）。这 `trim` 会将 `\n` 或 `\r\n` 消除，而结果就只是 `5` 了。
 
-[字符串上的 `parse` 方法](https://doc.rust-lang.org/std/primitive.str.html#method.parse) 将只会在那些逻辑上可被转换成数字的字符上运作，而因此就很可能引起错误。比如说在字符串包含了 `A👍%` 时，就没有办法将其转换成一个数字。由于 `parse` 方法会失败，因此他返回的是个 `Result` 类型，这与 `read_line` 方法所做的一样（在早先的 [用 `Result` 类型处理潜在失败](#handling-potential-failure-with-the-result-type) 中讨论过）。这里再次使用 `expect` 方法对这个`Result` 进行了同样的处理。在因为 `parse` 无法从字符串创建出一个数字，而返回了一个 `Err` 的 `Result` 变种时，这个 `expect` 就会令到游戏崩溃，并将给他的那条消息打印出来。而在 `parse` 可成功将那个字符串，转换成数字时，`expect` 就会返回 `Result` 的 `Ok` 变种，同时 `expect` 会返回这里想要的、`Ok` 值中的数字。
+[字符串上的 `parse` 方法](https://doc.rust-lang.org/std/primitive.str.html#method.parse) 将只会在那些逻辑上可被转换成数字的字符上运作，而因此就很可能引起错误。比如说在字符串包含了 `A👍%` 时，就没有办法将其转换成一个数字。由于 `parse` 方法会失败，因此他返回的是个 `Result` 类型，这与 `read_line` 方法所做的一样（在早先的 [用 `Result` 类型处理潜在失败](#处理潜在的带有-result-的程序失效) 中讨论过）。这里再次使用 `expect` 方法对这个`Result` 进行了同样的处理。在因为 `parse` 无法从字符串创建出一个数字，而返回了一个 `Err` 的 `Result` 变种时，这个 `expect` 就会令到游戏崩溃，并将给他的那条消息打印出来。而在 `parse` 可成功将那个字符串，转换成数字时，`expect` 就会返回 `Result` 的 `Ok` 变种，同时 `expect` 会返回这里想要的、`Ok` 值中的数字。
 
 现在来运行一下这个程序！
 
@@ -563,7 +563,7 @@ $ cargo run                                                       101 ✘ 
 
 可以看到，这里已将自猜数输入提示开始的全部代码，移入到循环中了。请确保循环中的那些代码行，都另外缩进四个空格，然后再次运行这个程序。现在程序将会一直要求另一猜数，这实际上引入了新的问题。好像是用户无法退出了！
 
-用户可一直通过键盘快捷键 `Ctrl-C`，来中断这个程序。不过还是有别的方法，来退出这头贪厌的怪兽，就像在 [将猜数与秘密数字比较](#comparing-the-guess-to-the-secret-number)中对 `parse` 方法讨论中提到的那样：在用户输入了非数字的答案时，程序就会崩溃。这里就利用了那个，来实现用户退出，如下所示：
+用户可一直通过键盘快捷键 `Ctrl-C`，来中断这个程序。不过还是有别的方法，来退出这头贪厌的怪兽，就像在 [将猜数与秘密数字比较](#将猜数与秘数相比较)中对 `parse` 方法讨论中提到的那样：在用户输入了非数字的答案时，程序就会崩溃。这里就利用了那个，来实现用户退出，如下所示：
 
 ```console
 $ cargo run
@@ -599,7 +599,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 敲入 `quit` 就会退出这游戏，不过正如所注意到的，这样做将就要敲入别的非数字输入。至少可以是这种做法是次优的；这里想要在猜到了正确数字时，游戏也要停止。
 
-## <a id="quitting-after-a-correct-guess"></a> 猜对后的退出
+## 猜对后的退出
 
 下面就来通过添加一条 `break` 语句，将游戏编程为在用户赢了时退出：
 

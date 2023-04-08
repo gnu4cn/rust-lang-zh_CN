@@ -124,7 +124,7 @@ Rust 采取了不同的路线：一旦某个变量超出了作用域，那么该
 
 这种模式对 Rust 代码编写方式有深远影响。在此刻他可能看起来还算简单，但在想要让多个变量，使用早先在内存堆上分配的数据，这种更为复杂情形时，代码行为就会无法被预见到。现在就来探讨一下一些这样的情况。
 
-### <a id="ways-variables-and-data-interact-move"></a>变量与数据互操作方式之一：迁移（所有权）
+### 变量与数据互操作方式之一：迁移（所有权）
 
 在 Rust 中，多个变量可以多种方式，与同一数据进行互操作。来看看下面清单 4-2 中用到整数的示例：
 
@@ -234,7 +234,7 @@ error: could not compile `string_demo` due to previous error; 1 warning emitted
 
 此外，这种做法背后，还隐含着一种语言设计上的取舍：Rust 绝不会自动创建数据的 “深” 拷贝。由此，任何 *自动* 拷贝，都可认为在运行时性能开销上的影响很小（Therefore, any *automatic* copying can be assumed to be inexpensive in terms of runtime performance）。
 
-### <a id="ways-variables-and-data-interact-clone"></a>变量与数据交互方式之二：克隆
+### 变量与数据交互方式之二：克隆
 
 在 *确实* 打算对 `String` 的内存堆数据，而非只是栈数据进行深度拷贝时，就可以使用一个常用的、名为 `clone` 的方法。在第 5 章将讨论到方法语法，而由于在众多编程语言中，方法都是共同特性，那么此前大概率是见到过方法的。
 
@@ -253,7 +253,7 @@ fn main() {
 
 当看到一个对 `clone` 方法的调用时，那么就明白正有一些任性代码在被执行，且那代码可能开销高昂。对此方法的调用，是某些不寻常事情正在发生的直观指示。
 
-### <a id="stack-only-data-copy"></a>唯栈数据：拷贝（stack-only data: copy）
+### 唯栈数据：拷贝（stack-only data: copy）
 
 尚有另一个至今还未讲到的小问题。正使用着整数的这段代码 -- 其中一部分在下面的清单 4-2 中给出了 -- 会工作并是有效代码：
 
@@ -614,7 +614,7 @@ error: could not compile `ownership_demo` due to previous error
 
 虽然这些所有权借用方面的错误，时常令人沮丧，但请记住这正是 Rust 编译器，于早期阶段（在编译时而非运行时）就在指出潜在错误，并表明问题准确所在。代码编写者这才不必去追踪为何数据不是先前所设想的那样。
 
-### <a id="dangling-references"></a>悬空引用，dangling references
+### 悬空引用，dangling references
 
 在有着指针的那些语言中，都容易通过在保留了到某些内存的一个指针同时，释放了那些内存，而错误地创建出 *悬空指针，a dangling pointer* -- 引用了内存中，可能已经给了其他指针的某个地址的一个指针。在 Rust 中，与此相对照，编译器会确保引用绝不会成为悬空引用：在有着到某数据的引用时，编译器会确保在到该数据的引用，超出作用域之前，被引用的数据不超出作用域。
 
@@ -699,7 +699,7 @@ fn dangle() -> String {
 接下来，将看看一种不同类别的引用：切片（slices）。
 
 
-## <a id="the-slice-type"></a>切片类型（the slice type）
+## 切片类型（the slice type）
 
 *切片（slices）* 特性，实现了对集合中一个连续元素序列，而非对整个集合的引用。切片是引用的一种类别，因此他不会持有所有权。
 
@@ -789,7 +789,7 @@ fn second_word(s: &String) -> (usize, usize) {
 
 幸运的是，Rust 有此问题的解决办法，那就是：字符串切片（string slices）。
 
-### <a id="string-slices"></a>字符串切片
+### 字符串切片
 
 字符串切片是到某个 `String` 类型值部分的引用，而看起来像下面这样：
 
@@ -921,7 +921,7 @@ let s = "Hello, world!";
 这里的变量 `s` 的类型，即为 `&str`：他是个指向到二进制文件特殊点位的一个切片。这也是为何字符串字面值为不可变的原因；`&str` 类型属于不可变引用。
 
 
-### <a id="string-slices-as-parameters"></a>字符串切片作为函数参数
+### 字符串切片作为函数参数
 
 了解了咱们可在函数中，取字符串字面值的切片及 `String` 值，就引出了对 `first_word` 函数的又一项改进，而下面就是函数 `first_word` 的签名：
 

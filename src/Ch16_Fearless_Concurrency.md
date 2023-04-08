@@ -669,7 +669,7 @@ fn main() {
 在弃用了该所之后，咱们就可以打印出该互斥量的值，并看到咱们是能够把那个内层的 `i32`，修改为 `6` 的。
 
 
-### <a id="sharing-a-mutex-t-between-multiple-threads"></a>在多个线程间共用 `Mutex<T>`
+### 在多个线程间共用 `Mutex<T>`
 
 现在，咱们就来尝试使用 `Mutex<T>`，在多个线程见共用值。咱们将启动 10 个线程，并让他们分别都把一个计数器增加 `1`，因此那个计数器就会从 `0` 到达 `10`。接下来清单 16-13 中的示例，将有着一个编译器报错，同时咱们将使用那个报错，来掌握更多有关使用 `Mutex<T>`，以及 Rust 如何帮助咱们正确运用他的知识。
 
@@ -870,7 +870,7 @@ fn main() {
 咱们将通过讲解 `Send` 与 `Sync` 两个特质，以及怎样与一些定制类型来运用他们来完结本章。
 
 
-## <a id="extensible-concurrency-with-the-sync-and-send-trait"></a>`Sync` 与 `Send` 两个特质下的可扩展并发
+## `Sync` 与 `Send` 两个特质下的可扩展并发
 
 **Extensible Concurrency with the `Sync` and `Send` Traits**
 

@@ -872,7 +872,7 @@ error: could not compile `pattern_syntax_demo` due to previous error
 Rust 不可能确定出在以 `second` 匹配某个值之前，元组中有多少个值要忽略，并随后在那之后又有多少个值要忽略。此代码可能是指咱们打算忽略 `2`，将 `second` 绑定到 `4`，并随后忽略 `8`、`16` 及 `32`；或是指咱们打算忽略 `2` 与 `4`，将 `second` 绑定到 `8`，并随后忽略 `16` 与 `32`；如此等等。名为 `second` 的变量，对于 Rust 并不表示任何特殊的东西，从而由于在两处使用 `..` 属于模棱两可的，因此咱们就收到一个编译报错。
 
 
-### <a id="extra-conditionals-with-match-guards"></a>使用匹配卫兵的额外条件，Extra Conditionals with Match Guards
+### 使用匹配卫兵的额外条件，Extra Conditionals with Match Guards
 
 
 所谓 *匹配卫兵，match guard*，是于 `match` 支臂之后被指定出来，对于这条支臂要被选中，而也必须匹配的一个额外 `if` 条件。对于表达相对于所允许的单独模式，更为复杂的一些概念，这样的匹配卫兵就是有用的。

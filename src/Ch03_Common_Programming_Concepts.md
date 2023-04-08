@@ -85,7 +85,7 @@ x 的值为：6
 
 在使用了 `mut` 关键字时，就被允许将绑定到 `x` 的值从 `5` 修改到 `6` 了。除了防止程序错误之外，还要考虑多种权衡。比如，在使用着大型数据结构时，就地修改其的一个实例，就会比拷贝并返回新近分配的实例要快一些（for example, in cases where you're using large data structures, mutating an instance in place may be faster than copying and returning newly allocated instances）。而对于较小的数据结构，创建其新实例，并以更具函数式编程风格来编写代码，则可能更易于理解，那么由此带来的性能下降，相对所取得的思路清晰，也会是值得的。
 
-## <a id="constants"></a> 常量
+## 常量
 
 与不可变变量类似， *常量（constants）* 是一些绑定到名字且不允许修改的值，但常量与变量之间，有些差异。
 
@@ -183,11 +183,11 @@ error: could not compile `variables` due to previous error
 现在已经完成变量运行机制的探讨，接卸来就要看看这些变量可以有的那些其余数据类型了。
 
 
-## <a id="data-types"></a> 数据类型
+##  数据类型
 
 Rust 的所有值，都属于某种确切的 *数据类型（data type）*，数据类型告诉 Rust 所指定的是何种数据，进而 Rust 才知道该怎样使用那个数据。接下来会看看两个数据类型的子集：标量（scalar）类型与复合（compound）类型。
 
-请牢记 Rust 是门 *静态类型（statically typed）* 语言，这就意味着在运行时，他必须清楚所有变量的类型。基于值与对变量的使用方式，编译器通常可以推断出希望变量使用何种类型来。在可能有许多中类型的情况下，就如同第 2 章 [将猜数与秘密数字比较](Ch02_Programming_a_Guessing_Game.md#compring-the-guess-to-the-secret-number) 小节中，使用 `parse` 把一个 `String` 转换成数字类型时，就必须添加一个类型注释，如下面这样：
+请牢记 Rust 是门 *静态类型（statically typed）* 语言，这就意味着在运行时，他必须清楚所有变量的类型。基于值与对变量的使用方式，编译器通常可以推断出希望变量使用何种类型来。在可能有许多中类型的情况下，就如同第 2 章 [将猜数与秘密数字比较](Ch02_Programming_a_Guessing_Game.md#将猜数与秘数相比较) 小节中，使用 `parse` 把一个 `String` 转换成数字类型时，就必须添加一个类型注释，如下面这样：
 
 ```rust
 let guess: u32 = "42".parse().expect("这不是个数字！");
@@ -219,7 +219,7 @@ fn main() {
 
 *标量* 类型，表示单个值。Rust 有着四个主要的标量类型：整数、浮点数、布尔值与字符。这些类型，其他语言也有。下面就深入看看他们在 Rust 中是怎样工作的。
 
-### <a id="integer-types"></a> 整形
+###  整形
 
 **Integer Types**
 
@@ -261,7 +261,7 @@ fn main() {
 
 > 关于 **整数溢出**
 >
-> 比方说有个类型为 `u8` 的、可保存 `0` 到 `255` 之间值的变量。在尝试将该变量修改为超出那个范围的某个值，比如 `256` 时，就会发生 *整型溢出（integer overflow）*，而整型溢出又可导致两种行为之一。在以调试模式进行程序编译时，Rust 就会包含整数溢出的检查，在发生了整数溢出时，就会导致程序进入 *错误（panic）* 状态。对于程序因错误而退出执行这种情况，Rust 使用了 猝死（paniking） 这个词语；在第 9 章中的 [带有 `panic!` 宏的不可恢复性错误](Ch09_Error_Handling.md#unrecoverable-errors-with-panic) 小节，将更深入地讨论到程序因错误而终止运行的情况。
+> 比方说有个类型为 `u8` 的、可保存 `0` 到 `255` 之间值的变量。在尝试将该变量修改为超出那个范围的某个值，比如 `256` 时，就会发生 *整型溢出（integer overflow）*，而整型溢出又可导致两种行为之一。在以调试模式进行程序编译时，Rust 就会包含整数溢出的检查，在发生了整数溢出时，就会导致程序进入 *错误（panic）* 状态。对于程序因错误而退出执行这种情况，Rust 使用了 猝死（paniking） 这个词语；在第 9 章中的 [带有 `panic!` 宏的不可恢复性错误](Ch09_Error_Handling.md#) 小节，将更深入地讨论到程序因错误而终止运行的情况。
 >
 > 在以 `--release` 开关进行发布模式的编译时，Rust 就不会包含对引起程序终止运行的整数溢出的检查。这时若发生了溢出，Rust 就会执行 *二进制补码封装（two's complement wrapping）*。简而言之，对于比那种类型能保存的最大值还要大的值，就会被“回卷（wrap around）”到那种类型所能保存的最小值。以 `u8` 为例，值 `256` 就变成了 `0`，值 `257` 就变成了 `1`，如此等等。这样程序就不会死掉，而那个变量则会有着一个或许不是所期望的值。对整数溢出的回卷行为的依赖，被视为一种错误（Relying on integer overflow's wrapping behavior is considered an error）。
 >
@@ -365,7 +365,7 @@ fn main() {
 
 *复合类型（compound types）* 可将多个值组合成一个类型。Rust 有着两个原生的复合类型：元组与数组（tuples and arrays）。
 
-### <a id="the-tuple-type"></a> 元组类型
+###  元组类型
 
 元组是将数个不同类型的值，组合成一个复合类型的一般方式。元组是固定长度的：一旦被声明出来，他们的大小就无法扩大或缩小了。
 
@@ -1172,7 +1172,7 @@ fn main() {
 此代码结构，消除了使用 `loop`、`if`、`else`、及 `break` 实现同样结构时，很多不可缺少的嵌套，且此结构更为清晰。在条件保持为真期间，代码就会运行；否则，他将退出循环。
 
 
-### <a id="looping-through-a-collection-with-for"></a> 使用 `for` 对集合进行遍历
+###  使用 `for` 对集合进行遍历
 
 可选择使用 `while` 结构，来对集合，诸如数组，的那些元素进行循环。作为示例，下面清单 3-4 中的循环，将打印出数组 `a` 中的各个元素。
 
