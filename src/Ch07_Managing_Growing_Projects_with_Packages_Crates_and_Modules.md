@@ -2,7 +2,7 @@
 
 在编写大型程序时，由于在头脑里对整个程序保持追踪已成为不可能，因此代码组织就尤为重要。通过将相关功能分组，并以截然不同的特性而将代码加以分离，就会搞清楚在哪里去找到实现了某个特定特性的代码，以及在哪里去修改某项特性的运作方式。
 
-到目前为止，这里所编写的程序，都是在一个模组的一个文件中的。而随着项目的增长，就可以通过将项目分解为多个模组及多个文件，来对代码加以组织。一个代码包，可以包含多个二进制的代码箱，并可有选择地包含一个库代码箱。本章会涵盖到所有的这些技巧。对于那些极为大型、有着一套互相关联而共同演化的项目，Cargo 工具提供了工作区（workspaces）概念，关于工作区，将在第 14 章的 [Cargo 工作区](Ch14_More_about_Cargo_and_Crates_io.md#cargo-workspaces)中讲到。
+到目前为止，这里所编写的程序，都是在一个模组的一个文件中的。而随着项目的增长，就可以通过将项目分解为多个模组及多个文件，来对代码加以组织。一个代码包，可以包含多个二进制的代码箱，并可有选择地包含一个库代码箱。本章会涵盖到所有的这些技巧。对于那些极为大型、有着一套互相关联而共同演化的项目，Cargo 工具提供了工作区（workspaces）概念，关于工作区，将在第 14 章的 [Cargo 工作区](Ch14_More_about_Cargo_and_Crates_io.md#cargo-工作区)中讲到。
 
 除了实现功能上的分组（grouping functionality）外，对功能实现细节的封装，还实现了更高层次上的代码重用：一旦实现了某个操作，其他代码就可以在无需掌握其实现原理的情况下，通过该代码的公共接口，对该实现代码加以调用。编写代码的方式，就定义了哪些部分是公开给其他代码使用的，哪些部分是私有实现细节而对其修改权力有所保留。这是对那些必须保留在头脑中细节实现数量，而有所限制的另一种方式（in addition to grouping functionality, encapsulating implementation details lets you reuse code at a higher level: once you've implemented an operation, other code can call that code via the code's pulic interface without knowing how the implementation works. The way you write code defines which part are public for other code to use and which parts are private implementation details that you reserve the right to change. This is another way to limit the amount of detail you have to keep in your head）。
 
@@ -22,13 +22,13 @@
 这里将讲到的 Rust 模组系统的头几个部分，即为代码包与代码箱。
 
 
-*代码箱（a crate）* 是 Rust 编译器一次识别到的最低数量的代码（a *crate* is the smallest amount of code that the Rust compiler considers as a time）。即使运行 `rustc` 而非 `cargo`，并传递单个源码文件（就如同在第 1 章 [“编写并运行一个 Rust 程序”](Ch01_Getting_Started.md#writing-and-running-a-rust-program) 小节中曾干过的），编译器也会将那个文件，视为一个代码箱。代码箱可以包含一些模组，而这些模组则会被定义在其他的、与该代码箱一同被编译的一些文件中，就如同在接下来的小节中将看到的那样。
+*代码箱（a crate）* 是 Rust 编译器一次识别到的最低数量的代码（a *crate* is the smallest amount of code that the Rust compiler considers as a time）。即使运行 `rustc` 而非 `cargo`，并传递单个源码文件（就如同在第 1 章 [“编写并运行一个 Rust 程序”](Ch01_Getting_Started.md#hello-world) 小节中曾干过的），编译器也会将那个文件，视为一个代码箱。代码箱可以包含一些模组，而这些模组则会被定义在其他的、与该代码箱一同被编译的一些文件中，就如同在接下来的小节中将看到的那样。
 
 代码箱有着两种形式：二进制代码箱（a binary crate），或库代码箱(a library crate)。*二进制代码箱（binary crates）* 是一些可编译为能够运行的可执行程序的一些程序，譬如命令行程序或服务器。二进制代码箱必须有着一个叫做 `main` 的、定义了在可执行文件运行时所发生事情的函数。到目前为止本书中创建的全部代码箱，都是二进制代码箱。
 
-*库代码箱* 是没有 `main` 函数的，且他们不会编译到可执行文件。相反，他们定义的是计划在多个项目下共用的功能。比如在 [第二章](Ch02_Programming_a_Guessing_Game.md#generating-a-random-number) 中用到的 `rand` 代码箱，就提供了生成随机数的功能。在多数时候当 Rust 公民提到 “代码箱（crate）” 时，他们指的就是库代码箱，并且他们将 “代码箱（crate）” 与一般编程概念中的 “库（library）” 互换使用。
+*库代码箱* 是没有 `main` 函数的，且他们不会编译到可执行文件。相反，他们定义的是计划在多个项目下共用的功能。比如在 [第二章](Ch02_Programming_a_Guessing_Game.md#生成随机数) 中用到的 `rand` 代码箱，就提供了生成随机数的功能。在多数时候当 Rust 公民提到 “代码箱（crate）” 时，他们指的就是库代码箱，并且他们将 “代码箱（crate）” 与一般编程概念中的 “库（library）” 互换使用。
 
-*代码箱根（crate root）* 是个 Rust 编译器开始之处的源文件，并构成了代码箱的根模组（the *crate root* is a source file that the Rust compiler starts from and makes up the root module of your crate. 后面在 [定义控制作用域和私有化的模组](#defining-modules-to-control-scope-and-privacy) 小节，将深入探讨到模组概念）。
+*代码箱根（crate root）* 是个 Rust 编译器开始之处的源文件，并构成了代码箱的根模组（the *crate root* is a source file that the Rust compiler starts from and makes up the root module of your crate. 后面在 [定义控制作用域和私有化的模组](#定义控制作用域和隐私的模组) 小节，将深入探讨到模组概念）。
 
 *包（a package）* 即为提供了一套功能的一个或多个代码箱的捆绑包（a *package* is a bundle of one or more crates that provides a set of functionality）。包，包含了描述如何构建那些代码箱的一个 `Cargo.toml` 文件。Cargo 本身实际上就是，包含了前面曾用于构建代码的命令行工具二进制代码箱的包。Cargo 包还包含了一个该二进制代码箱所依赖的库代码箱。别的项目便可依靠这个 Cargo 库代码箱，来运用与 Cargo 命令行工具，所用到的同样逻辑。
 
@@ -203,7 +203,7 @@ crate
 
 这里将给出从定义在该代码箱根部的一个新函数 `eat_at_restaurant`，调用那个 `add_to_waitlist` 函数的两种方式。其中那些路径都是正确的，但由于存在别的问题，而将阻止此示例如往常那样编译。这里会稍加解释为何会这样。
 
-其中的 `eat_at_restaurant` 函数，是这里的库代码箱公共 API 的一部分，因此要将其以 `pub` 关键字进行标记。在后面的 [使用 `pub` 关键字对路径进行暴露](#exposing-paths-with-the-pub-keyword) 小节，深入到更多有关 `pub` 关键字的细节。
+其中的 `eat_at_restaurant` 函数，是这里的库代码箱公共 API 的一部分，因此要将其以 `pub` 关键字进行标记。在后面的 [使用 `pub` 关键字对路径进行暴露](#使用-pub-关键字对路径进行暴露) 小节，深入到更多有关 `pub` 关键字的细节。
 
 文件名：`src/lib.rs`
 
@@ -676,7 +676,7 @@ pub fn eat_at_restaurant() {
 
 在此项修改之前，外部代码必须通过使用路径 `restaurant::front_of_house::hosting::add_to_waitlist()`，来调用其中的 `add_to_waitlist` 函数。现在既然这个 `pub use` 已将该 `hosting` 模组，自根模组中重新导出，那么外部代码现在就可以使用 `restaurant::hosting::add_to_waitlist()` 路径了。
 
-在所编写代码的内部结构，与调用代码的程序员们对该领域有着不同设想时，重导出就是有用的。比如，在这个饭馆的比喻中，运营该饭馆的人设想的是“前厅”与“后厨”。但造访饭馆的食客，或许不会用这样的词汇，来认识饭馆的这些部位。有了 `pub use`，就可以一种结构来编写代码，而以另一种结构将代码暴露出来。这样做就让这个库，对于在该库上编写代码的程序员，与调用这个库的程序员，均具备良好的组织。在第 14 章的 [“运用 `pub use` 导出便利的公共 API”](Ch14_More_about_Cargo_and_Crates_io.md#exporting-a-convenient-public-api-with-pub-use) 小节，将会看到另一个 `pub use` 的示例，并了解他是怎样影响到代码箱的文档。
+在所编写代码的内部结构，与调用代码的程序员们对该领域有着不同设想时，重导出就是有用的。比如，在这个饭馆的比喻中，运营该饭馆的人设想的是“前厅”与“后厨”。但造访饭馆的食客，或许不会用这样的词汇，来认识饭馆的这些部位。有了 `pub use`，就可以一种结构来编写代码，而以另一种结构将代码暴露出来。这样做就让这个库，对于在该库上编写代码的程序员，与调用这个库的程序员，均具备良好的组织。在第 14 章的 [“运用 `pub use` 导出便利的公共 API”](Ch14_More_about_Cargo_and_Crates_io.md#使用-pub-use-导出好用的公开-api) 小节，将会看到另一个 `pub use` 的示例，并了解他是怎样影响到代码箱的文档。
 
 
 ### 使用外部 Rust 包
@@ -691,7 +691,7 @@ rand = `0.8.3`
 
 将 `rand` 作为依赖项添加到 `Cargo.toml`，就告诉 Cargo，去 [crates.io](https://crates.io/) 下载那个 `rand` 包和任何的依赖项，而令到 `rand` 对此项目可用。
 
-随后为了将 `rand` 的一些定义，带入到所编写的包中，这里添加了以代码箱名字，`rand`，开头，并列出了打算要带入到作用域中的那些条目的一个 `use` 行。回顾第 2 章中的 [“生成一个随机数”](Ch02_Programming_a_Guessing_Game.md#generating-a-random-number) 小节，那里就将那个 `Rng` 特质，带入到了作用域，并调用了 `rand::thread_rng` 函数：
+随后为了将 `rand` 的一些定义，带入到所编写的包中，这里添加了以代码箱名字，`rand`，开头，并列出了打算要带入到作用域中的那些条目的一个 `use` 行。回顾第 2 章中的 [“生成一个随机数”](Ch02_Programming_a_Guessing_Game.md#生成随机数) 小节，那里就将那个 `Rng` 特质，带入到了作用域，并调用了 `rand::thread_rng` 函数：
 
 ```rust
 use rand::Rng;
@@ -774,7 +774,7 @@ use std::collections::*;
 
 这个 `use` 语句，将定义在 `std::collections` 中的全部公开项目，都带入到了当前作用域。在使用这个全局操作符时要当心！全局带入，会导致更难于分清哪些名字是作用域中，与在所编写程序中用到的名字，是在何处定义的。
 
-通常是在测试时，要将正在测试的全部程序项目带入到 `tests` 模组，才使用这个全局操作符；在第 11 章中的 [怎样编写测试](Ch11_Writing_Automated_Tests.md#how-to-write-tests) 小节，就会讲到这个问题。在序曲模式（the prelude pattern）中，有时也会用到全局操作符：请参阅 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html#other-preludes)，了解有关更多序曲模式的知识。
+通常是在测试时，要将正在测试的全部程序项目带入到 `tests` 模组，才使用这个全局操作符；在第 11 章中的 [怎样编写测试](Ch11_Writing_Automated_Tests.md#怎样编写测试) 小节，就会讲到这个问题。在序曲模式（the prelude pattern）中，有时也会用到全局操作符：请参阅 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html#other-preludes)，了解有关更多序曲模式的知识。
 
 
 ## 将模组拆分为不同文件
@@ -813,7 +813,7 @@ pub mod hosting {
 
 *清单 7-22：文件 `src/front_of_house.rs` 中 `front_of_house` 模组内部的定义*
 
-请注意只需在模组树中的某处，使用一次 `mod` 声明，而将某个文件的内容加载进来。一旦编译器获悉该文件是项目的一部分（且由已将那个 `mod` 语句放置于于何处，而掌握了该代码在模组树中所处的位置），项目中的其他文件，则应如同之前 [用于引用模组树中项目的路径](#paths-for-referring-to-an-item-in-the-module-tree) 小节中，曾讲到的到模组声明处的路径，来引用那个文件中的代码。也就是说，这里的 `mod` *并非* 其他编程语言有的那种 “include” 操作。
+请注意只需在模组树中的某处，使用一次 `mod` 声明，而将某个文件的内容加载进来。一旦编译器获悉该文件是项目的一部分（且由已将那个 `mod` 语句放置于于何处，而掌握了该代码在模组树中所处的位置），项目中的其他文件，则应如同之前 [用于引用模组树中项目的路径](#用于引用目录树中项目的路径) 小节中，曾讲到的到模组声明处的路径，来引用那个文件中的代码。也就是说，这里的 `mod` *并非* 其他编程语言有的那种 “include” 操作。
 
 接下来，就要将那个 `hosting` 模组，提取到他自己的文件了。而由于 `hosting` 是 `front_of_house` ，而非根模组，的子模组，因此过程略有不同。这里将把 `hosting` 模组的文件，放在模组树中以其父辈命名的一个新目录中，此示例中即为 `src/front_of_house`。
 

@@ -6,7 +6,7 @@
 
 ## 结构体的定义及初始化
 
-结构体与之前 [元组类型](Ch03_Common_Programming_Concepts.md#the-tuple-type) 小节中讨论过的元组数据结构类似，二者都保存着多个相关数据。和元组一样，结构体的各个数据片段可以是不同类型。与原则不同的是，在结构体中将给各个数据片段命名，如此各个值表示什么就清楚了。加上这些名字，就意味着相比于元组更为灵活了：不必为了给某个实例指定他的那些值，或要访问实例的那些值，而对实例数据的顺序有所依赖了。
+结构体与之前 [元组类型](Ch03_Common_Programming_Concepts.md#元组类型) 小节中讨论过的元组数据结构类似，二者都保存着多个相关数据。和元组一样，结构体的各个数据片段可以是不同类型。与原则不同的是，在结构体中将给各个数据片段命名，如此各个值表示什么就清楚了。加上这些名字，就意味着相比于元组更为灵活了：不必为了给某个实例指定他的那些值，或要访问实例的那些值，而对实例数据的顺序有所依赖了。
 
 要定义出一个结构体，就要敲入关键字 `struct`，及整个结构体的名字。结构体名字，应对安排在一起的这些数据片段的意义加以描述。随后，就要这一对花括号里头，定义出各个数据片段的名称与类型，这些数据片段，就叫做 *字段（fields）*。比如，下面的清单 5-1 就给出了一个保存用户账号信息的结构体。
 
@@ -133,7 +133,7 @@ fn main() {
 
 清单 5-7 中的代码同样创建了在变量 `user2` 中，一个有着 `email` 的不同值，但有着来自 `user1` 的 `username`、`active` 及 `sign_in_count` 同样值。其中的 `..user1` 必须要在最后，这样来指明全部剩余字段都应从 `user1` 中的相应字段获取值，但对于其他字段值的指定，则可选择所要的任意字段，以任意顺序进行，而不论在结构体定义中这些字段的顺序为何（the `..user1` must come last to specify that any remaining fields should get their values from the corresponding fields in `user1`, but we can choose to specify values for as many fields as we want in any order, regardless of the order of the fields in the struct's definition）。
 
-请注意结构体更新语法，像赋值一样使用了 `=`；这是由于结构体更新语法迁移了数据，就跟在之前的 ["变量与数据互动方式：迁移"](Ch04_Understanding_Ownership.md#ways-variables-and-data-interact-move) 小节中看到的那样。在此示例中，在创建了 `user2` 之后，由于变量 `user1` 中的 `username` 字段中的 `String` 值，已被迁移到 `user2` 中了，因此就再也不能使用变量 `user1` 了。若给到 `user2` 的 `email` 及 `username` 字段都是新的 `String` 值，而因此只使用来自 `user1` 的 `active` 和 `sign_in_count` 值，那么在创建了 `user2` 之后，`user1` 仍将是有效的。因为 `active` 和 `sign_in_count` 的类型，都是实现了 `Copy` 特质的类型，因此就会应用在 [唯栈数据：拷贝](Ch04_Understanding_Ownership.md#stack-only-data-copy) 小节中的行为表现。
+请注意结构体更新语法，像赋值一样使用了 `=`；这是由于结构体更新语法迁移了数据，就跟在之前的 ["变量与数据互动方式：迁移"](Ch04_Understanding_Ownership.md#变量与数据互操作方式之一迁移所有权) 小节中看到的那样。在此示例中，在创建了 `user2` 之后，由于变量 `user1` 中的 `username` 字段中的 `String` 值，已被迁移到 `user2` 中了，因此就再也不能使用变量 `user1` 了。若给到 `user2` 的 `email` 及 `username` 字段都是新的 `String` 值，而因此只使用来自 `user1` 的 `active` 和 `sign_in_count` 值，那么在创建了 `user2` 之后，`user1` 仍将是有效的。因为 `active` 和 `sign_in_count` 的类型，都是实现了 `Copy` 特质的类型，因此就会应用在 [唯栈数据：拷贝](Ch04_Understanding_Ownership.md#唯栈数据拷贝stack-only-data-copy) 小节中的行为表现。
 
 
 ### 使用不带命名字段的元组结构体来创建不同类型
@@ -162,7 +162,7 @@ fn main() {
 
 **Unit-Like Structs Without Any Fields**
 
-还可以定义没有任何字段的结构体！由于这些没有任何字段的结构体，与曾在 [元组类型](Ch03_Common_Programming_Concepts.md#the-tuple-type) 小节提到过的单元类型 `()` 表现类似，因此他们叫做 *类单元结构体（unit-like structs）*。当需要在某类型上实现某个特质（trait），却又不希望将任何数据存储在那个类型自身里面时，类单元结构体就就有用（unit-like structs can be useful when you need to implement a trait on some type but don't have any data that you want to store in the type itself）。在第 10 章就会讨论到特质。下面是一个声明和初始化名为 `AlwaysEqual` 的单元结构体的示例：
+还可以定义没有任何字段的结构体！由于这些没有任何字段的结构体，与曾在 [元组类型](Ch03_Common_Programming_Concepts.md#元组类型) 小节提到过的单元类型 `()` 表现类似，因此他们叫做 *类单元结构体（unit-like structs）*。当需要在某类型上实现某个特质（trait），却又不希望将任何数据存储在那个类型自身里面时，类单元结构体就就有用（unit-like structs can be useful when you need to implement a trait on some type but don't have any data that you want to store in the type itself）。在第 10 章就会讨论到特质。下面是一个声明和初始化名为 `AlwaysEqual` 的单元结构体的示例：
 
 ```rust
 struct AlwaysEqual;
@@ -281,7 +281,7 @@ $ cargo run
 fn area(width: u32, height: u32) -> u32 {
 ```
 
-`area` 函数是要计算某个矩形面积的，但这里编写的该函数，有着两个参数，同时在这个程序中，并未清楚表明那两个参数是有联系的。将宽和高组织在一起，代码就会更具易读性，且更具可管理性。在第 3 章的 [元组类型](Ch03_Common_Programming_Concepts.md#the-tuple-type) 小节，就已讨论过一种可能那样做的方式：使用元组。
+`area` 函数是要计算某个矩形面积的，但这里编写的该函数，有着两个参数，同时在这个程序中，并未清楚表明那两个参数是有联系的。将宽和高组织在一起，代码就会更具易读性，且更具可管理性。在第 3 章的 [元组类型](Ch03_Common_Programming_Concepts.md#元组类型) 小节，就已讨论过一种可能那样做的方式：使用元组。
 
 
 ### 以元组进行重构
@@ -451,7 +451,7 @@ rect1 为：Rectangle {
 
 使用 `Debug` 格式化将某个值打印出来的另一种方式，就是使用 [`dbg!` 宏](https://doc.rust-lang.org/std/macro.dbg.html)，这个 `dbg!` 宏会占据某个表达式的所有权，而将那个 `dbg!` 宏调用出现在代码中所在的文件与行号，与那个表达式的结果值一并打印出来，同时返回结果值的所有权（another way to print out a value using the [`dbg!` macro](https://doc.rust-lang.org/std/macro.dbg.html), which takes ownership of an expression, prints the file and line number of where that `dbg!` macro call occurs in your code along with the resulting value of that expression, and returns ownership of the value）。
 
-> 注意：对 `dbg!` 宏的调用，会打印到标准错误控制台流（the standard error console stream, `stderr`），这与 `println!` 宏打印到标准输出控制台流（the standard output console stream, `stdout`）相反。在第 12 章中的 [将错误消息写到标准错误而非标准输出](Ch12_An_I_O_Project_Building_a_Command_Line_Program.md#writing-error-messages-to-standard-error-instead-of-standard-output) 小节，将讲到更多有关 `stderr` 与 `stdout` 的内容。
+> 注意：对 `dbg!` 宏的调用，会打印到标准错误控制台流（the standard error console stream, `stderr`），这与 `println!` 宏打印到标准输出控制台流（the standard output console stream, `stdout`）相反。在第 12 章中的 [将错误消息写到标准错误而非标准输出](Ch12_An_I_O_Project_Building_a_Command_Line_Program.md#把错误消息写到标准错误而非标准输出) 小节，将讲到更多有关 `stderr` 与 `stdout` 的内容。
 
 以下是个其中对赋值给 `width` 字段，以及在变量 `rect1` 中的整个结构体的值感兴趣的示例：
 
@@ -490,7 +490,7 @@ cargo run
 
 这里就可以看到，输出的第一部分来自 `src/main.rs` 文件的第 10 行，正是对表达式 `30 * scale` 进行调式的地方，而该表达式的结果值即为 `60`（在整数原生值上实现的 `Debug` 格式化只打印他们的值）。在 `src/main.rs` 第 14 行上的 `dbg!` 调用，输出了 `rect1`，即那个 `Rectangle` 结构体的值。这个输出使用了 `Rectangle` 类型的良好 `Debug` 格式化。在尝试搞清楚代码在做什么时，这个 `dbg!` 宏真的会相当有用！
 
-除 `Debug` 特质外，Rust 业已提供了数个与 `derive` 属性一起使用的其他特质，这些特质把有用的行为表现，添加到那些定制类型。Rust 提供的那些特质及其行为，在 [附录 C](Ch21_Appendix.md#c-derivable-traits) 小节中有列出。在第 10 章中，就会涉及到怎样去实现这些有着定制行为的特质，以及怎样创建自己的特质。除了 `derive` 之外，同样还有许多别的属性；有关属性的更多信息，请参阅 [Rust 参考手册的 “属性” 小节](https://doc.rust-lang.org/reference/attributes.html)。
+除 `Debug` 特质外，Rust 业已提供了数个与 `derive` 属性一起使用的其他特质，这些特质把有用的行为表现，添加到那些定制类型。Rust 提供的那些特质及其行为，在 [附录 C](Ch21_Appendix.md#附录-c派生特质) 小节中有列出。在第 10 章中，就会涉及到怎样去实现这些有着定制行为的特质，以及怎样创建自己的特质。除了 `derive` 之外，同样还有许多别的属性；有关属性的更多信息，请参阅 [Rust 参考手册的 “属性” 小节](https://doc.rust-lang.org/reference/attributes.html)。
 
 这里的 `area` 函数，是相当专用的：他只会计算矩形的面积。由于 `area` 方法不会在其他任何类型上工作，因此将此行为与这里的 `Rectangle` 结构体更紧密的联系起来，就会变得有帮助。接下来就要看看，怎样通过将这个 `area` 函数，转变成一个定义在这里的 `Rectangle` 类型上的方法，而继续重构这段代码。
 

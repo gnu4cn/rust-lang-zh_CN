@@ -70,9 +70,9 @@ let s = "hello";
 
 ### `String` 类型
 
-为了对所有权的那些规则进行演示，就需要比前面第 3 章的 ["数据类型"](Ch03_Common_Programming_Concepts.md#data-types) 小节中讲到那些类型，更为复杂一些的数据类型。前面讲到的那些类型，都是已知大小、可存储在栈上的，且在他们的作用域结束时会被弹出栈，在代码另一部分需要在不同作用域中用到同一值时，这些类型还可被快速而简单地复制，而构造出新的、独立实例。不过这里要审视的是存储在内存堆上的数据，进而探讨 Rust 是如何知晓，何时要清理这些内存堆上的数据，那么 `String` 类型就是极佳的示例了。
+为了对所有权的那些规则进行演示，就需要比前面第 3 章的 ["数据类型"](Ch03_Common_Programming_Concepts.md#数据类型) 小节中讲到那些类型，更为复杂一些的数据类型。前面讲到的那些类型，都是已知大小、可存储在栈上的，且在他们的作用域结束时会被弹出栈，在代码另一部分需要在不同作用域中用到同一值时，这些类型还可被快速而简单地复制，而构造出新的、独立实例。不过这里要审视的是存储在内存堆上的数据，进而探讨 Rust 是如何知晓，何时要清理这些内存堆上的数据，那么 `String` 类型就是极佳的示例了。
 
-这里将着重于 `String` 类型与所有权有关的部分。这些方面同样适用于其他的、不论是由标准库还是自己创建的复合数据类型，complex data types。在 [第 8 章](Ch08_Common_Collections.md#strings) 将深入讲解 `String` 类型。
+这里将着重于 `String` 类型与所有权有关的部分。这些方面同样适用于其他的、不论是由标准库还是自己创建的复合数据类型，complex data types。在 [第 8 章](Ch08_Common_Collections.md#何为-string) 将深入讲解 `String` 类型。
 
 前面咱们已经见到了一些字符串字面值，其中有个硬编码到程序里的字符串值。字符串字面值很方便，但对于那些打算使用文本的全部情形，他们却并不适合。一个原因是字符串字面值为不可变的。另一个原因则是，在编写代码时，并非每个字符串的值都是已知的：比如，假设要获取用户输入并存储下来呢？对于这样的情形，Rust 有着第二种字符串类型，即 `String`。这种类型对分配到内存堆上的数据加以管理，并因此而具备了存储在编译时数量未知文本的能力。使用 `String` 类型的 `from` 函数，就可以从字符串字面值，创建出一个 `String` 类型的值来，如下所示：
 
@@ -81,7 +81,7 @@ let s = String::from("hello");
 // 变量 s 的类型为：String, 而此前字面值中的变量 s 的类型为：&str
 ```
 
-其中的双冒号（`::`）运算符，实现了将这个特定 `from` 函数，置于 `String` 类型的命名空间之下，而无需使用类似于 `string_from` 这种名字了。在第 5 章的 [方法语法](Ch05_Using_Structs_to_Structure_Related_Data.md#method-syntax) 小节，并在第 7 章的 [对模组树中的某个项目进行引用的路径](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#paths-for-referring-to-an-item-in-the-module-tree) 小节，对模组命名空间的介绍中，将对这种语法进行更多讲解。
+其中的双冒号（`::`）运算符，实现了将这个特定 `from` 函数，置于 `String` 类型的命名空间之下，而无需使用类似于 `string_from` 这种名字了。在第 5 章的 [方法语法](Ch05_Using_Structs_to_Structure_Related_Data.md#方法语法) 小节，并在第 7 章的 [对模组树中的某个项目进行引用的路径](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#用于引用目录树中项目的路径) 小节，对模组命名空间的介绍中，将对这种语法进行更多讲解。
 
 这种字符串，*能* 被改变：
 
@@ -137,7 +137,7 @@ let y = x;
 
 或许能猜到这段代码正在完成的事情：“把值 `5` 绑定到变量 `x`；随后构造一份 `x` 中值的拷贝并将其绑定到变量 `y`。” 现在就有了两个变量，`x` 与 `y`，且他们都等于 `5`。由于整数是有着已知的、固定大小的简单值，因此这实际上就是正在发生的事情，且这两个 `5` 的值都是被压入到栈上的。
 
-> **注**：这就是下面会讲到的 [栈上数据的拷贝，copy](#stack-only-data-copy) 情形。
+> **注**：这就是下面会讲到的 [栈上数据的拷贝，copy](#唯栈数据拷贝stack-only-data-copy) 情形。
 
 
 那么现在来看看 `String` 的版本：
@@ -270,7 +270,7 @@ println! ("x = {}, y = {}", x, y);
 
 Rust 有着叫做 `Copy` 特质（the `Copy` trait, 在第 10 章将对特质，traits，进行更多的讲解）的，可放在像是整数这样的、存储于栈上的那些类型之上的一个特殊注解，a special annotation。在某个类型实现了 `Copy` 特质时，使用此类型的那些变量，就不会迁移，相反会轻而易举地被复制，从而在赋值给另一变量后，令到他们依然有效。
 
-在某个类型或类型的任何部分带有 `Copy` 特质时，Rust 就不会再允许以 `Drop` 特质对其加以注解了。若某个类型需要在其值超出作用域后，还要进行某些特殊处理，而又将 `Copy` 注解添加到了那个类型，那么就会收到编译时错误（if the type needs something special to happen when the value goes out of scope and we add the `Copy` annotation to that type, we'll get a compile-time error）。要了解如何将 `Copy` 注解，添加到自己编写的类型而实现这个 `Copy` 特质，请参阅附录 C 中 [可派生特质（derivable traits）](Ch21_Appendix.md#derivable-traits)。
+在某个类型或类型的任何部分带有 `Copy` 特质时，Rust 就不会再允许以 `Drop` 特质对其加以注解了。若某个类型需要在其值超出作用域后，还要进行某些特殊处理，而又将 `Copy` 注解添加到了那个类型，那么就会收到编译时错误（if the type needs something special to happen when the value goes out of scope and we add the `Copy` annotation to that type, we'll get a compile-time error）。要了解如何将 `Copy` 注解，添加到自己编写的类型而实现这个 `Copy` 特质，请参阅附录 C 中 [可派生特质（derivable traits）](Ch21_Appendix.md#附录-c派生特质)。
 
 那么到底哪些类型要实现 `Copy` 特质呢？可查阅给定类型的文档，来确定相应类型是否有实现 `Copy` 特质，不过作为一般规则，任何组别的简单标量值，any group of simple scalar values，都可实现 `Copy` 特质，以及不要求分配内存堆分配，或者其他形式资源的类型，也都可以实现 `Copy` 特质（any group of simple scalar values can implement `Copy`, and nothing that requires allocation or is some form of resource can implement `Copy`）。下面就是一些实现 `Copy` 特质的类型：
 
@@ -418,7 +418,7 @@ fn calculate_length(s: &String) -> usize {
 *图 4-5：指向 `String s1` 的 `&String s` 图示*
 
 
-> 注意：这种经由使用 `&` （取地址）运算符，而得到的变量引用的反面，即为 *解引用，dereferencing*，解引用是以解引用运算符 `*` 达成的。在第 8 章中就会看到这个 [解引用运算符的使用](Ch08_Common_Collections.md#iterating-over-the-values-in-a-vector)，而在第 15 章中，则会对解引用的细节加以讨论。
+> 注意：这种经由使用 `&` （取地址）运算符，而得到的变量引用的反面，即为 *解引用，dereferencing*，解引用是以解引用运算符 `*` 达成的。在第 8 章中就会看到这个 [解引用运算符的使用](Ch08_Common_Collections.md#对矢量中那些值的迭代)，而在第 15 章中，则会对解引用的细节加以讨论。
 
 来细看一下这里的函数调用：
 
@@ -657,7 +657,7 @@ For more information about this error, try `rustc --explain E0106`.
 error: could not compile `ownership_demo` due to previous error
 ```
 
-此错误消息提到了一个这里还没有讲到特性：生命周期（lifetimes）。在第 10 章将 [详细讨论生命周期](Ch10_Generic_Types_and_Lifetimes.md#validating-references-with-lifetimes)。不过，忽略掉生命周期有关的那部分错误，那么该错误消息就真的包含了，这段代码为何是问题代码的关键原因：
+此错误消息提到了一个这里还没有讲到特性：生命周期（lifetimes）。在第 10 章将 [详细讨论生命周期](Ch10_Generic_Types_and_Lifetimes.md#使用生命周期对引用加以验证)。不过，忽略掉生命周期有关的那部分错误，那么该错误消息就真的包含了，这段代码为何是问题代码的关键原因：
 
 ```console
 this function's return type contains a borrowed value, but there is no value
@@ -745,7 +745,7 @@ for (i, &item) in bytes.iter().enumerate() {
 
 在第 13 章，将讨论到迭代器的更多细节。而现在，明白 `iter` 是个返回集合中各个元素的方法，而那个 `enumerate` 则会将 `iter` 的结果进行封装进而将各个元素作为一个元组的组成部分，进行返回即可。自 `enumerate` 返回的元组第一个元素就是索引值，而第二个元素，则是到 `iter` 返回元素的索引。相比由代码编写者自己计算索引，这就要方便一点。
 
-由于 `enumerate` 方法返回了一个元组，因此这里就可以使用模式，来解构那个元组。在 [第 6 章](Ch06_Enums_and_Pattern_Matching.md#patterns-that-bind-to-values)，会对模式进行更多讨论。在那个 `for` 循环中，指定了一个有着用于那个元组中索引的 `i`，以及用于那个元组中单个字节的 `&item` 的模式。由于这里获得的是一个到从 `.iter().enumerate()` 获取元素的引用，因此在那个模式中使用了 `&` 运算符。
+由于 `enumerate` 方法返回了一个元组，因此这里就可以使用模式，来解构那个元组。在 [第 6 章](Ch06_Enums_and_Pattern_Matching.md#绑定到值的模式)，会对模式进行更多讨论。在那个 `for` 循环中，指定了一个有着用于那个元组中索引的 `i`，以及用于那个元组中单个字节的 `&item` 的模式。由于这里获得的是一个到从 `.iter().enumerate()` 获取元素的引用，因此在那个模式中使用了 `&` 运算符。
 
 在那个 `for` 循环内部，这里通过使用字节字面值语法（the byte literal syntax），就表示空格的字节进行了搜索。在找到空格时，就返回空格的位置。否则就通过使用 `s.len()` 返回该字符串的长度。
 
@@ -839,7 +839,7 @@ let slice = &s[0..len];
 let slice = &s[..];
 ```
 
-> **注意**：这些字符串切片的范围索引值，必须出现于有效的 UTF-8 字符边界处。若在 UTF-8 多字节字符中间，尝试创建字符串切片，那么程序就会以错误退出。这里只是为介绍字符串切片目的，而假定本小节中只使用 ASCII 字符；在第 8 章的 [“以 `String` 类型值存储 UTF-8 编码的文本”](Ch08_Common_Collections.md#storing-utf-8-encoded-text-with-strings) 小节，有着对 UTF-8 字符串的更全面讨论。
+> **注意**：这些字符串切片的范围索引值，必须出现于有效的 UTF-8 字符边界处。若在 UTF-8 多字节字符中间，尝试创建字符串切片，那么程序就会以错误退出。这里只是为介绍字符串切片目的，而假定本小节中只使用 ASCII 字符；在第 8 章的 [“以 `String` 类型值存储 UTF-8 编码的文本”](Ch08_Common_Collections.md#使用-string-存储-utf-8-编码的文本) 小节，有着对 UTF-8 字符串的更全面讨论。
 
 
 对这全部字符串切片的情况了然在胸，那么下面就来将 `first_word` 重写为返回切片。表示 “字符串切片” 的类型，写做 `&str`：
@@ -937,7 +937,7 @@ fn first_word(s: &str) -> &str {
 
 *清单 4-9：通过对 `s` 参数的类型使用字符串切片，对 `first_word` 函数进行改进*
 
-在咱们有着某个字符串切片时，那么就可以直接传递那个字符串切片。而在咱们有着一个 `String` 时，则可传递该 `String` 的切片，或到这个 `String` 的引用。这种灵活性，是利用了 *强制引用解除，deref coercions* 特性，在第 15 章的 [函数与方法下的隐式强制解引用](Ch05_Smart_Pointers.md#implicit-deref-coercions-with-functions-and-methods) 小节，将讲到的一种特性。
+在咱们有着某个字符串切片时，那么就可以直接传递那个字符串切片。而在咱们有着一个 `String` 时，则可传递该 `String` 的切片，或到这个 `String` 的引用。这种灵活性，是利用了 *强制引用解除，deref coercions* 特性，在第 15 章的 [函数与方法下的隐式强制解引用](Ch05_Smart_Pointers.md#函数与方法下的隐式解引用强制转换) 小节，将讲到的一种特性。
 
 这样定义出取字符串切片，而非到 `String` 值引用做参数的函数，令到这个 API 在不丢失任何功能的情况下，变得更为通用和有用：
 

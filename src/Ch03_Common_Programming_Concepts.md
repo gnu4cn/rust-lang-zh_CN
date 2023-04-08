@@ -13,7 +13,7 @@
 
 **Variables and Mutability**
 
-就如在之前的 ["用变量保存值"](Ch02_Programming_a_Guessing_Game.md#storing-values-with-variables) 小节中所讲的那样，默认变量是不可变的。这是 Rust 所提供的，推动利用 Rust 赋予的安全和易于并发代码编写方式的众多措施之一（by default variables are immutable, this is one of many nudges Rust gives you to write your code in a way that takes advantage of the safety and easy concurrency that Rust offers）。尽管如此，还是有将变量作为可变的选项。下面就来搞清楚，为何 Rust 会鼓励偏向不可变，以及为何有时会希望不接受 Rust 的建议。
+就如在之前的 ["用变量保存值"](Ch02_Programming_a_Guessing_Game.md#使用变量保存那些值) 小节中所讲的那样，默认变量是不可变的。这是 Rust 所提供的，推动利用 Rust 赋予的安全和易于并发代码编写方式的众多措施之一（by default variables are immutable, this is one of many nudges Rust gives you to write your code in a way that takes advantage of the safety and easy concurrency that Rust offers）。尽管如此，还是有将变量作为可变的选项。下面就来搞清楚，为何 Rust 会鼓励偏向不可变，以及为何有时会希望不接受 Rust 的建议。
 
 在变量为不可变时，一旦值被绑定到某个名字，那么就无法修改那个值了。为对此进行演示，就来通过使用 `cargo new variables` 在 `projects` 目录中生成一个新的名为 `variables` 的项目。
 
@@ -89,7 +89,7 @@ x 的值为：6
 
 与不可变变量类似， *常量（constants）* 是一些绑定到名字且不允许修改的值，但常量与变量之间，有些差异。
 
-首先，是不允许在常量上使用 `mut` 关键字的。常量不光是默认不可变的 -- 他们一直都是不可变的。常量的声明用的是 `const` 关键字，而不是 `let` 关键字，同时值的类型 *必须* 被注解（be annotated）。在下一小节，[数据类型](#data-types)，就会讲到类型和类型注解了，因此现在不要关心细节。只要明白必须始终对类型进行注解。
+首先，是不允许在常量上使用 `mut` 关键字的。常量不光是默认不可变的 -- 他们一直都是不可变的。常量的声明用的是 `const` 关键字，而不是 `let` 关键字，同时值的类型 *必须* 被注解（be annotated）。在下一小节，[数据类型](#数据类型)，就会讲到类型和类型注解了，因此现在不要关心细节。只要明白必须始终对类型进行注解。
 
 可在任何作用域，包括全局作用域中声明常量。而当在全局作用域中声明常量时，则会让那些代码中许多部分都需要知悉的值的常量，变得有用起来。
 
@@ -261,7 +261,7 @@ fn main() {
 
 > 关于 **整数溢出**
 >
-> 比方说有个类型为 `u8` 的、可保存 `0` 到 `255` 之间值的变量。在尝试将该变量修改为超出那个范围的某个值，比如 `256` 时，就会发生 *整型溢出（integer overflow）*，而整型溢出又可导致两种行为之一。在以调试模式进行程序编译时，Rust 就会包含整数溢出的检查，在发生了整数溢出时，就会导致程序进入 *错误（panic）* 状态。对于程序因错误而退出执行这种情况，Rust 使用了 猝死（paniking） 这个词语；在第 9 章中的 [带有 `panic!` 宏的不可恢复性错误](Ch09_Error_Handling.md#) 小节，将更深入地讨论到程序因错误而终止运行的情况。
+> 比方说有个类型为 `u8` 的、可保存 `0` 到 `255` 之间值的变量。在尝试将该变量修改为超出那个范围的某个值，比如 `256` 时，就会发生 *整型溢出（integer overflow）*，而整型溢出又可导致两种行为之一。在以调试模式进行程序编译时，Rust 就会包含整数溢出的检查，在发生了整数溢出时，就会导致程序进入 *错误（panic）* 状态。对于程序因错误而退出执行这种情况，Rust 使用了 猝死（paniking） 这个词语；在第 9 章中的 [带有 `panic!` 宏的不可恢复性错误](Ch09_Error_Handling.md#带-panic-的不可恢复错误) 小节，将更深入地讨论到程序因错误而终止运行的情况。
 >
 > 在以 `--release` 开关进行发布模式的编译时，Rust 就不会包含对引起程序终止运行的整数溢出的检查。这时若发生了溢出，Rust 就会执行 *二进制补码封装（two's complement wrapping）*。简而言之，对于比那种类型能保存的最大值还要大的值，就会被“回卷（wrap around）”到那种类型所能保存的最小值。以 `u8` 为例，值 `256` 就变成了 `0`，值 `257` 就变成了 `1`，如此等等。这样程序就不会死掉，而那个变量则会有着一个或许不是所期望的值。对整数溢出的回卷行为的依赖，被视为一种错误（Relying on integer overflow's wrapping behavior is considered an error）。
 >
@@ -341,7 +341,7 @@ fn main() {
 }
 ```
 
-主要通过条件判断，来使用布尔值，比如在 `if` 表达式中。在 [控制流（Control Flow）](#control-flow) 小节，会讲到 Rust 中 `if` 表达式的工作方式。
+主要通过条件判断，来使用布尔值，比如在 `if` 表达式中。在 [控制流（Control Flow）](#控制流程control-flow) 小节，会讲到 Rust 中 `if` 表达式的工作方式。
 
 ### 字符类型
 
@@ -359,7 +359,7 @@ fn main() {
 }
 ```
 
-请注意，相比使用双引号来给字符串字面值进行值的指定，这里是以单引号来对这些 `char` 的字面值进行指定的。Rust 的 `char` 类型，有着四个字节的大小，而表示了 Unicode 的标量值，这就意味着他可以表示比仅仅 ASCII 要多得多的符号。像是重音字母（accented letters）；中文、日语、韩语等等；emoji 符号；以及那些零宽度空格等等，在 Rust 中都是有效的 `char` 取值。Unicode 标量值的范围，是从 `U+0000` 到 `U+D7FF`，及 `U+E000` 到 `U+10FFFF`，包含边界值。不过，“字符（character）” 并非 Unicode 中的概念，因此对 “字符” 为何物的主观认识，可能与 Rust 中 `char` 的本质有所差别。在第 8 章中的 [用字符串存储 UTF-8 编码的文本](Ch08_Strings.md#storing-utf-8-encoded-text-with-strings) 小节，将对此话题进行讨论。
+请注意，相比使用双引号来给字符串字面值进行值的指定，这里是以单引号来对这些 `char` 的字面值进行指定的。Rust 的 `char` 类型，有着四个字节的大小，而表示了 Unicode 的标量值，这就意味着他可以表示比仅仅 ASCII 要多得多的符号。像是重音字母（accented letters）；中文、日语、韩语等等；emoji 符号；以及那些零宽度空格等等，在 Rust 中都是有效的 `char` 取值。Unicode 标量值的范围，是从 `U+0000` 到 `U+D7FF`，及 `U+E000` 到 `U+10FFFF`，包含边界值。不过，“字符（character）” 并非 Unicode 中的概念，因此对 “字符” 为何物的主观认识，可能与 Rust 中 `char` 的本质有所差别。在第 8 章中的 [用字符串存储 UTF-8 编码的文本](Ch08_Strings.md#使用-string-存储-utf-8-编码的文本) 小节，将对此话题进行讨论。
 
 ## 复合类型
 
@@ -432,7 +432,7 @@ fn main() {
 }
 ```
 
-在希望数据分配在栈而不是堆（在 [第 4 章](Ch04_Understanding_Ownership.md#what-is-ownership) 将进一步讨论栈与堆）上时，或希望确保一直有着固定数目的元素时，数组就派上用场了。然而，数组不如矢量类型灵活。矢量是标准库所提供的，一种类似的集合类型，其大小 *可以* 变大或缩小。在不确定要使用数组，还是要使用矢量类型时，那多半就应该使用矢量了。[第 8 章](Ch08_Common_Collections.md#vectors) 对矢量类型进行了更详细的讨论。
+在希望数据分配在栈而不是堆（在 [第 4 章](Ch04_Understanding_Ownership.md#何谓所有权) 将进一步讨论栈与堆）上时，或希望确保一直有着固定数目的元素时，数组就派上用场了。然而，数组不如矢量类型灵活。矢量是标准库所提供的，一种类似的集合类型，其大小 *可以* 变大或缩小。在不确定要使用数组，还是要使用矢量类型时，那多半就应该使用矢量了。[第 8 章](Ch08_Common_Collections.md#使用矢量类型对值清单进行存储) 对矢量类型进行了更详细的讨论。
 
 尽管如此，在了解了元素数目无需变化时，数组将更为有用。比如，在程序中正使用着各个月份名字时，由于是知道那将总是包含 12 个元素，因此就要使用数组而非矢量类型：
 
@@ -838,7 +838,7 @@ fn main() {
 }
 ```
 
-Rust 还有另外一种注释，叫做文档注释，在第 14 章的 [将代码箱发布到 Crates.io](Ch14_More_about_Cargo_and_Crates.io.md#publishing-a-crate-tocrates-io) 中会对文档注释进行讨论。
+Rust 还有另外一种注释，叫做文档注释，在第 14 章的 [将代码箱发布到 Crates.io](Ch14_More_about_Cargo_and_Crates.io.md#将代码箱发布到-cratesio) 中会对文档注释进行讨论。
 
 ## 控制流程（Control Flow）
 
@@ -864,7 +864,7 @@ fn main() {
 }
 ```
 
-全部 `if` 表达式，都是以关键字 `if` 开头的，接着的是一个条件。在此示例中，那个条件就变量 `number` 是否小于 `5` 进行检查。是把要在条件为真时立即执行的代码块，放在条件之后、一对花括号里头。`if`表达式中与那些条件相关联的代码块，有时也叫做 *支臂（arms）*，这与在第 2 章的 [将猜数与秘密数字比较](Ch02_Programming_a_Guessing_Game.md#comparing-the-guess-to-the-secret-number) 小节中讨论过的 `match` 表达式中的支臂一样。
+全部 `if` 表达式，都是以关键字 `if` 开头的，接着的是一个条件。在此示例中，那个条件就变量 `number` 是否小于 `5` 进行检查。是把要在条件为真时立即执行的代码块，放在条件之后、一对花括号里头。`if`表达式中与那些条件相关联的代码块，有时也叫做 *支臂（arms）*，这与在第 2 章的 [将猜数与秘密数字比较](Ch02_Programming_a_Guessing_Game.md#将猜数与秘数相比较) 小节中讨论过的 `match` 表达式中的支臂一样。
 
 作为可选项，还可以包含一个 `else` 表达式，即这里做的那样，从而给到程序一个替代性的、将在条件求解结果为 `false` 时执行的代码块。在未提供`else`表达式，且条件为 `false` 时，程序将直接跳过那个 `if` 代码块，而前往接下来的代码处。
 
@@ -1075,7 +1075,7 @@ $ cargo run
 
 其中的符号 `^C` 表示按下 `ctrl-c` 的地方。在那个 `^C` 之后，可能会也可能不会看到 `再次！` 被打印出来，取决于程序接收到中断信号时，代码在循环中的何处。
 
-幸运的是，Rust 还提供了一种运用代码来跳出循环的方式。可在循环中放置 `break` 关键字，而告诉程序在何时结束执行这个循环。还记得在第 2 章的 [猜对数字后退出程序](Ch02_Programming_a_Guessing_Game.md#quitting-after-a-correct-guess) 小节，就在那个猜数游戏中这样做了，在通过猜到正确数字而赢得游戏时退出那个程序。
+幸运的是，Rust 还提供了一种运用代码来跳出循环的方式。可在循环中放置 `break` 关键字，而告诉程序在何时结束执行这个循环。还记得在第 2 章的 [猜对数字后退出程序](Ch02_Programming_a_Guessing_Game.md#猜对后的退出) 小节，就在那个猜数游戏中这样做了，在通过猜到正确数字而赢得游戏时退出那个程序。
 
 在那个猜数游戏中，还使用了 `continue` 关键字，循环中的 `continue` 关键字，告诉程序去跳过循环本次迭代的其余全部代码，而前往下一次迭代。
 

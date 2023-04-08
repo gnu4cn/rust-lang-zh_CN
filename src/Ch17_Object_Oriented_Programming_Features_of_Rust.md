@@ -730,7 +730,9 @@ error: could not compile `simple_blog` due to previous error
 经由这种完全按照面向对象模式下所定义的状态模式，来实现这种模式，咱们就没有利用上原本所能利用的 Rust 的全部优势。下面就来看看，咱们可对那个 `simple_blog` 能做出的，可将无效状态与无效状态转换，构造为编译时错误的一些改变。
 
 
-**将状态与行为当作类型编码，Encoding States and Behavior as Types**
+#### 将状态与行为当作类型编码
+
+**Encoding States and Behavior as Types**
 
 
 咱们将给出如何对这种状态模式加以反思，以得到一套不同的权衡取舍。不同于对状态及状态的转换进行完全地封装，进而外部代码对他们一无所知，咱们将把那些状态编码为不同类型。于是乎，Rust 的类型检查系统，就将通过发出编译器报错，阻止在那些仅允许已发布帖子之处，使用草稿帖子的尝试。
@@ -791,7 +793,9 @@ impl DraftPost {
 `DraftPost` 结构体有着一个 `add_text` 方法，因此咱们就可以如同之前那样，把文本添加到 `content`，但请注意 `DraftPost` 并没有定义一个 `content` 方法！因此现在的程序确保了全部帖子都以草稿帖子开头，而草稿帖子并不会让他们的内容用于显示。任何绕过这些约束的尝试，都将导致编译器报错。
 
 
-**以到不同类型的转换，实现（状态的）转换，Implementing Transitions as Transformations into Different Types**
+#### 以到不同类型的转换，实现（状态的）转换
+
+**Implementing Transitions as Transformations into Different Types**
 
 
 那么怎样来获取到某个已发布帖子呢？咱们是打算强化某个草稿帖子在其可被发布之前，必须被审阅和批准的规则。处于等待审阅状态的帖子，应仍然不显示任何内容。下面酒类通过添加另一结构体，`PendingReviewPost`、在 `DraftPost` 上定义出返回 `PendingReviewPost` 实例的 `request_review` 方法，以及在 `PendingReviewPost` 上定义出返回 `Post` 的 `approve` 方法，实现这些约束，如下清单 17-20 中所示：

@@ -199,7 +199,7 @@ warning: `guessing_game` (bin "guessing_game") generated 1 warning
 
 Rust 警告说不曾对返回自 `read_line` 的 `Result` 值进行使用，表示程序没有对可能的错误加以处理。
 
-消除该警告信息的正确方式，就是要老老实实地编写错误处理代码，而在这个实例中，则只要在问题发生时，崩溃掉这个程序即可，因此这里就可以使用 `expect`。在 [第 9 章](Ch09_Error_Handling.md#recoverable-errors-with-result) 会掌握到如何从错误中恢复过来。
+消除该警告信息的正确方式，就是要老老实实地编写错误处理代码，而在这个实例中，则只要在问题发生时，崩溃掉这个程序即可，因此这里就可以使用 `expect`。在第 9 章的 [带有 Result 的可恢复错误](Ch09_Error_Handling.md#带有-result-的可恢复错误) 小节，会掌握到如何从错误中恢复过来。
 
 ## 使用 `println!` 的占位符将值打印出来
 

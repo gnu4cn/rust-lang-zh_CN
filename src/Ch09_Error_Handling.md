@@ -112,13 +112,13 @@ note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose bac
 
 在上面清单 9-2 里的输出中，回溯所指向到这里项目中行的第 6 行，就是导致问题的行：即 `src/main.rs` 的第 4 行。在不想要这个程序中止时，就应在首个提到了自己所编写文件的行，所指向的那个位置，开始排查。在之前的清单 9-1 中，那里有意编写了会中止的代码，而修正程序中止的办法，就是不要请求某个超出那个矢量索引范围的元素。而在今后代码中止时，就需要搞清楚代码是在对什么值进行何种操作，而导致了中止，以及代码应该怎么做。
 
-在本章的 [要 `panic!` 或不要 `panic!`](#to-panic-or-not-to-panic) 小节，将回到 `panic!` 这个话题，并讨论在何时要用 `panic!`，何时不应使用 `panic!` 来处理不同错误情形。接下来，就会看看怎样使用 `Result`，从错误中恢复过来。
+在本章的 [要 `panic!` 或不要 `panic!`](#要-panic-还是不要-panic) 小节，将回到 `panic!` 这个话题，并讨论在何时要用 `panic!`，何时不应使用 `panic!` 来处理不同错误情形。接下来，就会看看怎样使用 `Result`，从错误中恢复过来。
 
 ## 带有 `Result` 的可恢复错误
 
 多数错误都没有严重到要求程序整个地停止运行。某些时候，在某个函数失败时，必定是由于某种可易于解释进而加以响应的原因。比如在尝试打开某个文件，而因为要打开的文件不存在，那个操作失败了时，那么可能希望创建该文件，而不是中止这个进程。
 
-回顾第二章中的 [处理潜在带有 `Result` 类型的程序失败](Ch02_Programming_a_Guessing_Game.md#handling-potential-failure-with-the-result-type) 小节，其中的 `Result` 枚举被定义为有两个变种，`Ok` 与 `Err`，如下所示：
+回顾第二章中的 [处理潜在带有 `Result` 类型的程序失败](Ch02_Programming_a_Guessing_Game.md#处理潜在的带有-result-的程序失效) 小节，其中的 `Result` 枚举被定义为有两个变种，`Ok` 与 `Err`，如下所示：
 
 ```rust
 enum Result<T, E> {
@@ -507,7 +507,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 *清单 9-12：将 `main` 修改为返回 `Result<(), E>`，就实现了在 `Result` 值上 `?` 操作符的使用*
 
-这里的 `Box<dyn Error>` 类型，是个 *特质对象（trait object）*，在第 17 章中的 [“运用特质对象实现不同类型的值”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#using-trait-objects-that-allow-for-values-of-different-types) 小节，就会讲到这个特性。而现在，可将 `Box<dyn Error>` 理解为表示 “任何类别的错误”。由于 `?` 操作符允许将任何 `Err` 值及早返回，因此将 `?` 用在有着错误类型 `Box<dyn Error>` 的 `main` 函数中， 某个 `Result` 值上是允许的。即使这个 `main` 函数的函数体，将只会返回类型 `std::io::Error` 的那些错误，而经由指定 `Box<dyn Error>`，即使将返回其他错误的代码添加到 `main` 的函数体，该函数签名 `fn main() -> Result<(), Box<dyn Error>>` 仍将无误。
+这里的 `Box<dyn Error>` 类型，是个 *特质对象（trait object）*，在第 17 章中的 [“使用允许不同类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节，就会讲到这个特性。而现在，可将 `Box<dyn Error>` 理解为表示 “任何类别的错误”。由于 `?` 操作符允许将任何 `Err` 值及早返回，因此将 `?` 用在有着错误类型 `Box<dyn Error>` 的 `main` 函数中， 某个 `Result` 值上是允许的。即使这个 `main` 函数的函数体，将只会返回类型 `std::io::Error` 的那些错误，而经由指定 `Box<dyn Error>`，即使将返回其他错误的代码添加到 `main` 的函数体，该函数签名 `fn main() -> Result<(), Box<dyn Error>>` 仍将无误。
 
 在 `main` 函数返回了一个 `Result<(), E>` 时，那么若 `main` 返回的是 `Ok(())`，则该可执行程序就会以值 `0` 退出，并在 `main` 返回 `Err` 值时，以非零值退出。C 语言编写的可执行程序，在退出时返回的是些整数：成功退出的程序返回整数 `0`，而出错的程序返回某些非 `0` 的整数。Rust 从可执行程序返回的也是整数，从而与此约定兼容。
 
@@ -556,7 +556,7 @@ fn main () {
 
 - 糟糕状态是某些不期望的东西，他们与偶发的东西相反，比如用户输入的错误格式数据；
 - 在此处之后的代码，需要依赖于不处在这种糟糕状态，而不是在接下来的每一步都检查这个问题；
-- 没有以自己所使用的类型，来编码该信息的好办法。在第 17 章的 [“将状态于行为编码为类型”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#encoding-states-and-behavior-as-types) 小节，就会贯穿一个这里所意指的示例。
+- 没有以自己所使用的类型，来编码该信息的好办法。在第 17 章的 [“将状态与行为编码为类型”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#) 小节，就会贯穿一个这里所意指的示例。
 
 在有人调用到咱们的代码，并传入了无意义的值时，在可以的情况下，最好返回一个错误，这样库用户就可以确定在那样的情况下，他们打算做什么。然而在继续执行下去会不安全或有危害的情形中，那么最佳选择就会时调用 `panic!`，并警醒使用到咱们库的人他们代码中的错误，这样在他们开发过程中就可以修好那个代码错误。与此类似，在调用不在掌控中的外部代码，且该外部代码返回了无法修复的无效状态时，那么 `panic!` 通常就是恰当选择。
 
