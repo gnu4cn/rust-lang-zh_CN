@@ -665,7 +665,7 @@ impl ThreadPool {
 }
 ```
 
-由于咱们清楚一个负的线程数目不会有任何意义，因此咱们选择了 `usize` 作为那个 `size` 参数的类型。咱们还知道咱们将使用这个 `4` 作为线程集合中原始的个数，那即使这个 `usize` 类型的目的所在，正如第三章的 [整数类型](Ch03_Common_Programming_Concepts.md#integer-types) 小节中曾讨论过的。
+由于咱们清楚一个负的线程数目不会有任何意义，因此咱们选择了 `usize` 作为那个 `size` 参数的类型。咱们还知道咱们将使用这个 `4` 作为线程集合中原始的个数，那即使这个 `usize` 类型的目的所在，正如第三章的 [整数类型](Ch03_Common_Programming_Concepts.md#整形) 小节中曾讨论过的。
 
 下面来再次检查：
 
@@ -682,9 +682,9 @@ For more information about this error, try `rustc --explain E0599`.
 error: could not compile `hello` due to previous error
 ```
 
-现在的报错之所以出现，是因为在 `ThreadPool` 上咱们没有一个 `execute` 方法。回顾 ["创建有限数目的线程"](#creating-a-finite-number-of-threads) 小节到，咱们已决定咱们的线程池，应有一个类似与 `thread::spawn` 的接口。此外，咱们将实现这个 `execute` 函数，如此其便会取那个给到他的闭包，并将其交给线程池中的某个空闲进程运行。
+现在的报错之所以出现，是因为在 `ThreadPool` 上咱们没有一个 `execute` 方法。回顾 ["创建有限数目的线程"](#创建有限数目的线程) 小节到，咱们已决定咱们的线程池，应有一个类似与 `thread::spawn` 的接口。此外，咱们将实现这个 `execute` 函数，如此其便会取那个给到他的闭包，并将其交给线程池中的某个空闲进程运行。
 
-咱们将在 `ThreadPool` 上定义这个 `execute` 方法，来取一个闭包作为参数。回顾第 13 章中 [“将捕获值迁移出闭包与 `Fn` 特质”](Ch13_Functional_Language_Features_Iterators_and_Closures.md#moving-captured-values-out-of-closures-and-the-Fn-traits) 到咱们可以三种不同特质，将闭包取作参数：`Fn`、`FnMut` 与 `FnOnce`。咱们需要确定出这里要使用何种类别的闭包。咱们清楚咱们将以完成一些类似于标准库的 `thread::spawn` 实现类似的东西结束，因此咱们就可以看看 `thread::spawn` 的签名在其参数上有些什么。文档给出咱们下面的东西：
+咱们将在 `ThreadPool` 上定义这个 `execute` 方法，来取一个闭包作为参数。回顾第 13 章中 [“将捕获值迁移出闭包与 `Fn` 特质”](Ch13_Functional_Language_Features_Iterators_and_Closures.md#将捕获到的值迁移出闭包与-fn-特质) 到咱们可以三种不同特质，将闭包取作参数：`Fn`、`FnMut` 与 `FnOnce`。咱们需要确定出这里要使用何种类别的闭包。咱们清楚咱们将以完成一些类似于标准库的 `thread::spawn` 实现类似的东西结束，因此咱们就可以看看 `thread::spawn` 的签名在其参数上有些什么。文档给出咱们下面的东西：
 
 ```rust
 pub fn spawn<F, T>(f: F) -> JoinHandle<T>
@@ -1057,7 +1057,7 @@ impl Worker {
 
 **Implementing the `execute` method**
 
-咱们来最终实现那个 `ThreadPool` 上的 `execute` 方法。咱们还将把 `Job` 从结构体，修改为保存着 `execute` 接收到闭包类型的特质对象的类型别名。正如第 19 章 [“使用类型别名创建类型义词”](Ch19_Advanced_Features.md#creating-type-synonyms-with-type-aliases) 小节中曾讨论过的，类型别名实现了为易于使用而将长类型构造缩短。请看看下面清单 20-19.
+咱们来最终实现那个 `ThreadPool` 上的 `execute` 方法。咱们还将把 `Job` 从结构体，修改为保存着 `execute` 接收到闭包类型的特质对象的类型别名。正如第 19 章 [“使用类型别名创建类型义词”](Ch19_Advanced_Features.md#使用类型别名创建类型同义词) 小节中曾讨论过的，类型别名实现了为易于使用而将长类型构造缩短。请看看下面清单 20-19.
 
 文件名：`src/lib.rs`
 

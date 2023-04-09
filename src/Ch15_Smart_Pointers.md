@@ -33,7 +33,7 @@
 - 有着大量数据，并打算在转移所有权的同时，确保这些数据不会被拷贝时（when you have a large amount of data and you want to transfer ownership but ensure the data won't be copied when you do so）；
 - 在希望拥有某个值，并只关心其为某个实现了特定特质的类型，而非为某个具体类型（when you want to own a value and you care only that it's a type that implements a particular trait rather than being of a specific type）。
 
-这第一种情形将在 [使用匣子实现递归类型](#enabling-recursive-types-with-boxes) 小节演示。在第二种情形下，大量数据所有权的转移，会由于这些数据在栈上拷来拷去。为改进这种情形下的性能，就可以将这些大量数据存储在内存堆上的一个匣子中。随后，就只有少量的指针数据，在栈上拷贝了，同时其引用的数据，还是呆在堆上的一个地方。第三种情形被称为 *特质对象* （*trait object*），而第 17 章中，用了一整个小节，[“使用实现具有多个类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#using-trait-objects-that-allow-for-values-of-different-types)，来只讲解那个方面。因此这里掌握的东西，还会在第 17 章中用到。
+这第一种情形将在 [使用匣子实现递归类型](#使用匣子数据结构实现递归数据类型) 小节演示。在第二种情形下，大量数据所有权的转移，会由于这些数据在栈上拷来拷去。为改进这种情形下的性能，就可以将这些大量数据存储在内存堆上的一个匣子中。随后，就只有少量的指针数据，在栈上拷贝了，同时其引用的数据，还是呆在堆上的一个地方。第三种情形被称为 *特质对象* （*trait object*），而第 17 章中，用了一整个小节，[“使用实现具有多个类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象)，来只讲解那个方面。因此这里掌握的东西，还会在第 17 章中用到。
 
 ### 使用 `Box<T>` 在内存堆上存储数据
 
@@ -349,7 +349,7 @@ error: could not compile `sp_demos` due to previous error
 
 **Treating a Type Like a Reference by Implementing the `Deref` Trait**
 
-正如第 10 章的 ["在类型上实现某个特质"](Ch10_Generic_Types_Traits_and_Lifetimes.md#implementing-a-trait-on-a-type) 小节中所讨论过的，这里需要提供到特质所要求的那些方法的实现。而这个由标准库提供的 `Deref` 特质，要求咱们实现一个会借用到 `self`，并会返回到其内部数据的引用的名为 `deref` 的方法。下面清单 15-10 包含了添加到 `MyBox` 定义的一个 `Deref` 实现：
+正如第 10 章的 ["在类型上实现某个特质"](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质) 小节中所讨论过的，这里需要提供到特质所要求的那些方法的实现。而这个由标准库提供的 `Deref` 特质，要求咱们实现一个会借用到 `self`，并会返回到其内部数据的引用的名为 `deref` 的方法。下面清单 15-10 包含了添加到 `MyBox` 定义的一个 `Deref` 实现：
 
 文件名：`src/main.rs`
 
@@ -377,7 +377,7 @@ impl<T> Deref for MyBox<T> {
 
 其中 `type Target = T;` 这种语法，定义出了 `Deref` 特质要用到的一个关联类型（an assiotiated type for the `Deref` trait to use）。关联类型属于与声明泛型参数有些许不同的声明方式，现在无需担心他们；在第 19 张中将更细致地讲到他们。
 
-这里填入 `deref` 方法函数体的是 `&self.0`，从而 `deref` 就返回了到咱们打算用 `*` 运算符访问的那个值的一个引用；回顾第 5 章的 [运用不带命名字段的元组结构体来创建出不同类型](Ch05_Using_Structs_to_Structure_Related_Data.md#using-tuple-structs-without-named-fields-to-create-different-types) 小节，那个 `.0` 就是访问了结构体中的首个值。清单 15-9 中在其中 `MyBox<T>` 值上调用了 `*` 的 `main` 函数，现在就会编译了，同时那些断言将通过！
+这里填入 `deref` 方法函数体的是 `&self.0`，从而 `deref` 就返回了到咱们打算用 `*` 运算符访问的那个值的一个引用；回顾第 5 章的 [运用不带命名字段的元组结构体来创建出不同类型](Ch05_Using_Structs_to_Structure_Related_Data.md#使用不带命名字段的元组结构体来创建不同类型) 小节，那个 `.0` 就是访问了结构体中的首个值。清单 15-9 中在其中 `MyBox<T>` 值上调用了 `*` 的 `main` 函数，现在就会编译了，同时那些断言将通过！
 
 没有这个 `Deref` 特质，编译器就只能解引用那些 `&` 的引用。那个 `deref` 方法，给到了编译器取得实现了 `Deref` 特质的任意类型值的能力，而调用该特质的 `deref` 方法，就获得了其知道如何解引用的一个 `&` 引用。
 
@@ -710,7 +710,7 @@ fn main() {
 
 这里本可以调用 `a.clone()` 而不是 `Rc::clone(&a)`，但在这种情况下，Rust 的约定就是使用 `Rc::clone`。`Rc::clone` 方法的实现，与绝大多数类型的 `clone` 实现方式不同，其并不会构造全部数据的深拷贝。到 `Rc::clone` 的调用，只会增加引用计数，这样做不耗费很多时间。而数据的一些深拷贝，则能耗费很多时间。通过使用 `Rc::clone` 来进行引用计数，咱们就可以直观地区别出深拷贝类别的那些克隆，与那些增加引用计数的克隆类别。在查找代码中的性能问题时，咱们只需要关注那些深拷贝的克隆，而可以不用管那些到 `Rc::clone` 的调用。
 
-> **注**：第 4 章 [变量与数据交互方式之二：克隆](Ch04_Understanding_Ownership.md#ways-variables-and-data-interact-clone) 中，曾提到：“当看到一个对 clone 方法的调用时，那么就明白正有一些任性代码在被执行，且那代码可能开销高昂。对此方法的调用，是某些不同寻常事情正在发生的明显标志。”。
+> **注**：第 4 章 [变量与数据交互方式之二：克隆](Ch04_Understanding_Ownership.md#变量与数据交互方式之二克隆) 中，曾提到：“当看到一个对 clone 方法的调用时，那么就明白正有一些任性代码在被执行，且那代码可能开销高昂。对此方法的调用，是某些不同寻常事情正在发生的明显标志。”。
 
 
 ### 对某个 `Rc<T>` 进行克隆，就会增加引用计数
@@ -740,7 +740,7 @@ fn main() {
 
 *清单 15-19：打印出引用计数*
 
-在程序中引用计数变化的各个点位，咱们都打印出了引用计数，其正是咱们经由调用 `Rc::strong_count` 函数得到的。该函数之所以名为 `strong_count`，而非 `count`，是由于这个 `Rc<T>` 类型，还有一个 `weak_count` 函数；在 [阻止引用的循环：将 `Rc<T>` 转换为 `Weak<T>`](#preventing-reference-cycles-turning-an-rc-t-into-a-weak-t) 小节，就会看到 `weak_count` 的使用。
+在程序中引用计数变化的各个点位，咱们都打印出了引用计数，其正是咱们经由调用 `Rc::strong_count` 函数得到的。该函数之所以名为 `strong_count`，而非 `count`，是由于这个 `Rc<T>` 类型，还有一个 `weak_count` 函数；在 [阻止引用的循环：将 `Rc<T>` 转换为 `Weak<T>`](#防止引用循环将-rct-转变为-weakt) 小节，就会看到 `weak_count` 的使用。
 
 此代码会打印出下面的东西：
 
@@ -1113,7 +1113,7 @@ fn main() {
 
 这里创建了为 `Rc<RefCell<i32>>` 类型实例的一个值，并将其存储在名为 `value` 的一个变量中，如此咱们就可以在稍后直接访问他。接着这里在 `a` 中，创建了有着保存了 `value` 的 `Cons` 变种的一个 `List`。这里需要克隆 `value`，这样 `a` 与 `value` 都会有着那个内层值 `5` 的所有权，而非将所有权从 `value` 转移到 `a` 或让 `a` 从 `value` 借用。
 
-这里把那个列表 `a`，封装在了一个 `Rc<T>` 中，进而在创建列表 `b` 与 `c` 时，二者都可以引用到 `a`，正如咱们在清单 15-18 中所做的那样。在这里已创建出 `a`、`b` 与 `c` 中的三个列表后，就打算把 `10` 加到 `value` 中的那个值。咱们是通过调用 `value` 上的 `borrow_mut` 方法做到这点的，这用到了第 5 章中曾讨论过的自动解引用特性（参见 [`->` 操作符去哪儿了？](Ch05_Using_Structs_to_Structure_Related_Data.md#where-is-the-arrow-operator)），来将这个 `Rc<T>` 解引用到内层的 `RefCell<T>` 值。这个 `borrow_mut` 方法返回的是一个 `RefMut<T>` 的灵巧指针，而咱们于其上使用了解引用运算符，并修改了那个内层值。
+这里把那个列表 `a`，封装在了一个 `Rc<T>` 中，进而在创建列表 `b` 与 `c` 时，二者都可以引用到 `a`，正如咱们在清单 15-18 中所做的那样。在这里已创建出 `a`、`b` 与 `c` 中的三个列表后，就打算把 `10` 加到 `value` 中的那个值。咱们是通过调用 `value` 上的 `borrow_mut` 方法做到这点的，这用到了第 5 章中曾讨论过的自动解引用特性（参见 [`->` 操作符去哪儿了？](Ch05_Using_Structs_to_Structure_Related_Data.md#--操作符the---operator哪去了呢)），来将这个 `Rc<T>` 解引用到内层的 `RefCell<T>` 值。这个 `borrow_mut` 方法返回的是一个 `RefMut<T>` 的灵巧指针，而咱们于其上使用了解引用运算符，并修改了那个内层值。
 
 在打印 `a`、`b` 与 `c` 时，就可以看到他们都有了修改后的值 `15` 而非 `5`：
 

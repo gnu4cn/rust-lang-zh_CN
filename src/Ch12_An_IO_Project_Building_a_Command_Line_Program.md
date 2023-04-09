@@ -58,7 +58,7 @@ fn main() {
 *清单 12-1：将命令行参数，收集到一个矢量中并把他们打印出来*
 
 
-这里首先使用了一个 `use` 语句，将那个 `std::env` 模组带入到了作用域，如此就可以使用他的 `args` 函数了。请注意这个 `std::env::args` 函数，是嵌套在两个层级的模组中的。如同在 [第 7 章](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#creating-idiomatic-use-path) 处所讨论过的，在那些所需函数是嵌套于多个模组中的情形下，那里就选择将其中的父模组带入到作用域，而非该函数本身。经由这样做，就可以轻易地使用到 `std::env` 中的其他函数了。同时相比于添加 `use std::env::args` 并在随后只使用 `args` 调用这个函数，这样做也不那么含糊其辞，这是由于 `args` 这个名字，可能稍不留意就会被误用为定义在当前模组中的某个函数。
+这里首先使用了一个 `use` 语句，将那个 `std::env` 模组带入到了作用域，如此就可以使用他的 `args` 函数了。请注意这个 `std::env::args` 函数，是嵌套在两个层级的模组中的。如同在 [第 7 章](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#创建惯用-use-路径) 处所讨论过的，在那些所需函数是嵌套于多个模组中的情形下，那里就选择将其中的父模组带入到作用域，而非该函数本身。经由这样做，就可以轻易地使用到 `std::env` 中的其他函数了。同时相比于添加 `use std::env::args` 并在随后只使用 `args` 调用这个函数，这样做也不那么含糊其辞，这是由于 `args` 这个名字，可能稍不留意就会被误用为定义在当前模组中的某个函数。
 
 > **`args` 函数与无效 Unicode 字符**
 >
@@ -394,7 +394,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 *清单 12-8：添加一个参数个数的检查*
 
 
-此代码与 [清单 9-13 中曾编写过的 `Guess::new` 函数](Ch09_Error_Handling.md#creating-custom-types-for-validation) 类似，其中在那个 `value` 参数超出有效值边界时，就调用了 `panic!` 宏。这里没有检查值的边界，而是就 `args` 的长度至少为 `3` 进行了检查，进而该函数的其余部分，就可以在此条件已满足的假定下运作了。在 `args` 所拥有的条目少于三个时，此条件便为真，进而这里就会条约那个 `panic!` 宏，来立即结束这个程序。
+此代码与 [清单 9-13 中曾编写过的 `Guess::new` 函数](Ch09_Error_Handling.md#创建用于验证的定制类型) 类似，其中在那个 `value` 参数超出有效值边界时，就调用了 `panic!` 宏。这里没有检查值的边界，而是就 `args` 的长度至少为 `3` 进行了检查，进而该函数的其余部分，就可以在此条件已满足的假定下运作了。在 `args` 所拥有的条目少于三个时，此条件便为真，进而这里就会条约那个 `panic!` 宏，来立即结束这个程序。
 
 有了`new` 中的这些额外少数几行，下面就不带任何参数地再度运行这个程序，来看看现在错误看起来如何：
 
@@ -407,7 +407,7 @@ thread 'main' panicked at '参数数量不足', src/main.rs:25:13
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-此输出好了一些：现在这里就有了一个合理的错误消息了。不过，这里还有一些不希望给到用户的无关信息。或许运用曾在清单 9-13 中用到的那种技巧，并非这里要用到的最佳技巧：到 `panic!` 的调用，相比于用法方面的问题，是更适合于编程方面的问题的，如同 [第 9 章中所讨论的那样](Ch09_Error_Handling.md#guidelines-for-error-handling)。相反，这里将使用之前在第 9 章中曾学到的另一项技能 -- [返回一个 `Result`](Ch09_Error_Handling.md#recoverable-errors-with-result)，以表示成功执行成功或是出错。
+此输出好了一些：现在这里就有了一个合理的错误消息了。不过，这里还有一些不希望给到用户的无关信息。或许运用曾在清单 9-13 中用到的那种技巧，并非这里要用到的最佳技巧：到 `panic!` 的调用，相比于用法方面的问题，是更适合于编程方面的问题的，如同 [第 9 章中所讨论的那样](Ch09_Error_Handling.md#错误处理守则)。相反，这里将使用之前在第 9 章中曾学到的另一项技能 -- [返回一个 `Result`](Ch09_Error_Handling.md#带有-result-的可恢复错误)，以表示成功执行成功或是出错。
 
 
 **返回一个 `Result` 值，而非调用 `panic!` 宏**
@@ -482,7 +482,7 @@ $ cargo run                          ✔
 
 **Extract Logic from `main`**
 
-既然这里已经完成了对配置解析的重构，那么就来转向该程序的逻辑部分。如同在 [“二进制项目的关注点分离”](#separation-of-concerns-for-binary-projects) 小节中所指出的，这里将提取出一个保有当前在这个 `main` 函数中，不涉及到建立配置与错误处理的全部逻辑的 `run` 函数。在完成此过程时，`main` 就变得简洁而易于经由目测得以验证，并能编写出全部其他逻辑的测试。
+既然这里已经完成了对配置解析的重构，那么就来转向该程序的逻辑部分。如同在 [“二进制项目的关注点分离”](#二进制程序项目的关注点分离) 小节中所指出的，这里将提取出一个保有当前在这个 `main` 函数中，不涉及到建立配置与错误处理的全部逻辑的 `run` 函数。在完成此过程时，`main` 就变得简洁而易于经由目测得以验证，并能编写出全部其他逻辑的测试。
 
 下面清单 12-11 给出了那个被提取出的 `run` 函数。此时，这里只进行小的、渐进式的提出该函数的改进。此时仍将该函数定义在 `src/main.rs` 中。
 
@@ -538,7 +538,7 @@ fn run(config: Config) -> Result<(), Box<dyn Error>>{
 
 而对于错误类型，这里使用了那个特质对象（the `trait object`） `Box<dyn Error>` （且这里已在代码顶部，使用一条 `use` 语句，而已将 `std::error::Error` 带入到了作用域）。这里将在 [第 17 章](Ch17_Object_Oriented_Programming_Features_of_Rust.md) 讲到特质对象。至于现在，则只要了解那个 `Box<(), Error>` 表示该函数将返回一个实现了 `Error` 特质的类型，而这里不必指明该返回值将是何种特定类型。这就给到了在不同错误情形下，返回值可能为不同类型的灵活性。这个 `dyn` 关键字，是 “动态（dynamic）” 的缩写。
 
-其次，这里通过使用那个 `?` 运算符，而已将到 `expect` 的调用移除，正如在 [第 9 章](Ch09_Error_Handling.md#a-shortcut-for-propagating-errors-the-question-mark-operator) 中曾讲到过的那样。与在某个错误上 `panic!` 不同，`?` 将返回把当前函数中的错误值，返回给调用者来加以处理。
+其次，这里通过使用那个 `?` 运算符，而已将到 `expect` 的调用移除，正如在 [第 9 章](Ch09_Error_Handling.md#传递错误的快捷方式-操作符) 中曾讲到过的那样。与在某个错误上 `panic!` 不同，`?` 将返回把当前函数中的错误值，返回给调用者来加以处理。
 
 第三，这个 `run` 函数现在会在成功情形下返回一个 `Ok` 值。在函数签名中，这里已将该 `run` 函数的成功类型定义为 `()`，这就意味着需要将那个单元值，封装在 `Ok` 值中。乍一看这个 `Ok(())` 语法或许有点陌生，不过像这样使用 `()`，则正是一种表明这里调用 `run` 只是为了其副作用的方式；他不会返回一个这里所需要的值。
 
@@ -685,7 +685,7 @@ fn main() {
 
 ### 编写一个失败测试
 
-由于不再需要 `src/lib.rs` 与 `src/main.rs` 中的那些，曾用于对该程序行为加以检查的 `println!` 语句，因此这里就要将其移出掉。随后，就要在 `src/lib.rs` 中，添加带有一个测试函数的 `tests` 模组，就跟曾在 [第 11 章](Ch11_Writing_Automated_Tests.md#the-anatomy-of-a-test-function) 曾做过的那样。该测试函数指明了这里所打算的这个 `search` 函数要有的行为：他将取得一个查询字串，与要搜索的文本，同时他将只返回搜索文本中，包含了查询字串的那些行。下面清单 12-15 给出了这个测试，该清单尚不会编译。
+由于不再需要 `src/lib.rs` 与 `src/main.rs` 中的那些，曾用于对该程序行为加以检查的 `println!` 语句，因此这里就要将其移出掉。随后，就要在 `src/lib.rs` 中，添加带有一个测试函数的 `tests` 模组，就跟曾在 [第 11 章](Ch11_Writing_Automated_Tests.md#测试函数剖析) 曾做过的那样。该测试函数指明了这里所打算的这个 `search` 函数要有的行为：他将取得一个查询字串，与要搜索的文本，同时他将只返回搜索文本中，包含了查询字串的那些行。下面清单 12-15 给出了这个测试，该清单尚不会编译。
 
 文件名：`src/lib.rs`
 
@@ -723,7 +723,7 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
 
 *清单 12-16：定义出一个刚好让这里测试编译的那个 `search` 函数来*
 
-请注意这里需要在 `search` 的函数签名中，定义一个显式的生命周期 `'a`，并在 `contents` 参数与返回值上，使用那个生命周期。回顾 [第 10 章](Ch10_Generic_Types_Traits_and_Lifetimes.md#validating-references-with-lifetimes) 中讲到，这些生命周期参数指明了哪个参数生命周期，是与返回值生命周期联系起来的。在这个示例中，这就表示那个返回的矢量，应包含引用了参数 `contents` （而非参数 `query`）的一些切片的字符串切片。
+请注意这里需要在 `search` 的函数签名中，定义一个显式的生命周期 `'a`，并在 `contents` 参数与返回值上，使用那个生命周期。回顾 [第 10 章](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用生命周期对引用加以验证) 中讲到，这些生命周期参数指明了哪个参数生命周期，是与返回值生命周期联系起来的。在这个示例中，这就表示那个返回的矢量，应包含引用了参数 `contents` （而非参数 `query`）的一些切片的字符串切片。
 
 也就是说，这里告诉 Rust，由 `search` 函数返回的数据，将存活到与传递给那个 `search` 函数的、在 `contents` 参数中数据同样长时间。这是相当重要的！*为* 某个切片所引用的数据，需要在该引用有效期间保持有效；若编译器假定这里是在构造 `query` 而非 `contents` 的字符串切片，那么他就会执行错误地安全性检查。
 
@@ -751,7 +751,7 @@ error: could not compile `minigrep` due to previous error
 
 Rust 是不可能明白，这里需要的到底是两个参数中哪一个的，因此这里就需要显式地告诉 Rust。而由于 `contents` 正是那个包含了这里全部文本的参数，而这里打算返回的，就是与那个文本匹配的部分，因此这里清楚 `contents` 就应是要运用生命周期语法，将其与返回值联系起来的那个参数。
 
-别的编程语言并不会要求在函数签名中，将参数与返回值联系起来，但随着时间的推移，这样的实践将变得容易起来。或许你会将这个示例，与第 10 章中的 [“使用生命周期对引用进行验证” 小节](Ch10_Generic_Types_Traits_and_Lifetimes.md#validating-references-with-lifetimes) 加以比较。
+别的编程语言并不会要求在函数签名中，将参数与返回值联系起来，但随着时间的推移，这样的实践将变得容易起来。或许你会将这个示例，与第 10 章中的 [“使用生命周期对引用进行验证” 小节](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用生命周期对引用加以验证) 加以比较。
 
 现在来运行测试：
 
@@ -812,7 +812,7 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
 
 *清单 12-17：遍历 `contents` 中的各行*
 
-这个 `lines` 方法，返回的是个迭代器（an iterator）。在 [第 13 章](Ch13_Functional_Language_Features_Iterators_and_Closures.md#processing-a-series-of-items-with-iterators) 中，就会讲到迭代器，不过回顾一下 [清单 3-5](Ch03_Common_Programming_Concepts.md#looping-through-a-collection-with-for) 中，就曾见过这种用到迭代器的方式，那里曾用到一个 `for` 循环, 就带有一个用于在集合中各个元素上，运行某些代码的迭代器。
+这个 `lines` 方法，返回的是个迭代器（an iterator）。在 [第 13 章](Ch13_Functional_Language_Features_Iterators_and_Closures.md#使用迭代器对条目系列进行处理) 中，就会讲到迭代器，不过回顾一下 [清单 3-5](Ch03_Common_Programming_Concepts.md#使用-for-对集合进行遍历) 中，就曾见过这种用到迭代器的方式，那里曾用到一个 `for` 循环, 就带有一个用于在集合中各个元素上，运行某些代码的迭代器。
 
 
 **在各行中搜索那个查询字串**
@@ -887,7 +887,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 这里的测试通过了，进而咱们就明白 `search` 函数是工作的了！
 
-到这里，咱们就会在保持这些测试通过，以维持这同样功能的同时，考虑对这个 `search` 函数的实现，进行重构的一些机会。这个 `search` 函数中的代码虽不怎么差劲，但他并没有利用上迭代器的一些有用特性。在 [第 13 章](Ch13_Functional_Language_Features_Iterators_and_Closures.md#processing-a-series-of-items-with-iterators) 中将回到这个示例，那里就会详细探讨到迭代器，进而会看看怎样来改进这个 `search` 函数。
+到这里，咱们就会在保持这些测试通过，以维持这同样功能的同时，考虑对这个 `search` 函数的实现，进行重构的一些机会。这个 `search` 函数中的代码虽不怎么差劲，但他并没有利用上迭代器的一些有用特性。在 [第 13 章](Ch13_Functional_Language_Features_Iterators_and_Closures.md#使用迭代器对条目系列进行处理) 中将回到这个示例，那里就会详细探讨到迭代器，进而会看看怎样来改进这个 `search` 函数。
 
 
 **在 `run` 函数中使用这个 `search` 函数**

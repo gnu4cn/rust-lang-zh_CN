@@ -28,7 +28,7 @@
 
 **The Anatomy of a Test Function**
 
-Rust 最简单形态的测试，就是以 `test` 属性注解的一个函数。所谓属性，是指有关 Rust 代码片段的元数据（attributes are metadata about pieces of Rust code）；在第 5 章中，[用在结构体上的 `derive` 属性](Ch05_Using_Structs_to_Structure_Related_Data.md#adding-useful-functionality-with-derived-traits)，就是一个属性的例子。要将某个函数修改为测试函数，就要把 `#[test]` 添加在 `fn` 之前的行上。在以 `cargo test` 命令运行编写的测试时，Rust 就会构建一个运行这些注解过的函数，并就各个测试函数是否通过或失败进行汇报的测试运行器二进制文件（a test runner binary）。
+Rust 最简单形态的测试，就是以 `test` 属性注解的一个函数。所谓属性，是指有关 Rust 代码片段的元数据（attributes are metadata about pieces of Rust code）；在第 5 章中，[用在结构体上的 `derive` 属性](Ch05_Using_Structs_to_Structure_Related_Data.md#使用派生特质加入有用功能)，就是一个属性的例子。要将某个函数修改为测试函数，就要把 `#[test]` 添加在 `fn` 之前的行上。在以 `cargo test` 命令运行编写的测试时，Rust 就会构建一个运行这些注解过的函数，并就各个测试函数是否通过或失败进行汇报的测试运行器二进制文件（a test runner binary）。
 
 每当用 Cargo 构造了一个新的库项目时，就会自动生成有着一个测试函数的测试模组。该模组给到了编写测试的模板，如此以来，就不必在每次开始新项目时，去找寻确切的测试结构及语法了。而至于要添加多少个额外测试函数与测试模组，则取决于咱们自己！
 
@@ -94,11 +94,11 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 Cargo 编译并运行了这个测试。这里看到那行 `running 1 test`。接下来的行就给出了那个自动生成测试函数的名字，名为 `it_works`，以及运行那个测试的结果为 `ok`。整体结论 `test result: ok.` 就表示全部测试都通过了，而后面的 `1 passed; 0 failed` 的部分，则对通过与未通过的测试数据，做了合计。
 
-将某个测试标记为忽略，进而其在特定实例中不运行，是可能的；在本章后面的 ["忽视某些在特别要求下才运行的测试（Ignoring Some Tests Unless Specifically Requested）"](#ignoring-some-tests-unless-specifically-requested) 小节，就会讲到这个问题。由于这里尚未完成这个问题，因此这里的测试总结，就给出了 `0 ignored`。这里还可以把一个参数，传递给这个 `cargo test` 命令，来只测试那些名字与某个字符串匹配的测试；此特性叫做 *过滤（filtering）*，在 [“通过指定测试名字运行测试子集（Running a Subset of Tests）”](#running-a-subset-of-tests) 小节，就会讲到这个问题。而这里也没有对所运行的测试加以过滤，因此在该测试小结的最后，显示了 `0 filtered out`。
+将某个测试标记为忽略，进而其在特定实例中不运行，是可能的；在本章后面的 ["忽视某些在特别要求下才运行的测试（Ignoring Some Tests Unless Specifically Requested）"](#在未作特别要求时忽略某些测试) 小节，就会讲到这个问题。由于这里尚未完成这个问题，因此这里的测试总结，就给出了 `0 ignored`。这里还可以把一个参数，传递给这个 `cargo test` 命令，来只测试那些名字与某个字符串匹配的测试；此特性叫做 *过滤（filtering）*，在 [“通过指定测试名字运行测试子集（Running a Subset of Tests）”](#依据测试名称来运行测试的某个子集) 小节，就会讲到这个问题。而这里也没有对所运行的测试加以过滤，因此在该测试小结的最后，显示了 `0 filtered out`。
 
 其中属于基准测试的 `0 measured` 统计值，对性能进行了测量。所谓基准测试（benchmark tests），就跟其字面意思一样，只在每日构建版的 Rust 中可用。请参阅 [基准测试相关文档](https://doc.rust-lang.org/unstable-book/library-features/test.html) 了解更多信息。
 
-测试输出接下来的部分，是以 `Doc-tests adder` 开始的，在有文档测试时，这便是文档测试的输出。虽然目前尚无文档测试，当 Rust 是可以编译在 API 文档中的全部代码示例的。此特性有助于将文档与代码保持同步！在第 14 章的 [“作为测试的文档注释（Documentation Comments as Tests）”](Ch14_More_about_Cargo_and_Crates_io.md#documentation-comments-as-tests) 小节，就会讨论怎样编写文档测试。至于现在，就会这个 `Doc-tests` 的输出加以忽略。
+测试输出接下来的部分，是以 `Doc-tests adder` 开始的，在有文档测试时，这便是文档测试的输出。虽然目前尚无文档测试，当 Rust 是可以编译在 API 文档中的全部代码示例的。此特性有助于将文档与代码保持同步！在第 14 章的 [“作为测试的文档注释（Documentation Comments as Tests）”](Ch14_More_about_Cargo_and_Crates_io.md#作为测试的文档注释) 小节，就会讨论怎样编写文档测试。至于现在，就会这个 `Doc-tests` 的输出加以忽略。
 
 
 接下来开始将该测试，定制为咱们自己所需的样子。首先将其中的 `it_works` 函数的名字，修改到某个别的名字，比如 `exploration`，像下面这样：
@@ -190,7 +190,7 @@ error: test failed, to rerun pass '--lib'
 
 *清单 11-4：在一项测试通过而一项测试失败时的测试输出*
 
-这里不再是 `ok` 了，`test tests::another` 那行给出了 `FAILED`。在这单独结果与测试小结直接，出现了两个新的部分：第一部分显示各个测试失败的具体原因。在此示例中，就得到 `another` 失败详情，是由于该测试函数在 `src/lib.rs` 文件第 15 行处 `panicked at '令该测试失败'`。接下来的部分，则列出了仅所有失败测试的名字，这在有很多测试，进而有很多详细失败测试输出时，是有用的。随后就可以使用某个失败测试的名字，来只运行该项测试而更容易地对其加以调试；在 [“对测试运行方式进行控制（Controlling How Tests Are Run）”](#controlling-how-tests-are-run) 小节，将对运行测试方式，进行深入讲解。
+这里不再是 `ok` 了，`test tests::another` 那行给出了 `FAILED`。在这单独结果与测试小结直接，出现了两个新的部分：第一部分显示各个测试失败的具体原因。在此示例中，就得到 `another` 失败详情，是由于该测试函数在 `src/lib.rs` 文件第 15 行处 `panicked at '令该测试失败'`。接下来的部分，则列出了仅所有失败测试的名字，这在有很多测试，进而有很多详细失败测试输出时，是有用的。随后就可以使用某个失败测试的名字，来只运行该项测试而更容易地对其加以调试；在 [“对测试运行方式进行控制（Controlling How Tests Are Run）”](#控制测试以何种方式运行) 小节，将对运行测试方式，进行深入讲解。
 
 
 显示在最后的测试小节行：总体上看，这个测试的结果为 `FAILED`。这里有一个测试通过，以及一个测试失败了。
@@ -249,7 +249,7 @@ mod tests {
 
 *清单 11-6：`can_hold` 的一个检查较大矩形是否能够真正包含较小矩形的测试*
 
-请注意这里在 `tests` 模组里头添加了个新行：`use super::*;`。这个 `tests` 模组是个遵循第 7 章中，[“用于指向模组树中某个项目的路径”](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#paths-for-referring-to-an-item-in-the-module-tree)小节中曾讲到一般可见性规则的常规模组。由于这个 `tests` 模组是个内部模组，因此这里就需要将外层模组中的受测试代码，带入到这个 `tests` 内部模组的作用域。而由于这里使用了一个全局通配符（a glob, `*`），因此所有在外层模组中定义的内容，就对这个 `tests` 模组可用了。
+请注意这里在 `tests` 模组里头添加了个新行：`use super::*;`。这个 `tests` 模组是个遵循第 7 章中，[“用于指向模组树中某个项目的路径”](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#用于引用目录树中项目的路径)小节中曾讲到一般可见性规则的常规模组。由于这个 `tests` 模组是个内部模组，因此这里就需要将外层模组中的受测试代码，带入到这个 `tests` 内部模组的作用域。而由于这里使用了一个全局通配符（a glob, `*`），因此所有在外层模组中定义的内容，就对这个 `tests` 模组可用了。
 
 这里已将这个测试命名为了 `larger_can_hold_smaller`，并创建除了所需的两个 `Rectanble` 实例。随后就调用了 `assert!` 宏，并将调用 `larger.can_hold(&smaller)` 的结果传递给了他。这个表达式应返回 `true`，因此这个测试将通过。那么就来试试看吧！
 
@@ -460,13 +460,13 @@ error: test failed, to rerun pass '--lib'
 
 而 `assert_ne!` 宏则将在给到其两个不相等值时通过测试，在两个值相等时测试失败。对于在不确定某个值是什么，但却清楚该值明显不会为何时的各种情形，这个宏就是最有用的。比如，在对某个确切会以某种方式修改其输入的函数进行测试，而修改方式会根据具体每周的哪一天运行该测试发生改变时，那么加以断言的最佳事物，就会是该函数的输出，与其输入不相等。
 
-表象之下，`assert_eq!` 与 `assert_ne!` 两个宏，分别使用了运算符 `==` 与 `!=`。在他们的断言失败时，这两个宏就会使用调试格式化（debug formatting），将他们的参数打印出来，这就意味着正被比较的两个值，必须实现了 `PartialEq` 与 `Debug` 特质。全部原生值与绝大多数的标准库类型，都实现了这两个特质。而对于咱们自己定义的结构体与枚举，就需要实现 `PartialEq` 来对这些类型的相等与否进行断言。同样还需要实现 `Debug`，来在断言失败时打印比较的两个值。由于这两个特质都正如第 5 章清单 5-12 中所提到的派生特质（derivable traits），这样就跟将 `#[derive(PartialEq, Debug)]` 注解，添加到所编写的结构体或枚举定义一样直接了。请参阅附录 C，[“可派生特质（derivable traits）”](Ch21_Appdendix.md#c-derivable-traits) 了解更多有关这两个及其他派生特质的详细信息。
+表象之下，`assert_eq!` 与 `assert_ne!` 两个宏，分别使用了运算符 `==` 与 `!=`。在他们的断言失败时，这两个宏就会使用调试格式化（debug formatting），将他们的参数打印出来，这就意味着正被比较的两个值，必须实现了 `PartialEq` 与 `Debug` 特质。全部原生值与绝大多数的标准库类型，都实现了这两个特质。而对于咱们自己定义的结构体与枚举，就需要实现 `PartialEq` 来对这些类型的相等与否进行断言。同样还需要实现 `Debug`，来在断言失败时打印比较的两个值。由于这两个特质都正如第 5 章清单 5-12 中所提到的派生特质（derivable traits），这样就跟将 `#[derive(PartialEq, Debug)]` 注解，添加到所编写的结构体或枚举定义一样直接了。请参阅附录 C，[“可派生特质（derivable traits）”](Ch21_Appdendix.md#附录-c派生特质) 了解更多有关这两个及其他派生特质的详细信息。
 
 ### 加入定制失败消息
 
 **Adding Custom Failure Message**
 
-还可将与失败消息一同打印的定制消息，作为 `assert!`、`assert_eq!` 及 `assert_ne!` 宏的可选参数加入进来。在必须的两个参数之后指定的全部参数，都被传递给他们中的 `format!` 宏（第 8 章中 [“以 `+` 操作符或 `format!` 宏的字符串连接（Concatenation with the `+` Operator or the `format!` macro）”](Ch08_Common_Collections.md#concatenation-with-the-plus-operator-or-the-format-macro)） 小节曾讲到），因此就可以传递一个包含了 `{}` 占位符的格式化字符串，以及进到这些占位符的值。对于给某个断言表示什么的文档编制，这些定制消息就是有用的；在某个测试失败时，就会有着该代码下那个问题的较好理解。
+还可将与失败消息一同打印的定制消息，作为 `assert!`、`assert_eq!` 及 `assert_ne!` 宏的可选参数加入进来。在必须的两个参数之后指定的全部参数，都被传递给他们中的 `format!` 宏（第 8 章中 [“以 `+` 操作符或 `format!` 宏的字符串连接（Concatenation with the `+` Operator or the `format!` macro）”](Ch08_Common_Collections.md#使用--运算符或-format-宏的字符串连接)） 小节曾讲到），因此就可以传递一个包含了 `{}` 占位符的格式化字符串，以及进到这些占位符的值。对于给某个断言表示什么的文档编制，这些定制消息就是有用的；在某个测试失败时，就会有着该代码下那个问题的较好理解。
 
 比如说，这里有个按照名字来打招呼的函数，并打算就传入到该函数的名字有出现在输出中进行测试：
 
@@ -1223,7 +1223,7 @@ mod tests {
 *清单 11-12：对私有函数进行测试*
 
 
-请注意这个 `internal_adder` 函数，未被标记为 `pub`。其中的那些测试，都只是些 Rust 代码，同时那个 `tests` 模组，只是另一个模组。如同在前面的 [“用于对模组树中某个项目进行引用的路径”](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#paths-for-referring-to-an-item-in-the-module-tree) 小节中所讨论的，子模组中的那些项目，可以使用其祖辈模组中的项目。在这个测试中，就以 `use super::*` 语句，将那个 `tests` 模组父辈的那些项目，带入到了作用域，进而该测试随后就可以调用 `internal_adder` 了。而在不认为私有函数应被测试时，那么 Rust 就没有什么可以迫使你对他们进行测试了（if you don't think private functions should be tested, there's nothing in Rust that will compel you to do so）。
+请注意这个 `internal_adder` 函数，未被标记为 `pub`。其中的那些测试，都只是些 Rust 代码，同时那个 `tests` 模组，只是另一个模组。如同在前面的 [“用于对模组树中某个项目进行引用的路径”](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#用于引用目录树中项目的路径) 小节中所讨论的，子模组中的那些项目，可以使用其祖辈模组中的项目。在这个测试中，就以 `use super::*` 语句，将那个 `tests` 模组父辈的那些项目，带入到了作用域，进而该测试随后就可以调用 `internal_adder` 了。而在不认为私有函数应被测试时，那么 Rust 就没有什么可以迫使你对他们进行测试了（if you don't think private functions should be tested, there's nothing in Rust that will compel you to do so）。
 
 
 ### 集成测试
@@ -1320,9 +1320,9 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 **集成测试中的子模组**
 
-随着更多集成测试的添加，就会想要在那个 `tests` 目录下，构造更多文件，来帮助组织这些文件；比如就可以将那些测试函数，按照他们所测试的功能而进行分组。如同早先所提到的，在 `tests` 目录下的各个文件，都作为其自己单独的代码箱而被编译，这一点对于创建独立作用域，来对最终用户将要使用所编写代码箱的方式，进行更紧密模拟是有用的。不过，这将意味着在 `tests` 目录中的那些文件，不会如同在第 7 章中，有关 [如何将代码分离为模组与文件](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#separating-modules-into-different-files) 部分，所掌握的 `src` 中的那些文件那样，共用同样的行为。
+随着更多集成测试的添加，就会想要在那个 `tests` 目录下，构造更多文件，来帮助组织这些文件；比如就可以将那些测试函数，按照他们所测试的功能而进行分组。如同早先所提到的，在 `tests` 目录下的各个文件，都作为其自己单独的代码箱而被编译，这一点对于创建独立作用域，来对最终用户将要使用所编写代码箱的方式，进行更紧密模拟是有用的。不过，这将意味着在 `tests` 目录中的那些文件，不会如同在第 7 章中，有关 [如何将代码分离为模组与文件](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#将模组拆分为不同文件) 部分，所掌握的 `src` 中的那些文件那样，共用同样的行为。
 
-在有着一套在多个集成测试文件中使用的辅助函数，并尝试遵循第 7 章 [将模组分离为不同文件](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#separating-modules-into-different-files) 中的步骤，把这些辅助函数提取到某个通用模组中时，`tests` 目录的那些文件的不同行为就最为明显了。比如说，在创建出 `tests/common.rs` 并将一个名为 `setup` 的函数放在其中时，就可以将一些要在多个测试文件的多个测试函数调用的代码，添加到 `setup`。
+在有着一套在多个集成测试文件中使用的辅助函数，并尝试遵循第 7 章 [将模组分离为不同文件](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#将模组拆分为不同文件) 中的步骤，把这些辅助函数提取到某个通用模组中时，`tests` 目录的那些文件的不同行为就最为明显了。比如说，在创建出 `tests/common.rs` 并将一个名为 `setup` 的函数放在其中时，就可以将一些要在多个测试文件的多个测试函数调用的代码，添加到 `setup`。
 
 文件名：`tests/common.rs`
 
@@ -1382,7 +1382,7 @@ adder
     └── integration_test.rs
 ```
 
-这是曾在第 7 章 ["替代文件路径"](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#alternate-file-paths) 小节所提到的，Rust 同样明白的较早命名约定。以这种方式命名该文件，就告诉 Rust 不要将那个 `common` 模组，作为一个集成测试文件对待。在将这个 `setup` 函数移入到 `tests/common/mod.rs` 里头，并删除了那个 `tests/common.rs` 文件时，在测试输出中的该部分就不再出现了。`tests` 目录子目录中的那些文件，不会作为单独代码箱而被编译，也不会在测试输出中拥有自己的部分。
+这是曾在第 7 章 ["替代文件路径"](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#备用文件路径) 小节所提到的，Rust 同样明白的较早命名约定。以这种方式命名该文件，就告诉 Rust 不要将那个 `common` 模组，作为一个集成测试文件对待。在将这个 `setup` 函数移入到 `tests/common/mod.rs` 里头，并删除了那个 `tests/common.rs` 文件时，在测试输出中的该部分就不再出现了。`tests` 目录子目录中的那些文件，不会作为单独代码箱而被编译，也不会在测试输出中拥有自己的部分。
 
 
 在创建出 `tests/common/mod.rs` 之后，就可以从任意的集成测试文件，将其作为模组而加以使用。下面就是一个从 `tests/integration_test.rs` 中的 `it_adds_two` 测试，对这个 `setup` 函数进行调用的示例：

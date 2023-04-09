@@ -793,12 +793,12 @@ fn returns_summarizable(switch: bool) -> impl Summary {
 }
 ```
 
-这里不允许既返回 `NewsArticle` 又返回 `Tweet`，是由于有关这个 `impl Trait` 语法，在编译器中实现方式的限制。在第 17 章的 [运用允许不同类型值的特质对象](Ch17_Object_Oriented_Programming_Features_of_Rust.md#using-trait-objects-that-allow-for-values-of-different-types) 小节，就会讲到怎样编写有着这种行为的函数。
+这里不允许既返回 `NewsArticle` 又返回 `Tweet`，是由于有关这个 `impl Trait` 语法，在编译器中实现方式的限制。在第 17 章的 [运用允许不同类型值的特质对象](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节，就会讲到怎样编写有着这种行为的函数。
 
 
 ### 运用特质边界来有条件地实现方法
 
-经由运用有着一个使用泛型参数的 `impl` 代码块的特质边界，就可以根据实现了指定特质的类型，而实现不同方法（by using a trait bound with an `impl` block that uses generic type parameters, we can implement methods conditionally for types that implement the specified traits）。比如下面清单 10-15 中的类型 `Pair<T>`，就一直会将那个 `new` 函数，实现为返回 `Pair<T>` 的一个新实例（回顾第 5 章的 [定义方法](Ch05_Using_Structs_to_Structure_Related_Data.md#defining-methods) 小节就知道，`Self` 就是那个 `impl` 代码块的类型别名，在这个示例中即为 `Pair<T>`）。但在接下来的 `impl` 代码块中，在 `Pair<T>` 的内部类型 `T` 实现了启用比较的 `PartialOrd` 特质，*与* 启用打印的 `Display` 特质时，那么 `Pair<T>` 就只会实现 `cmp_display` 方法。
+经由运用有着一个使用泛型参数的 `impl` 代码块的特质边界，就可以根据实现了指定特质的类型，而实现不同方法（by using a trait bound with an `impl` block that uses generic type parameters, we can implement methods conditionally for types that implement the specified traits）。比如下面清单 10-15 中的类型 `Pair<T>`，就一直会将那个 `new` 函数，实现为返回 `Pair<T>` 的一个新实例（回顾第 5 章的 [定义方法](Ch05_Using_Structs_to_Structure_Related_Data.md#方法的定义) 小节就知道，`Self` 就是那个 `impl` 代码块的类型别名，在这个示例中即为 `Pair<T>`）。但在接下来的 `impl` 代码块中，在 `Pair<T>` 的内部类型 `T` 实现了启用比较的 `PartialOrd` 特质，*与* 启用打印的 `Display` 特质时，那么 `Pair<T>` 就只会实现 `cmp_display` 方法。
 
 
 ```rust
@@ -856,7 +856,7 @@ let s = 3.to_string();
 
 生命周期是另一种前面已经用到的泛型。与确保某种类型有着期望行为的特质不同，生命周期确保的是引用在需要他们有效期间，保持有效（lifetimes ensure that references are valid as long as we need them to be）。
 
-在第 4 章中的 [引用与借用](Ch04_Understanding_Ownership.md#references-and-borrowing) 小节，未曾讨论到的一个细节，就是在 Rust 中的全部引用都有着 *生命周期（lifetime）*，即引用有效的作用范围。多数时候，声明周期都是隐式的，且是被推导出来的，这正与多数时候类型是被推导出来的一样。在可能有多个类型时，仅务必对类型加以注解即可。与这种注解类型的方式类似，在引用的生命周期与少数几种不同方式相关时，就必须对生命周期加以注解。为确保在运行时用到的具体类型显著有效，Rust 就要求使用泛型生命周期参数，对这些关系加以注解（in a similar way, we must annotate lifetimes when the lifetimes of references could be related in a few different ways. Rust requires us to annotate the relationships using generic lifetime parameters to ensure the actual references used at runtime will definitely be valid）。
+在第 4 章中的 [引用与借用](Ch04_Understanding_Ownership.md#引用与借用references-and-borrowing) 小节，未曾讨论到的一个细节，就是在 Rust 中的全部引用都有着 *生命周期（lifetime）*，即引用有效的作用范围。多数时候，声明周期都是隐式的，且是被推导出来的，这正与多数时候类型是被推导出来的一样。在可能有多个类型时，仅务必对类型加以注解即可。与这种注解类型的方式类似，在引用的生命周期与少数几种不同方式相关时，就必须对生命周期加以注解。为确保在运行时用到的具体类型显著有效，Rust 就要求使用泛型生命周期参数，对这些关系加以注解（in a similar way, we must annotate lifetimes when the lifetimes of references could be related in a few different ways. Rust requires us to annotate the relationships using generic lifetime parameters to ensure the actual references used at runtime will definitely be valid）。
 
 绝大多数别的编程语言，甚至都没有声明周期注解这个概念，那么这就会感觉陌生了。尽管本章不会涵盖生命周期的全部，这里仍会对可能遇到的生命周期语法的一些常见方式进行讨论，如此就会对此概念感到不那么违和。
 
@@ -976,7 +976,7 @@ fn main() {
 *清单 10-19：调用 `longest` 函数来找出两个字符串切片中较长的那个的 `main` 函数*
 
 
-留意到由于这里并不打算这个 `longest` 函数取得其参数的所有权，因此这里是要该函数取两个字符串切片，两个都是引用变量，而非字符串。请参考第 4 章中的 [作为函数参数的字符串切片](Ch04_Understanding_Ownership.md#string-slices-as-parameters) 小节，了解更多为何在清单 10-19 中使用的参数，即为这里想要的参数的讨论。
+留意到由于这里并不打算这个 `longest` 函数取得其参数的所有权，因此这里是要该函数取两个字符串切片，两个都是引用变量，而非字符串。请参考第 4 章中的 [作为函数参数的字符串切片](Ch04_Understanding_Ownership.md#字符串切片作为函数参数) 小节，了解更多为何在清单 10-19 中使用的参数，即为这里想要的参数的讨论。
 
 在尝试如下面清单 10-20 中所示的那样，对这个 `longest` 函数加以实现时，那将仍不会编译。
 

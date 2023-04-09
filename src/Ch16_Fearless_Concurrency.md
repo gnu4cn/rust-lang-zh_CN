@@ -128,7 +128,7 @@ fn main() {
 
 *清单 16-2：保存一个来自 `thread::spawn` 的 `JoinHandle` 来确保该线程运行完毕*
 
-> **注**：结合第 9 章中 [因错误而中止的快捷方式：`unwrap` 与 `expect`](Ch09_Error_Handling.md#shortcuts-for-panic-on-error-unwrap-and-expect)，表明 `join` 返回的是个 `Result<T, E>` 类型的枚举值。
+> **注**：结合第 9 章中 [因错误而中止的快捷方式：`unwrap` 与 `expect`](Ch09_Error_Handling.md#因错误而中止的快捷方式unwrap-与-expect)，表明 `join` 返回的是个 `Result<T, E>` 类型的枚举值。
 
 在这个把手上调用 `join`，就会阻塞那个当前运行的线程，直到由该把手所表示的该线程终止。所谓 *阻塞，blocking* 某个线程，是指那个线程被阻止执行工作或退出，*blocking* a thread means that thread is prevented from performing work or exiting。由于咱们已将到 `join` 的调用，放在了那个主线程的 `for` 循环之后，因此运行清单 16-2 中的代码，应产生出如下类似的输出（注：但每次运行的输出仍然不同）：
 
@@ -200,7 +200,7 @@ fn main() {
 
 **Using `move` Closures with Threads**
 
-由于传递给 `thread::spawn` 的闭包随后将取得其用到的环境中一些值的所有权，由此就会把这些值的所有权，从一个线程转移到另一线程，因此咱们今后将经常在这些闭包上，使用 `move` 关键字。在第 13 章 [“捕获引用或迁移所有权”](Ch13_Functional_Language_Features_Iterators_and_Closures.md#capturing-reference-or-moving-ownership) 小节，咱们就曾讨论过闭包语境下的 `move` 关键字。现在，咱们将更多地着重于 `move` 与 `thread::spawn` 之间的互动。
+由于传递给 `thread::spawn` 的闭包随后将取得其用到的环境中一些值的所有权，由此就会把这些值的所有权，从一个线程转移到另一线程，因此咱们今后将经常在这些闭包上，使用 `move` 关键字。在第 13 章 [“捕获引用或迁移所有权”](Ch13_Functional_Language_Features_Iterators_and_Closures.md#捕获引用抑或迁移所有权) 小节，咱们就曾讨论过闭包语境下的 `move` 关键字。现在，咱们将更多地着重于 `move` 与 `thread::spawn` 之间的互动。
 
 请注意在清单 16-1 中，传递给 `thread::spawn` 的那个闭包没有取任何参数：咱们没有在生成线程中，使用主线程中的任何数据。为在生成线程中使用主线程中的数据，那么生成线程的闭包就必须捕获其所需的值。下面清单 16-3 给出了在主线程中创建出一个矢量值，并在生成线程中用到这个矢量值的一种尝试。然而，正如即将看到的那样，这将尚不会运作。
 
@@ -898,7 +898,7 @@ fn main() {
 
 `Sync` 标识符表示实现 `Sync` 特质的类型，其被从多个线程引用是安全的。换句话说，任何类型 `T` 在 `&T` （即到 `T` 的不可变引用） 为 `Send` 的时，那么其即为 `Sync` 的，表示该引用可以安全地发送到另一线程。与 `Send` 类似，原生类型均为 `Sync` 的，且由全部都是 `Sync` 的类型所组成的类型，也都是 `Sync` 的。
 
-灵巧指针 `Rc<T>` 因为其不是 `Send` 的同样原因，其也不是 `Sync` 的。`RefCell<T>` 类型（咱们曾在第 15 章讲过）以及相关的 `Cell<T>` 类型家族，都不是 `Sync` 的。`RefCell<T>` 在运行时所完成的借用检查实现，不是线程安全的。灵巧指针 `Mutex<T>` 是 `Sync` 的，并正如咱们在 [于多个线程间共用 `Mutex<T>`](#sharing-a-mutex-t-between-multiple-threads) 小节中看到的，其可被用于多个线程下共用访问。
+灵巧指针 `Rc<T>` 因为其不是 `Send` 的同样原因，其也不是 `Sync` 的。`RefCell<T>` 类型（咱们曾在第 15 章讲过）以及相关的 `Cell<T>` 类型家族，都不是 `Sync` 的。`RefCell<T>` 在运行时所完成的借用检查实现，不是线程安全的。灵巧指针 `Mutex<T>` 是 `Sync` 的，并正如咱们在 [于多个线程间共用 `Mutex<T>`](#在多个线程间共用-mutext) 小节中看到的，其可被用于多个线程下共用访问。
 
 
 ### 手动实现 `Send` 与 `Sync` 是不安全的

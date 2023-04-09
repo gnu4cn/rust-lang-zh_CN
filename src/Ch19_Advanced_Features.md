@@ -55,7 +55,7 @@ Rust 有着一个非安全的另外自我，an unsafe alter ego，的另一原�
 
 **Dereferencing a Raw Pointer**
 
-在第 4 章的 [悬空引用](Ch04_Understanding_Ownership.md#dangling-references) 小节，咱们曾提到编译器会确保引用始终有效。不安全的 Rust 则有着与引用类似的， 叫做 *原始指针，raw pointers* 的两种新类型。与引用一样，原始指针可以是不可变或可变的，并被相应地写作 `*const T` 及 `*mut T`。其中的星号 `*` 并非是解引用运算符；他是这种类型名字的一部分。在原始指针语境下，*不可变，immutable* 意指该指针在被解引用之后，不能被直接赋值。
+在第 4 章的 [悬空引用](Ch04_Understanding_Ownership.md#悬空引用dangling-references) 小节，咱们曾提到编译器会确保引用始终有效。不安全的 Rust 则有着与引用类似的， 叫做 *原始指针，raw pointers* 的两种新类型。与引用一样，原始指针可以是不可变或可变的，并被相应地写作 `*const T` 及 `*mut T`。其中的星号 `*` 并非是解引用运算符；他是这种类型名字的一部分。在原始指针语境下，*不可变，immutable* 意指该指针在被解引用之后，不能被直接赋值。
 
 与引用及灵巧指针不同，原始指针有着以下特征：
 
@@ -137,7 +137,7 @@ r2 为：5
 
 还要注意在清单 19-1 与 19-3 中，咱们创建的 `*const i32` 与 `*mut i32` 两个原始指针，都指向了同一内存地址，及 `num` 所存储之处。相反若咱们尝试创建到这个 `num` 的一个不可变与可变的引用，那么由于 Rust 的所有权规则在有任何不可变引用的同时，允许可变引用，该代码就不会被编译。有了原始指针，咱们就可以创建到同一内存地址的可变指针与不可变指针，而经由那个可变指针修改数据，就会潜在的造成数据竞争。所以请当心！
 
-在全部的这些危险之下，咱们为何还要使用原始指针呢？一个主要的原因就是在与 C 代码交互时，正如将在下一小节，[”调用非安全函数或方法“](#calling-an-unsafe-function-or-method)，中将看到的。另一中情况，便是在构建借用检查器不清楚的一些安全抽象时。咱们将介绍非安全函数，并在随后看看一个用到不安全代码的安全抽象。
+在全部的这些危险之下，咱们为何还要使用原始指针呢？一个主要的原因就是在与 C 代码交互时，正如将在下一小节，[”调用非安全函数或方法“](#调用不安全函数或方法)，中将看到的。另一中情况，便是在构建借用检查器不清楚的一些安全抽象时。咱们将介绍非安全函数，并在随后看看一个用到不安全代码的安全抽象。
 
 ### 调用不安全函数或方法
 
@@ -261,7 +261,7 @@ fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
 
 *清单 19-6： 在 `split_at_mut` 函数实现中使用不安全代码*
 
-回顾第 4 章中的 [“切片类型”](Ch04_Understanding_Ownership.md#the-slice-type) 小节，切片即为到一些数据的指针，与切片的长度。咱们使用了 `len` 方法，来获取切片的长度，并使用 `as_mut_ptr` 方法来访问切片的原始指针。在这个示例中，由于咱们有着一个到一些 `i32` 值的可变切片，`as_mut_prr` 就会返回类型 `*mut i32` 的原始指针，其已被咱们存储在变量 `ptr` 中。
+回顾第 4 章中的 [“切片类型”](Ch04_Understanding_Ownership.md#切片类型the-slice-type) 小节，切片即为到一些数据的指针，与切片的长度。咱们使用了 `len` 方法，来获取切片的长度，并使用 `as_mut_ptr` 方法来访问切片的原始指针。在这个示例中，由于咱们有着一个到一些 `i32` 值的可变切片，`as_mut_prr` 就会返回类型 `*mut i32` 的原始指针，其已被咱们存储在变量 `ptr` 中。
 
 咱们保留了那个 `mid` 索引是在切片里的断言。随后咱们就到了那不安全代码处：`slice::from_raw_parts_mut` 函数会取一个原始指针及长度，并创建出一个切片。咱们使用这个函数，来创建自 `ptr` 开始，且长度为 `mid` 的一个切片。随后咱们以 `mid` 作为参数，调用 `ptr` 上的 `add` 方法，来得到于 `mid` 处开始的一个原始指针，而咱们创建出使用那个指针，且以 `mid` 之后项目数量为长度的一个切片。
 
@@ -383,7 +383,7 @@ fn main() {
 
 *清单 19-9：定义并使用不可变静态变量*
 
-静态变量与咱们曾在第三章中 [“变量与常量区别”](Ch03_Common_Programming_Concepts.md#constants) 小节讨论过的常量类似。静态变量的名字，依约定都是 `SCREAMING_SNAKE_CASE` 形式。静态变量只能存储有着 `'static` 声明周期的引用，这意味着 Rust 编译器可以计算出声明周期，而不要求咱们显式地对其加以注解。访问不可变的静态变量是安全的。
+静态变量与咱们曾在第三章中 [“变量与常量区别”](Ch03_Common_Programming_Concepts.md#常量) 小节讨论过的常量类似。静态变量的名字，依约定都是 `SCREAMING_SNAKE_CASE` 形式。静态变量只能存储有着 `'static` 声明周期的引用，这意味着 Rust 编译器可以计算出声明周期，而不要求咱们显式地对其加以注解。访问不可变的静态变量是安全的。
 
 常量与不可变静态变量的细微差别在于，静态变量里的值在内存中有着固定地址。用到该值就总是将访问同一数据。而另一方面的常量，则凡是在用到他们时，都是允许复制他们数据的。另一不同便是，静态变量可以是可变的。访问与修改可变静态变量是 *不安全的*。下面清单 19-10 给出了如何声明、访问及修改名为 `COUNT` 的可变静态变量方式。
 
@@ -439,7 +439,7 @@ fn main() {}
 
 通过使用 `unsafe impl`，咱们就承诺咱们将坚守那些编译器无法验证的定数，we'll uphold the invariants that the compiler can't verify。
 
-作为示例，请回顾第 16 章中 [“`Sync` 与 `Send` 特质下的可扩展并发”](Ch16_Fearless_Concurrency.md#extensible-concurrency-with-the-sync-and-send-trait") 小节中，曾讨论过的 `Sync` 与 `Send` 两个标记性特质：在咱们的类型完全是由 `Send` 与 `Sync` 两种类型构成时，编译器就会自动实现这些特质。而在咱们实现某个包含了非 `Send` 或 `Sync` 的类型，比如原始指针，同时咱们打算将那个类型标记为 `Send` 或 `Sync` 时，咱们就必须使用 `unsafe`。Rust 无法验证咱们的类型坚守了其可被跨线程安全发送，或自多个线程安全访问的那些保证；因此，咱们就需要手动完成这些检查，并以 `unsafe` 照这样加以表明。
+作为示例，请回顾第 16 章中 [“`Sync` 与 `Send` 特质下的可扩展并发”](Ch16_Fearless_Concurrency.md#sync-与-send-两个特质下的可扩展并发) 小节中，曾讨论过的 `Sync` 与 `Send` 两个标记性特质：在咱们的类型完全是由 `Send` 与 `Sync` 两种类型构成时，编译器就会自动实现这些特质。而在咱们实现某个包含了非 `Send` 或 `Sync` 的类型，比如原始指针，同时咱们打算将那个类型标记为 `Send` 或 `Sync` 时，咱们就必须使用 `unsafe`。Rust 无法验证咱们的类型坚守了其可被跨线程安全发送，或自多个线程安全访问的那些保证；因此，咱们就需要手动完成这些检查，并以 `unsafe` 照这样加以表明。
 
 ### 访问联合体的字段
 
@@ -457,7 +457,7 @@ fn main() {}
 
 ## 高级特质
 
-在第 10 章 [“特质：定义共用行为”](Ch10_Generic_Types_Traits_and_Lifetimes.md#trait-defining-shared-behavior) 小节中，咱们曾首先涉及到特质，但咱们不曾讨论更为高级的那些细节。现在咱们对 Rust 有了更多了解，咱们就可以深入本质，get into the nitty-gritty。
+在第 10 章 [“特质：定义共用行为”](Ch10_Generic_Types_Traits_and_Lifetimes.md#特质定义共用行为) 小节中，咱们曾首先涉及到特质，但咱们不曾讨论更为高级的那些细节。现在咱们对 Rust 有了更多了解，咱们就可以深入本质，get into the nitty-gritty。
 
 
 ### 使用关联类型指定出特质定义中的一些占位性类型
@@ -576,7 +576,7 @@ trait Add<Rhs=Self> {
 当咱们为 `Point` 实现 `Add` 时，由于咱们打算把两个 `Point` 实例相加，因此而使用了 `Rhs` 的默认值。接下来看看，其中咱们打算定制那个 `Rhs` 而非使用其默认值的一个 `Add` 实现示例。
 
 
-咱们有着两个结构体，`Millimeters` 与 `Meters`，保存着不同单位的一些值。这种将某个既有类型，封装在另一结构体的瘦封装，thin wrapping，就叫做 *新类型模式，newtype pattern*，在后面的 [“使用新型模式在外部类型上实现外部特质”](#using-the-newtype-pattern-to-implement-external-traits-on-external-types) 小节，咱们会对其进行更深入讨论。咱们打算把毫米值与以米计数的值相加，并要让 `Add` 的实现，正确完成单位转换。咱们可在将 `Meters` 作为 `Rhs` 下，对 `Millimeters` 实现 `Add`，如下清单 19-15 中所示。
+咱们有着两个结构体，`Millimeters` 与 `Meters`，保存着不同单位的一些值。这种将某个既有类型，封装在另一结构体的瘦封装，thin wrapping，就叫做 *新类型模式，newtype pattern*，在后面的 [“使用新型模式在外部类型上实现外部特质”](#使用新型模式在外层类型上实现外层的特质) 小节，咱们会对其进行更深入讨论。咱们打算把毫米值与以米计数的值相加，并要让 `Add` 的实现，正确完成单位转换。咱们可在将 `Meters` 作为 `Rhs` 下，对 `Millimeters` 实现 `Add`，如下清单 19-15 中所示。
 
 
 ```rust
@@ -896,7 +896,7 @@ impl fmt::Display for Point {
 
 **Using the Newtype Pattern to Implement External Traits on External Types**
 
-第 10 章中的 [“在类型上实现特质”](Ch10_Generic_Types_Traits_and_Lifetimes.md#implmenting-a-trait-on-a-type) 小节，咱们曾提到，指明只有当特质或类型二者之一，属于代码本地的时，咱们才被允许在类型上实现特质的孤儿规则，the orphan rule。而使用涉及到在元组结构体中创建出一个新类型的 *新型模式，newtype pattern*，那么绕过这种限制便是可行的了。（咱们曾在第 5 章的 [“使用不带命名字段的元组结构体来创建不同类型”](Ch05_Using_Structs_to_Structure_Related_Data.md#using-tuple-structs-without-named-fields-to-create-different-types") 小节，谈到过元组结构体）这种元组结构体讲有一个字段，且将是围绕咱们要实现某个特质的类型的一个瘦封装，a thin wrapper。随后这个封装类型，便是咱们代码箱的本地类型了，而咱们就可以在这个封装上实现那个特质了。所谓 *新型，newtype*，是源自 Haskell 编程语言的一个术语。使用这种模式没有运行时性能代码，同时那个封装类型在编译时会被略去。
+第 10 章中的 [“在类型上实现特质”](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质) 小节，咱们曾提到，指明只有当特质或类型二者之一，属于代码本地的时，咱们才被允许在类型上实现特质的孤儿规则，the orphan rule。而使用涉及到在元组结构体中创建出一个新类型的 *新型模式，newtype pattern*，那么绕过这种限制便是可行的了。（咱们曾在第 5 章的 [“使用不带命名字段的元组结构体来创建不同类型”](Ch05_Using_Structs_to_Structure_Related_Data.md#使用不带命名字段的元组结构体来创建不同类型) 小节，谈到过元组结构体）这种元组结构体讲有一个字段，且将是围绕咱们要实现某个特质的类型的一个瘦封装，a thin wrapper。随后这个封装类型，便是咱们代码箱的本地类型了，而咱们就可以在这个封装上实现那个特质了。所谓 *新型，newtype*，是源自 Haskell 编程语言的一个术语。使用这种模式没有运行时性能代码，同时那个封装类型在编译时会被略去。
 
 作为一个示例，就说咱们打算在 `Vec<T>` 上实现 `Display`，而由于 `Display` 特质与 `Vec<T>` 类型，均被定义在咱们代码箱外部，因此孤儿规则会阻止咱们直接这样做。咱们可以构造一个保存着 `Vec<T>` 类型实例的 `Wrapper`；随后咱们就可以在 `Wrapper` 上实现 `Display`，并使用那个 `Vec<T>` 值，如下清单 19-23 中所示。
 
@@ -924,7 +924,7 @@ fn main() {
 
 由于 `Wrapper` 是个元组结构体，且 `Vec<T>` 是该元组中位于索引 `0` 处的项目，因此其中 `Display` 的实现，便使用了 `self.0` 来方法那个内部的 `Vec<T>`。随后咱们就可以在 `Wrapper` 上使用 `Display` 的功能了。
 
-使用这种技巧的缺点，则是那个 `Wrapper` 是个新的类型，因此其没有他所保存值的那些方法。咱们讲必须直接在 `Wrapper` 上，实现 `Vec<T>` 的全部方法，即委托给 `self.0` 的那些方法，这就会允许咱们将 `Wrapper` 完全当作 `Vec<T>` 那样对待了。而若咱们想要这个新的类型，有着那个内部类型所有的全部方法，那么在 `Wrapper` 上实现 `Deref` 特质（曾在第 15 章的 [“运用 `Deref` 特质将灵巧指针像常规引用那样对待”](Ch15_Smart_Pointers.md#treating-smart-pointers-like-regular-references-with-deref-trait) 小节讨论过），来返回那个内部类型，将是一种办法。而若咱们不打算 `Wrapper` 类型有着内部类型的所有方法 -- 比如，为限制 `Wrapper` 的行为 -- 咱们就必须手动实现仅咱们想要的那些方法了。
+使用这种技巧的缺点，则是那个 `Wrapper` 是个新的类型，因此其没有他所保存值的那些方法。咱们讲必须直接在 `Wrapper` 上，实现 `Vec<T>` 的全部方法，即委托给 `self.0` 的那些方法，这就会允许咱们将 `Wrapper` 完全当作 `Vec<T>` 那样对待了。而若咱们想要这个新的类型，有着那个内部类型所有的全部方法，那么在 `Wrapper` 上实现 `Deref` 特质（曾在第 15 章的 [“运用 `Deref` 特质将灵巧指针像常规引用那样对待”](Ch15_Smart_Pointers.md#通过实现-deref-特质而像引用那样对待某个类型) 小节讨论过），来返回那个内部类型，将是一种办法。而若咱们不打算 `Wrapper` 类型有着内部类型的所有方法 -- 比如，为限制 `Wrapper` 的行为 -- 咱们就必须手动实现仅咱们想要的那些方法了。
 
 
 即使不牵涉到特质，这种新型模式也是有用的。接下来就要转换一下视角，而看看与 Rust 的类型系统交互的一些高级方式。
@@ -941,14 +941,14 @@ Rust 的类型系统有着一些到目前为止咱们曾提到过但尚未讨论
 
 **Using the Newtype Pattern for Type Safety and Abstraction**
 
-> **注意**：此小节假定你已读过早先的 [“使用新型模式来再外层类型上实现外层的特质”](#using-the-newtype-pattern-to-implement-external-traits-on-external-types") 小节。
+> **注意**：此小节假定你已读过早先的 [“使用新型模式来再外层类型上实现外层的特质”](#使用新型模式在外层类型上实现外层的特质") 小节。
 
 对于那些超出到目前为止咱们曾讨论过的任务，包括静态强制要求值绝不会混淆，以及表明某个值的单位等等，新型模式同样是有用的。在清单 19-15 中，咱们就曾看到一个使用新型，表明单位的一个示例：回顾到 `Millimeters` 与 `Meters` 两个结构体，都曾将 `u32` 值封装在新型中。而若咱们编写了带有一个类型 `Millimeters` 参数的函数，那么咱们就无法编译某个偶然尝试以类型 `Meters` 或普通 `u32` 的值，调用那个函数的程序。
 
 
 咱们还可以使用新型模式，来抽象出某个类型的一些实现细节：新的类型可暴露处不同意私有内部类型 API 的一个公开 API。
 
-新类型还可以隐藏内部实现。比如，咱们可提供一个 `People` 类型，来封装一个存储着某人与其名字关联的 ID 的 `HashMap<i32, String>`。使用 `People` 的代码，只需与咱们提供的公开 API，比如某个将名字字符串添加到 `People` 集合的方法交互；那些代码将不需要知悉咱们在内部分配了`i32` 的 ID 给那些名字。新型模式是达成，咱们曾在第 17 章讨论过的 [“隐藏实现细节的封装”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#encapsulation-that-hides-implementation-details") 的一种轻量方式。
+新类型还可以隐藏内部实现。比如，咱们可提供一个 `People` 类型，来封装一个存储着某人与其名字关联的 ID 的 `HashMap<i32, String>`。使用 `People` 的代码，只需与咱们提供的公开 API，比如某个将名字字符串添加到 `People` 集合的方法交互；那些代码将不需要知悉咱们在内部分配了`i32` 的 ID 给那些名字。新型模式是达成，咱们曾在第 17 章讨论过的 [“隐藏实现细节的封装”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#隐藏了实现细节的封装) 的一种轻量方式。
 
 
 ### 使用类型别名创建类型同义词
@@ -1082,7 +1082,7 @@ fn bar() -> ! {
 
 *清单 19-26：有着一个以 `continue` 结束支臂的 `match` 表达式*
 
-那个时候，咱们跳过了此代码的一些细节。而在第 6 章中的 [“`match` 控制流运算符”](Ch06_Enums_and_Pattern_Matching.md#the-match-control-flow-construct) 小节，咱们曾讨论了 `match` 支臂必须全部返回同一类型。那么，比如说，下面的代码就不会工作：
+那个时候，咱们跳过了此代码的一些细节。而在第 6 章中的 [“`match` 控制流运算符”](Ch06_Enums_and_Pattern_Matching.md#match-控制流结构) 小节，咱们曾讨论了 `match` 支臂必须全部返回同一类型。那么，比如说，下面的代码就不会工作：
 
 
 ```rust
@@ -1141,9 +1141,9 @@ Rust 需要知道其类型的确切情况，比如给某种特定类型值分配
 
 Rust 需要清楚，要给特定类型的任何值分配多少内存，且某种类型的所有值，都必须使用同样数量的内存。若 Rust 运行咱们编写此代码，那么这两个 `str` 值就将需要占据同样数量的内存空间。但他们有着不同长度：`s1` 需要 15 字节的存储，而 `s2` 需要 `24` 字节。这就是为何创建保存动态大小类型值的变量不可行的原因。
 
-那么咱们要怎么做呢？在这种情况下，咱们就已经知道答案了：咱们要令到 `s1` 与 `s2` 的类型为 `&str` 而非 `str`。从第 4 章的 [“字符串切片”](Ch04_Understanding_Ownership.md#string-slices) 小节，回顾到切片数据结构，只会存储其开始位置和切片的长度。因此尽管 `&T` 是存储了 `T` 所处内存地址的单个值，而一个 `&str` 则是 *两个* 值：`str` 的地址与其长度。如此，咱们就知道某个 `&str` 在编译时的大小了：其为 `uszie` 长度的两倍。那便是，咱们总是清楚 `&str` 的大小，而不管他所指向的字符串有多长。一般来说，这就是 Rust 中动态大小类型被运用的方式：他们有着存储了动态信息大小的额外的一点元数据。动态大小类型的黄金法则，就是咱们必须始终把那些动态大小类型的值，放置某种指针之后。
+那么咱们要怎么做呢？在这种情况下，咱们就已经知道答案了：咱们要令到 `s1` 与 `s2` 的类型为 `&str` 而非 `str`。从第 4 章的 [“字符串切片”](Ch04_Understanding_Ownership.md#字符串切片) 小节，回顾到切片数据结构，只会存储其开始位置和切片的长度。因此尽管 `&T` 是存储了 `T` 所处内存地址的单个值，而一个 `&str` 则是 *两个* 值：`str` 的地址与其长度。如此，咱们就知道某个 `&str` 在编译时的大小了：其为 `uszie` 长度的两倍。那便是，咱们总是清楚 `&str` 的大小，而不管他所指向的字符串有多长。一般来说，这就是 Rust 中动态大小类型被运用的方式：他们有着存储了动态信息大小的额外的一点元数据。动态大小类型的黄金法则，就是咱们必须始终把那些动态大小类型的值，放置某种指针之后。
 
-咱们可将 `str` 与所有类别的指针结合：比如，`Box<str>` 或 `Rc<str>`。事实上，之前咱们就已经见到过这样的，只不过是在一种不同的动态大小类型下：那便是特质。每个特质都是咱们可以通过使用特质名字而加以引用的动态大小类型。在第 17 章中的 [“使用允许不同类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#using-trait-objects-that-allow-for-values-of-different-types) 小节，咱们曾提到为了将特质用作特质对象，咱们就必须将其放在指针之后，比如 `&dyn Trait` 或 `Box<dyn Trait>` （`Rc<dyn Trait>` 也应生效）。
+咱们可将 `str` 与所有类别的指针结合：比如，`Box<str>` 或 `Rc<str>`。事实上，之前咱们就已经见到过这样的，只不过是在一种不同的动态大小类型下：那便是特质。每个特质都是咱们可以通过使用特质名字而加以引用的动态大小类型。在第 17 章中的 [“使用允许不同类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节，咱们曾提到为了将特质用作特质对象，咱们就必须将其放在指针之后，比如 `&dyn Trait` 或 `Box<dyn Trait>` （`Rc<dyn Trait>` 也应生效）。
 
 为处理 DSTs 相关问题，Rust 提供了 `Sized` 特质，来判断在编译时某个类型的大小是否已知。在运行时大小已知的全部物件，都已自动实现了这个特质。此外，Rust 会隐式地将 `Sized` 上的边界，添加到每个泛型函数。那就是说，像下面的一个泛型函数：
 
@@ -1246,9 +1246,9 @@ fn main() {
         list_of_numbers.iter().map(ToString::to_string).collect();
 ```
 
-请注意由于有着多个可用的名为 `to_string` 函数，因此咱们就必须使用早先在 [“高级特质”](#advanced-traites) 小节中讲到的完全合格语法。这里咱们使用了那个标准库已对任何实现了 `Display` 类型，实现过了的 `ToString` 特质中的 `to_string` 函数。
+请注意由于有着多个可用的名为 `to_string` 函数，因此咱们就必须使用早先在 [“高级特质”](#高级特质) 小节中讲到的完全合格语法。这里咱们使用了那个标准库已对任何实现了 `Display` 类型，实现过了的 `ToString` 特质中的 `to_string` 函数。
 
-自第 6 章 [“枚举取值”](Ch06_Enums_and_Pattern_Matching.md#enum-values) 小节，回顾咱们所定义的各个枚举变种名字，也会成为一个初始化函数。咱们可以将这些初始化函数，作为实现了那些闭包特质的函数指针使用，这就意味着咱们可以把这些初始化函数，指定为取闭包的方法的参数，像下面这样：
+自第 6 章 [“枚举取值”](Ch06_Enums_and_Pattern_Matching.md#枚举取值) 小节，回顾咱们所定义的各个枚举变种名字，也会成为一个初始化函数。咱们可以将这些初始化函数，作为实现了那些闭包特质的函数指针使用，这就意味着咱们可以把这些初始化函数，指定为取闭包的方法的参数，像下面这样：
 
 ```rust
     enum Status {
@@ -1307,7 +1307,7 @@ fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
 }
 ```
 
-这段代码可以很好地编译。有关特质对象的更多内容，请参考第 17 章中的 [“使用特质对象实现不同类型值”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#using-trait-objects-that-allow-for-values-of-different-types) 小节。
+这段代码可以很好地编译。有关特质对象的更多内容，请参考第 17 章中的 [“使用特质对象实现不同类型值”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节。
 
 
 接下来，咱们就要看看宏了！
@@ -1650,7 +1650,7 @@ pub fn route(attr: TokenStream, item: TokenStream) -> TokenSteam {
 **Function-link macros**
 
 
-类函数宏定义了看起来像函数调用的宏。与 `macro_rules!` 宏类似，他们比函数更为灵活；比如，他们就可取未知数目的参数。然而，`macro_rules!` 宏只能使用咱们早先在 [用于通用元编程的带有 `macro_rules!` 的声明式宏](#declarative-macros-with-macro_rules-for-general-metaprogramming") 小节，曾讨论过的 match-like 语法。而类函数宏，则会取一个 `TokenStream` 参数，而这些宏的定义，就会使用 Rust 代码，如同另外两种程序性宏所做的那样，对那个 `TokenStream` 加以操纵。作为类函数宏的一个例子，便是将如下面调用的一个 `sql!` 宏：
+类函数宏定义了看起来像函数调用的宏。与 `macro_rules!` 宏类似，他们比函数更为灵活；比如，他们就可取未知数目的参数。然而，`macro_rules!` 宏只能使用咱们早先在 [用于通用元编程的带有 `macro_rules!` 的声明式宏](#用于通用元编程的带有-macro_rules-的声明式宏) 小节，曾讨论过的 match-like 语法。而类函数宏，则会取一个 `TokenStream` 参数，而这些宏的定义，就会使用 Rust 代码，如同另外两种程序性宏所做的那样，对那个 `TokenStream` 加以操纵。作为类函数宏的一个例子，便是将如下面调用的一个 `sql!` 宏：
 
 ```rust
 let sql = sql! (SELECT * FROM posts WHERE id=1);

@@ -834,7 +834,7 @@ impl Config {
 
 `env::args` 函数的标准库文档显示，其所返回的迭代器类型为 `std::env::Args`，而那个类型是实现了 `Iterator` 特质的，同时返回的是一些 `String` 值。
 
-这里已经更新了这个 `Config::build` 函数的签名，那么参数 `args`，就有了一个带有特质边界 `impl Iterator<Item = String>` 的泛型，而不再是 `&[String]` 类型了。第 10 章 [作为参数的特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#traits-as-paramters) 小节曾讨论过的这种 `impl Trait` 语法的用法，表示 `args` 可以是任何实现了 `Iterator` 类型，并返回一些 `String` 条目的类型。
+这里已经更新了这个 `Config::build` 函数的签名，那么参数 `args`，就有了一个带有特质边界 `impl Iterator<Item = String>` 的泛型，而不再是 `&[String]` 类型了。第 10 章 [作为参数的特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#作为参数的特质) 小节曾讨论过的这种 `impl Trait` 语法的用法，表示 `args` 可以是任何实现了 `Iterator` 类型，并返回一些 `String` 条目的类型。
 
 由于这里取得了 `args` 的所有权，且这里通过对 `args` 进行迭代，而将对其进行修改，因此这里可把 `mut` 关键字，添加到这个 `args` 参数的说明中，来将其构造为可变的。
 
