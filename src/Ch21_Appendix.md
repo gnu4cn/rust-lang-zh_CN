@@ -368,4 +368,13 @@ fn main() {
 
 在比如会产生出由范围表达式所指定范围中一个随机数的， `rand` 代码箱的 `gen_range` 方法来说，`PartialOrd` 特质便是需要的。
 
+`Ord` 特质实现对所注解类型的任何两个值，将存在有效顺序的掌握。`Ord` 特质会实现 `cmp` 方法，由于有效排序将始终可行，因此该方法返回的是 `Ordering` 而非 `Option<Ordering>`。咱们只可对那些同时实现了 `PartialOrd` 及 `Eq` (而 `Eq` 要求 `PartialEq`) 的类型，实现这个 `Ord` 特质。当于结构体及枚举上派生 `Ord` 时，`cmp` 就会以与 `PartialOrd` 下 `partial_cmp` 的派生实现同样方式行事。
+
+要求 `Ord` 的一个示例，即为将一些值存储在 `BTreeSet<T>` 这种根据值的排序，而存储数据的数据结构中时。
+
+### 用于复制值的 `Clone` 与 `Copy`
+
+**`Clone` and `Copy` for Duplicating Values**
+
+
 
