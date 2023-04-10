@@ -119,7 +119,7 @@ impl AveragedCollection {
 
 **Using Trait Objects That Allow for Values of Different Types**
 
-> **注**：这类似于 Java 语言中，解决死亡钻石问题（DDD）的 [接口](https://java.xfoss.com/ji-cheng-he-duo-tai-ji-zhi/ch08_interfaces_and_abstract_classes#interface_rescue)。
+> **注**：这类似于 Java 语言中，解决死亡钻石问题（DDD）的 [接口](https://java.xfoss.com/Ch08_Interfaces_and_Abstract_Classes.html#%E4%BD%BF%E7%94%A8%E6%8E%A5%E5%8F%A3%E6%9D%A5%E6%8B%AF%E6%95%91)。
 
 在第 8 章中，咱们就提到过矢量值的一个局限，便是他们只能存储一种类型的元素。在清单 8-9 中咱们创建出了一种变通方案，其中定义了有着分别保存整数、浮点数与文本变种的 `SpreadsheetCell` 枚举。这就意味着咱们可在各个单元格中存储不同类型的数据，而仍旧有了表示这些单元格所组成行的一个矢量值。这对于在咱们的代码被编译时，就已经清楚这些可交换项目，为固定类型集的情况，这确实是一种相当不错的解决办法。
 
