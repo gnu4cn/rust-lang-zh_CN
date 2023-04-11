@@ -611,5 +611,27 @@ Rust 语言及编译器有着六周的发布周期，意味着用户会得到源
 
 **How Rust is Made and "Nightly Rust"**
 
+此附录是有关 Rust 被怎样构造出来，及那会怎样作为一名 Rust 开发者的你。
+
+### 强调稳定却并无止步不前
+
+**Stability Without Stagnation**
+
+作为一门语言，Rust 在注重咱们代码稳定性方面 *用心良苦*。咱们希望 Rust 成为你可以在其上构建软件的稳固基础，而若那些物件都一直变动，那将是不可能实现的。而与此同时，若咱们无法实验一些新特性，那么直到这些特性发布后咱们不能在修改一些东西时，咱们也不会发现一些重大缺陷。
+
+对于这个问题，咱们（Rust 团队）的解决方案就是咱们称作 “强调稳定又不要止步不前”，而咱们的直到原则是这样的：你永不必害怕升级到稳定的Rust 新版本。每次升级都应是无痛的，而又应带给你一些新特性、更少的程序错误，以及更快的编译时间。
+
+
+### 啾，啾！发布通道与搭上快车
+
+**Choo, Choo! Release Channels and Riding the Trains**
+
+Rust 的开发，是运作在 *火车时刻表，train schedule* 上的。那就是说，全部开发都是在 Rust 代码仓库的 `master` 分支上完成的。各个发布遵循了软件发布列车模型，a software release train model，该发布模型业已为 Cisco IOS 及其他软件项目所使用。Rust 有着以下三个 *发布通道，release channels*：
+
+- 每日发布，nightly
+- Beta 发布，beta
+- 稳定发布，stable
+
+多数 Rust 开发者主要使用稳定通道，而那些希望尝试实验性新特性的人们，则会使用每日发布或 beta 通道。
 
 
