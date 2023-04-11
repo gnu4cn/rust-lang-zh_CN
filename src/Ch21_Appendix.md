@@ -500,4 +500,84 @@ fn main() {
 
 那个 `for` 循环变量，现在就被命名为了 `_i`，同时那条告警也不再出现了。
 
+咱们还可使用 `cargo fix` 命令，将咱们的代码在不同 Rust 版本之间转换。有关这些 Rust 版本，在附录 E 中有讲到。
+
+
+### 使用 Clippy 获得更多的代码静态分析
+
+**More Lints with Clippy**
+
+Clippy 工具是用于分析咱们代码，从而咱们可以捕获到一些常见错误，而改进咱们 Rust 代码的一套代码静态分析集合。
+
+要安装 Clippy，请输入以下命令：
+
+```console
+$ rustup component add Clippy
+```
+
+在任何 Cargo 项目上要运行 Clippy 的静态分析，请输入以下命令：
+
+```console
+$ cargo clippy
+```
+
+比如说咱们编写了像下面这个程序这样，用到某个数学常量近似值，好比说 `pi`，的一个程序：
+
+文件名：`src/main.rs`
+
+```rust
+fn main() {
+    let x = 3.1415;
+    let r = 8.0;
+    println!("圆的面积为 {}", x * r * r);
+}
+```
+
+在这个项目上运行 `cargo clippy` 就会得到下面的报错：
+
+```console
+$ cargo clippy
+    Checking clippy_demo v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/clippy_demo)
+error: approximate value of `f{32, 64}::consts::PI` found
+ --> src/main.rs:2:13
+  |
+2 |     let x = 3.1415;
+  |             ^^^^^^
+  |
+  = help: consider using the constant directly
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#approx_constant
+  = note: `#[deny(clippy::approx_constant)]` on by default
+
+error: could not compile `clippy_demo` due to previous error
+```
+
+此报错让咱们明白，Rust 已经定义了一个更精确的 `PI` 常量，且当咱们使用这个常量时，咱们的程序将更为正确。那么咱们随后就应修改咱们代码为使用这个 `PI` 常量。下面的代码就捕获导致 Clippy 的任何错误或告警：
+
+文件名：`src/main.rs`
+
+```rust
+fn main() {
+    let x = std::f64::consts::PI;
+    let r = 8.0;
+    println!("圆的面积为 {}", x * r * r);
+}
+```
+
+有关 Clippy 的更多信息，请参阅 [其文档](https://github.com/rust-lang/rust-clippy)。
+
+### 用到 `rust-analyzer` 的 IDE 集成
+
+**IDE Integration Using `rust-analyzer`**
+
+为帮助 IDE 集成，Rust 社区建议使用 [`rust-analyzer`](https://rust-analyzer.github.io/)。此工具是一套以编译器为中心，操 [语言服务器协议，Language Server Protocol](http://langserver.org/) 的实用工具；而所谓语言服务器协议，则是用于各种 IDEs 和编程语言，二者相互之间通信的一种规格。有多种不同客户端可使用 `rust-analyzer`，比如 [Visual Studio Code 的 Rust 分析器插件](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)。
+
+请访问 `rust-analyzer` 项目 [主页](https://rust-analyzer.github.io/)，了解其安全说明，随后在咱们的特定 IDE 中安装该语言的服务器支持。咱们的 IDE 就能获得诸如自动补全、跳至定义及行内报错等能力。
+
+
+## 附录 E：关于版本
+
+**Appendix E - Editions**
+
+在第一章中，咱们曾看到 `cargo new` 会把一点有关某个版的元数据，添加到咱们的 `Cargo.toml` 文件。此附录就会讲到那意味着什么！
+
 
