@@ -398,6 +398,106 @@ fn main() {
 **`Hash` for Mapping a Value to a Value of Fixed Size**
 
 
-`Hash` 特质实现了取某种任意大小类型的实例，并通过使用散列函数，将那个实例映射到固定大小的值。派生 `Hash` 会实现 `hash` 方法。`hash` 放的派生实现，会将在该类型各个组成部分上调用 `hash` 的结果结合起来，这就意味着值的全部字段，都必须同时实现 `Hash` 来派生 `Hash`。
+`Hash` 特质实现了取某种任意大小类型的实例，并通过使用散列函数，将那个实例映射到固定大小的值。派生 `Hash` 会实现 `hash` 方法。`hash` 放的派生实现，会将在该类型各个组成部分上调用 `hash` 的结果结合起来，这就意味着类型要派生 `Hash`，那么其全部字段，都必须同时实现 `Hash`。
 
 要求 `Hash` 的一个示例，便是为了高效地存储数据，而在 `Hash<K, V>` 中存储那些键时。
+
+
+### 用于默认值的 `Default`
+
+**`Default` for Default Values**
+
+`Default` 特质实现了为类型创建出一个默认值。派生 `Default` 会实现 `default` 函数。`default` 函数的派生实现，会在类型的各个部分上调用 `default` 函数，意味类型要派生 `Defualt`，其中的全部字段或值，都必须同时实现 `Default`。
+
+`Default::default` 函数，通常是与第 5 章中 [“使用结构体更新语法从其他实例创建出实例”](Ch05_Using_Structs_to_Structure_Related_Data.md#使用结构体更新语法从其他实例创建出实例) 小节里曾讨论过的结构体更新语法结合使用的。咱们可以定制结构体的几个字段，并在随后通过使用 `..Default::default()`，为其余字段设置并使用默认值。
+
+在 `Option<T>` 实例上使用 `unwrap_or_default` 方法时，便是需要 `Default` 特质的一个示例。当那个 `Option<T>` 为 `None` 时，方法 `unwrap_or_default` 就将返回存储在 `Option<T>` 中，那个类型 `T` 的 `Default::default` 结果。
+
+
+## 附录 D：一些有用开发工具
+
+在此附录中，咱们会讲到 Rust 项目所提供的一些有用的开发工具。咱们将看看自动格式化、应用警告修复的一些快速方法、一种代码静态分析工具，a linter，以及与多种 IDE 的集成。
+
+
+### 使用 `rustfmt` 的自动格式化
+
+**Automatic Formatting with `rustfmt`**
+
+`rustfmt` 工具会依据社区编码风格，重新格式化咱们的代码。许多协作项目，都使用了 `rustfmt` 来防止有关编写 Rust 时使用何种风格方面的争论：每个人都使用这个工具来格式化他们的代码。
+
+要安装 `rustfmt`，请键入下面的命令：
+
+```console
+$ rustup component add rustfmt
+```
+
+如同 Rust 会同时给到 `rustc` 与 `cargo` 一样，此命令会给到咱们 `rustfmt` 与 `cargo-fmt`。要格式化任何 Cargo 项目，请敲入下面的命令：
+
+```console
+$ cargo fmt
+```
+
+运行此命令，会重新格式化当前代码箱中全部的 Rust 代码。这只会改变编码风格，而不会改变代码语义。关于 `rustfmt` 的更多信息，请参阅 [其文档](https://github.com/rust-lang/rustfmt).
+
+
+### 使用 `rustfix` 修复咱们的代码
+
+**Fix Your Code with `rustfix`**
+
+`rustfix` 工具已被 Rust 安装所包含，并可大致以咱们想要的方式，修复那些有着明确纠正问题方法的一些编译器告警。咱们之前大概率已经见到过编译器告警了。比如，设想有下面这段代码：
+
+文件名：`src/main.rs`
+
+```rust
+fn do_something() {}
+
+fn main() {
+    for i in 0..100 {
+        do_something();
+    }
+}
+```
+
+此处，咱们正调用 `do_something` 函数 100 次，但咱们在 `for` 循环的代码体中，从未用到那个变量 `i`。Rust 就会就此对咱们发出告警：
+
+```console
+$ cargo build
+   Compiling rustfix_demo v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/rustfix_demo)
+warning: unused variable: `i`
+ --> src/main.rs:4:9
+  |
+4 |     for i in 0..100 {
+  |         ^ help: if this is intentional, prefix it with an underscore: `_i`
+  |
+  = note: `#[warn(unused_variables)]` on by default
+
+warning: `rustfix_demo` (bin "rustfix_demo") generated 1 warning
+    Finished dev [unoptimized + debuginfo] target(s) in 0.29s
+```
+
+这个告警建议咱们要使用 `_i` 做名字：其中的下划线表示咱们有意不使用这个变量。通过运行 `cargo fix` 命令，咱们就可以使用 `rustfix`，自动应用那项建议：
+
+```console
+$ cargo fix --allow-no-vcs
+    Checking rustfix_demo v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/rustfix_demo)
+       Fixed src/main.rs (1 fix)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.17s
+```
+
+当咱们再次看到 `src/main.rs`，就将发现 `cargo fix` 已修改了这段代码：
+
+文件名：`src/main.rs`
+
+```rust
+fn do_something() {}
+
+fn main() {
+    for _i in 0..100 {
+        do_something();
+    }
+}
+```
+
+那个 `for` 循环变量，现在就被命名为了 `_i`，同时那条告警也不再出现了。
+
+
