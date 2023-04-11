@@ -720,4 +720,19 @@ $ rustup toolchain list
 stable-x86_64-unknown-linux-gnu (default)
 ```
 
-现在，当咱们每次在 `~/projects/needs-nightly` 目录下调用 `rustc` 或 `cargo` 时，`rustup` 都会确保咱们在使用每日发布的 Rust，而非咱们默认的稳定发布 Rust 了。再有很多 Rust 项目时，这就会排上用场。
+可以看到，稳定发布的工具链是默认的。绝大多数 Rust 用户会在多数时候使用稳定发布。咱们可能想要在多数时候使用稳定发布，又因为咱们关心某项最新特性，而会在特定项目使用每日发布。要这样做，就可以在那个项目目录下，使用 `rustup override` 来将每日发布工具链，设置为当咱们位处那个目录中时，`rustup` 使用的那个工具链：
+
+```console
+$ cd ~/projects/needs-nightly
+$ rustup override set nightly
+```
+
+现在，当咱们每次在 `~/projects/needs-nightly` 目录下调用 `rustc` 或 `cargo` 时，`rustup` 都会确保咱们在使用每日发布的 Rust，而非咱们默认的稳定发布 Rust 了。再有很多 Rust 项目时，这就会排上用场!
+
+### 请求评议流程与各种团队
+
+**The RFC Process and Teams**
+
+那么咱们该怎么了解到这些新特性呢？Rust 的开发模型，遵循了 *请求评议流程，Request For Comments(RFC) process*。如你想要 Rust 的一项改进，那么就可以编写一个名为请求评议，RFC 的提议。
+
+任何人都可以编写请求评议来改进 Rust，同时这些提议会经过由许多议题子团队所组成的 Rust 团队审阅和讨论。[在 Rust 网站上](https://www.rust-lang.org/governance) 有这些团队的完整清单，其中包括了该项目各领域：语言设计、编译器实现、基础设施、文档及其他等的团队。
