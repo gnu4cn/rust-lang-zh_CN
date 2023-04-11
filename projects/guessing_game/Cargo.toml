@@ -1,0 +1,11 @@
+[package]
+name = "guessing_game-xfossdotcom"
+license = "MIT"
+version = "0.1.1"
+description = "一个在其中猜出计算机所选数字的有趣游戏。"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.3"

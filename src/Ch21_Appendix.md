@@ -688,4 +688,36 @@ Rust 每六周发布，像时刻表一样。若咱们知道了一个 Rust 发布
 
 **Unstable Features**
 
-这种发布模型下，还有一个好处：不稳定特性。
+这种发布模型下，还有一个好处：不稳定特性。Rust 使用了一种名为 “特性标识，feature flags” 的技巧，来确定出给定发布中启用了哪些特性。若某项新特性处于活跃开发中，他就会落地在 `master` 分支上，而由此就会在每日发布中，但会有着一个 *特性标识*。而咱们，作为用户，希望尝试这个进展中的特性，the work-in-progress feature，时，咱们是可以尝试的，但必须使用 Rust 的每日发布，并使用恰当的标识来注解咱们的代码，来选用该特性。
+
+若咱们使用着 beta 或稳定发布的 Rust，那么就不能使用任何特性标识。这是 Rust 团队在声明那些新特性永久稳定前，允许咱们实际用到他们的关键。希望选用最新特性的人们，便可这样做，而想要一种扎实体验的人，则可坚持使用稳定发布，而清楚他们的代码不会破坏。这便是稳定但并非止步不前。
+
+由于那些工作中的特性仍在便会，且在本书写作时和他们在稳定构建中启用时，其间他们肯定将有所不同，因此本书只包含了那些稳定特性的信息。咱们可以在线上找到那些仅每日发布有的特性文档。
+
+### Rustup 与 Rust 每日发布所扮演的角色
+
+**Rustup and the Role of Rust Nightly**
+
+Rust 令到易于在全局或每个项目基础上，从不同发布通道的 Rust 之间改变。默认情况下，咱们将安装稳定发布的 Rust。而比如要安装每日发布：
+
+```console
+$ rustup toolchain install nightly
+```
+
+咱们也可以使用 `rustup`，查看全部的 *工具链，toolchains* （Rust 的各个发布与关联组件）。下面就是本书一位作者的 Windows 计算机上的示例：
+
+```powershell
+> rustup toolchain list
+stable-x86_64-pc-windows-msvc (default)
+beta-x86_64-pc-windows-msvc
+nightly-x86_64-pc-windows-msvc
+```
+
+> 在 Linux 系统上的输出如下：
+
+```console
+$ rustup toolchain list
+stable-x86_64-unknown-linux-gnu (default)
+```
+
+现在，当咱们每次在 `~/projects/needs-nightly` 目录下调用 `rustc` 或 `cargo` 时，`rustup` 都会确保咱们在使用每日发布的 Rust，而非咱们默认的稳定发布 Rust 了。再有很多 Rust 项目时，这就会排上用场。
