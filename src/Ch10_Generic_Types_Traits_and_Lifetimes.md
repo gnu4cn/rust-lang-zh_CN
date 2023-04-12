@@ -188,9 +188,9 @@ fn main() {
 fn largest<T>(list: &<T>) -> &T {
 ```
 
-要将这个定义读作：函数 `largest` 对某些类型 `T` 通用（the function `largest` is generic over some type `T`）。该函数有着一个名为 `list` 的参数，即类型 `T` 值的一个切片。`largest` 函数将返回一个到同样类型 `T` 值的引用。
+咱们把这个定义读作：函数 `largest` 对某个类型 `T` 通用（the function `largest` is generic over some type `T`）。该函数有着一个名为 `list` 的参数，其为类型 `T` 值切片。`largest` 函数将返回一个到同样类型 `T` 值的引用。
 
-下面清单 10-5 给出了这个在其签名中，运用通用数据类型的合并 `largest` 函数定义。这个清单还展示了怎样使用 `i32` 值切片，或 `char` 值切片，调用该函数。请注意此代码尚不会编译，但本章后面就会修复他。
+下面清单 10-5 给出了这个在其签名中用到通用数据类型的合并 `largest` 函数的定义。这个清单还展示了咱们可以怎样使用 `i32` 值切片，或 `char` 值切片调用该函数。请注意此代码尚不会编译，但咱们将在本章后面修复他。
 
 文件名：`src/main.rs`
 
@@ -222,7 +222,7 @@ fn main() {
 
 *清单 10-5：使用泛型参数的 `largest` 函数；此代码尚不会编译*
 
-现在即刻编译此代码，将得到如下错误信息：
+现在编译此代码，将得到如下错误信息：
 
 ```console
 $ cargo run                                                                                      lennyp@vm-manjaro
@@ -244,7 +244,7 @@ For more information about this error, try `rustc --explain E0369`.
 error: could not compile `generics_demo` due to previous error
 ```
 
-该帮助文本消息，提供了 `std::cmp::PartialOrd`，这是一个 *特质（trait）*，而在下一小节，就会讲到特质。至于现在，明白该错误表示，`largest` 函数体，由于 `T` 可以是的那些全部可能类型而不会工作就行。由于这里是要在该函数体中，比较那些类型 `T` 的值，因此这里就只能使用值可被排序的那些类型。而要让这些值的比较可行，标准库就有着这个可应用在类型上的 `std::cmp::PartialOrd` 特质（请参阅附录 C 了解该特质的更多信息）。按照该帮助信息的建议，这里就要将这些类型限制为对 `T` 有效的、仅那些实现了 `PartialOrd` 的类型，而由于标准库在 `i32` 与 `char` 上，均实现了 `PartialOrd` 特质，那么这个示例就会编译了。
+帮助文本消息提到 `std::cmp::PartialOrd`，其是个 *特质（trait）*，而咱们在下一小节就会讲到特质。至于现在，明白这个报错指出了，`largest` 函数体不会对所有 `T` 可能的类型工作就行。由于咱们是要在该函数体中，比较两个类型 `T` 的值，那么咱们就只能使用值可被排序的类型。为能进行比较，标准库便有这个咱们可在类型上应用的 `std::cmp::PartialOrd` 特质（请参阅附录 C 了解该特质的更多信息）。按照该帮助信息的建议，咱们就要把对 `T` 有效的类型，限制为仅那些实现了 `PartialOrd` 的类型，而由于标准库在 `i32` 与 `char` 上，均实现了 `PartialOrd` 特质，那么这个示例就会编译了。
 
 
 ### 在结构体定义中
