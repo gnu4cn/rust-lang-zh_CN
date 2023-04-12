@@ -1,6 +1,6 @@
 # 泛型、特质与生命周期
 
-每种编程语言都有用于有效处理重复概念的工具。在 Rust 中，一种这样的工具就是 *泛型（generics）*：将一些具体类型或别的属性的替身抽象出来。无需知悉在编译及运行代码时泛型处有着什么，即可对泛型的行为，以及这些泛型与其他泛型之间的关系，进行表达（abstract stand-ins for concret types or other properties. We can express the bevavior of generics or how they relate to other generics without knowing what will be in their place when compiling and running the code）。
+每种编程语言都有着用于有效处理重复概念的一些工具。在 Rust 中，一种这样的工具就是 *泛型（generics）*：将一些具体类型或别的属性的替身抽象出来。无需知悉在编译及运行代码时泛型处有着什么，即可对泛型的行为，以及这些泛型与其他泛型之间的关系，进行表达（abstract stand-ins for concret types or other properties. We can express the bevavior of generics or how they relate to other generics without knowing what will be in their place when compiling and running the code）。
 
 以与取未知类型值，来在多种具体类型值上运行同样代码的某个函数同样的方式，函数可取某些泛型的参数，而非像是 `i32` 或 `String` 这样的具体类型。事实上，前面在第 6 章的 `Option<T>`，第 8 章的 `Vec<T>` 和 `HashMap<K, V>`，还有第 9 章的 `Result<T, E>` 中，就已经用到了泛型特性。本章中，将探讨怎样定义咱们自己的带有泛型特性的类型、函数及方法！
 
