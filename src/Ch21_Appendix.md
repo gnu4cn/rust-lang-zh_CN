@@ -741,4 +741,51 @@ $ rustup override set nightly
 
 过了一段时间后，一旦那些用到每日发布的 Rust 开发者们，能够试用这项新特性，那么 Rust 团队成员将讨论这项特性，怎样将其编制到每日发布上，并决定其是否有那个被构造到稳定发布 Rust。而若决定是继续推进，那么特性门就会被移除，同时这项特性就被认为是稳定的了！他就会搭上列车，进到一个新的稳定发布 Rust  中。
 
-<全书完>
+## 附录 H - 术语清单
+
+### 单态化，monomorphization
+
+所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。
+
+
+## 附录 I - 有用笔记
+
+此处记录学习及应用 Rust 编程软件过程中，觉得有用的一些东西。
+
+
+## `cargo-binutils`
+
+[这个项目](https://github.com/rust-embedded/cargo-binutils) 是 Embbeded-Rust 项目的，而不是 Rust 官方的，但提供了有用的功能。比如查看构建出的二进制程序文件的那些头部：
+
+
+```console
+$ cargo readobj --bin clippy_demo -- --file-headers
+    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           Advanced Micro Devices X86-64
+  Version:                           0x1
+  Entry point address:               0x86D0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          4305200 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         12
+  Size of section headers:           64 (bytes)
+  Number of section headers:         42
+  Section header string table index: 41
+```
+
+使用前需要进行如下安装：
+
+```console
+$ cargo install cargo-binutils
+$ rustup component add llvm-tools-preview
+```

@@ -62,5 +62,3 @@
 - [最后项目：构建一个多线程的 Web 服务器](Ch20_Final_Project_Building_a_Multithreaded_Web_Server.md)
 
 - [附录](Ch21_Appendix.md)
-
-- [一些有用的 Tips](Ch22_Useful_Tips.md)
