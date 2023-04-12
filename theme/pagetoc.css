@@ -11,7 +11,7 @@
 @media only screen and (min-width:1440px) {
   main {
     position: relative;
-    margin-left: calc((100% - var(--content-max-width))/2 - 120px) !important;
+    margin-left: calc((100% - var(--content-max-width))/2 - 140px) !important;
   }
   .sidetoc {
     margin-left: auto;
