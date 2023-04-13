@@ -635,7 +635,7 @@ pub trait Summary {
 }
 ```
 
-而要使用此版本的 `Summary`，咱们只需在某个类型上实现该特质时，定义出 `summarize_author`：
+而要使用此版本的 `Summary`，咱们只需在某个类型上实现该特质时，定义出 `summarize_author` 方法：
 
 ```rust
 impl Summary for Tweet {
@@ -645,7 +645,7 @@ impl Summary for Tweet {
 }
 ```
 
-在定义了 `summarize_author` 之后，就可以在 `Tweet` 结构体的实例上调用 `summarize` 方法，同时 `summarize` 的默认实现，将调用这里已经提供到的 `summarize_author` 的定义。由于这里已经实现了 `summarize_author`，那么在无需要求咱们编写任何其他代码之下，这个 `Summary` 特质就已给到 `summarize` 方法的行为了。
+定义出 `summarize_author` 后，咱们就可以在 `Tweet` 结构体的实例上，调用 `summarize` 方法了，而 `summarize` 的默认实现，将调用咱们所提供的 `summarize_author` 的定义。由于咱们已实现了 `summarize_author`，在不要求咱们编写任何更多代码下，`Summary` 特质就已给到 `summarize` 方法的行为。
 
 ```rust
     let tweet = Tweet {
@@ -660,9 +660,9 @@ impl Summary for Tweet {
     println!("1 条新推文: {}", tweet.summarize());
 ```
 
-此代码会打印出 `1 条新推文: （了解更多来自 @horse_ebooks ......）`。
+此代码会打印 `1 条新推文: （了解更多来自 @horse_ebooks ......）`。
 
-请注意从某个方法的重写实现，是无法访问该同一方法的默认实现的。
+请注意从某个方法的重写实现，访问同一方法的默认实现是不可行的。
 
 
 ### 作为参数的特质
