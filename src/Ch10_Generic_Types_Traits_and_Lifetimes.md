@@ -675,7 +675,7 @@ pub fn notify(item: &impl Summary) {
 }
 ```
 
-这里给那个 `item` 参数指定了 `impl` 关键字和特质名字，而不再是具体类型。此参数将接受实现了指定特质的任何类型。在 `notify` 的函数体中，就可以调用 `item` 上来此 `Summary` 特质的全部方法，比如这里的 `summarize`。这里便可以对 `notify` 加以调用，并传入任意的 `NewsArticle` 或 `Tweet` 实例了。以任意其他类型，比如 `String` 或 `i32`，由于这些类型没有实现 `Summary`，那么对该函数进行调用的代码，就不会编译。
+咱们给那个 `item` 参数指定了 `impl` 关键字和特质名字，而不是具体类型。这个参数会接受实现了指定特质的任何类型。在 `notify` 的函数体中，咱们就可以在 `item` 上，调用来自 `Summary` 特质的任何方法了，比如 `summarize`。咱们可以调用 `notify`，并传入 `NewsArticle` 或 `Tweet` 的任意实例。而以任意其他类型，比如 `String` 或 `i32`，调用该函数的代码，由于那些类型没有实现 `Summary`，就不会编译。
 
 
 ### 特质边界语法
