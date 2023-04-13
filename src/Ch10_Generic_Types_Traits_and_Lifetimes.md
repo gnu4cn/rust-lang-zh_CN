@@ -577,10 +577,10 @@ fn main() {
 
 此代码会打印 `1 条推文：horse_ebooks: 当然，跟大家已经清楚的一样了，朋友们`。
 
-依赖于 `aggregator` 代码箱的其他代码箱，同样可以将 `Summary` 特质带入其作用域，以在他们自己的类型上实现 `Summary`。有个限制条件要注意，即只有在特质或类型二者至少有一个属于代码箱本地的时，咱们才能在类型上实现特质。比如，由于 `Tweet` 这个类型属于本地代码箱 `aggregator`，那么因此就可以将像是标准库的特质 `Display`，应用于像是定制类型 `Tweet` 上，而作为这个 `aggregator` 代码箱功能的一部分。由于那个 `Summary` 属于 `aggregator` 代码箱本地，因此在这里的 `aggregator` 代码箱中，还可将 `Summary` 应用在 `vec<T>` 上。
+依赖于 `aggregator` 代码箱的其他代码箱，同样可以将 `Summary` 特质带入其作用域，以在他们自己的类型上实现 `Summary`。有个限制条件要注意，即只有在特质或类型二者至少有一个属于代码箱本地的时，咱们才能在类型上实现特质。比如，由于定制类型 `Tweet` 对于咱们的代码箱 `aggregator` 是本地的，因此咱们可以将比如 `Display` 这样的标准库特质，像 `aggregator` 代码箱功能的一部分那样，实现在 `Tweet` 上。由而于那个特质 `Summary` 属于 `aggregator` 代码箱本地，咱们便还可在咱们的 `aggregator` 代码箱中，将其实现在 `Vec<T>` 上。
 
 
-但这里是无法将外部特质，应用在外部类型上的。比如，由于 `Display` 特质与 `vec<T>` 类型都是定义在标准库中，而均不属于 `aggregator` 代码箱本地，那么在这里的 `aggregator` 代码箱里头，就不能够将 `Display` 特质，应用在 `vec<T>` 上。这种限制属于一种名为 *内聚性（coherrnce）* 属性的一部分，更具体地讲，就是 *孤儿规则（the orphan rule）*，之所以这样称呼，是由于未父类型缺席了（this restriction is part of a property called *coherence*, and more specifically the *orphan rule*, so named because the parent type is not present）。此规则确保其他人的代码无法破坏自己的代码，反之亦然。在没有这条规则下，两个代码箱就会将同一特质，对同一类型加以实现，那么 Rust 就不清楚要使用那个实现了。
+不过咱们是无法将外部特质，实现在外部类型上的。比如，由于 `Display` 特质与 `Vec<T>` 类型，都是定义在标准库中，而均不属于咱们的 `aggregator` 代码箱，咱们就不能在 `aggregator` 代码箱里头，将 `Display` 特质实现在 `Vec<T>` 上。这种限制属于名为 *内聚，coherrnce* 的属性的一部分，更具体地说，便是 *孤儿规则，the orphan rule*，之所以这样叫法，是由于父类型缺席了，this restriction is part of a property called *coherence*, and more specifically the *orphan rule*, so named because the parent type is not present。这条规则确保了其他人的代码无法破坏咱们代码，反之亦然。若没有这条规则，两个代码箱就会对同样类型实现同一特质，那么 Rust 就不清楚要使用那个实现了。
 
 
 ### 默认实现

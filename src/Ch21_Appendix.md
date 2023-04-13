@@ -741,14 +741,8 @@ $ rustup override set nightly
 
 过了一段时间后，一旦那些用到每日发布的 Rust 开发者们，能够试用这项新特性，那么 Rust 团队成员将讨论这项特性，怎样将其编制到每日发布上，并决定其是否有那个被构造到稳定发布 Rust。而若决定是继续推进，那么特性门就会被移除，同时这项特性就被认为是稳定的了！他就会搭上列车，进到一个新的稳定发布 Rust  中。
 
-## 附录 H - 术语清单
 
-### 单态化，monomorphization
-
-所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。
-
-
-## 附录 I - 有用笔记
+## 附录 H - 有用笔记
 
 此处记录学习及应用 Rust 编程软件过程中，觉得有用的一些东西。
 
@@ -789,3 +783,18 @@ ELF Header:
 $ cargo install cargo-binutils
 $ rustup component add llvm-tools-preview
 ```
+
+## 附录 I - 术语清单
+
+### 单态化，monomorphization
+
+所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。
+
+### 内聚属性
+
+a property called *coherence*，参见 [在类型上实现某个特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质)。
+
+### 孤儿规则
+
+the orphan rule, 参见 [在类型上实现某个特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质)。
+
