@@ -483,15 +483,15 @@ fn main() {
 
 ## 特质：定义共用行为
 
-*特质（a trait）*，定义了某种特定类型所具有的，并可与其他类型共用的功能。使用特质，就可以抽象方式，来定义共用行为。而使用 *特质边界（trait bounds）*，就可以指明具有特定行为的任意类型的泛型（we can use *trait bounds* to specify that a generic type can be any type that has certain behavior）。
+*特质，a trait*，定义了特定类型所具有，并可与其他类型共用的功能。咱们可使用特质，来以抽象方式定义出共用行为。而运用 *特质边界，trait bounds*，咱们便可以指明带有特定行为的任意类型的泛型，we can use *trait bounds* to specify that a generic type can be any type that has certain behavior。
 
 
-> **注意**：特质与其他语言中名为 *接口（interfaces）* 的特性类似，不过有着一些不同之处。
+> 注意：特质与其他语言中名为 *接口，interfaces* 的特性类似，虽然有一些差别。
 
 
-### 定义一个特质
+### 定义特质
 
-某个类型的行为，是由那些可在该类型上调用的方法，所组成的。在能够于不同类型之上，调用一些同样方法时，那么这些不同类型，就共用了同样的行为。特质定义，就是为了完成某种目标，而定义一套必要行为，为此而将一些方法签名组织在一起的一种方式（trait definitions are a way to group method signatures together to define a set of behaviors necessary to accomplish some purpose）。
+类型的行为，是由可在该类型上调用的方法，所组成的。若咱们能于不同类型上调用同样方法时，那么这些不同类型就共用了同样行为。特质定义，是为定义出完成某种目的一套必要行为，而把方法签名编组在一起的一种方式，trait definitions are a way to group method signatures together to define a set of behaviors necessary to accomplish some purpose。
 
 比如说，这里有着保存了多种类别与数量文本的多个结构体：一个 `NewsArticle` 结构体，保存着归档于特定位置的新闻故事，而一个 `Tweet` 结构体，则可以有着最多 280 个字符，并带有表明其是否为一则新 tweet、或 retweet，抑或是到另一 tweet 答复的元数据。
 
