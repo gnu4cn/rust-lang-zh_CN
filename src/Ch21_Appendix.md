@@ -786,15 +786,15 @@ $ rustup component add llvm-tools-preview
 
 ## 附录 I - 术语清单
 
-### 单态化，monomorphization
+- 单态化，monomorphization
 
 所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。
 
-### 内聚属性
+- 内聚属性
 
 a property called *coherence*，参见 [在类型上实现某个特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质)。
 
-### 孤儿规则
+- 孤儿规则
 
 the orphan rule, 参见 [在类型上实现某个特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质)。
 
