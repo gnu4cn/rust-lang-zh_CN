@@ -798,3 +798,6 @@ a property called *coherence*，参见 [在类型上实现某个特质](Ch10_Gen
 
 the orphan rule, 参见 [在类型上实现某个特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质)。
 
+- `impl Trait` 语法
+
+在函数参数清单中，将特质用作参数类型注解的语法。参见：[作为参数的特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#作为参数的特质)
