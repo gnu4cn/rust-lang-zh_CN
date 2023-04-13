@@ -667,7 +667,7 @@ impl Summary for Tweet {
 
 ### 作为参数的特质
 
-既然清楚了怎样定义和实现特质，那么咱们就可以探讨一下，怎样运用特质来定义出接收不同类型参数的函数。咱们将使用之前清单 10-13 中，在 `NewsArticle` 与 `Tweet` 上曾实现过的 `Summary` 特质，来定义一个会调用其 `item` 参数上 `summarize` 方法的 `notify` 函数，而该参数便是实现了 `Summary` 特质的类型。要完成这个目的，咱们就要使用 `impl Trait` 语法，如下所示：
+既然清楚了怎样定义和实现特质，那么咱们就可以探讨一下，怎样运用特质来定义出接收不同类型参数的函数。咱们将使用之前清单 10-13 中，在 `NewsArticle` 与 `Tweet` 上曾实现过的 `Summary` 特质，来定义一个会调用其 `item` 参数上 `summarize` 方法的 `notify` 函数，而该参数便是实现了 `Summary` 特质类型的。要完成这个目的，咱们就要使用 `impl Trait` 语法，如下所示：
 
 ```rust
 pub fn notify(item: &impl Summary) {
@@ -680,7 +680,7 @@ pub fn notify(item: &impl Summary) {
 
 ### 特质边界语法
 
-这种适用于简单案例的 `impl Trait` 语法，实际上是一种被称作 *特质边界（a trait bound）* 较长形式的语法糖；而特质边界看起来像下面这样：
+这种在简单情形下工作的 `impl Trait` 语法，实际上是被称作 *特质边界，trait bound* 的较长形式的语法糖,syntax sugar；其看起来像下面这样：
 
 
 ```rust
@@ -689,9 +689,9 @@ pub fn notify<T: Summary>(item: &T) {
 }
 ```
 
-这种较长形式与上一小节中的示例是等价的，但要更冗长一些。这里是将特质边界（`Summary`），在一个冒号之后，与泛型参数声明放在了一起，并在一对尖括号里面。
+这种较长形式与上一小节中的示例是等价的，但要更冗长一些。咱们把特质边界（`Summary`），在冒号之后，与泛型参数声明放在一起，且在一对尖括号里面。
 
-`impl Trait` 这种语法，在简单情形下，是方便的，且令到代码更为简洁，而在别的情形下，较完整的特质边界语法，则能够对更高复杂度进行表达。比如，这里可以有着两个实现了 `Summary` 的参数。以 `impl Trait` 语法实现这种情况，看起来就像下面这样：
+在简单情形下，`impl Trait` 这种语法是方便的，且令到代码更为简洁，而在别的情形下，较完整的特质边界语法，则能表达出更高的复杂度。比如，这里可以有着两个实现了 `Summary` 的参数。以 `impl Trait` 语法实现这种情况，看起来就像下面这样：
 
 ```rust
 pub fn notify(item1: &impl Summary, item2: &impl Summary) {
