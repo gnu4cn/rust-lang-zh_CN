@@ -1,4 +1,4 @@
-# Rust 的一些面向对象编程特性
+# Rust 的面向对象编程特性
 
 **Object Oriented Programming Features of Rust**
 

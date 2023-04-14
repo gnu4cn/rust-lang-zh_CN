@@ -769,7 +769,7 @@ fn return_summarizable() -> impl Summary {
 
 仅以其实现了的特质，便指明了返回值类型这种能力，在闭包与迭代器语境下尤为有用，咱们在第 13 章就会讲到他们。闭包与迭代器会创建出只有编译器清楚的类型，或指定起来极长的类型。`impl Trait` 语法，就允许咱们简明地、在无需编写出极长类型下指定出，返回实现了 `Iterator` 特质的某种类型的函数。
 
-然而，只有在返回单个类型时，咱们才能使用 `impl Trait`。比如，下面有着将返回值类型值指定为了 `impl Summary`，而既要返回 `NewsArticle` 又要返回 `Tweet` 的代码，就不会工作：
+然而，只有在返回单个类型时，咱们才能使用 `impl Trait`。比如下面这段在将返回值类型值指定为了 `impl Summary` 下，而要返回 `NewsArticle` 或 `Tweet` 的代码，就不会工作：
 
 ```rust
 fn returns_summarizable(switch: bool) -> impl Summary {
@@ -796,7 +796,7 @@ fn returns_summarizable(switch: bool) -> impl Summary {
 }
 ```
 
-这里不允许既返回 `NewsArticle` 又返回 `Tweet`，是由于有关这个 `impl Trait` 语法，在编译器中实现方式的限制。在第 17 章的 [运用允许不同类型值的特质对象](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节，就会讲到怎样编写有着这种行为的函数。
+由于编译器中实现 `impl Trait` 语法方式方面的限制，返回 `NewsArticle` 或 `Tweet` 便是不允许的。在第 17 章的 [运用允许不同类型值的特质对象](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节，咱们将涉及如何编写有着这种行为的函数。
 
 
 ### 运用特质边界来有条件地实现方法
