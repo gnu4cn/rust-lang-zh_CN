@@ -689,26 +689,26 @@ pub fn notify<T: Summary>(item: &T) {
 }
 ```
 
-这种较长形式与上一小节中的示例是等价的，但要更冗长一些。咱们把特质边界（`Summary`），在冒号之后，与泛型参数声明放在一起，且在一对尖括号里面。
+这种较长形式与上一小节中的示例是等价的，但要更冗长一些。咱们把特质边界（`Summary`），在冒号之后，与泛型参数声明放在一起，并在一对尖括号里面。
 
-在简单情形下，`impl Trait` 这种语法是方便的，且令到代码更为简洁，而在别的情形下，较完整的特质边界语法，则能表达出更高的复杂度。比如，这里可以有着两个实现了 `Summary` 的参数。以 `impl Trait` 语法实现这种情况，看起来就像下面这样：
+在简单情形下，`impl Trait` 这种语法是方便的，且令到代码更为简洁，而在别的情形下，较完整的特质边界语法，则能表达出更高复杂度。比如，咱们可以有两个实现 `Summary` 的参数。以 `impl Trait` 语法实现这种情况，看起来就会像下面这样：
 
 ```rust
 pub fn notify(item1: &impl Summary, item2: &impl Summary) {
 ```
 
-在想要此函数容许 `item1` 与 `item2` 有着不同类型（只要这两种类型都实现了 `Summary` 即可）。而在要强制这两个参数有着同一类型时，那么就必须使用特质边界，像下面这样：
+当咱们是要此函数允许 `item1` 与 `item2` 有着不同类型时（只要两个类型都实现了 `Summary` ），那么使用 `impl Trait` 语法便是恰当的。而当要的是强制这两个参数有着同一类型时，咱们就必须使用特质边界，像下面这样：
 
 ```rust
 pub fn notify<T: Summary>(item1: &T, item2: &T) {
 ```
 
-这里被指定为 `item1` 与 `item2` 两个参数类型的泛型 `T`，对该函数进行了约束，进而作为传递给 `item1` 与 `item2` 的参数值具体类型，就必须相同了。
+其中被指定为 `item1` 与 `item2` 两个参数类型的泛型 `T`，会对该函数加以约束，进而作为 `item1` 与 `item2` 的实参所传递值的具体类型必须相同。
 
 
 #### 使用 `+` 语法，指定多个特质边界
 
-这里还可以指定多于一个的特质边界。比方说这里打算的是 `notify` 要在 `item` 上使用 `summarize` 方法的同时，还会用到一些显示的格式化：那么就会在 `notify` 的定义中，指明 `item` 必须同时实现了 `Disply` 与 `Summary` 两个特质。使用 `+` 语法，就可以达到这个目的：
+咱们还可以指明多个特质边界。比方说咱们想要 `notify` 使用 `item` 上的 `summarize` 的同时，还要使用显示格式：咱们就要在 `notify` 的定义中，指明 `item` 必须实现了 `Disply` 与 `Summary` 两个特质。使用 `+` 语法，咱们便可达到这个目的：
 
 ```rust
 pub fn notify(item &(impl Summary + Display)) {
@@ -724,7 +724,7 @@ pub fn notify<T: Summary + Display>(item: &T) {
 在制定了这两个特质下，`notify` 的函数体，就可以调用 `summarize` 函数，并可以使用 `{}` 来对 `item` 进行格式化了。
 
 
-### 运用 `where` 子句获得更明确的特质边界
+#### 运用 `where` 子句获得更明确的特质边界
 
 **Clearer Trait Bounds with `where` Clauses**
 
