@@ -678,9 +678,9 @@ pub fn notify(item: &impl Summary) {
 咱们给那个 `item` 参数指定了 `impl` 关键字和特质名字，而不是具体类型。这个参数会接受实现了指定特质的任何类型。在 `notify` 的函数体中，咱们就可以在 `item` 上，调用来自 `Summary` 特质的任何方法了，比如 `summarize`。咱们可以调用 `notify`，并传入 `NewsArticle` 或 `Tweet` 的任意实例。而以任意其他类型，比如 `String` 或 `i32`，调用该函数的代码，由于那些类型没有实现 `Summary`，就不会编译。
 
 
-### 特质边界语法
+#### 特质边界语法
 
-这种在简单情形下工作的 `impl Trait` 语法，实际上是被称作 *特质边界，trait bound* 的较长形式的语法糖,syntax sugar；其看起来像下面这样：
+这种在简单情形下工作的 `impl Trait` 语法，实际上是被称作 *特质边界，trait bound* 的较长形式的语法糖，syntax sugar；其看起来像下面这样：
 
 
 ```rust
@@ -706,7 +706,7 @@ pub fn notify<T: Summary>(item1: &T, item2: &T) {
 这里被指定为 `item1` 与 `item2` 两个参数类型的泛型 `T`，对该函数进行了约束，进而作为传递给 `item1` 与 `item2` 的参数值具体类型，就必须相同了。
 
 
-### 使用 `+` 语法，指定多个特质边界
+#### 使用 `+` 语法，指定多个特质边界
 
 这里还可以指定多于一个的特质边界。比方说这里打算的是 `notify` 要在 `item` 上使用 `summarize` 方法的同时，还会用到一些显示的格式化：那么就会在 `notify` 的定义中，指明 `item` 必须同时实现了 `Disply` 与 `Summary` 两个特质。使用 `+` 语法，就可以达到这个目的：
 
