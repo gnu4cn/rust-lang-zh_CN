@@ -801,7 +801,7 @@ fn returns_summarizable(switch: bool) -> impl Summary {
 
 ### 运用特质边界来有条件地实现方法
 
-经由运用有着一个使用泛型参数的 `impl` 代码块的特质边界，就可以根据实现了指定特质的类型，而实现不同方法（by using a trait bound with an `impl` block that uses generic type parameters, we can implement methods conditionally for types that implement the specified traits）。比如下面清单 10-15 中的类型 `Pair<T>`，就一直会将那个 `new` 函数，实现为返回 `Pair<T>` 的一个新实例（回顾第 5 章的 [定义方法](Ch05_Using_Structs_to_Structure_Related_Data.md#方法的定义) 小节就知道，`Self` 就是那个 `impl` 代码块的类型别名，在这个示例中即为 `Pair<T>`）。但在接下来的 `impl` 代码块中，在 `Pair<T>` 的内部类型 `T` 实现了启用比较的 `PartialOrd` 特质，*与* 启用打印的 `Display` 特质时，那么 `Pair<T>` 就只会实现 `cmp_display` 方法。
+通过以用到泛型参数的 `impl` 代码块方式，而使用特质边界，咱们便可根据实现了指定特质的类型，而有条件地实现方法，by using a trait bound with an `impl` block that uses generic type parameters, we can implement methods conditionally for types that implement the specified traits。比如下面清单 10-15 中的类型 `Pair<T>`，就一直会将那个 `new` 函数，实现为返回 `Pair<T>` 的一个新实例（回顾第 5 章的 [定义方法](Ch05_Using_Structs_to_Structure_Related_Data.md#方法的定义) 小节就知道，`Self` 就是那个 `impl` 代码块的类型别名，在这个示例中即为 `Pair<T>`）。但在接下来的 `impl` 代码块中，在 `Pair<T>` 的内部类型 `T` 实现了启用比较的 `PartialOrd` 特质，*与* 启用打印的 `Display` 特质时，那么 `Pair<T>` 就只会实现 `cmp_display` 方法。
 
 
 ```rust
