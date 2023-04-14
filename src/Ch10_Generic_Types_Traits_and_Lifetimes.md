@@ -749,7 +749,7 @@ fn some_function<T, U>(t: &T, u: &U) -> i32
 
 ### 实现了特质的返回值类型
 
-在返回某种实现了某个特质的类型值的返回值处，也可以使用 `impl Trait` 语法，如下所示：
+咱们还也可以在返回值处，使用 `impl Trait` 语法来返回某种实现某个特质类型的值，如下所示：
 
 
 ```rust
@@ -765,11 +765,11 @@ fn return_summarizable() -> impl Summary {
 }
 ```
 
-这里通过在返回值类型上使用 `impl Summary`，在没有命名具体类型下，而指明了这个 `returns_summarizable` 函数，会返回某种实现了 `Summary` 特质的类型。在此示例中，`returns_summarizable` 函数返回的是一个 `Tweet`，而调用此函数的代码，则无需知会这一点。
+通过对返回值类型使用 `impl Summary`，而没有命名具体类型下，咱们便指明了 `returns_summarizable` 函数，会返回实现了 `Summary` 特质的类型。在此示例中，`returns_summarizable` 函数返回的是个 `Tweet`，而调用此函数的代码，则无需知会这一点。
 
-仅由返回值类型所实现的特质，指定处返回值类型的这种能力，在闭包与迭代器，在第 13 章就会涉及到这两个特性，的语境下尤为有用。闭包与迭代器创建了仅编译器知晓的一些类型，或一些长度极大而无法指定的类型。这种 `impl Trait` 语法，实现了简明地指定处返回实现了 `Iterator` 特质的某种类型，而无需编写出那非常长的类型。
+仅以其实现了的特质，便指明了返回值类型这种能力，在闭包与迭代器语境下尤为有用，咱们在第 13 章就会讲到他们。闭包与迭代器会创建出只有编译器清楚的类型，或指定起来极长的类型。`impl Trait` 语法，就允许咱们简明地、在无需编写出极长类型下指定出，返回实现了 `Iterator` 特质的某种类型的函数。
 
-然而，只能在返回单个类型时，才能使用 `impl Trait`。比如，下面有着将返回值类型值指定为了 `impl Summary`，而既要返回 `NewsArticle` 又要返回 `Tweet` 的代码，就不会工作：
+然而，只有在返回单个类型时，咱们才能使用 `impl Trait`。比如，下面有着将返回值类型值指定为了 `impl Summary`，而既要返回 `NewsArticle` 又要返回 `Tweet` 的代码，就不会工作：
 
 ```rust
 fn returns_summarizable(switch: bool) -> impl Summary {
