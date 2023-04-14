@@ -814,4 +814,6 @@ Sugar syntax, 参见 [特质边界语法](Ch10_Generic_Types_Traits_and_Lifetime
 
 The `+` syntax for specifying multiple trait bounds, 参见：[使用 + 语法，指定多个特质边界](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用--语法指定多个特质边界)
 
+- `where` 子句
 
+`where` clauses, 参见 []()

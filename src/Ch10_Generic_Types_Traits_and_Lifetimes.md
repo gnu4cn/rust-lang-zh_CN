@@ -708,7 +708,7 @@ pub fn notify<T: Summary>(item1: &T, item2: &T) {
 
 #### 使用 `+` 语法，指定多个特质边界
 
-咱们还可以指明多个特质边界。比方说咱们想要 `notify` 使用 `item` 上的 `summarize` 的同时，还要使用显示格式：咱们就要在 `notify` 的定义中，指明 `item` 必须实现了 `Disply` 与 `Summary` 两个特质。使用 `+` 语法，咱们便可达到这个目的：
+咱们还可以指明多个特质边界。比方说咱们想要 `notify` 使用 `item` 上的 `summarize` 的同时，还要使用显示格式：咱们就要在 `notify` 定义中，指明 `item` 必须实现了 `Disply` 与 `Summary` 两个特质。使用 `+` 语法，咱们便可达到这个目的：
 
 ```rust
 pub fn notify(item &(impl Summary + Display)) {
@@ -721,10 +721,10 @@ pub fn notify(item &(impl Summary + Display)) {
 pub fn notify<T: Summary + Display>(item: &T) {
 ```
 
-在制定了这两个特质下，`notify` 的函数体，就可以调用 `summarize` 函数，并可以使用 `{}` 来对 `item` 进行格式化了。
+有了指定的这两个特质，那么 `notify` 的函数体，便可调用 `summarize` 函数，并可使用 `{}` 来格式化 `item` 了。
 
 
-#### 运用 `where` 子句获得更明确的特质边界
+#### 运用 `where` 子句让特质边界更清楚
 
 **Clearer Trait Bounds with `where` Clauses**
 
