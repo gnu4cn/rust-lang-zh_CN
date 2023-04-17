@@ -853,13 +853,13 @@ let s = 3.to_string();
 特质与特质边界这两个特性，允许咱们编写出运用泛型参数来减少代码重复的代码，并还向编译器指出了咱们希望该泛型有着特定行为。随后编译器就能使用特质边界信息，来检查代码用到的全部具体类型，是否提供到正确行为。在一般的动态类型语言，dynamically typed languages，中，若调用某个类型上尚未定义的方法，咱们将在运行时收到报错。但 Rust 将这些错误移到了编译时，这样在代码还不能运行的时候，咱们就被强制要求修复这些问题。此外，由于已在编译时被检查过，因此咱们就不必编写检查运行时行为的代码。这样做在提升了性能的同时，不必放弃泛型灵活性。
 
 
-## 使用生命周期对引用加以验证
+## 使用生命周期验证引用
 
-生命周期是另一种前面已经用到的泛型。与确保某种类型有着期望行为的特质不同，生命周期确保的是引用在需要他们有效期间，保持有效（lifetimes ensure that references are valid as long as we need them to be）。
+生命周期是另一种咱们前面已经用到的泛型。与确保类型有着期望行为的特质不同，生命周期确保的是引用在咱们需要他们有效期间，保持有效，lifetimes ensure that references are valid as long as we need them to be。
 
-在第 4 章中的 [引用与借用](Ch04_Understanding_Ownership.md#引用与借用references-and-borrowing) 小节，未曾讨论到的一个细节，就是在 Rust 中的全部引用都有着 *生命周期（lifetime）*，即引用有效的作用范围。多数时候，声明周期都是隐式的，且是被推导出来的，这正与多数时候类型是被推导出来的一样。在可能有多个类型时，仅务必对类型加以注解即可。与这种注解类型的方式类似，在引用的生命周期与少数几种不同方式相关时，就必须对生命周期加以注解。为确保在运行时用到的具体类型显著有效，Rust 就要求使用泛型生命周期参数，对这些关系加以注解（in a similar way, we must annotate lifetimes when the lifetimes of references could be related in a few different ways. Rust requires us to annotate the relationships using generic lifetime parameters to ensure the actual references used at runtime will definitely be valid）。
+在第 4 章中 [引用与借用](Ch04_Understanding_Ownership.md#引用与借用references-and-borrowing) 小节，咱们未曾讨论的一个细节，即 Rust 中的每个引用，都有着 *生命周期，lifetime*，其便是引用有效的作用范围。多数时候，声明周期是隐式而被推导出来的，这正与多数时候类型是被推导出来的一样。咱们只须在可能有多个类型时注解类型。与此类似，在一些引用的生命周期，可能以几种方式存在关联时，咱们就必须注解出生命周期。为确保在运行时用到的具体类型显著有效，Rust 就会要求咱们使用泛型生命周期参数，注解出这些关系，in a similar way, we must annotate lifetimes when the lifetimes of references could be related in a few different ways. Rust requires us to annotate the relationships using generic lifetime parameters to ensure the actual references used at runtime will definitely be valid。
 
-绝大多数别的编程语言，甚至都没有声明周期注解这个概念，那么这就会感觉陌生了。尽管本章不会涵盖生命周期的全部，这里仍会对可能遇到的生命周期语法的一些常见方式进行讨论，如此就会对此概念感到不那么违和。
+绝大多数别的编程语言，甚至都没有注解周期，annotating lifetimes, 这个概念，因此这会让人感到陌生。尽管咱们在这一章中不会涵盖生命周期的全部，咱们仍将讨论可能遇到的生命周期语法的一些常见方式，从而咱们就能适应这个概念。
 
 
 ### 使用生命周期防止悬空引用
