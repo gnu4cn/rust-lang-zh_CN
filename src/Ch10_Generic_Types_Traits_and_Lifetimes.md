@@ -855,18 +855,20 @@ let s = 3.to_string();
 
 ## 使用生命周期验证引用
 
+**Validating References with Lifetimes**
+
 生命周期是另一种咱们前面已经用到的泛型。与确保类型有着期望行为的特质不同，生命周期确保的是引用在咱们需要他们有效期间，保持有效，lifetimes ensure that references are valid as long as we need them to be。
 
 在第 4 章中 [引用与借用](Ch04_Understanding_Ownership.md#引用与借用references-and-borrowing) 小节，咱们未曾讨论的一个细节，即 Rust 中的每个引用，都有着 *生命周期，lifetime*，其便是引用有效的作用范围。多数时候，声明周期是隐式而被推导出来的，这正与多数时候类型是被推导出来的一样。咱们只须在可能有多个类型时注解类型。与此类似，在一些引用的生命周期，可能以几种方式存在关联时，咱们就必须注解出生命周期。为确保在运行时用到的具体类型显著有效，Rust 就会要求咱们使用泛型生命周期参数，注解出这些关系，in a similar way, we must annotate lifetimes when the lifetimes of references could be related in a few different ways. Rust requires us to annotate the relationships using generic lifetime parameters to ensure the actual references used at runtime will definitely be valid。
 
-绝大多数别的编程语言，甚至都没有注解周期，annotating lifetimes, 这个概念，因此这会让人感到陌生。尽管咱们在这一章中不会涵盖生命周期的全部，咱们仍将讨论可能遇到的生命周期语法的一些常见方式，从而咱们就能适应这个概念。
+绝大多数别的编程语言，甚至都没有注解周期，annotating lifetimes, 这个概念，因此这会让人感到陌生。尽管在这一章中咱们不会涵盖生命周期的全部，咱们仍将讨论咱们可能遇到生命周期语法的一些常见方式，如此咱们就能适应这个概念。
 
 
 ### 使用生命周期防止悬空引用
 
 **Preventing Dangling References with Lifetimes**
 
-生命周期的主要目的是防止 *悬空引用，dangling references*，这会导致程序引用到并非其打算要引用的数据。设想下面清单 10-16 中的程序，其有着一个外层作用范围与一个内层作用范围。
+生命周期的主要目的是防止 *悬空引用，dangling references*，其会导致程序引用并非其打算引用的数据。设想下面清单 10-16 中的程序，其有着一个外层作用范围与一个内层作用范围。
 
 
 ```rust
