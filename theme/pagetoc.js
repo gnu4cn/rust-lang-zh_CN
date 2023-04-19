@@ -47,3 +47,7 @@ window.addEventListener('load', function() {
 
 // Handle active elements on scroll
 window.addEventListener("scroll", updateFunction);
+
+if(document.querySelector("#document-not-found404")) {
+  console.log("Page not found");
+}
