@@ -54,6 +54,8 @@ if(document.querySelector("#document-not-found404")) {
   var timerId = setInterval(() => {
     if(timeLeft == -1) {
       clearTimeout(timerId);
+      let siteRoot = window.location.origin;
+      window.location.replace(siteRoot);
     } else {
       let secCounts = document.querySelectorAll(".sec-count")
       secCounts.forEach(count => {
@@ -62,5 +64,4 @@ if(document.querySelector("#document-not-found404")) {
       timeLeft--;
     }
   }, 1000);
-  console.log("Page not found");
 }
