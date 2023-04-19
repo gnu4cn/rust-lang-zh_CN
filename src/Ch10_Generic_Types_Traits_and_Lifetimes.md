@@ -1066,9 +1066,11 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
 
 此代码应会编译，并在清单 10-19 的 `main` 函数中使用他时，产生出咱们想要的结果。
 
-这个函数签名现在告诉 Rust，针对某个生命周期 `'a`，该函数会取两个参数，他们都是存活时间至少为 `'a` 的字符串切片。该函数签名还告诉 Rust，从该函数返回的字符串切片，将存活至少生命周期 `'a` 那样长时间。实际上，这表示 `longest` 函数所返回的引用生命周期，与该函数参数引用的值生命周期中较小的一致。这些关系，就是咱们想要 Rust 在分析此代码时，要用到的关系。
+这个函数签名现在告诉 Rust，针对某个生命周期 `'a`，该函数会取两个参数，他们都是存活时间至少为 `'a` 的字符串切片。该函数签名还告诉 Rust，从该函数返回的字符串切片，将存活至少生命周期 `'a` 那样长时间。实际上，这表示 `longest` 函数所返回引用的生命周期，与该函数参数引用值生命周期中较小的一致。这些关系，就是咱们想要 Rust 在分析此代码时，要用到的关系。
 
-当于函数中对生命周期进行注解时，这些注解是介入函数签名中，而非函数体中。这些生命周期注解，成为了该函数合约的一部分，这与签名中的类型较为相似。令到函数包含生命周期合约（the lifetime contract），就意味着 Rust 编译器所完成的分析，可以相对简单一些。在某个函数被注解的方式，或其被调用的方式存在问题时，所报出的编译器错误，就可以更精准地指向所编写代码或约束的某个部分。相反，相比于添加了生命周期注解，在 Rust 编译器要做出更多有关这里所预期生命周期关系的推断时，那么编译器可能就只能够指出，在问题原因处许多步之外，代码的某个使用了（if, instead, the Rust compiler made more inferences about what we intended the relationships of the lifetimes to be, the compiler might only be able to point to a use of our code many steps away from the cause of the problem）。
+请记住，当咱们在这个函数签名中，指明那些生命周期进行时，咱们并未改变任何传入或返回值的生命周期。相反，咱们指明的是借用检查器应拒绝没有遵守这些约束的所有值。请注意 `longest` 函数不需要确切地掌握，`x` 与 `y` 将存活多久，而只要有可替代 `'a` 的某个作用域将满足此签名，note that the `longest` function doesn't need to know exactly how long `x` and `y` will live, only that some scope can be substituted for `'a` that will satisfy this signature。
+
+当于函数中注解生命周期时，这些注解是在函数签名中，而非函数体中。生命周期注解，成为了该函数合约的一部分，这就很像是签名中的类型。令函数签名包含生命周期合约，the lifetime contract，就意味着 Rust 编译器执行的分析，会更简单。若函数被注解方式或被调用方式存在问题，那么编译器报错，就可以更精准地指向所编写代码或约束的某个部分。相反，若没有这些生命周期注解，那么相比于 Rust 编译器会作出更多有关咱们所预期的生命周期关系推断，编译器或许就只能够指出，在问题原因处许多步之外，咱们代码的某个使用，if, instead, the Rust compiler made more inferences about what we intended the relationships of the lifetimes to be, the compiler might only be able to point to a use of our code many steps away from the cause of the problem。
 
 在将具体引用传递给 `longest` 时，取代 `'a` 的那个具体生命周期，即为参数 `x` 作用域与参数 `y` 作用域重叠的部分。也就是说，这个泛型生命周期 `'a` 将获取到，与 `x` 与 `y` 生命周期中较小那个相等的具体生命周期。由于这里已将那个返回的引用，注解为了同一生命周期参数 `'a`，那么那个返回的引用，就会在 `x` 与 `y` 的生命周期中较小那个的长度期间有效。
 
