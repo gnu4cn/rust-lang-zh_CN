@@ -49,5 +49,18 @@ window.addEventListener('load', function() {
 window.addEventListener("scroll", updateFunction);
 
 if(document.querySelector("#document-not-found404")) {
+  let timeLeft = 10;
+
+  setInterval(var timerId = function() {
+    if(timeLeft == -1) {
+      clearTimeout(timerId);
+    } else {
+      let secCounts = document.querySelectorAll(".sec-count")
+      secCounts.forEach(count => {
+        count.innerHTML = timeLeft;
+      });
+      timeLeft--;
+    }
+  }, 1000);
   console.log("Page not found");
 }
