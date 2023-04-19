@@ -1028,11 +1028,11 @@ error: could not compile `lifetimes_demo` due to previous error
 
 **Lifetime Annotation Syntax**
 
-生命周期注解，一点也不会改变引用变量的存活时长。而是在不影响生命周期指向，对多个引用变量生命周期之间的关系加以描述。正如函数签名指定了泛型参数时，函数可接受任意类型一样，通过在函数签名中指定泛型生命周期参数，函数就可以接受任意生命周期的引用了（just as functions can accept any type when the signatures specifies a generic type parameter, functions can accept with any lifetime by specifying a generic lifetime parameter）。
+生命周期注解，不会改变任何引用的存活时长。而是，他们在不影响生命周期下，对多个引用变量的生命周期关系加以描述。正如函数签名指定了泛型参数时，函数便可接受任意类型一样，通过指定出泛型生命周期参数，函数就可以接受带有任意生命周期的引用了，just as functions can accept any type when the signatures specifies a generic type parameter, functions can accept with any lifetime by specifying a generic lifetime parameter。
 
-生命周期注解有着些许不同寻常的语法：生命周期参数的名字，必须以撇号（单引号，`'`）开头，通常为全部小写字母，且像泛型一样非常短。多数人会用 `'a` 作为首个生命周期的注解。是将生命周期注解，放在某个引用的 `&` 之后，使用一个空格，来将注解与该引用的类型分隔开。
+生命周期注解有着些许不寻常的语法：生命周期参数名字，必须以撇号（单引号，`'`）开头，通常为全部小写字母，且像泛型一样非常短。多数人会用 `'a` 作为首个生命周期注解。咱们会将生命周期注解，放在引用的 `&` 之后，使用一个空格来将这种注解与该引用的类型分隔开。
 
-下面就是一些示例：到某个 `i32` 的不带生命周期参数的引用、到某个 `i32` 的有着名为 `'a` 的生命周期参数，以及到某个 `i32` 的同样有着生命周期 `'a` 的可变引用。
+下面是一些示例：到某个 `i32` 的不带生命周期参数的引用、到某个 `i32` 的有着名为 `'a` 的生命周期参数，以及到某个 `i32` 的同样有着生命周期 `'a` 的可变引用。
 
 ```rust
 &i32        // 某个引用
@@ -1040,7 +1040,7 @@ error: could not compile `lifetimes_demo` due to previous error
 &'a mut i32 // 某个有着显式生命周期的可变引用
 ```
 
-由于注解的目的是告诉 Rust （编译器），多个引用的泛型生命周期参数相互之间是怎样关联起来的，因此生命周期本身并没有什么意义。接下来就要在那个 `largest` 函数语境下，对生命周期注解相互之间怎样联系起来加以审视了。
+由于注解的目的是告诉 Rust （编译器），多个引用的泛型生命周期参数相互之间如何相互关联，因此生命周期本身并没有什么意义。接下来咱们就要在那个 `largest` 函数上下文中，检视一下生命周期注解如何关联。
 
 
 ### 函数签名中的生命周期注解
