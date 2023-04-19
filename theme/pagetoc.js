@@ -51,7 +51,7 @@ window.addEventListener("scroll", updateFunction);
 if(document.querySelector("#document-not-found404")) {
   let timeLeft = 10;
 
-  setInterval(var timerId = function() {
+  var timerId = setInterval(() => {
     if(timeLeft == -1) {
       clearTimeout(timerId);
     } else {
