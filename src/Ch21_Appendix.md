@@ -829,9 +829,9 @@ The `+` syntax for specifying multiple trait bounds, 参见：[使用 + 语法�
 
 - 输入生命周期
 
-input lifetimes，函数或方法上的生命周期
+Input lifetimes，函数或方法上的生命周期
 
 
 - 输出生命周期
 
-output lifetimes, 返回值上的生命周期
+Output lifetimes, 返回值上的生命周期
