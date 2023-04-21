@@ -56,9 +56,9 @@ opt-level = 3
 opt-level = 1
 ```
 
-此代码就覆盖了默认的设置 `0`。现在运行 `cargo build`，Cargo 将使用 `dev` 配置文件的那些默认设置，加上这里对 `opt-level` 的定制修改。由于这里把 `opt-level` 设置为了 `1`，Cargo 就会应用相比于默认设置更多，但并不如发布构建那样多的优化。
+此代码会覆盖默认设置 `0`。现在当咱们运行 `cargo build` 时，Cargo 将使用 `dev` 配置文件的默认设置，加上咱们对 `opt-level` 的定制。由于咱们把 `opt-level` 设置为了 `1`，Cargo 将应用相比于默认设置更多，但不如发布构建那样多的优化。
 
-若要了解这两个配置文件的完整配置项清单及他们的默认设置，请参阅 [Cargo 文档](https://doc.rust-lang.org/cargo/reference/profiles.html)。
+对于各个配置文件的完整配置项清单与默认设置，请参阅 [Cargo 文档](https://doc.rust-lang.org/cargo/reference/profiles.html)。
 
 
 ## 将代码箱发布到 Crates.io
