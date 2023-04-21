@@ -65,9 +65,9 @@ opt-level = 1
 
 **Publishing a Crate to Crates.io**
 
-前面在项目中，已经用到了 [crates.io](https://crates.io) 上的一些包，然而通过发布咱们自己的包，还可以与其他人分享咱们自己的代码。位于 [crates.io](https://crates.io) 网站的代码箱登记处，会分发咱们的包，因此 crates.io 主要保存了开放源码的代码。
+咱们已将 [crates.io](https://crates.io) 上的一些包，用作了咱们项目的依赖，而通过发布自己的包，咱们还可以与其他人分享咱们自己的代码。位于 [crates.io](https://crates.io) 网站的代码箱登记，会分发咱们包的源码，因此其主要保存开放源码的代码。
 
-Rust 与 Cargo，均有着令到咱们所发布的包，易于为其他人找到并使用的一些特性。接下来就会聊聊一些这样的特性，并讲解怎样发布某个包（how to release a package）。
+Rust 与 Cargo，均有着令到咱们所发布的包，易于为他人找到并使用的一些特性。咱们将讲到其中一些特性，并讲解怎样发布包，how to publish a package。
 
 
 ### 制作一些有用的文档注释
