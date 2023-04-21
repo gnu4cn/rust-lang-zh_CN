@@ -786,6 +786,10 @@ $ rustup component add llvm-tools-preview
 
 ## 附录 I - 术语清单
 
+- 文档注释
+
+Documentation comment, 将产生出 HTML 的注释。
+
 
 - 单态化
 
