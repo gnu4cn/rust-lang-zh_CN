@@ -111,9 +111,9 @@ pub fn add_one(x: i32) -> i32 {
 
 咱们曾使用清单 14-1 中的 `# Examples`  Markdown 标题，来创建出 HTML 中带有标题 “Examples” 的小节。下面是代码箱作者们，经常在他们文档中用到的一些其他小节：
 
-- **终止运行（Panics）**：正被文档注释的函数可能终止运行的情形。不愿他们的程序终止运行的那些调用者，应确保他们不会在这些情形下调用该函数；
-- **报错（Errors）**：在该函数返回的是一个 `Result` 时，那么对可能发生的各种错误及何种条件下会引起这些错误被返回进行描述，就能有效帮助到调用者，以便他们可以编写出以不同方式，处理这些不同类别错误的代码来。
-- **安全性（Safety）**：在该函数属于 `unsafe` 的调用时（在后面第 19 章会讨论到不安全 `unsafe`），就应有解释为何该函数属于不安全，以及对该函数所期望的调用者要坚守哪些不变因素进行说明一个小节（if the funciton is `unsafe` to call(we discuss unsafety in Chapter 19), there should be a section explaining why the function is unsafe and covering the invariants that the function expects callers to uphold）。
+- **Panics**：被文档注释的函数可能终止运行的情形。那些不愿其程序终止运行的调用者，就应确保在这些情形下他们不会调用该函数；
+- **Errors**：若函数返回了 `Result`，那么描述出可能发生的各种错误，及何种条件下会造成那些错误的返回，就能有效帮助到调用者，从而他们可以编写出以不同方式，处理不同类别错误的代码;
+- **Safety**：在该函数属于 `unsafe` 的调用时（在后面第 19 章会讨论到不安全 `unsafe`），就应有解释为何该函数属于不安全，以及对该函数所期望的调用者要坚守哪些不变因素进行说明一个小节（if the funciton is `unsafe` to call(we discuss unsafety in Chapter 19), there should be a section explaining why the function is unsafe and covering the invariants that the function expects callers to uphold）。
 
 
 多数的文档注释，并不需要全部的这些小节，但这仍不失为提醒咱们，代码使用者将有兴趣了解咱们代码哪些方面的一个不错的检查单。
