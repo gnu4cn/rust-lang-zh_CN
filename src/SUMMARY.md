@@ -3,6 +3,8 @@
 
 [序和前言](Ch00_Forword_and_Introduction.md)
 
+---
+
 - [入门](Ch01_Getting_Started.md)
 
 - [编写一个猜数游戏](Ch02_Programming_a_Guessing_Game.md)
