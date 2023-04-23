@@ -171,13 +171,13 @@ error: doctest failed, to rerun pass `--doc`
 
 > 注：执行 `cargo test --doc`，将只运行文档注释中的示例代码。
 
-#### 注释所包含的程序项目
+#### 注释被包含所在项目
 
-**Commenting Contained Items**
+**Commenting Contained Items，代码箱、模组整体的注释**
 
-`//!` 这种样式的文档注释，会把文档添加到包含注释的条目，而非那些跟随这些注释的条目。在代码箱根文件中（依惯例即 `src/lib.rs`），或在对代码箱编写文档的模组，抑或在作为整体的模组中，通常会用到这些文档注释（the style of doc comment `//!` adds documentation to the item contains the comments rather than to the items following the comments. We typically use these doc comments inside the crate root file(`src/lib.rs` by convention) or inside a module to document the crate or the module as a whole）。
+`//!` 样式的文档注释，会把文档添加到包含注释的条目，而非注释之后的条目。咱们通常在代码箱根文件里（依惯例即 `src/lib.rs`），或模组里，添加这些文档注释，来将代码箱或模组作为整体，而为其编写文档，the style of doc comment `//!` adds documentation to the item contains the comments rather than to the items following the comments. We typically use these doc comments inside the crate root file(`src/lib.rs` by convention) or inside a module to document the crate or the module as a whole。
 
-比如，为添加对包含 `add_one` 函数的这个 `cargo_features_demo` 代码箱的目的加以描述的文档，这里就要把以 `//!` 开头的一些文档注释，添加到那个 `src/lib.rs` 文件的开头，如下清单 14-2 中所示：
+比如，要添加描述包含了 `add_one` 函数的 `cargo_features_demo` 代码箱目的的文档，咱们就要添加以 `//!` 开始的文档注释，到 `src/lib.rs` 文件的开头，如下清单 14-2 中所示：
 
 文件：`src/lib.rs`
 
@@ -192,17 +192,17 @@ error: doctest failed, to rerun pass `--doc`
 // --跳过代码--
 ```
 
-*清单 14-2：整体下 `cargo_features_demo` 代码箱的文档*
+*清单 14-2：作为一个整体的 `cargo_features_demo` 代码箱的文档*
 
-请注意由于这里是以 `//!` 而非 `///` 开始的这些注释，因此在以 `//!` 开始的最后一行之后，是没有任何代码的，这里是在给包含了此注释的程序项目，而非紧接着此注释的程序项目编写文档。在此示例中，那个程序项目就是 `src/lib.rs` 文件，这正是代码箱根。这些注释描述了整个的代码箱。
+请注意由于咱们是以 `//!` 而非 `///` 开始的这些注释，因此在以 `//!` 开始的最后一行后，并无任何代码的，咱们是在给包含此注释的程序项目，而非紧接着此注释的程序项目编写文档。在此示例中，那个程序项目就是 `src/lib.rs` 文件，为代码箱根。这些注释描述了整个代码箱。
 
-在运行 `cargo doc --open` 时，这些注释就会显示在 `cargo_features_demo` 代码箱文档的首页（the front page），位于该代码箱那些公开项目清单之上，如下图 14-02 中所示：
+当咱们运行 `cargo doc --open` 时，这些注释将显示在 `cargo_features_demo` 代码箱文档的首页，he front page，位处代码箱公开项目的清单之上，如下图 14-02 中所示：
 
-![渲染后的 `cargo_features_demo` 代码箱的文档](images/14-02.png)
+![渲染出的 `cargo_features_demo` 代码箱文档](images/14-02.png)
 
-*图 14-02：渲染后的 `cargo_features_demo` 代码箱的文档, 包括了将该代码箱作为整体进行描述的注释*
+*图 14-02：渲染出的 `cargo_features_demo` 代码箱文档, 包括着将该代码箱作为整体描述的注释*
 
-程序项目里的文档注释，用于对代码箱及模组等进行描述，尤其有用。使用它们来解释该容器（the container） 的整体目标，就有助于咱们代码箱的使用者，理解该代码箱的组织。
+程序项目里的文档注释，用于对描述代码箱及模组尤其有用。使用他们来解释容器，the container，的整体目标，有助于咱们的用户们理解代码箱的组织结构。
 
 
 ### 使用 `pub use` 导出好用的公开 API
