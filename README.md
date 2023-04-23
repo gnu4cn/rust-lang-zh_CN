@@ -1,21 +1,18 @@
-# Rust 编程语言
+# 前言和简介
 
+虽然这样说有些含糊其辞，但基本上可说 Rust 编程语言，是一种 *赋能（empowerment）*：不管你当前在用哪种语言编写代码，Rust 都可以赋予你更大能力，在编程之路上走得更远，在你先前的各种领域，更具信心地编写程序。
 
-原著：[The Rust Programming Language](https://doc.rust-lang.org/book/)
+就拿涉及到底层的内存管理、数据表示及并发等 “系统层面” 的工作来讲。传统上，这类编程都被认为是深奥的、只由极少数花费多年时间掌握了避开其间臭名昭著陷阱的程序员来完成。而即使这些人，在写这类代码时，仍然是小心翼翼，以免他们写出的代码留下漏洞利用、崩溃或不当。
 
-*原作者：Steve Klabnik 与 Carol Nichols, 及 Rust 社区*
+通过消除原有各种陷阱，以及提供到友好、全新工具集，Rust 破除了编写这类苛刻程序中的诸多障碍。那么那些需要“深入”到底层控制的程序员们，现在就可以运用 Rust，在不必承担一直以来的崩溃或者安全漏洞的情况下，同时还无须去深入细致地掌握那变化无常工具链，就可以达成他们的目标了。更了不起的是，在设计这门语言时，就贯彻了引导使用他的程序员编写出可靠又高效的代码，体现在运行速度及内存使用上。
 
+正在进行底层代码编写的程序员们，可运用 Rust 来提升他们的雄心壮志。比如说，在Rust 中引入并行机制，是相对低风险的操作：编译器会为你捕获到那些经典错误。同时还可以在确信不会带来程序崩溃或漏洞利用之下，大胆进行更多的优化。
 
-此版本的教材，假定安装了 Rust `1.67.1` （发布于 2023-02-09）或更新版本。请参阅 [第 1 章的 “安装” 小节](docs/Ch01_Getting_Started.md#Installation) 进行安装，或对已安装的 Rust 进行升级。
+然而 Rust 并非局限于底层系统的编写。对于构造命令行应用、web 服务器及其他类别的代码来说，Rust 的表现力和人机工程设计，也可以让这些编写起来相当愉悦 -- 在本书后面，就会发现这样的示例。运用 Rust 可实现将一个领域中学到的技能，迁移到另一领域；通过编写 web 应用，就可以掌握 Rust, 然后将这同样的技能应用到树梅派 app 的编写上。
 
-```console
-$ rustc --version
-rustc 1.68.0 (2c8cc3432 2023-03-06)
-```
+本书充分接纳到 Rust 给其使用者赋能的潜力。这本书友好而恰当，试图帮助你不光提升有关Rust的知识，还在一般方面提升你编程的水平和信心。那么就请继续阅读下去，欢迎来到 Rust 社区！
 
-
-在线阅读: [rust-lang.xfoss.com](https://rust-lang.xfoss.com)
-
+-- *Nicholas Matsakis 与 Aaron Turon*
 
 ## 简介
 
@@ -31,9 +28,9 @@ rustc 1.68.0 (2c8cc3432 2023-03-06)
 
 Rust 还带给了系统编程世界，一些现代开发者工具：
 
-- `Cargo`，Rust 所包含的依赖管理器与构建工具，让整个 Rust 生态中添加依赖、编译与管理依赖，变得愉快并具一致性（`Cargo`, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem）；
-- `Rustfmt` 确保了不同开发者之间有着一致的编码风格；
-- Rust 语言服务器驱动了用于代码补全与行内错误消息的集成开发环境。
+- Cargo，Rust 所包含的依赖管理器与构建工具，让整个 Rust 生态中添加依赖、编译与管理依赖，变得愉快并具一致性，`Cargo`, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem；
+- Rustfmt 格式化工具，the Rustfmt formatting tool，确保不同开发者之间有着一致的编码风格；
+- Rust 语言服务器，the Rust Language Server, 驱动了用于代码补全与行内错误消息的集成开发环境。
 
 通过使用这些开发者工具，及其他一些 Rust 生态中的工具，开发者就可以在编写系统级代码时，颇具生产力了。
 
@@ -86,3 +83,18 @@ Rust 语言也希望带给众多其他用户以支持；这里提到的只是一
 
 阅读本书并无定法：你要跳着去读，也是可以的！在遇到疑惑时，或许就不得不跳回去看看了。你只要怎么有效就行了。
 
+掌握 Rust 过程中的一个重要部分，就是要学会怎样去读那些编译器给出的错误消息：这些错误消息将引导你得到运作的代码。由此，本书将提供到许多不编译的示例，以及在各种情况下编译器将给出的错误消息。请知悉在进入到某个随机示例并加以运行时，示例代码可能会不编译！请确保要阅读这些示例周围的文字，来了解正尝试运行的示例，是不是有错误。本书中的虚拟人物 `Ferris` 也会帮助你识别代码是否会工作的：
+
+| Ferris | 意义 |
+| :-: | :- |
+| ![不会编译](images/Ch00_01.svg) | 此代码不会编译！ |
+| ![不会运行](images/Ch00_02.svg) | 此代码不会运行! |
+| ![不会产生期望的行为](images/Ch00_03.svg) | 此代码不会产生出期望的行为。 |
+
+*表 1 - Ferris 表情含义*
+
+多数情况下，这里都会给出不会编译代码的正确版本。
+
+## 本书的源码
+
+本书所产生的源码，可在 [Github: gnu4cn/rust-lang](https://github.com/gnu4cn/rust-lang) 下载到。
