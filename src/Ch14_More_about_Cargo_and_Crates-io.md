@@ -113,17 +113,17 @@ pub fn add_one(x: i32) -> i32 {
 
 - **Panics**：被文档注释的函数可能终止运行的情形。那些不愿其程序终止运行的调用者，就应确保在这些情形下他们不会调用该函数；
 - **Errors**：若函数返回了 `Result`，那么描述出可能发生的各种错误，及何种条件下会造成那些错误的返回，就能有效帮助到调用者，从而他们可以编写出以不同方式，处理不同类别错误的代码;
-- **Safety**：在该函数属于 `unsafe` 的调用时（在后面第 19 章会讨论到不安全 `unsafe`），就应有解释为何该函数属于不安全，以及对该函数所期望的调用者要坚守哪些不变因素进行说明一个小节（if the funciton is `unsafe` to call(we discuss unsafety in Chapter 19), there should be a section explaining why the function is unsafe and covering the invariants that the function expects callers to uphold）。
+- **Safety**：若函数调用起来是 `unsafe` 的（在第 19 章咱们就会讨论到不安全），那么就应有一个解释为何该函数不安全，并说明该函数期望调用者要遵守哪些不变因素的小节，if the funciton is `unsafe` to call(we discuss unsafety in Chapter 19), there should be a section explaining why the function is unsafe and covering the invariants that the function expects callers to uphold。
 
 
-多数的文档注释，并不需要全部的这些小节，但这仍不失为提醒咱们，代码使用者将有兴趣了解咱们代码哪些方面的一个不错的检查单。
+多数的文档注释并不需要全部这些小节，但这仍不失为一个提醒咱们，关于咱们代码使用者将有兴趣了解的各方面的一个良好检查单。
 
 
 #### 作为测试的文档注释
 
 **Documentation Comments as Tests**
 
-在文档注释中添加一些代码块，可有助于演示怎样使用咱们的库，而这样做有着一项额外收获（an additional bonus）：运行 `cargo test` 将以测试方式，运行文档中的那些代码示例！没有什么比带有示例的文档更好的了。然而比起由于在文档写好后，代码已被修改而造成的示例不工作，也没有什么更糟糕的了。在清单 14-1 中 `add_one` 函数的文档下，运行 `cargo test` 时，就会在测试结果中看到这样一个小节：
+在文档注释中添加一些示例代码块，可以帮助演示怎样使用咱们的库，且这样做有着附带的好处，an additional bonus：运行 `cargo test` 将把文档中示例代码作为测试运行！带有示例的文档属实很好。而在文档编写好后，由于代码已被修改而造成示例不工作，也是极为糟糕的。当咱们以清单 14-1 中 `add_one` 函数的文档，运行 `cargo test`，就将在测试结果中看到这样一个小节：
 
 ```console
    Doc-tests cargo_features_demo
@@ -134,9 +134,9 @@ test src/lib.rs - add_one (line 7) ... ok
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
 ```
 
-而现在要么修改那个函数，要么修改那个示例，总之要让示例中的 `assert_eq!` 终止运行，并再次运行 `cargo tset`，就会看到文档测试（the doc tests）捕获了那个示例，同时 `add_one` 的实现代码，与文档注释中的代码，便失去了相互的同步！
+现在当咱们修改那个函数或者那个示例，从而让示例中的 `assert_eq!` 终止运行，并再次运行 `cargo tset` 时，咱们将看到文档测试，the doc tests，捕获到示例与代码不再相互同步！
 
-> **注**：此状况下的输出为：
+> 注：此状况下的输出为：
 
 ```console
    Doc-tests cargo_features_demo
@@ -169,9 +169,11 @@ test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 error: doctest failed, to rerun pass `--doc`
 ```
 
-> **注**：执行 `cargo test --doc`，将只运行文档注释中的示例代码。
+> 注：执行 `cargo test --doc`，将只运行文档注释中的示例代码。
 
-**对其所在的程序项目进行文档注释（Commenting Contained Items）**
+#### 注释所包含的程序项目
+
+**Commenting Contained Items**
 
 `//!` 这种样式的文档注释，会把文档添加到包含注释的条目，而非那些跟随这些注释的条目。在代码箱根文件中（依惯例即 `src/lib.rs`），或在对代码箱编写文档的模组，抑或在作为整体的模组中，通常会用到这些文档注释（the style of doc comment `//!` adds documentation to the item contains the comments rather than to the items following the comments. We typically use these doc comments inside the crate root file(`src/lib.rs` by convention) or inside a module to document the crate or the module as a whole）。
 

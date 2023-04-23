@@ -11,7 +11,7 @@
 /// let arg = 5;
 /// let answer = cargo_features_demo::add_one(arg);
 ///
-/// assert_eq! (6, answer);
+/// assert_eq! (7, answer);
 /// ```
 pub fn add_one(x: i32) -> i32 {
     x + 2
