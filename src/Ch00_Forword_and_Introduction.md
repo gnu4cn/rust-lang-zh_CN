@@ -28,9 +28,9 @@
 
 Rust 还带给了系统编程世界，一些现代开发者工具：
 
-- `Cargo`，Rust 所包含的依赖管理器与构建工具，让整个 Rust 生态中添加依赖、编译与管理依赖，变得愉快并具一致性（`Cargo`, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem）；
-- `Rustfmt` 确保了不同开发者之间有着一致的编码风格；
-- Rust 语言服务器驱动了用于代码补全与行内错误消息的集成开发环境。
+- Cargo，Rust 所包含的依赖管理器与构建工具，让整个 Rust 生态中添加依赖、编译与管理依赖，变得愉快并具一致性，`Cargo`, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem；
+- Rustfmt 格式化工具，the Rustfmt formatting tool，确保不同开发者之间有着一致的编码风格；
+- Rust 语言服务器，the Rust Language Server, 驱动了用于代码补全与行内错误消息的集成开发环境。
 
 通过使用这些开发者工具，及其他一些 Rust 生态中的工具，开发者就可以在编写系统级代码时，颇具生产力了。
 
