@@ -13,6 +13,8 @@ rustc 1.68.0 (2c8cc3432 2023-03-06)
 
 在线阅读: [rust-lang.xfoss.com](https://rust-lang.xfoss.com)
 
+---
+
 ## 在本地阅读
 
 在本地阅读本书，需要安装 `mdbook` 程序。根据操作系统的不同，安装 `mdbook` 程序有所不同。
@@ -27,7 +29,7 @@ cargo install mdbook
 
 ### 在 Windows 上
 
-在 “Powershell（管理员）”（"Administrator: Windows Powershell"） 中，先安装 choco
+在 “Powershell（管理员）”（"Administrator: Windows Powershell"） 中，先安装 `choco`
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
