@@ -1,3 +1,20 @@
+原著：[The Rust Programming Language](https://doc.rust-lang.org/book/)
+
+*原作者：Steve Klabnik 与 Carol Nichols, 及 Rust 社区*
+
+
+此版本的教材，假定安装了 Rust `1.67.1` （发布于 2023-02-09）或更新版本。请参阅 [第 1 章的 “安装” 小节](docs/Ch01_Getting_Started.md#Installation) 进行安装，或对已安装的 Rust 进行升级。
+
+```console
+$ rustc --version
+rustc 1.68.0 (2c8cc3432 2023-03-06)
+```
+
+
+在线阅读: [rust-lang.xfoss.com](https://rust-lang.xfoss.com)
+
+
+
 # 前言和简介
 
 虽然这样说有些含糊其辞，但基本上可说 Rust 编程语言，是一种 *赋能（empowerment）*：不管你当前在用哪种语言编写代码，Rust 都可以赋予你更大能力，在编程之路上走得更远，在你先前的各种领域，更具信心地编写程序。
