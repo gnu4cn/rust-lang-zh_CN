@@ -880,6 +880,6 @@ $ cargo install ripgrep                                                         
 Cargo 被设计为在无需修改 Cargo 下，就可以使用一些新的子命令，对其加以扩展。当 `$PATH` 中有着一个名为 `cargo-something` 的二进制程序时，那么就可通过运行 `cargo something`，将其作为某个 Cargo 的子命令一样运行他。像这样的定制命令，还会在运行 `cargo --list` 被列出来。这种使用 `cargo install` 来安装扩展，并在随后就跟运行内建的 Cargo 工具一样运行他们，正是 Cargo 之设计的一项超级便利的好处！
 
 
-## 本章小节
+## 本章小结
 
 运用 Cargo 与 [crates.io](https://crates.io) 进行代码的分享，正是令到 Rust 生态对于许多不同任务都有用的一个方面。Rust 的标准库是小型且稳定的，但在不同于语言本身的时间线上，代码箱则是易于共享、运用以及改进的。请不要羞于在 [crates.io](https://crates.io) 上分享对自己有用的代码；那些代码或许同样对其他人也是有用的！
