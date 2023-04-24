@@ -811,6 +811,11 @@ Workspace，为有着多个库代码箱的大型项目组织的一项 Cargo 特�
 The compiled artifacts
 
 
+- 路径依赖
+
+A path dependency
+
+
 - 单态化
 
 所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。

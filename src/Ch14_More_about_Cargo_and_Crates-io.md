@@ -550,7 +550,7 @@ $ cargo new adder
 
 **Creating the Second Package in the Workspace**
 
-接下来，咱们来创建出工作区中的另一个成员包，并将其叫做 `add_one`。请修改顶层的 `Cargo.toml`，在其中的 `members` 清理里指明 `add_one` 的路径：
+接着，咱们来创建工作区中的另一个成员包，并将其叫做 `add_one`。请修改顶层的 `Cargo.toml`，在 `members` 清单中指明 `add_one` 的路径：
 
 文件名：`Cargo.toml`
 
@@ -563,14 +563,14 @@ members = [
 ]
 ```
 
-随后生成一个名为 `add_one` 的新库代码箱：
+随后生成名为 `add_one` 的新库代码箱：
 
 ```console
 $ cargo new add_one --lib                                                                        lennyp@vm-manjaro
      Created library `add_one` package
 ```
 
-这个 `add` 目录现在应该有这些目录与文件：
+`add` 目录现在应该有这些目录与文件：
 
 ```console
 .
@@ -587,7 +587,7 @@ $ cargo new add_one --lib                                                       
 └── target
 ```
 
-在那个 `add_one/src/lib.rs` 文件中，给添加一个 `add_one` 函数：
+在 `add_one/src/lib.rs` 文件中，咱们来添加一个 `add_one` 函数：
 
 文件名：`add_one/src/lib.rs`
 
@@ -597,7 +597,7 @@ pub fn add_one(x: i32) -> i32 {
 }
 ```
 
-现在咱们就可以让有着这里二进制代码箱的 `adder` 包，依赖于这个有着这里的库的 `add_one` 包了。首先，这里将需要把有关 `add_one` 的路径依赖（a path dependency），添加到 `adder/Cargo.toml`。
+现在咱们就可以让有着咱们二进制代码箱的 `adder` 包，依赖于有着咱们库代码箱的 `add_one` 包了。首先，咱们将需要把有关 `add_one` 的路径依赖，a path dependency，添加到 `adder/Cargo.toml`。
 
 文件名：`adder/Cargo.toml`
 
@@ -606,9 +606,9 @@ pub fn add_one(x: i32) -> i32 {
 add_one = { path = "../add_one" }
 ```
 
-Cargo 不会假定工作区中的代码箱将各自相互依赖，因此这里需要显示说明这些依赖关系。
+Cargo并不假设工作区中的箱子会相互依赖，所以我们需要明确说明依赖关系。
 
-接下来，就要在 `adder` 代码箱中，使用那个 `add_one` 函数（位于 `add_one` 代码箱中）。打开 `adder/src/main.rs` 文件，并在其顶部使用一行 `use`，带入那个新的 `add_one` 库代码箱到作用域中。随后修改其中的 `main` 函数，来调用那个 `add_one` 函数，如下清单 14-7 中所示。
+接下来，咱们就要在 `adder` 代码箱中，使用 `add_one` 函数（来自 `add_one` 代码箱）。请打开 `adder/src/main.rs` 文件，并在其顶部使用一个 `use` 行，把新的 `add_one` 库代码箱带入到作用域。随后修改 `main` 函数来调用 `add_one` 函数，如下清单 14-7 中所示。
 
 文件名：`adder/src/main.rs`
 
@@ -623,7 +623,7 @@ fn main() {
 
 *清单 14-7：在 `adder` 代码箱中使用 `add_one` 库代码箱*
 
-下面就来通过在 `add` 目录的顶层，运行 `cargo build` 构建出这个工作区！
+咱们来通过在 `add` 目录顶层运行 `cargo build`，构建工作区！
 
 ```console
 $ cargo build                                                                                 lennyp@vm-manjaro
@@ -632,7 +632,7 @@ $ cargo build                                                                   
     Finished dev [unoptimized + debuginfo] target(s) in 0.40s
 ```
 
-要在 `add` 目录运行这个二进制代码箱，是可以通过使用 `cargo run` 的 `-p` 命令行参数及包名字，指定出要运行工作区中哪个包的：
+而要在 `add` 目录运行二进制代码箱，咱们可通过使用 `-p` 命令行参数，指明咱们打算允许工作区中的哪个包，及与 `cargo run` 运行的包名字：
 
 ```console
 $ cargo run -p adder                                                                          lennyp@vm-manjaro
@@ -643,7 +643,7 @@ $ cargo run -p adder                                                            
         10 加 1 为 11!
 ```
 
-这会运行 `adder/src/main.rs` 中的代码，其依赖于那个 `add_one` 代码箱。
+这会运行 `adder/src/main.rs` 中的代码，其依赖于 `add_one` 代码箱。
 
 
 ### 于工作区中依赖外部代码箱
