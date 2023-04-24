@@ -354,9 +354,9 @@ $ cargo login abcdefghijklmnopqrstuvwxyz012345
 
 Adding Metadata to a New Crate**
 
-假设咱们有了个打算发布的代码箱。在发布前，咱们将需要在该代码箱的 `Cargo.toml` 文件的 `[package]` 小节中，添加一些元数据。
+假设咱们有了个打算发布的代码箱。在发布前，咱们将需要在代码箱的 `Cargo.toml` 文件的 `[package]` 小节中，添加一些元数据。
 
-咱们的代码箱将需要一个独特的名字。尽管在本地编写某个代码箱时，可以给代码箱取任意喜欢的名字。但是，[crates.io](https://crates.io) 上代码箱的名字，则是以先到先得的原则分配的（allocated on a first-come, first-served basis）。一旦某个代码箱名字被使用，其他人就不能发布有着那个名字的代码箱了。在尝试发布某个代码箱之前，就要检索一下咱们打算使用的那个名字。在这个名字已被使用时，就需要找到另一个名字，并编辑 `Cargo.toml` 文件中 `[package]` 小节下的 `name` 字段，以在使用那个用于发布的新名字，就像下面这样：
+咱们的代码箱将需要一个独特的名字。当咱们在本地于代码箱上工作时，咱们可以给代码箱取任意喜欢的名字。但是，[crates.io](https://crates.io) 上代码箱的名字，则是以先到先得的原则分配的，allocated on a first-come, first-served basis。一旦某个代码箱名字已被占用，其他人就不能发布有着那个名字的代码箱。在尝试发布某个代码箱之前，咱们要检索一下打算使用的名字。若这个名字已被使用，咱们将需要找到另一名字，并编辑 `Cargo.toml` 文件中 `[package]` 小节下的 `name` 字段，来使用这个用作发布的新名字，像下面这样：
 
 文件名：`Cargo.toml`
 
@@ -365,7 +365,7 @@ Adding Metadata to a New Crate**
 name = "guessing_game"
 ```
 
-即使咱们以及选出了一个独特的名字，在此时运行 `cargo publish` 来发布这个代码箱时，仍将得到一条告警并接着一个报错：
+即使咱们已选了个独特的名字，当咱们此时运行 `cargo publish` 来发布这个代码箱时，仍将得到一条告警及随后的报错：
 
 
 ```console
@@ -391,7 +391,7 @@ Caused by:
   the remote server responded with an error: missing or empty metadata fields: description, license. Please see https://doc.rust-lang.org/cargo/reference/manifest.html for how to upload metadata
 ```
 
-这些错误是由于咱们缺失了一些重要信息：代码箱的描述及许可证是必须的，由此人们就会明白咱们的代码箱完成的什么，以及在何种条件下他们可以使用咱们的代码箱。在 `Cargo.toml` 中，由于代码箱的描述，会与咱们的代码箱一起呈现在搜索结果中，因此请添加仅仅一两句话的描述。而对于那个 `license` 字段，则需要提供 *某个许可证标识符的值（a licence identifier value）*。[Linux 基金会的软件包数据交换站（Linux Foundation's Software Package Data Exchange, SPDX），spdx.org](http://spdx.org/licenses/) 就列出了可供这个值使用的那些标识符。比如，为指明咱们已使用 MIT 许可证，授权咱们的软件包，那么就要添加那个 `MIT` 的许可证标识符：
+此报错是由于咱们缺失了一些重要信息：描述及许可证是必须的，由此人们就会明白咱们的代码箱完成的什么，及在何种条件下他们可以使用他。在 `Cargo.toml` 中，由于代码箱的描述，会与咱们的代码箱一起呈现在搜索结果中，因此请添加仅仅一两句话的描述。而对于 `license` 字段，则需要提供 *某个许可证标识符值，a licence identifier value*。[Linux 基金会的软件包数据交换站，Linux Foundation's Software Package Data Exchange, SPDX，spdx.org](http://spdx.org/licenses/) 列出了可供这个值使用的标识符。比如，为指明咱们已使用 MIT 许可证，授权咱们的软件包，就要添加 `MIT` 的许可证标识符：
 
 
 文件名：`Cargo.toml`
@@ -402,11 +402,11 @@ name = "guessing_game"
 license = "MIT"
 ```
 
-在打算使用某个未出现于 SPDX 中的许可证时，那么就需要把那种许可证的文本放置于某个文件里，把这个文件包含在咱们的项目中，并于随后使用 `license-file` 而非 `license` 键（the `license` key），来指出那个文件的名字。
+若咱们打算使用某个未出现于 SPDX 中的许可证，咱们就需要把那种许可证的文本，放置于某个文件里，把这个文件包含在咱们的项目中，并于随后使用 `license-file` 来指出那个文件的名字，而不再使用 `license` 键，the `license` key。
 
-有关哪种许可证适合于你的项目方面的指南，是不在这本书的范围的。Rust 社区的许多人，都以 Rust 项目同样的方式，即采用 `MIT OR Apache-2.0` 双重许可证，授权他们的项目。这种项目授权的实践，表明咱们是也可以通过 `OR`，来指定多个许可证标识符，从而让咱们的项目有着多种许可证。
+至于哪种许可证适合于咱们的项目方面的指南，是超出这本书的范围的。Rust 社区的许多人，都以 Rust 项目同样的方式，即采用 `MIT OR Apache-2.0` 双重许可证，授权他们的项目。这种实践表明，咱们也可以通过 `OR` 来指定出多个许可证标识符，从而让咱们的项目有着多种许可证。
 
-有了一个独特的名字、版本号、代码箱描述，并添加了某个许可证，那么这个准备好发布项目的 `Cargo.toml`，就会看起来像下面这样的：
+在添加了独特名字、版本号、代码箱描述及许可证后，已准备好发布项目的 `Cargo.toml`文件，就会看起来像下面这样的：
 
 文件名：`Cargo.toml`
 
