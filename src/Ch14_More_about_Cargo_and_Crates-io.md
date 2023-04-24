@@ -454,7 +454,7 @@ See https://doc.rust-lang.org/cargo/reference/manifest.html#package-metadata for
    Uploading guessing_game-xfossdotcom v0.1.0 (/home/lennyp/rust-lang/guessing_game)
 ```
 
-恭喜！现在咱们便已与 Rust 社区分享了咱们的代码，且任何人都可以将咱们的代码箱，添加为他们项目的依赖。
+恭喜！现在咱们就已与 Rust 社区分享了咱们的代码，且任何人都可将咱们的代码箱，添加为他们项目的依赖。
 
 > 注：在 Crates.io 上的账号电子邮箱未验证时，将报出如下错误：
 
@@ -465,7 +465,7 @@ Caused by:
 
 ### 发布既有代码箱的新版本
 
-在修改了咱们的代码箱，并准备好发表一个新版本时，就要修改那个于 `Cargo.toml` 中所指明的 `version` 值并重新发布。请使用 [语义版本控制规则（Semantic Versioning rules）](http://semver.org/) 来依据曾作出的修改类别，确定出适当的下一版本编号。然后就运行 `cargo publish` 来上传这个新版本。
+咱们完成咱们代码箱的修改，而准备好发布新版本时，咱们要修改 `Cargo.toml` 中所指定的 `version` 值并重新发布。请运用 [语义版本控制规则，Semantic Versioning rules](http://semver.org/)，根据咱们已做出修改的类别，来确定出恰当的下一版本编号为何。然后运行 `cargo publish` 来上传新版本。
 
 
 ### 使用 `cargo yank` 弃用 Crates.io 上的一些版本
