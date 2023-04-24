@@ -715,7 +715,7 @@ error: could not compile `adder` due to previous error
 
 **Adding a Test to a Workspace**
 
-为说明另一项改进，下面来添加 `add_one` 代码箱里头，`add_one::add_one` 函数的一个测试：
+为说明另一项改进，咱们来添加一个 `add_one` 代码箱里 `add_one::add_one` 函数的测试：
 
 文件名：`add_one/src/lib.rs`
 
@@ -736,7 +736,7 @@ mod tests {
 }
 ```
 
-此时在顶层的 `add` 目录运行 `cargo test`。在像这样组织的工作区中运行 `cargo test`，就会运行工作区中全部代码箱的那些测试：
+此时请在顶层的 `add` 目录中运行 `cargo test`。在像这样组织起来的工作区中，运行 `cargo test`，就会运行工作区中所有代码箱的测试：
 
 ```console
 $ cargo test                                                                                                           lennyp@vm-manjaro
@@ -764,9 +764,9 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-输出的首个部分，显示 `add_one` 代码箱中那个 `it_works` 测试通过了。接下来的小节显示，在 `adder` 代码箱中找到零个测试，而随后那个最后小节，显示在 `add_one` 代码箱中找到零个文档测试。（*注*：二进制代码箱中不会有文档测试？）
+输出的首个部分，显示 `add_one` 代码箱中的 `it_works` 测试通过了。下一小节显示，在 `adder` 代码箱中找到零个测试，而随后的最后小节，显示在 `add_one` 代码箱中找到零个文档测试。（*注*：二进制代码箱中不会有文档测试？）
 
-这里还可以通过使用 `-p` 命令行标志及指定要测试的代码箱名字，在顶层目录处运行工作区中某个特定代码箱的那些测试：
+咱们还可通过使用 `-p` 命令行标志，并指明要测试的代码箱名字，而在顶层目录处运行工作区中特定代码箱的测试：
 
 
 ```console
