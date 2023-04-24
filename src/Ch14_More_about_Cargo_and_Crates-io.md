@@ -796,13 +796,13 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 当咱们的项目日渐增长时，请考虑使用工作区：相比于一大块代码，要搞清楚较小的、单独的组件就更容易一些。再者，当代码箱经常同时被修改时，把这些代码箱保持在工作区中，就能令到他们之间的协作更容易。
 
 
-## 使用 `cargo install` 安装 Crates.io 上的二进制代码箱
+## 使用 `cargo install` 安装二进制代码箱
 
-**Installing Binaries from Crates.io with `cargo install`**
+**Installing Binaries with `cargo install`**
 
-`cargo install` 命令允许咱们在本地安装和使用二进制的代码箱。这种用法的目的，不是要替换系统包（system packages）；其宗旨是为 Rust 开发者提供安装其他人已在 [crates.io](https://crates.io) 上分享工具的一种便利方式。请注意咱们只能安装有着二进制目标的那些包。所谓 *二进制目标*（a *binary target*），即与本身为非可运行，而适合于在其他程序中包含的库目标（a libary target）相反的，在代码箱有着一个 `src/main.rs` 文件，或被指定为二进制的另一文件时，所创建出的那个可以运行的程序。通常，代码箱会在 `README` 文件中，有着关于其是否为库代码箱，还是有着二进制目标，或二者皆具方面的信息。
+`cargo install` 命令允许咱们在本地安装和使用二进制的代码箱。这并不是要取代系统包，system packages；它的目的是为 Rust 开发者提供一种方便的方式来安装别人在 [crates.io](https://crates.io) 上分享的工具。请注意咱们只能安装有二进制目标的包，packages that have binary targets。所谓 *二进制目标，binary target*，即与本身为非可运行，而适合于在其他程序中包含的库目标，a libary target，相反，因为代码箱有着一个 `src/main.rs` 文件，或有着被指定为二进制的另一文件时，而创建出的可以运行的程序。通常，代码箱会在 `README` 文件中，有着关于其是否为库代码箱，还是有着二进制目标，或二者皆具方面的信息。
 
-使用 `cargo install` 安装的全部二进制程序文件，都是被存储在安装根的 `bin` 文件中（in the installation root's `bin` folder）。在使用 `rustup.rs` 安装的 Rust，且未有做任何定制配置时，那么这个目录将是 `$HOME/.cargo/bin`。为了能够运行那些使用 `cargo install` 安装的程序，就要确保那个目录是在 `$PATH` 中。
+使用 `cargo install` 安装的全部二进制程序文件，都被存储在安装根的 `bin` 文件中，in the installation root's `bin` folder。在使用 `rustup.rs` 安装 Rust，且没做任何定制配置时，这个目录将是 `$HOME/.cargo/bin`。为能运行咱们使用 `cargo install` 安装的程序，就要确保那个目录在 `$PATH` 中。
 
 > *注*：可在任意位置运行 `cargo install` 命令来安装某个 Crates.io 上的 Rust 二进制程序，这些程序都将被安装在 `$HOME/.cargo/bin` 之下。若已安装了某个 Rust 程序后再安装他，那么就会有如下输出：
 
