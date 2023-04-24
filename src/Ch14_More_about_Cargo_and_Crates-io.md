@@ -804,7 +804,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 使用 `cargo install` 安装的全部二进制程序文件，都被存储在安装根的 `bin` 文件中，in the installation root's `bin` folder。在使用 `rustup.rs` 安装 Rust，且没做任何定制配置时，这个目录将是 `$HOME/.cargo/bin`。为能运行咱们使用 `cargo install` 安装的程序，就要确保那个目录在 `$PATH` 中。
 
-> *注*：可在任意位置运行 `cargo install` 命令来安装某个 Crates.io 上的 Rust 二进制程序，这些程序都将被安装在 `$HOME/.cargo/bin` 之下。若已安装了某个 Rust 程序后再安装他，那么就会有如下输出：
+> 注：可在任意位置运行 `cargo install` 命令，来安装 Crates.io 上的 Rust 二进制程序，这些程序都将被安装在 `$HOME/.cargo/bin` 下。若已安装了某个 Rust 程序后再安装他，那么就会有如下输出：
 
 ```console
 $ cargo install ripgrep                                                                                              1m 4s lennyp@vm-manjaro
@@ -812,10 +812,10 @@ $ cargo install ripgrep                                                         
      Ignored package `ripgrep v13.0.0` is already installed, use --force to override
 ```
 
-比如，在第 12 章中，曾提到有个名为 `ripgrep` 用于检索文件的 `grep` 的 Rust 实现。要安装 `ripgrep`，就可以运行如下命令：
+比如，咱们曾在第 12 章中提到，有个用于搜索文件，`grep` 工具的 Rust 实现 `ripgrep`。要安装 `ripgrep`，咱们可运行如下命令：
 
 ```console
-$ cargo install ripgrep                                                                                                       lennyp@vm-manjaro
+$ cargo install ripgrep                                                                               
     Updating crates.io index
   Installing ripgrep v13.0.0
    Compiling memchr v2.5.0
