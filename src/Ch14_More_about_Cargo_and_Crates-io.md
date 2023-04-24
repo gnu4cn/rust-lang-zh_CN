@@ -406,7 +406,7 @@ license = "MIT"
 
 至于哪种许可证适合于咱们的项目方面的指南，是超出这本书的范围的。Rust 社区的许多人，都以 Rust 项目同样的方式，即采用 `MIT OR Apache-2.0` 双重许可证，授权他们的项目。这种实践表明，咱们也可以通过 `OR` 来指定出多个许可证标识符，从而让咱们的项目有着多种许可证。
 
-在添加了独特名字、版本号、代码箱描述及许可证后，已准备好发布项目的 `Cargo.toml`文件，就会看起来像下面这样的：
+在添加了独特名字、版本号、代码箱描述及许可证后，已准备好发布项目的 `Cargo.toml`文件，就会看起来像下面这样：
 
 文件名：`Cargo.toml`
 
@@ -424,16 +424,16 @@ edition = "2021"
 rand = "0.8.3"
 ```
 
-[Cargo 文档](https://doc.rust-lang.org/cargo/) 介绍了可以指定来确保其他人，能更容易发现并使用你的代码箱的其他元数据。
+[Cargo 文档](https://doc.rust-lang.org/cargo/) 介绍了为确保其他人能更容易发现并使用咱们代码箱，而可指明的别的一些元数据。
 
 
 ### 发布到 Crates.io
 
-既然前面已经创建了账号，保存了 API 令牌，选择了代码箱的名字，并指定了必需的元数据，那么就准备好发布了！发布某个代码箱，就会上传某个特定版本到 [crates.io](https://crates.io)，供其他人使用。
+既然咱们已经创建了账号，保存了 API 令牌，选择了代码箱名字，并指定了必需的元数据，那么咱们就准备好发布了！发布代码箱，会上传特定版本到 [crates.io](https://crates.io)，供其他人使用。
 
-因为发布是 *永久性的（permanent）*，因此要当心。其中的版本绝无可能被覆盖，同时代码无法删除。[crates.io](https://crates.io) 的一个主要目标，是要充当代码的永久存档，以便依赖 [crates.io](https://crates.io) 处代码箱的全部项目构建，将持续工作。允许版本删除，就会领导实现那个目标几无可能。好在咱们可发布的代码箱版本数目上，没有限制。
+因为发布是 *永久性的，permanent*，因此要当心。版本绝无可能被覆盖，且代码无法被删除。[crates.io](https://crates.io) 的一个主要目标，是要充当代码的永久存档，以便依赖于 [crates.io](https://crates.io) 中代码箱的所有项目构建都将持续工作。而允许版本的删除，就会令到实现那个目标几无可能。不过，在咱们可发布的代码箱版本数目上没有限制。
 
-再度运行这个 `cargo publish` 命令。他现在就应成功了：
+再度运行 `cargo publish` 命令。现在他就应成功了：
 
 ```console
 $ cargo publish                                                                        lennyp@vm-manjaro
@@ -454,9 +454,9 @@ See https://doc.rust-lang.org/cargo/reference/manifest.html#package-metadata for
    Uploading guessing_game-xfossdotcom v0.1.0 (/home/lennyp/rust-lang/guessing_game)
 ```
 
-祝贺！现在咱们与 Rust 社区，分享了咱们的代码，同时其他人就可以将咱们的代码箱，作为他们项目的一项依赖而加以添加了。
+恭喜！现在咱们便已与 Rust 社区分享了咱们的代码，且任何人都可以将咱们的代码箱，添加为他们项目的依赖。
 
-> **注**：在 Crates.io 上的账号电子邮箱未验证时，将报出如下错误：
+> 注：在 Crates.io 上的账号电子邮箱未验证时，将报出如下错误：
 
 ```console
 Caused by:
