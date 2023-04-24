@@ -796,6 +796,16 @@ Documentation comment, 将产生出 HTML 的注释。
 Re-export, 使用 `pub use` 重新导出程序项目。
 
 
+- 语义版本控制规则
+
+Semantic Versioning rules, 又大版本、小版本及补丁版本构成的，形如 `MAJOR.MINOR.PATCH` 的版本编号规则。参考：[semver.org](https://semver.org)。
+
+
+- 工作区
+
+Workspace，
+
+
 - 单态化
 
 所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。
