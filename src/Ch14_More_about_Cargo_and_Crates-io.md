@@ -650,9 +650,9 @@ $ cargo run -p adder                                                            
 
 **Depending on an External Package in a Workspace**
 
-请注意工作区在其顶层，只有一个 `Cargo.lock` 文件，而非在各个代码箱目录中都有 `Cargo.lock`。这确保了工作区的全部代码箱，都使用着同一版本的所有依赖。若这里把 `rand` 包分别添加到 `adder/Cargo.toml` 及 `add_one/Cargo.toml` 文件，Cargo 就会就这两个版本的 `rand` 加以解析，并将其记录在这一个的 `Cargo.lock` 中。
+请注意工作区只有一个在顶层的 `Cargo.lock` 文件，而非各个代码箱目录中都有 `Cargo.lock`。这确保了工作区的全部代码箱，都使用着同一版本的所有依赖。若咱们把 `rand` 包添加到 `adder/Cargo.toml` 及 `add_one/Cargo.toml` 两个文件，那么 Cargo 将把那两个依赖，解析为一个版本的 `rand`，并将其记录在那一个的 `Cargo.lock` 中。
 
-令到工作区中全部代码箱使用同样的那些依赖，就意味着这些代码箱将始终相互兼容。下面就来把 `rand` 代码箱添加到 `add_one/Cargo.toml` 文件的 `[dependencies]` 小节，从而就可以在 `add_one` 代码箱中使用这个 `rand` 代码箱：
+让工作区中全部代码箱使用同样的依赖，意味着这些代码箱将始终相互兼容。咱们来把 `rand` 代码箱添加到 `add_one/Cargo.toml` 文件的 `[dependencies]` 小节，这样咱们便可在 `add_one` 代码箱中使用 `rand` 代码箱：
 
 文件名：`add_one/Cargo.toml`
 
@@ -660,7 +660,7 @@ $ cargo run -p adder                                                            
 rand = "0.8.3"
 ```
 
-现在就可以添加 `use rand;` 到 `add_one/src/lib.rs` 文件了，而通过在 `add` 目录运行 `cargo build` 构建这整个工作区，就会带入并编译那个 `rand` 代码箱。由于这里并未引用那个已带入到作用域中的 `rand`，因此这里会收到一条告警：
+现在咱们便可把 `use rand;` 添加到 `add_one/src/lib.rs` 文件了，而通过在 `add` 目录中运行 `cargo build` 构建整个工作区，就会带入并编译 `rand` 代码箱。由于咱们没有引用咱们已带入到作用域中的 `rand`，因此咱们将得到一条告警：
 
 ```console
 $ cargo build                                                                                 lennyp@vm-manjaro
@@ -692,7 +692,7 @@ warning: `add_one` (lib) generated 1 warning
     Finished dev [unoptimized + debuginfo] target(s) in 6.76s
 ```
 
-那个顶层的 `Cargo.lock`，现在就包含了有关 `add_one` 对 `rand` 的依赖信息。但是，及时 `rand` 在该工作区中的某处被用到，在未将 `rand` 添加到其他代码箱的 `Cargo.toml` 文件之前，是不能在其他代码箱中使用他的。比如，若这里把 `use rand;` 添加到 `adder` 包的 `adder/src/main.rs` 文件，就会得到一个报错：
+顶层的 `Cargo.lock`，现在包含了有关 `add_one` 对 `rand` 的依赖信息。但是，即使 `rand` 在工作区中的某处被用到，除非把 `rand` 添加到其他代码箱的 `Cargo.toml` 文件，否则咱们就不能在其他代码箱中使用他。比如，若咱们把 `use rand;` 添加到 `adder` 包的 `adder/src/main.rs` 文件，咱们将得到一个报错：
 
 ```console
 $ cargo build                                                                                 lennyp@vm-manjaro
@@ -708,7 +708,7 @@ For more information about this error, try `rustc --explain E0432`.
 error: could not compile `adder` due to previous error
 ```
 
-要修正整个错误，就要编辑 `adder` 包的 `Cargo.toml` 文件，并也表明 `rand` 是其的一个依赖项。构建这个 `adder` 包就会把 `rand`，添加到 `Cargo.lock` 中 `adder` 的依赖项清单，但不会有额外的 `rand` 拷贝会被下载。Cargo 已确保工作区中用到这个 `rand` 包每个包中的每个代码箱，都将使用同一版本，从而节省了空间，并确保了工作区中的那些代码箱都将兼容于彼此。
+要修正这个错误，就也要编辑 `adder` 包的 `Cargo.toml` 文件，而表明 `rand` 是其依赖项。构建 `adder` 包就将把 `rand`，添加到 `Cargo.lock` 中 `adder` 的依赖项清单，但不会有额外的 `rand` 拷贝将被下载。Cargo 已确保工作区中，每个用到 `rand` 包的包中的每个代码箱，都将使用同一版本，从而给咱们节省空间，并确保工作区中的代码箱都将兼容于彼此。
 
 
 ### 添加测试到工作区
