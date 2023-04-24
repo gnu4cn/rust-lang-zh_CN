@@ -803,7 +803,12 @@ Semantic Versioning rules, 又大版本、小版本及补丁版本构成的，�
 
 - 工作区
 
-Workspace，
+Workspace，为有着多个库代码箱的大型项目组织的一项 Cargo 特性。
+
+
+- 编译出的物件
+
+The compiled artifacts
 
 
 - 单态化
