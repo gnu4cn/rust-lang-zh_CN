@@ -18,17 +18,17 @@ Rust 的设计曾受到许多现有的语言和技术的启发，而一个显著
 
 **Closures: Anonymous Functions that Capture Their Environment**
 
-Rust 的闭包，是咱们可将其保存在变量中，或将其作为参数传递给其他函数的匿名函数。咱们可在一处创建出闭包，随后在别处调用该闭包，而在不同上下文中执行他，evaluate it。与函数不同，闭包可以从其被定义的作用域，捕获到一些值。随后这里就会就闭包的这些特性，如何实现代码复用与程序行为的定制，而加以演示（unlike functions, closures can capture values from the scope in which they're defined. We'll demonstrate how these closure features allow for code reuse and behavior customization）。
+Rust 的闭包，是咱们可将其保存在变量中，或将其作为参数传递给其他函数的匿名函数。咱们可在一处创建出闭包，随后在别处调用该闭包，而在不同上下文中执行他，evaluate it。与函数不同，闭包可捕获到他们于其中被定义作用域的值。随后咱们将演示这些闭包特性，怎样实现代码重用与行为定制，unlike functions, closures can capture values from the scope in which they're defined. We'll demonstrate how these closure features allow for code reuse and behavior customization。
 
 
-### 使用闭包对环境进行捕获
+### 使用闭包捕获环境
 
 **Capturing Environment with Closures**
 
 
-这里先要对怎样使用闭包，来捕获闭包被定义所在环境的一些值，加以检视。场景是这样的：每隔一段时间，本地的体恤衫公司，都会以促销方式，送出一些独家的、限量版的体恤衫给邮件列表上的某人。而在邮件列表上那些人，则可选择将他们偏好的颜色，添加到他们的个人资料。在某人选择了设置为其喜好颜色的免费体恤衫时，他就会收到那样颜色的体恤衫。而在某人不曾指定喜好颜色时，那么他们就会收到该公司当前有的数量最多那种颜色的体恤衫。
+咱们将首先检视，咱们可怎样使用闭包来捕获他们被定义所在环境的值，以供稍后使用。场景是这样的：每隔一段时间，咱们体恤衫公司都会以促销方式，送出一些独家的、限量版的体恤衫给邮件列表上的人。邮件列表上的人可选择性地将他们偏好的颜色，添加到他们的个人资料。若被选中得到免费T恤的人，设置了他们的喜好颜色，那么他们会收到那种颜色的衣服。而若那人不曾指定喜好颜色，他们就会收到该公司当前数量最多那种颜色的体恤衫。
 
-实现这样的业务逻辑，有许多种方式。而对于这个示例，这里就打算使用一个有着变种 `Red` 与 `Blue`（为简化目的而对颜色数目进行限制）、名为 `ShirtColor` 的枚举。这里使用了有着一个包含了表示当前库存种 T 恤衫颜色 `Vec<ShirtColor>` 的 `shirts` 字段，来表示该公司库存的 `Inventory` 的结构体。其中定义在 `Inventory` 上的方法 `giveaway`，会获取到免费体恤衫获得者的可选体恤衫颜色参数，并返回那个人将得到的体恤衫颜色。下面清单 13-1 给出了这样的设置：
+有许多方式实现这个业务逻辑。而对于这个示例，咱们将使用一个名为 `ShirtColor`，有着变种 `Red` 与 `Blue`（为简化目的而限制颜色数目）的枚举。咱们会以有着包含了表示当前库存中 T 恤衫颜色 `Vec<ShirtColor>` 的 `shirts` 字段的 `Inventory` 的结构体，表示该公司的当前库存。其中定义在 `Inventory` 上的方法 `giveaway`，会获取到免费体恤衫获得者的可选体恤衫颜色偏好，并返回那个人将得到的体恤衫颜色。下面清单 13-1 给出了这个设置：
 
 文件名：`src/main.rs`
 
