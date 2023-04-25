@@ -18,7 +18,7 @@ Rust 的设计曾受到许多现有的语言和技术的启发，而一个显著
 
 **Closures: Anonymous Functions that Capture Their Environment**
 
-Rust 的闭包，是咱们可将其保存在变量中，或将其作为参数传递给其他函数的匿名函数。咱们可在一处创建出闭包，随后在别处调用该闭包，而在不同上下文中执行他，evaluate it。与函数不同，闭包可捕获到他们于其中被定义作用域的值。随后咱们将演示这些闭包特性，怎样实现代码重用与行为定制，unlike functions, closures can capture values from the scope in which they're defined. We'll demonstrate how these closure features allow for code reuse and behavior customization。
+Rust 的闭包，是一些咱们可将其保存在变量中，或将其作为参数传递给其他函数的匿名函数。咱们可在一处创建出闭包，随后在别处调用该闭包，而在不同上下文中执行他，evaluate it。与函数不同，闭包可捕获到他们于其中被定义作用域的值。随后咱们将演示这些闭包特性，怎样实现代码重用与行为定制，unlike functions, closures can capture values from the scope in which they're defined. We'll demonstrate how these closure features allow for code reuse and behavior customization。
 
 
 ### 使用闭包捕获环境
@@ -90,13 +90,13 @@ fn main() {
 
 *清单 13-1：体恤衫公司派发情形*
 
-定义在 `main` 中的 `store`，有着两件蓝色 T 恤与一件红色 T 恤剩下，用于本次限量版促销活动。这里分别对选项为红色 T 恤及蓝色 T 恤的用户，调用了那个 `giveaway` 方法。
+定义在 `main` 中的 `store`，剩下两件蓝色 T 恤与一件红色 T 恤，用于本次限量版促销活动。咱们分别对选项为红色 T 恤，与没有偏好的两名用户，调用了 `giveaway` 方法。
 
-再次说明，此代码可以许多方式实现，而这里，为着重于闭包特性，因此除开其中用到闭包的那个 `giveaway` 的函数体，这里仍立足于咱们已经学过的那些概念。在那个 `giveaway` 方法中，这里以一个类型为 `Option<ShirtColor>` 的参数，而获取到用户选项，并在 `user_preference` 上调用了 `unwrap_or_else` 方法。这个 [`Option<T>` 上的 `unwrap_or_else` 方法](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else) 是定义在标准库中的。他会取两个参数：一个不带任何参数的、返回值 `T` （与 `Option<T>` 的 `Some` 变种中保存的同一类型，此示例中即为 `ShirtColor`）。在 `Option<T>` 为 `Some` 变种时，`unwrap_or_else` 就会返回 `Some` 里的那个值。而在 `Option<T>` 为 `None` 变种时，那么 `unwrap_or_else` 就会调用随后的那个闭包，并返回由该闭包所返回的值。
+再次说明，此代码可以许多方式实现，而这里，为了专注于闭包，故除了用到闭包的 `giveaway` 方法主体外，咱们都立足于已经学过的概念。在 `giveaway` 方法中，咱们以类型为 `Option<ShirtColor>` 的参数，而获取到用户偏好，并调用了 `user_preference` 上的 `unwrap_or_else` 方法。[`Option<T>` 上的 `unwrap_or_else` 方法](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else) 是由标准库定义的。他取一个参数：不带任何参数，返回一个值 `T` （与 `Option<T>` 的 `Some` 变种中存储的同一类型，此示例中即 `ShirtColor`）的闭包。在 `Option<T>` 为 `Some` 变种时，`unwrap_or_else` 就会返回 `Some` 里的那个值。而在 `Option<T>` 为 `None` 变种时，那么 `unwrap_or_else` 就会调用随后的闭包，并返回由该闭包所返回的值。
 
-这里是将那个闭包表达式（closure expression） `|| self.most_stocked()`，作为参数传递给 `unwrap_or_else` 的。这是一个本身不取参数的闭包（如该闭包有参数，那么那些参数就会出现在那两条竖线之间）。该闭包的函数体调用了 `self.most_stocked()`。这里于这个地方对该闭包进行定义，进而 `unwrap_or_else` 的实现就会在需要其结果时，执行这个闭包。
+咱们指定了闭包表达式，closure expression， `|| self.most_stocked()`，作为 `unwrap_orelse` 的参数。这是个本身不取参数的闭包（如闭包有参数，参数就应出现在两条竖线之间）。该闭包的主体调用了 `self.most_stocked()`。咱们于此处定义出该闭包，而 `unwrap_or_else` 的实现就会在需要其结果时，执行这个闭包。
 
-运行此代码将会打印出：
+运行此代码会打印出：
 
 
 ```console

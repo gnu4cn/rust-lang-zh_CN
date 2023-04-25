@@ -10,7 +10,7 @@ struct Inventory {
 
 impl Inventory {
     fn giveaway(
-        &self, 
+        &self,
         user_preference: Option<ShirtColor>
     ) -> ShirtColor {
         user_preference.unwrap_or_else(|| self.most_stocked())
@@ -43,7 +43,7 @@ fn main() {
     let user_pref1 = Some(ShirtColor::Red);
     let giveaway1 = store.giveaway(user_pref1);
     println! (
-        "选项为 {:?} 的用户，得到了 {:?}", 
+        "选项为 {:?} 的用户，得到了 {:?}",
         user_pref1, giveaway1
     );
 
