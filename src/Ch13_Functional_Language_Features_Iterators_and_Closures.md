@@ -181,16 +181,16 @@ For more information about this error, try `rustc --explain E0308`.
 error: could not compile `closure-example` due to previous error
 ```
 
-咱们第一次是以 `String` 值调用的 `example_closure`，编译器便推断出了该闭包 `x` 与返回值的类型为 `String`。这些类型随后便被锁定于 `example_closure` 中的那个闭包里了，而在接下来尝试以不同类型，使用这同样的闭包时，就得到了一个类型错误。
+咱们第一次是以 `String` 值调用的 `example_closure`，编译器便推断出该闭包的 `x` 与返回值类型均为 `String`。这些类型随后就被锁定于 `example_closure` 中的那个闭包里，而在咱们接下来尝试对同一闭包使用不同类型时，便得到了类型报错。
 
 
 ### 捕获引用抑或迁移所有权
 
 **Capturing Reference or Moving Ownership**
 
-闭包可以三种方式，捕获到其所在环境的值，而这三种方式，则是直接对应到函数取得参数三种可行方式的：不可变地进行借用、可变地借用，及取得所有权（closures can capture values from their environment in three ways, which directly map to the three ways a function can take a parameter: borrowing immutably, borrowing mutably, and taking ownership）。闭包会根据函数体要对捕获到的值做些什么，而确定出使用何种方式。
+闭包可以三种方式，捕获到其环境中的值，这直接对应了函数取得参数的三种方式：不可变地进行借用、可变地借用，与取得所有权，closures can capture values from their environment in three ways, which directly map to the three ways a function can take a parameter: borrowing immutably, borrowing mutably, and taking ownership。闭包将根据函数主体会对捕获值做些什么，而确定出要使用何种方式。
 
-在下面清单 13-4 中，由于其只需一个不可变引用来打印出值，因此这里就定义了捕获到名为 `list` 矢量值不可变引用的一个闭包：
+在下面清单 13-4 中，由于其只需不可变引用来打印出值，因此咱们定义了个捕获了到名为 `list` 矢量值的不可变引用的闭包：
 
 文件名：`src/main.rs`
 
@@ -207,11 +207,11 @@ fn main() {
 }
 ```
 
-*清单 13-4：定义及调用一个捕获不可变引用的闭包*
+*清单 13-4：定义并调用捕获了不可变引用的闭包*
 
-此示例还演示了变量可绑定到闭包定义，进而随后即可通过使用变量名字与圆括号对，如同这个变量名是个函数名一样，调用这个闭包，
+这个示例还演示了变量可绑定到闭包定义，且咱们随后可通过使用变量名字与圆括号对，犹如变量名是个函数名一样，调用闭包。
 
-由于在同一时间，可以有着到 `list` 的多个不可变引用，对该闭包定义之前、闭包定义之后而在该闭包被调用之前，以及该闭包调用之后的代码中，`list` 都仍是可访问的。此代码会编译、运行及打印出如下输出：
+由于咱们可在同一时间，有着到 `list` 的多个不可变引用，因此在闭包定义前、闭包定义后而被调用前，及闭包调用后的代码中，在代码中 `list` 都是可访问的。此代码会编译、运行并打印出如下输出：
 
 ```console
 $ cargo run                                                                             lennyp@vm-manjaro
@@ -224,7 +224,7 @@ $ cargo run                                                                     
 在调用闭包之后：[1, 2, 3]
 ```
 
-接下来，在下面的清单 13-5 中，这里将修改该闭包的函数体，让其把一个元素添加到这个 `list` 矢量值。这个闭包现在就捕获了一个可变引用：
+接下来，在下面清单 13-5 中，咱们修改了闭包主体，从而会添加一个元素到这个 `list` 矢量。闭包现在就会捕获可变引用：
 
 
 文件名：`src/main.rs`
@@ -241,7 +241,7 @@ fn main() {
 }
 ```
 
-*清单 13-5：定义并调用一个捕获可变引用的闭包*
+*清单 13-5：定义并调用会捕获可变引用的闭包*
 
 此代码会编译、运行，并打印出：
 
