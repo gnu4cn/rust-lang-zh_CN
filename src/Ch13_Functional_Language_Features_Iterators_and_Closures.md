@@ -285,7 +285,7 @@ fn main() {
 
 **Moving Captured Values Out of Closures and the `Fn` Traits**
 
-一旦闭包捕获了某个引用，或捕获了其被定义处环境中某个值的所有权（从而影响到被迁移 *进* 该闭包的相关项目），该闭包函数体中的代码，就会定义出闭包稍后被执行时，对这些引用或值会发生什么（因此而影响到那些被迁移 *出* 该闭包的相关项目，once a closure has captured a reference or captured ownership of a value from the environment where the closure is defined(thus affecting what, if anything, is moved *into* the closure), the code in the body of the closure defines what happens to the references or values when the closure is evaluated later(thus affecting what, if anything, is moved *out* of the closure)）。闭包函数体可执行以下的任意操作：将捕获到的值迁移出闭包、修改捕获到的值、既不迁移也不修改值，或以不从其环境捕获任何东西开始。
+一旦闭包捕获了引用，或捕获了环境中值的所有权（因此影响到被迁移 *进* 该闭包的任何物件），闭包主体中的代码，就会定义出闭包稍后被执行时，引用或值会发生什么（因此影响到被迁移 *出* 该闭包的相关项目，once a closure has captured a reference or captured ownership of a value from the environment where the closure is defined(thus affecting what, if anything, is moved *into* the closure), the code in the body of the closure defines what happens to the references or values when the closure is evaluated later(thus affecting what, if anything, is moved *out* of the closure)）。闭包主体可执行以下任意操作：将捕获到的值迁移出闭包、修改捕获到的值、既不迁移也不修改该值，或以不捕获环境中任何东西开始。
 
 闭包捕获及处理环境中的值的方式，影响到闭包实现了哪个特质，而特质则是指函数与结构体，能够以怎样的方式，指明他们可以使用的闭包类别。依据闭包函数体处理环境中值的不同方式，闭包会以累加方式，自动实现一个、两个，或全部三个的这些 `Fn` 特质（the way a closure captures and handles values from the environment affects which traits the closure implements, and traits are how functions and structs can specify what kinds of closures they can use. Closures will automatically implement one, two, or all three of these `Fn` traits, in an additive fashion, depending on how the closure's body handles the values）：
 
