@@ -297,13 +297,13 @@ fn main() {
 
 闭包捕获进而处理环境中值的方式，影响到闭包会实现哪个特质，而特质则是指函数与结构体，能指明他们可使用闭包类别的方式。依据闭包主体处理环境中值的方式，闭包会以累加样式，自动实现一个、两个，或全部三个的 `Fn` 特质，the way a closure captures and handles values from the environment affects which traits the closure implements, and traits are how functions and structs can specify what kinds of closures they can use. Closures will automatically implement one, two, or all three of these `Fn` traits, in an additive fashion, depending on how the closure's body handles the values：
 
-1. `FnOnce` 特质适用于那些可被调用一次的闭包。由于全部闭包都可被调用，因此他们都起码实现了这个特质。而由于将捕获到的值迁移出其函数体的闭包，只能被调用一次，因此这样的闭包将只要实现 `FnOnce`，而不会实现其他的那些 `Fn` 特质；
+1. `FnOnce` 特质适用于可被调用一次的闭包。由于全部闭包都可被调用，因此他们都至少实现了这个特质。而由于将捕获值迁移出其主体的闭包，只能被调用一次，因此这样的闭包将只实现 `FnOnce`，而不会实现其他 `Fn` 特质；
 
-2. `FnMut` 特质适用于不将捕获值迁移出函数体，但仍会修改捕获值的那些闭包。这些闭包可被多次调用；
+2. `FnMut` 特质适用于不会把捕获值迁出主体，但仍会修改捕获值的闭包。这些闭包可被多次调用；
 
-3. `Fn` 则适用于不将捕获值迁移出函数体的闭包，与不修改捕获值的闭包，以及那些不从其环境捕获任何东西的闭包。这些闭包在不会修改其环境之下，可被多次调用，在诸如并发地多次调用某个闭包情形中，这种的调用方式就相当重要。
+3. `Fn` 则适用于不把捕获值迁出主体，且不修改捕获值的闭包，以及不从环境捕获任何东西的闭包。在不会修改其环境下，这些闭包可被多次调用，在诸如并发地多次调用闭包的情形中，这种调用方式就相当重要。
 
-下面来看看清单 13-1 中用到的， `Option<T>` 上那个 `unwrap_or_else` 方法的定义：
+咱们来看看清单 13-1 中咱们曾用到的， `Option<T>` 上那个 `unwrap_or_else` 方法的定义：
 
 ```rust
 impl<T> Option<T> {
