@@ -786,6 +786,11 @@ $ rustup component add llvm-tools-preview
 
 ## 附录 I - 术语清单
 
+
+- 迁移所有权
+
+在闭包参数清单前，使用 `move` 关键字，让闭包取得其用到的所在环境中的值所有权。
+
 - 文档注释
 
 Documentation comment, 将产生出 HTML 的注释。
