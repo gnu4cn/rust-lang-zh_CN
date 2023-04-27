@@ -319,7 +319,7 @@ impl<T> Option<T> {
 }
 ```
 
-回顾到那个 `T` 即为表示某个 `Optoin` 的 `Some` 变种中值类型的泛型。那个类型 `T` 同样是这个 `unwrap_or_else` 函数的返回值类型：比如，在某个 `Option<String>` 上调用 `unwrap_or_else` 的代码，就会得到一个 `String`。
+回顾到 `T` 就是表示 `Optoin` 的 `Some` 变种中，值类型的泛型。类型 `T` 也是 `unwrap_or_else` 函数的返回值类型：比如，在 `Option<String>` 上调用 `unwrap_or_else` 的代码，就会得到一个 `String`。
 
 接着，请注意这个 `unwrap_or_else` 函数有个额外的泛型参数 `F`。这个 `F` 类型为名为 `f` 的参数类型，而这个参数 `f`，则正是在调用 `unwrap_or_else` 时，所提供到的那个闭包。
 
