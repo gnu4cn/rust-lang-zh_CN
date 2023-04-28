@@ -791,6 +791,10 @@ $ rustup component add llvm-tools-preview
 
 在闭包参数清单前，使用 `move` 关键字，让闭包取得其用到的所在环境中的值所有权。
 
+- 关联类型
+
+Associated type, 是通过 `type` 关键字，定义在特质下的类型。咱们知道方法即为关联函数，associated function，那么关联类型自然与关联函数有些类似。
+
 - 文档注释
 
 Documentation comment, 将产生出 HTML 的注释。
