@@ -19,4 +19,5 @@ fn main() {
         r.width
     });
     println! ("{:#?}\n{:#?}", list, sort_operations);
+
 }
