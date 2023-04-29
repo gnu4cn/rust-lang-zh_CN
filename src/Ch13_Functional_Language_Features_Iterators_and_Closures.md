@@ -683,7 +683,7 @@ warning: `iterator_demo` (bin "iterator_demo") generated 1 warning
 
 咱们将使用取闭包的 `filter` 方法，作为这方面的示例。闭包从其所在迭代器获取到一个条目，并返回一个 `bool`。闭包返回 `true` 时，条目的值将被包含在由 `filter` 产生出的迭代中。在闭包返回 `false` 时，条目的值则不会被包含。
 
-下面清单 13-16 中，咱们使用带有捕获其环境中 `shoe_size` 变量闭包的 `filter` 方法，来迭代 `Shoe` 结构体实例的集合。他将只返回特定尺码的鞋子。
+下面清单 13-16 中，咱们使用带有捕获其环境中 `shoe_size` 变量闭包的 `filter` 方法，来迭代 `Shoe` 结构体实例的集合。他将返回仅限特定尺码的鞋子。
 
 文件名：`src/lib.rs`
 
@@ -722,25 +722,25 @@ mod tests {
         assert_eq! (
             in_my_size,
             vec! [
-            Shoe {
-                size: 10,
-                style: String::from("sneaker"),
-            },
-            Shoe {
-                size: 10,
-                style: String::from("boot"),
-            },
+                Shoe {
+                    size: 10,
+                    style: String::from("sneaker"),
+                },
+                Shoe {
+                    size: 10,
+                    style: String::from("boot"),
+                },
             ]
         );
     }
 }
 ```
 
-*清单 13-16：使用带有一个捕获 `shoe_size` 闭包的 `filter` 方法*
+*清单 13-16：使用有着捕获 `shoe_size` 闭包的 `filter` 方法*
 
-这里的 `shoes_in_size` 函数将一个 `shoes` 矢量的所有权，和一个 `shoe_size` 取作参数。他会返回只包含特定尺码鞋子的一个矢量。
+其中的 `shoes_in_size` 函数取得了 `shoes` 矢量的所有权，并取了 `shoe_size` 作参数。他返回只包含特定尺码鞋子的矢量。
 
-而在 `shoes_in_size` 的函数体中，这里调用了 `into_iter`，来创建出取得那个矢量所有权的迭代器。随后这里调用了 `filter` 来将那个迭代器，适配为只包含令到那个闭包返回 `true` 那些元素的一个新迭代器。
+`shoes_in_size` 的函数主体中，咱们调用 `into_iter` 创建一个迭代器，以取得矢量的所有权。随后咱们调用 `filter` 来将迭代器调整为，只包含令闭包返回 `true` 元素的一个新迭代器。
 
 其中的闭包，就从其环境中捕获到他的 `shoe_size` 参数，并将该值于各鞋子的尺码比较，而只保留特定尺码的那些鞋子。最后，这里调用 `collect` 方法，将由那个已适配出的迭代器返回的 `Shoe` 类型值，收集到一个矢量中，`shoes_in_size` 这个函数返回的，便是这个矢量值。
 
