@@ -800,6 +800,11 @@ Associated type, 是通过 `type` 关键字，定义在特质下的类型。咱�
 
 Consuming adaptor, `Iterator` 特质上，会调用到迭代器 `next` 方法的一些方法，由于这些方法会耗尽迭代器，故他们被称为消费适配器。
 
+
+- 迭代器适配器
+
+Iterator adaptor，`Iterator` 特质上，通过改变原迭代器某些方面而产生出另一迭代器的一些方法。
+
 - 文档注释
 
 Documentation comment, 将产生出 HTML 的注释。
