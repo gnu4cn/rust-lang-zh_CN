@@ -795,6 +795,11 @@ $ rustup component add llvm-tools-preview
 
 Associated type, 是通过 `type` 关键字，定义在特质下的类型。咱们知道方法即为关联函数，associated function，那么关联类型自然与关联函数有些类似。
 
+
+- 消费适配器
+
+Consuming adaptor, `Iterator` 特质上，会调用到迭代器 `next` 方法的一些方法，由于这些方法会耗尽迭代器，故他们被称为消费适配器。
+
 - 文档注释
 
 Documentation comment, 将产生出 HTML 的注释。
