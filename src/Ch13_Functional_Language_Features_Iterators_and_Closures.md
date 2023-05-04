@@ -792,7 +792,7 @@ impl Config {
 
 ### 直接使用返回的迭代器
 
-请打开之前 I/O 项目的 `src/main.rs` 文件，他看起来应是这样的：
+请打开咱们 I/O 项目的 `src/main.rs` 文件，其看起来应是这样的：
 
 文件名：`src/main.rs`
 
@@ -810,7 +810,7 @@ fn main() {
 }
 ```
 
-这里将首先把在清单 12-24 中的那个 `main` 函数的开头，修改为下面清单 13-18 中，使用迭代器的样子。同样，在更新 `Config::build` 之前，这不会编译。
+咱们将首先把咱们在清单 12-24 中，有着的 `main` 函数开头，修改为下面清单 13-18 中，使用迭代器的代码。在咱们一并更新 `Config::build` 前，这不会编译。
 
 文件名：`src/main.rs`
 
@@ -827,9 +827,9 @@ fn main() {
 
 *清单 13-18：把 `env::args` 的返回值传递给 `Config::build`*
 
-这个 `env::args` 函数，返回的是个迭代器！不再是将迭代器的值收集到某个矢量，而在随后把一个切片传递给 `Config::build` 了，现在这里直接吧返回自 `env::args` 的迭代器所有权，传递给 `Config::build`。
+`env::args` 函数会返回一个迭代器！相比于把迭代器值收集到矢量值，并随后把一个切片传递给 `Config::build`，现在咱们是在直接把由 `env::args` 返回的迭代器所有权，传递给 `Config::build`。
 
-接下来，这里就需要更新 `Config::build` 的定义。在这个 I/O 项目的 `src/data_structures.rs` 文件中，接下来就要想下面这样，修改 `Config::build` 的函数签名。由于尚需更新该函数的函数体，因此这仍不会编译。
+接下来，咱们需要更新 `Config::build` 的定义。在咱们 I/O 项目的 `src/data_structures.rs` 文件中，咱们就要像下面清单 13-19 中那样，修改 `Config::build` 的函数签名。由于咱们需要更新该函数的主体体，因此这仍不会编译。
 
 文件名：`src/lib.rs`
 
@@ -843,11 +843,11 @@ impl Config {
 
 *清单 13-19：将 `Config::build` 的函数签名，更新为期待得到一个迭代器*
 
-`env::args` 函数的标准库文档显示，其所返回的迭代器类型为 `std::env::Args`，而那个类型是实现了 `Iterator` 特质的，同时返回的是一些 `String` 值。
+`env::args` 函数的标准库文档显示，其返回的迭代器类型为 `std::env::Args`，而那种类型实现了 `Iterator` 特质，并返回 `String` 值。
 
-这里已经更新了这个 `Config::build` 函数的签名，那么参数 `args`，就有了一个带有特质边界 `impl Iterator<Item = String>` 的泛型，而不再是 `&[String]` 类型了。第 10 章 [作为参数的特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#作为参数的特质) 小节曾讨论过的这种 `impl Trait` 语法的用法，表示 `args` 可以是任何实现了 `Iterator` 类型，并返回一些 `String` 条目的类型。
+咱们已更新了 `Config::build` 函数的签名，那么参数 `args` 就会有一个有着特质边界 `impl Iterator<Item = String>` 的泛型，而不是 `&[String]` 类型。咱们曾在第 10 章 [作为参数的特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#作为参数的特质) 小节中，讨论过的这种 `impl Trait` 语法的用法， 表明 `args` 可以是任何实现了 `Iterator` 类型，并返回 `String` 条目的类型。
 
-由于这里取得了 `args` 的所有权，且这里通过对 `args` 进行迭代，而将对其进行修改，因此这里可把 `mut` 关键字，添加到这个 `args` 参数的说明中，来将其构造为可变的。
+由于咱们正取得 `args` 的所有权，且咱们将通过对其进行迭代而修改 `args`，因此咱们可把 `mut` 关键字，添加到 `args` 参数的说明中，来将其构造为可变。
 
 
 ### 使用 `Iterator` 特质的方法取代原先的索引操作
