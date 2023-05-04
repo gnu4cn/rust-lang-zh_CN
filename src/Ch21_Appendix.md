@@ -787,6 +787,11 @@ $ rustup component add llvm-tools-preview
 ## 附录 I - 术语清单
 
 
+- 命令行界面
+
+Command-Line Interface，在终端里运行的应用，与在 GUI 窗口中应用不同。
+
+
 - 迁移所有权
 
 在闭包参数清单前，使用 `move` 关键字，让闭包取得其用到的所在环境中的值所有权。
