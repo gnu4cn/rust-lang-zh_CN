@@ -895,7 +895,7 @@ impl Config {
 
 **Making Code Clearer with Iterator Adaptors**
 
-在这个 I/O 项目的 `search` 函数中，也可以利用到迭代器的优势，该函数重现于下面清单 13-21 中，如同其曾在清单 12-19 中那样：
+咱们也可以在 I/O 项目的 `search` 函数中利用迭代器，取被转载于下面清单 13-21 中，如同其曾在清单 12-19 中那样：
 
 文件名：`src/lib.rs`
 
@@ -918,7 +918,7 @@ pub fn search<'a>(
 
 *清单 13-21：清单 12-19 中 `search` 函数的实现*
 
-这里可使用迭代器适配器方法，以更精练方式编写出此代码。这样做还实现了避免使用一个可变的中间 `results` 矢量。函数式编程风格（the functional programming style），偏好于将可变状态的数量最小化，从而令到代码更简明。移除掉这个可变状态，可开启使得搜索以并行方式进行的一项未来功能增强，这是由于这里将不再必须对到这个 `results` 矢量的并发访问加以管理。下面清单 13-22 给出了这一修改：
+咱们可使用迭代器适配器的方法，以更简练方式编写出此代码。这样做还可以让我们避免有一个可变的中间 `results` 矢量值。函数式编程风格，the functional programming style，倾向于最小化可变状态的数量以使代码更清晰。移除可变状态，就可能让令到搜索并行进行的今后功能增强可行，因为咱们将不必管理到 `results` 矢量的并发访问。下面清单 13-22 给出了这一修改：
 
 文件名：`src/lib.rs`
 
@@ -934,9 +934,9 @@ pub fn search<'a>(
 }
 ```
 
-*清单 13-22：在 `search` 函数中使用迭代器适配器方法*
+*清单 13-22：在 `search` 函数实现中使用迭代器适配器方法*
 
-回顾这个 `search` 函数的目的，即为返回 `contents` 中所有包含 `query` 的那些行。与清单 13-16 中的 `filter` 示例类型，此代码使用了这个 `filter` 适配器，来只保留 `line.contains(query)` 返回 `true` 的那些行。这里随后使用 `collect()`，收集那些匹配的行。这就简单多了！请在 `search_case_insensitive` 函数中，也完成这同样的改造。
+回顾一下，`search` 函数的目的是要返回 `contents` 中包含 `query` 的所有行。与清单 13-16 中的 `filter` 示例类似，此代码使用 `filter` 适配器来只保留 `line.contains(query)` 返回 `true` 的行。咱们随后使用 `collect()`，把匹配行收集到另一矢量值中。这就简单多了！请随意做出同样的改变，在 `search_case_insensitive` 函数中使用迭代器方法。
 
 > 函数 `search_case_insenstitive` 修改后如下所示：
 
@@ -955,7 +955,7 @@ pub fn search_insensitive<'a>(
 }
 ```
 
-### 选择循环还是迭代器
+### 在循环或迭代器之间做出选择
 
 **Choosing Between Loops or Iterators**
 
