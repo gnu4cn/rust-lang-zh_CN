@@ -805,6 +805,10 @@ Consuming adaptor, `Iterator` 特质上，会调用到迭代器 `next` 方法的
 
 Iterator adaptor，`Iterator` 特质上，通过改变原迭代器某些方面而产生出另一迭代器的一些方法。
 
+- 零成本抽象
+
+Zero-cost abstractions，相较于一般实现，语言提供的高级抽象在编译后生成的代码，与自己努力编写出的优化低级别代码类似。故使用高级抽象是没有运行时开销的。
+
 - 文档注释
 
 Documentation comment, 将产生出 HTML 的注释。
