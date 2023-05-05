@@ -85,15 +85,16 @@ mdbook serve ~/rust-lang-zh_CN -p 8080 -n 127.0.0.1 --open
 
 ### 开发者团队
 
-事实证明，Rust 是一个富有成效的工具，可以在具有不同水平的系统编程知识的开发人员组成的大型团队之间进行协作。底层代码容易出现各种细微的错误，在大多数其他语言中，只有通过广泛的测试和有经验的开发人员的仔细代码审查才能发现这些错误。在 Rust 中，编译器扮演着守门员的角色，它拒绝编译带有这些难以捉摸错误的代码，包括并发性错误。通过与编译器一起工作，团队可以把时间集中在程序的逻辑上，而不是追寻 bug。
+事实证明，Rust 是一个富有成效的工具，可以在具有不同水平的系统编程知识的开发人员组成的大型团队之间进行协作。底层代码容易出现各种细微的错误，在大多数其他语言中，只有通过广泛的测试和有经验的开发人员的仔细代码审查才能发现这些错误。在 Rust 中，编译器扮演着守门员的角色，他会拒绝编译带有这些难以捉摸错误的代码，包括并发性错误。通过与编译器一起工作，团队可以把时间集中在程序的逻辑上，而不是追寻 bug。
 
-Rust 还带给了系统编程世界，一些现代开发者工具：
+Rust还为系统编程领域带来了当代开发者工具：
 
-- Cargo，Rust 所包含的依赖管理器与构建工具，让整个 Rust 生态中添加依赖、编译与管理依赖，变得愉快并具一致性，`Cargo`, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem；
-- Rustfmt 格式化工具，the Rustfmt formatting tool，确保不同开发者之间有着一致的编码风格；
-- Rust 语言服务器，the Rust Language Server, 驱动了用于代码补全与行内错误消息的集成开发环境。
+- Cargo，Rust 所包含的依赖管理器与构建工具，使添加、编译和管理依赖变得简单，并在整个Rust生态系统中保持一致，Cargo, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem；
+- Rustfmt格式化工具确保了不同的开发人员有一致的编码风格。
+- Rust 语言服务器支持集成开发环境(IDE)集成，以实现代码补全和内联错误信息。
 
-通过使用这些开发者工具，及其他一些 Rust 生态中的工具，开发者就可以在编写系统级代码时，颇具生产力了。
+通过使用这些工具和Rust生态系统中的其他工具，开发人员可以在编写系统级代码时提高工作效率。
+
 
 ### 学生
 
