@@ -14,11 +14,11 @@
 
 鉴于灵巧指针模式是 Rust 中频繁用到的一种通用设计模式，本章不会涵盖每个既有灵巧指针。许多库都有自己的灵巧指针，咱们甚至也可以编写自己的灵巧指针。咱们将介绍标准库中最常见的灵巧指针：
 
-- 用于在内存堆上分配一些值的 `Box<T>`；
-- 实现多重所有权的引用计数类型 `Rc<T>`（`Rc<T>`, a reference counting type that enables multiple ownership）；
-- 经由那个强制在运行时，而非编译时进行借用规则检查的 `RefCell<T>`，而访问到的 `Ref<T>` 与 `RefMut<T>` （`Ref<T>` and `RefMut<T>`, accessed through `RefCell<T>`, a type that enforces the borrowing rules at runtime instead of compile time）。
+- 用于在内存堆上分配值的 `Box<T>`；
+- `Rc<T>`，一个引用计数类型，可以实现多重所有权，`Rc<T>`, a reference counting type that enables multiple ownership；
+- `Ref<T>` 和 `RefMut<T>`，通过 `RefCell<T>` 访问，该类型在运行时而不是编译时执行借用规则检查，Ref<T>` and `RefMut<T>`, accessed through `RefCell<T>`, a type that enforces the borrowing rules at runtime instead of compile time。
 
-此外，这里将讲到其间可变类型，暴露出用于修改某个内部值的 API 的 *内部可变* 模式（the *interior mutability* pattern）。这里还会讨论 *引用环*：他们会怎样泄露内存以及如何防止出现引用环（*reference cycles*: how they can leak memory and how to prevent them）。
+此外，咱们还将讨论 *内部可变性，interior mutability* 模式，在这种模式下，不可变的类型会暴露出一个用于改变内部值的 API。我们还将讨论引用循环：他们如何泄漏内存以及如何防止他们。
 
 下面就来切入正题吧！
 
