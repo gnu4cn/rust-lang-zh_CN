@@ -23,15 +23,15 @@
 下面就来切入正题吧！
 
 
-## 使用 `Box<T>` 来指向内存堆上的数据
+## 使用 `Box<T>` 指向内存堆上的数据
 
-最直接了当的灵巧指针，便是 *匣子（box）* 了，其类型写作 `Box<T>`。这些匣子实现了将数据存储在堆上，而非在栈上。留存在栈上的，是到堆数据的指针。请参考第 4 章，回顾一下栈与堆的区别。
+最直接了当的灵巧指针，便是 *匣子，box* ，其类型写为 `Box<T>`。匣子允许咱们将数据存储在堆上，而非在栈上。留在栈上的指向堆数据的指针。请参考第 4 章，回顾一下栈与堆的区别。
 
-除了其数据是存储在内存堆而非栈上之外，匣子数据结构并无性能方面的开销。但他们也没有什么额外能力。在下面这些场景中，就会经常用到他们：
+除了在内存堆而不是栈上存储数据外，匣子数据结构并无性能方面的开销。但他们也没有很多额外能力。在下面这些情况下，咱们将经常用到他们：
 
-- 当有着在编译时大小未知的类型，而咱们又要在对确切大小有要求的上下文中，使用那种类型的值时（when you have a type whose size can't be known at compile time and you want to use a value of that type in a context that requires an exact size）;
-- 有着大量数据，并打算在转移所有权的同时，确保这些数据不会被拷贝时（when you have a large amount of data and you want to transfer ownership but ensure the data won't be copied when you do so）；
-- 在希望拥有某个值，并只关心其为某个实现了特定特质的类型，而非为某个具体类型（when you want to own a value and you care only that it's a type that implements a particular trait rather than being of a specific type）。
+- 当咱们有个在编译时无法知道其大小的类型，并且咱们想在需要精确大小的上下文中使用该类型的值时，when you have a type whose size can't be known at compile time and you want to use a value of that type in a context that requires an exact size;
+- 当咱们有着大量数据，而想转移所有权，但要确保转移时数据不会被拷贝时，when you have a large amount of data and you want to transfer ownership but ensure the data won't be copied when you do so；
+- 当咱们想拥有某个值，却只关心他是个实现了特定特质的类型，而非某个特定类型时，when you want to own a value and you care only that it's a type that implements a particular trait rather than being of a specific type。
 
 这第一种情形将在 [使用匣子实现递归类型](#使用匣子数据结构实现递归数据类型) 小节演示。在第二种情形下，大量数据所有权的转移，会由于这些数据在栈上拷来拷去。为改进这种情形下的性能，就可以将这些大量数据存储在内存堆上的一个匣子中。随后，就只有少量的指针数据，在栈上拷贝了，同时其引用的数据，还是呆在堆上的一个地方。第三种情形被称为 *特质对象* （*trait object*），而第 17 章中，用了一整个小节，[“使用实现具有多个类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象)，来只讲解那个方面。因此这里掌握的东西，还会在第 17 章中用到。
 
