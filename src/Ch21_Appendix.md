@@ -791,6 +791,10 @@ $ rustup component add llvm-tools-preview
 
 Command-Line Interface，在终端里运行的应用，与在 GUI 窗口中应用不同。
 
+- 模组系统
+
+The module system，大型程序中，组织代码的方式。
+
 
 - 迁移所有权
 
