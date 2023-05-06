@@ -65,7 +65,7 @@ fn main() {
 
 #### 构造列表的更多信息
 
-所谓 *构造列表，cons list*，是来自 Lisp 编程语言及其方言的一种数据结构，由嵌套对组成，是 Lisp 版本的链表，is made up of nested pairs, and is the Lisp version of a linked list。其名称来自于 Lisp 的 `cons` 函数（是构造函数，construct function，的简称），该函数从其两个参数，构造出一个新队。通过在由一个值与另一数值对构成的数值对上调用 `cons`，就可以构造出由一些递归数值对，所组成的构造链表。
+所谓 *构造列表，cons list*，是来自 Lisp 编程语言及其方言的一种数据结构，由嵌套对组成，是 Lisp 版本的链表，is made up of nested pairs, and is the Lisp version of a linked list。其名称来自于 Lisp 的 `cons` 函数（是构造函数，construct function，的简称），该函数从其两个参数，构造出一个新嵌套对。通过对由一个值与另一嵌套对组成的嵌套对上调用 `cons`，咱们便可构造出由递归嵌套对组成的构造链表。
 
 比如，下面就是一个包含了列表 1、2、3 的构造列表的伪代码表示，其中各个列表分别位于一些圆括号中：
 
