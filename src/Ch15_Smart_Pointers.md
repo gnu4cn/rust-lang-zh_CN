@@ -16,7 +16,7 @@
 
 - 用于在内存堆上分配值的 `Box<T>`；
 - `Rc<T>`，一个引用计数类型，可以实现多重所有权，`Rc<T>`, a reference counting type that enables multiple ownership；
-- `Ref<T>` 和 `RefMut<T>`，通过 `RefCell<T>` 访问，该类型在运行时而不是编译时执行借用规则检查，Ref<T>` and `RefMut<T>`, accessed through `RefCell<T>`, a type that enforces the borrowing rules at runtime instead of compile time。
+- `Ref<T>` 和 `RefMut<T>`，通过 `RefCell<T>` 访问，该类型在运行时而不是编译时执行借用规则检查，`Ref<T>` and `RefMut<T>`, accessed through `RefCell<T>`, a type that enforces the borrowing rules at runtime instead of compile time。
 
 此外，咱们还将讨论 *内部可变性，interior mutability* 模式，在这种模式下，不可变的类型会暴露出一个用于改变内部值的 API。我们还将讨论引用循环：他们如何泄漏内存以及如何防止他们。
 
