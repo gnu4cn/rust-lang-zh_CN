@@ -855,6 +855,11 @@ The compiled artifacts
 A path dependency
 
 
+- 匣子类型（数据结构）
+
+`Box<T>`，由存储在栈上的指针，与存储在堆上的数据，实现的一种数据结构。
+
+
 - 单态化
 
 所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。
