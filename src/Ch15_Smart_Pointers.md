@@ -33,7 +33,7 @@
 - 当咱们有着大量数据，而想转移所有权，但要确保转移时数据不会被拷贝时，when you have a large amount of data and you want to transfer ownership but ensure the data won't be copied when you do so；
 - 当咱们想拥有某个值，却只关心他是个实现了特定特质的类型，而非某个特定类型时，when you want to own a value and you care only that it's a type that implements a particular trait rather than being of a specific type。
 
-这第一种情形将在 [使用匣子实现递归类型](#使用匣子数据结构实现递归数据类型) 小节演示。在第二种情形下，大量数据所有权的转移，会由于这些数据在栈上拷来拷去。为改进这种情形下的性能，就可以将这些大量数据存储在内存堆上的一个匣子中。随后，就只有少量的指针数据，在栈上拷贝了，同时其引用的数据，还是呆在堆上的一个地方。第三种情形被称为 *特质对象* （*trait object*），而第 17 章中，用了一整个小节，[“使用实现具有多个类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象)，来只讲解那个方面。因此这里掌握的东西，还会在第 17 章中用到。
+我们将在 [“用匣子数据结构得到递归类型”](#用匣子数据结构得到递归类型) 小节演示第一种情况。在第二种情形下，转移大量数据的所有权可能需要很长的时间，因为数据在堆栈上被拷过来拷过去。为改进这种情况下的性能，咱们可以将内存堆上的大量数据，存储在一个匣子中。尔后，在栈上便只有少量的指针数据被拷来拷去了，同时其所引用的数据，则会保持在堆上的一处。第三种情况被称为 *特质对象，trait object*，第 17 章用了一整节，[“使用允许不同类型值的特质对象”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象)，来讨论这个话题。因此，咱们在这里学到的东西，将在第 17 章中再度得到应用！
 
 ### 使用 `Box<T>` 在内存堆上存储数据
 
@@ -54,7 +54,7 @@ fn main() {
 
 这里将变量 `b`，定义为有个指向值 `5` 的 `Box` 类型值，值 `5` 被分配在堆上的。此程序将打印出 `b = 5`；在此示例中，即可以与该数据在栈上类似的方式，访问那个匣子中的数据。就跟所有自有值一样（just like any owned value），在某个匣子超出作用域，即 `b` 不处于 `main` 的最后时，他就会被解除内存分配。这种内存解除分配，既发生于这个匣子（存储在栈上的），同时也发生于匣子所指向的数据（存储于内存堆上）。
 
-### 使用匣子数据结构，实现递归数据类型
+### 用匣子数据结构得到递归类型
 
 **Enabling Recursive Types with Boxes**
 
