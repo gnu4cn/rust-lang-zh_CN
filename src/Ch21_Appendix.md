@@ -869,6 +869,11 @@ Indirection, 匣子类型的变量，通过保存指向数据在内存堆上的�
 Deref coercion，类似于其他语言的开箱操作。
 
 
+- 元组结构体
+
+A tuple struct, 形式为 `struct MyBox<T>(T)`，是保持着只有一个元素元组的结构体，`Box<T>` 的数据结构为元组结构体。
+
+
 - 单态化
 
 所谓 *单态化，monomorphization*，是指即通过把在编译后用到的具体类型填入到泛型位置，而将通用代码转换为具体代码的过程。参考 [使用泛型代码的性能问题](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题)。
