@@ -106,12 +106,12 @@ fn main() {
 
 *清单 15-3：使用 `List` 枚举来存储列表 `1, 2, 3`*
 
-其中第一个 `Cons` 保存着 `1` 与另一 `List` 值。该 `List` 值，又是另一保存了 `2` 与另一 `List` 的 `Cons` 值。这个 `List` 值则为又一个保存了 `3` 与一个最终为 `Nil` 的 `List` 值的 `Cons` 值，那个非递归变种（`Nil`），标志着这个列表的结束。
+其中第一个 `Cons` 保存着 `1` 与另一 `List` 值。这个 `List` 值是另一个 `Cons` 值，保存了 `2` 与另一 `List`。这个 `List` 值则是又一个 `Cons` 值，其保存了 `3` 与一个为 `Nil` 的最后 `List` 值，这个非递归变种表示列表的结束。
 
-在尝试编译清单 15-3 中的时候，就跟得到下面清单 15-4 中所给出的报错：
+如果我们尝试编译清单 15-3 中的代码，我们会得到下面清单 15-4 中的报错：
 
 ```console
-$ cargo run                                                                   lennyp@vm-manjaro
+$ cargo run
    Compiling sp_demos v0.1.0 (/home/lennyp/rust-lang/sp_demos)
 error[E0072]: recursive type `List` has infinite size
  --> src/main.rs:1:1
@@ -130,7 +130,7 @@ For more information about this error, try `rustc --explain E0072`.
 error: could not compile `sp_demos` due to previous error
 ```
 
-*清单 15-4：在尝试定义一个递归枚举时收到的报错*
+*清单 15-4：在尝试定义递归枚举时，咱们得到的报错*
 
 该错误指出这个类型 “有着无穷大小（has infinite size）。”原因在于这里已把 `List` 定义为了有着一个递归的变种：其直接拥有其自身类型的另一个值。如此一来，Rust 就无法找出他需要多少空间来存储一个 `List` 类型值。接下来就要深究收到这个错误的原因。首先，这里将审视一下，Rust 是怎样确定出，他需要多少内存空间来存储某个非递归类型值。
 
