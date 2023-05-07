@@ -156,9 +156,10 @@ enum Message {
 *图 15-01：由无限的 `Cons` 变种组成的一个无限 `List`*
 
 
-#### 使用 `Box<T>` 获得一个有着已知大小的递归类型
+#### 使用 `Box<T>` 获得已知大小的递归类型
 
-由于 Rust 无法计算出，要分配多少内存空间给递归定义的类型，因此编译器就给到有着以下有帮助的一项建议：
+
+因为 Rust 无法计算出要为以递归方式定义出的类型分配多少空间，所以编译器会给出带有下面这个有用的建议的报错：
 
 ```console
 help: insert some indirection (e.g., a `Box`, `Rc`, or `&`) to make `List` representable
