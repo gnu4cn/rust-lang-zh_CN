@@ -349,7 +349,7 @@ error: could not compile `sp_demos` due to previous error
 由于咱们未曾在这个 `MyBox<T>` 类型上实现过其被解引用的能力，因此他无法被解引用。为实现使用 `*` 运算符的解引用，就要实现 `Deref` 特质。
 
 
-### 通过实现 `Deref` 特质而像引用那样，对待某个类型
+### 通过实现 Deref 特性将类型视为引用
 
 **Treating a Type Like a Reference by Implementing the `Deref` Trait**
 
