@@ -136,7 +136,7 @@ fn main() {
 请注意结构体更新语法，像赋值一样使用了 `=`；这是由于结构体更新语法迁移了数据，就跟在之前的 ["变量与数据互动方式：迁移"](Ch04_Understanding_Ownership.md#变量与数据互操作方式之一迁移所有权) 小节中看到的那样。在此示例中，在创建了 `user2` 之后，由于变量 `user1` 中的 `username` 字段中的 `String` 值，已被迁移到 `user2` 中了，因此就再也不能使用变量 `user1` 了。若给到 `user2` 的 `email` 及 `username` 字段都是新的 `String` 值，而因此只使用来自 `user1` 的 `active` 和 `sign_in_count` 值，那么在创建了 `user2` 之后，`user1` 仍将是有效的。因为 `active` 和 `sign_in_count` 的类型，都是实现了 `Copy` 特质的类型，因此就会应用在 [唯栈数据：拷贝](Ch04_Understanding_Ownership.md#唯栈数据拷贝stack-only-data-copy) 小节中的行为表现。
 
 
-### 使用不带命名字段的元组结构体来创建不同类型
+### 使用没有命名字段的元组结构体来创建不同的类型
 
 **Using Tuple Structs without Named Fields to Create Different Types**
 
