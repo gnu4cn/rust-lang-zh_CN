@@ -419,9 +419,9 @@ fn hello(name: &str) {
 }
 ```
 
-*清单 15-11：有着类型 `&str` 的参数 `name` 的 `hello` 函数*
+*清单 15-11：参数 `name` 为 `&str` 类型的 `hello` 函数*
 
-这里可使用一个字符串切片作为参数，调用这个 `hello` 函数，譬如 `hello("Rust");`。而解引用强制转换特性，就令到使用到类型 `MyBox<String>` 值的引用，来调用 `hello` 成为可能，如下清单 15-12 中所示：
+我们可以用一个字符串切片作为参数来调用 `hello` 函数，例如 `hello("Rust");`。解引用强制转换使我们可以用对 `MyBox<String>` 类型值的引用来调用 `hello`，如清单 15-12 所示：
 
 文件名：`src/main.rs`
 
@@ -434,7 +434,7 @@ fn main() {
 }
 ```
 
-*清单 15-12：使用到某个 `MyBox<String>` 值的引用调用 `hello`，因为有解引用强制转换，这样做是可行的*
+*清单 15-12：使用对 `MyBox<String>` 值的引用调用 `hello`，由于解引用强制转换，其可以工作*
 
 这里使用参数 `&m`，即到某个 `MyBox<String>` 值的引用，调用的那个 `hello` 函数。由于这里曾在清单 15-10 中的 `MyBox<T>` 上实现过 `Deref` 特质，因此 Rust 就能通过调用 `deref`，将 `&MyBox<String>` 转换为 `&String`。标准库提供了在 `&String` 上，返回一个字符串切片的 `Deref` 实现，且这一点就在 `Deref` 的 API 文档中。Rust 就会再度调用 `deref`，来将这个 `&String` 转换为 `&str`，这就与 `hello` 函数定义想吻合了。
 
