@@ -864,6 +864,7 @@ A path dependency
 
 Indirection, 匣子类型的变量，通过保存指向数据在内存堆上的地址，而间接保存了数据。
 
+
 - 解引用强制转换
 
 Deref coercion，类似于其他语言的开箱操作。
@@ -872,6 +873,11 @@ Deref coercion，类似于其他语言的开箱操作。
 - 元组结构体
 
 A tuple struct, 形式为 `struct MyBox<T>(T)`，是保持着只有一个元素元组的结构体，`Box<T>` 的数据结构为元组结构体。
+
+
+- 关联类型
+
+An associated type, 通过 `type Target = t;` 这种语法声明出的类型，是声明泛型参数的一种稍微不同的方式。
 
 
 - 单态化

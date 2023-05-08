@@ -353,7 +353,7 @@ error: could not compile `sp_demos` due to previous error
 
 **Treating a Type Like a Reference by Implementing the `Deref` Trait**
 
-正如第 10 章的 ["在类型上实现某个特质"](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质) 小节中所讨论过的，这里需要提供到特质所要求的那些方法的实现。而这个由标准库提供的 `Deref` 特质，要求咱们实现一个会借用到 `self`，并会返回到其内部数据的引用的名为 `deref` 的方法。下面清单 15-10 包含了添加到 `MyBox` 定义的一个 `Deref` 实现：
+正如第 10 章 ["在类型上实现特质"](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质) 小节中所讨论的，要实现某个特质，咱们需要为该特质的必要方法提供实现。由标准库提供的 `Deref` 特质，要求咱们实现一个名为 `deref` 的方法，该方法借用 `self` 并返回对内部数据的引用。下面清单 15-10 包含 `Deref` 的一个实现，来添加到 `MyBox` 的定义中：
 
 文件名：`src/main.rs`
 
@@ -379,7 +379,7 @@ impl<T> Deref for MyBox<T> {
 
 *清单 15-10：在 `MyBox<T>` 上实现 `Deref`*
 
-其中 `type Target = T;` 这种语法，定义出了 `Deref` 特质要用到的一个关联类型（an assiotiated type for the `Deref` trait to use）。关联类型属于与声明泛型参数有些许不同的声明方式，现在无需担心他们；在第 19 张中将更细致地讲到他们。
+`type Target = T;` 语法定义了一个关联类型，an associated type，供 `Deref` 特质使用。关联类型是声明泛型参数的一种些许不同的方式，但现在咱们无需担心他们；咱们将在第 19 章中更详细地介绍他们。
 
 这里填入 `deref` 方法函数体的是 `&self.0`，从而 `deref` 就返回了到咱们打算用 `*` 运算符访问的那个值的一个引用；回顾第 5 章的 [运用不带命名字段的元组结构体来创建出不同类型](Ch05_Using_Structs_to_Structure_Related_Data.md#使用不带命名字段的元组结构体来创建不同类型) 小节，那个 `.0` 就是访问了结构体中的首个值。清单 15-9 中在其中 `MyBox<T>` 值上调用了 `*` 的 `main` 函数，现在就会编译了，同时那些断言将通过！
 
