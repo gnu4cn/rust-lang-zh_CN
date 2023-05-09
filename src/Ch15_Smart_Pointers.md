@@ -334,7 +334,7 @@ fn main() {
 下面就是产生的编译报错：
 
 ```console
-$ cargo run                                                      ✔  
+$ cargo run
    Compiling sp_demos v0.1.0 (/home/peng/rust-lang/sp_demos)
 error[E0614]: type `MyBox<{integer}>` cannot be dereferenced
   --> src/main.rs:14:20
@@ -349,7 +349,7 @@ error: could not compile `sp_demos` due to previous error
 由于咱们未曾在这个 `MyBox<T>` 类型上实现过其被解引用的能力，因此他无法被解引用。为实现使用 `*` 运算符的解引用，就要实现 `Deref` 特质。
 
 
-### 通过实现 Deref 特性将类型视为引用
+### 通过实现 Deref 特质将类型视为引用
 
 **Treating a Type Like a Reference by Implementing the `Deref` Trait**
 
@@ -461,7 +461,7 @@ fn main() {
 **How Deref Coercion Interacts with Mutability**
 
 
-与使用 `Deref` 特质来覆写不可变引用上的 `*` 运算符的方式类似，咱们可以使用 `DerefMut` 特质，来覆写可变引用上的 `*` 运算符。
+与使用 `Deref` 特质重写不可变引用上的 `*` 运算符类似，咱们可以使用 `DerefMut` 特质，重写可变引用上的 `*` 运算符。
 
 在以下三种情形下，Rust 会在他发现类型与特质的实现时，执行强制引用转换：
 
