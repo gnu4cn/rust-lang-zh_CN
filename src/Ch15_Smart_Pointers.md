@@ -536,9 +536,9 @@ $ cargo run
 
 **Drop a Value Early with `std::mem::drop`**
 
-不幸的是，要关闭这种自动的 `drop` 功能，却并不那么简单。关闭 `drop` 并不常见；`Drop` 特质的全部意义，就在于他是自动的。然而在少数情况下，咱们就会想要提前清理掉某个值。一个这样的例子，便是在运用一些管理锁的灵巧指针时：咱们就可能希望强制运行那个释放锁的 `drop` 方法，从而同一作用域中的其他代码，就可以请求到该锁。Rust 是不允许咱们，手动调用 `Drop` 特质的 `drop` 方法的；相反，在想要在作用域结束之前，强制弃用某个值时，咱们可以调用由标准库提供的 `std::mem::drop` 函数。
+不幸的是，要禁用自动 `drop` 功能并不简单。通常情况下，禁用 `drop` 功能是没有必要的；`Drop` 特质的全部意义在于他是自动处理的。然而在少数情况下，咱们可能想要提前清理一个值。一个例子便是在运用管理锁的灵巧指针时：咱们可能想要强制使用释放锁的 `drop` 方法，这样同一作用域内的其他代码就可以获得锁。Rust 不允许咱们手动调用 `Drop` 特质的 `drop` 方法；相反，如果咱们打算强制一个值在其作用域结束前被弃用，咱们必须调用标准库提供的 `std::mem::drop` 函数。
 
-若咱们通过修改清单 15-14 中那个 `main` 函数，而尝试手动调用 `Drop` 特质的 `drop` 方法，如下清单 15-15 中所示，就会得到一个编译器报错：
+若我们试图通过修改清单 15-14 中的 `main` 函数来手动调用 `Drop` 特质的 `drop` 方法，如清单15-15所示，我们会得到一个编译器报错：
 
 文件名：`src/main.rs`
 
@@ -553,13 +553,12 @@ fn main() {
 }
 ```
 
-*清单 15-15：尝试调用 `Drop` 特质中的 `drop` 方法来提前清理*
+*清单 15-15：尝试调用 `Drop` 特质的 `drop` 方法来提前清理*
 
-
-在尝试编译此代码时，就会得到下面这样的错误：
+当我们试图编译这段代码时，我们会得到这样的报错：
 
 ```console
-$ cargo run                                                                             lennyp@vm-manjaro
+$ cargo run
    Compiling sp_demos v0.1.0 (/home/lennyp/rust-lang/sp_demos)
 error[E0040]: explicit use of destructor method
   --> src/main.rs:17:7
@@ -574,7 +573,7 @@ For more information about this error, try `rustc --explain E0040`.
 error: could not compile `sp_demos` due to previous error
 ```
 
-此错误消息指出，这里是不允许显式调用 `drop` 方法的。该错误消息用到了术语 *解构器，descructor*，那正是清理掉某个实例的函数的通用编程术语（the general programming term）。*解构器，destructor* 类似于创建出实例的 *构造器，constructor*。Rust 中的 `drop` 函数，就是一个特别的解构器。
+这个错误信息指出，我们不允许显式调用 `drop`。这条错误信息使用了术语 “解构函数，destructor”，这是清理实例的函数的通用编程术语。解构函数类似于 *构造函数，constructor*，后者创建一个实例。Rust 中的 `drop` 函数就是一个特殊的解构函数。
 
 Rust 之所以不让咱们显式地调用 `drop`，是因为 Rust 仍将在 `main` 函数末尾，自动调用那个值上的 `drop`。由于 Rust 会两次尝试清理同一值，因此这就会导致 *双重释放，double free* 的错误。
 
