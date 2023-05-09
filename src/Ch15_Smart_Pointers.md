@@ -526,8 +526,8 @@ $ cargo run
     Finished dev [unoptimized + debuginfo] target(s) in 0.50s
      Running `target/debug/sp_demos`
 已创建出一些 CustomSmartPointer 实例
-正在使用数据 `其他事情` 弃用 CustomSmartPointer！
-正在使用数据 `我的事情` 弃用 CustomSmartPointer！
+正在使用数据 `d - 其他事情` 弃用 CustomSmartPointer！
+正在使用数据 `c - 我的事情` 弃用 CustomSmartPointer！
 ```
 
 当我们的实例超出作用域时，Rust 自动为我们调用了 `drop`，从而调用我们指定的代码。变量的弃用顺序与其创建顺序相反，因此 `d` 在 `c` 之前被弃用。这个例子的目的是给咱们一个直观了解 `drop` 方法如何工作的直观指引；通常咱们会指定咱们类型需要运行的清理代码，而不是打印消息。
