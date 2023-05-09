@@ -875,6 +875,11 @@ Deref coercion，类似于其他语言的开箱操作。
 A tuple struct, 形式为 `struct MyBox<T>(T)`，是保持着只有一个元素元组的结构体，`Box<T>` 的数据结构为元组结构体。
 
 
+- 前奏
+
+The Rust Prelude, `std::prelude` 模组。前奏是 Rust 自动导入到每个 Rust 程序中的东西的列表。他被保持在尽可能小的范围内，并且专注于几乎每个 Rust 程序都会用到的东西，特别是特质。参见：[`std::prelude`](https://doc.rust-lang.org/std/prelude/index.html)。
+
+
 - 关联类型
 
 An associated type, 通过 `type Target = t;` 这种语法声明出的类型，是声明泛型参数的一种稍微不同的方式。

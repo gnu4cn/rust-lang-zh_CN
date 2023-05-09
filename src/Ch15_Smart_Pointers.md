@@ -503,25 +503,25 @@ impl Drop for CustomSmartPointer {
 
 fn main() {
     let c = CustomSmartPointer {
-        data: String::from("我的事情"),
+        data: String::from("c - 我的事情"),
     };
     let d = CustomSmartPointer {
-        data: String::from("其他事情"),
+        data: String::from("d - 其他事情"),
     };
     println! ("已创建出一些 CustomSmartPointer 实例");
 }
 ```
 
-*清单 15-14：实现了于其中放置咱们编写的清理代码的 `Drop` 特质的 `CustomSmartPointer` 结构体*
+*清单 15-14：一个实现了 `Drop` 特质的 `CustomSmartPointer` 结构体，咱们将把咱们的清理代码放在这里*
 
-`Drop` 特质是包含在 Rust 序曲（the prelude）中的，因此这里就无需将其带入作用域。这里在 `CustomSmartPointer` 上实现了 `Drop` 特质，并提供了一个调用了 `println!` 宏的 `drop` 方法的实现。这个 `drop` 函数的函数体，即是咱们将要放置那些，在咱们类型的某个实例超出作用域时，打算运行的全部逻辑的地方。这里咱们就打印出一些文本，来直观地演示 Rust 何时会调用 `drop` 方法。
+`Drop` 特质包含在前奏中，included in the prelude，所以我们不需要把他带入作用域。我们在 `CustomSmartPointer` 上实现了 `Drop` 特质，并为 `drop` 方法提供到一个调用了 `println!` 的实现。`drop` 函数的主体是在咱们的类型的实例超出作用域时，打算运行的任何逻辑的地方。咱们在这里打印一些文本来直观地演示 Rust 何时调用 `drop`。
 
-在 `main` 函数中，这里创建出了 `CustomSmartPointer` 的两个实例，并于随后打印了 `已创建出一些 CumstomSmartPointer 实例`。在 `main` 末尾处，这些 `CumstomSmartPointer` 的实例，就将超出作用域，同时 Rust 就会调用咱们放入到`drop` 方法中的那些代码，打印出咱们的最终消息。请注意咱们并不需要显式地调用这个 `drop` 方法。
+在 `main` 中，我们创建了两个 `CustomSmartPointer` 的实例，然后打印`已创建出一些 CumstomSmartPointer 实例`。在 `main` 的结尾，我们的 `CustomSmartPointer` 实例将超出作用域，Rust 将调用我们放在 `drop` 方法中的代码，打印我们的最终信息。注意，我们不需要显式地调用 `drop` 方法。
 
-在运行这个程序的时候，就会看到下面的输出：
+当我们运行这个程序时，我们会看到以下输出：
 
 ```console
-$ cargo run                                                                             lennyp@vm-manjaro
+$ cargo run
    Compiling sp_demos v0.1.0 (/home/lennyp/rust-lang/sp_demos)
     Finished dev [unoptimized + debuginfo] target(s) in 0.50s
      Running `target/debug/sp_demos`
@@ -530,10 +530,9 @@ $ cargo run                                                                     
 正在使用数据 `我的事情` 弃用 CustomSmartPointer！
 ```
 
-在这些实例超出作用域时，Rust 就自动为咱们调用了 `drop`，进而调用了咱们指定出的那些代码。变量以与他们创建相反的顺序被弃用，因此其中的 `d` 先于 `c` 被启用。这个示例的目的，是要给到 `drop` 方法工作方式的直观说明；通常咱们会指定出咱们的类型所要运行的代码，而非一条打印出的消息。
+当我们的实例超出作用域时，Rust 自动为我们调用了 `drop`，从而调用我们指定的代码。变量的弃用顺序与其创建顺序相反，因此 `d` 在 `c` 之前被弃用。这个例子的目的是给咱们一个直观了解 `drop` 方法如何工作的直观指引；通常咱们会指定咱们类型需要运行的清理代码，而不是打印消息。
 
-
-### 使用 `std::mem::drop` 提前弃用某个值
+### 使用 `std::mem::drop` 提前弃用值
 
 **Drop a Value Early with `std::mem::drop`**
 
