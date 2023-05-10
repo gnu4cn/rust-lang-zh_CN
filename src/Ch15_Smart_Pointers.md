@@ -579,7 +579,7 @@ Rust 之所以不允许咱们显式地调用 `drop`，是因为 Rust 仍然会�
 
 当值超出作用域时，我们无法禁用 `drop` 的自动插入，也无法显式调用 `drop` 方法。所以，如果我们需要强制一个值提前被清理，我们就使用 `std::mem::drop` 函数。
 
-这个 `std::mem::drop` 函数不同于 `Drop` 特质中的那个 `drop` 方法。咱们是通过将要强制弃用的那个值作为参数传递，而调用他的。该函数位于 Rust 序曲中（in the prelude），因此这里就可以把清单 15-15 中的 `main` 函数，修改为如下清单 15-16 中所示的调用那个 `drop` 函数：
+`std::mem::drop` 函数与 `Drop` 特质中的 `drop` 方法不同。咱们通过把咱们想要强制弃用的值作为参数传递来调用他。这个函数在前奏中，所以我们可以修改清单 15-15 中的 `main` 来调用 `drop` 函数，如清单 15-16 所示：
 
 文件名：`src/main.rs`
 
@@ -594,12 +594,12 @@ fn main() {
 }
 ```
 
-*清单 15-16：调用 `std::mem::drop` 在某个值超出作用域之前，显式地弃用该值*
+*清单 15-16：调用 `std::mem::drop` 在值超出作用域前，显式地弃用该值*
 
-运行此代码就会打印出下面的输出：
+运行这段代码将打印出以下内容：
 
 ```console
-$ cargo run                                                                             lennyp@vm-manjaro
+$ cargo run
    Compiling sp_demos v0.1.0 (/home/lennyp/rust-lang/sp_demos)
     Finished dev [unoptimized + debuginfo] target(s) in 0.40s
      Running `target/debug/sp_demos`
@@ -608,7 +608,7 @@ $ cargo run                                                                     
 在 main 结束之前这个 CustomSmartPointer 已被弃用。
 ```
 
-于 `已创建出一个 CustomSmartPointer 实例。`，与 `在 main 结束之前这个 CustomSmartPointer 已被弃用。` 文本之间打印出的文本，`正在使用数据 `一些数据` 弃用 CustomSmartPointer!` ，显示在那个时间点，`Drop` 特质的 `drop` 方法被调用来弃用 `c`。
+文本 ``正在使用数据 `一些数据` 弃用 CustomSmartPointer!`` 被打印在 `已创建出一个 CustomSmartPointer 实例。` 与 `在 main 结束之前这个 CustomSmartPointer 已被弃用。` 之间，显示 `drop` 方法在这个时间点被调用来弃用 `c`。
 
 咱们可以许多种方式，使用 `Drop` 特质实现中所指明的代码，来令到资源清理变成方便且安全：比如就可以使用这种技巧，来创建出咱们自己的内存分配器！有了这个 `Drop` 特质及 Rust 的所有权系统，由于 Rust 会自动完成资源的清理，因此咱们就不必一定要记得清理资源了。
 
