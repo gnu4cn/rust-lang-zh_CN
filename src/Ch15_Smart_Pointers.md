@@ -692,7 +692,9 @@ error: could not compile `sp_demos` due to previous error;
 
 文件名：`src/main.rs`
 
+```rust
 {{#rustdoc_include ../projects/rc_demo/src/main.rs}}
+```
 
 *清单 15-18：使用了 `Rc<T>` 的 `List` 定义*
 
