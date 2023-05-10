@@ -704,14 +704,13 @@ error: could not compile `sp_demos` due to previous error;
 
 > 注：第 4 章 [变量与数据交互方式之二：克隆](Ch04_Understanding_Ownership.md#变量与数据交互方式之二克隆) 中，曾提到：“当咱们看到对 `clone` 的调用时，咱们就知道一些任意的代码正在被执行，而这些代码可能开销很大。这是表明正在发生一些不同寻常事情的明显标志。”
 
-### 对某个 `Rc<T>` 进行克隆，就会增加引用计数
+### 克隆 `Rc<T>` 会增加引用计数
 
 **Cloning an `Rc<T>` Increases the Reference Count**
 
-下面就拉修改清单 15-18 中的那个运作中的示例，从而可以发现在创建及弃用到 `a` 中那个 `Rc<T>` 的引用时，引用计数就会改变。
+我们来修改示例 15-18 中的工作示例，以便我们可以看到在我们创建和删除对 `a` 中的 `Rc<List>` 的引用时，引用计数会发生变化。
 
-在下面清单 15-19 中，这里将修改 `main` 为其有着一个围绕列表 `c` 的内层作用域；随后就会看到在 `c` 超出作用域时，引用计数会怎样变化。
-
+在下面清单 15-19 中，我们将更改 `main`，使其具有围绕列表 `c` 的内部作用域；然后我们可以看到当 `c` 超出作用域时引用计数如何变化。
 
 文件名：`src/main.rs`
 
@@ -719,25 +718,27 @@ error: could not compile `sp_demos` due to previous error;
 fn main() {
     let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
     println! ("在创建出 a 后，引用计数为 {}", Rc::strong_count(&a));
+
     let b = Cons(3, Rc::clone(&a));
     println! ("在创建出 b 后，引用计数为 {}", Rc::strong_count(&a));
+
     {
         let c = Cons(4, Rc::clone(&a));
         println! ("在创建出 c 后，引用计数为 {}", Rc::strong_count(&a));
     }
+
     println! ("在 c 超出作用域后，引用计数为 {}", Rc::strong_count(&a));
 }
 ```
 
 *清单 15-19：打印出引用计数*
 
-在程序中引用计数变化的各个点位，咱们都打印出了引用计数，其正是咱们经由调用 `Rc::strong_count` 函数得到的。该函数之所以名为 `strong_count`，而非 `count`，是由于这个 `Rc<T>` 类型，还有一个 `weak_count` 函数；在 [阻止引用的循环：将 `Rc<T>` 转换为 `Weak<T>`](#防止引用循环将-rct-转变为-weakt) 小节，就会看到 `weak_count` 的使用。
+在程序中引用计数发生变化的每一点上，我们都会打印引用计数，我们通过调用 `Rc::strong_count` 函数得到这个计数。这个函数被命名为 `strong_count` 而不是 `count`，是因为 `Rc<T>` 类型也有一个 `weak_count`；我们将在 [“防止引用循环：将 `Rc<T>` 变成 `Weak<T>`”](#防止引用循环将-rct-转变为-weakt) 小节中看到 `weak_count` 的用途。
 
-此代码会打印出下面的东西：
-
+这段代码打印出以下内容：
 
 ```console
-$ cargo run                                                                                              lennyp@vm-manjaro
+$ cargo run
    Compiling sp_demos v0.1.0 (/home/lennyp/rust-lang/sp_demos)
     Finished dev [unoptimized + debuginfo] target(s) in 0.40s
      Running `target/debug/sp_demos`
