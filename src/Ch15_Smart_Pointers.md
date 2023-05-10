@@ -688,28 +688,11 @@ error: could not compile `sp_demos` due to previous error;
 
 咱们原本可以将 `Cons` 的定义修改为持有引用，但那样咱们就必须指定生命周期参数。通过指定生命周期参数，咱们将指定列表中的每个元素，都至少与整个列表的寿命一样长。清单 15-17 中的元素与列表就是这种情况，但并非在所有情况下都如此。
 
-相反，这里将把 `List` 的定义，修改为在 `Box<T>` 处运用 `Rc<T>`，如下清单 15-18 中所示。这样各个 `Cons` 变种，现在就将保存一个值与一个指向某个 `List` 的 `Rc<T>` 了。在创建出 `b` 时，就不再是取得 `a` 的所有权，而是将克隆出 `a` 正保存的那个 `Rc<List>`，因此将引用的数据，从一个增加到了两个，实现了 `a` 与 `b` 共用那个 `Rc<List>` 中的数据。在创建出 `c` 时，这里也将克隆 `a`，从而将引用的数据，从两个增加到三个。每次调用 `Rc::clone` 时，到那个 `Rc<List>` 里头数据的引用计数，都将增加，同时除非到其引用为零，该数据便不会被清理掉。
+相反，我们将改变 `List` 的定义，使用 `Rc<T>` 来代替 `Box<T>`，如下清单 15-18 所示。现在每个 `Cons` 变种将持有一个值和一个指向 `List` 的 `Rc<T>`。当我们创建 `b` 时，我们将克隆 `a` 所持有的 `Rc<List>`，而不是取得 `a` 的所有权，从而将引用的数量从一个增加到两个，并让 `a` 和 `b` 共用该 `Rc<List>` 中数据的所有权。在创建 `c` 时，我们也将克隆 `a`，将引用的数量从两个增加到三个。每次我们调用 `Rc::clone`，`Rc<List>` 中数据的引用数就会增加，除非对他的引用为零，否则数据不会被清理掉。
 
 文件名：`src/main.rs`
 
-```rust
-#[derive(Debug)]
-enum List {
-    Cons(i32, Rc<List>),
-    Nil,
-}
-
-use crate::List::{Cons, Nil};
-use std::rc::Rc;
-
-fn main() {
-    let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
-    let b = Cons(3, Rc::clone(&a));
-    let c = Cons(4, Rc::clone(&a));
-
-    println! ("b 为: {:?}\nc 为： {:?}", b, c);
-}
-```
+{{#rustdoc_include ../projects/rc_demo/src/main.rs}}
 
 *清单 15-18：使用了 `Rc<T>` 的 `List` 定义*
 
