@@ -760,19 +760,19 @@ $ cargo run
 
 *内部可变性，interior mutability* 属于 Rust 中的一种设计模式，他实现了即使在有着到数据的一些不可变引用之下，对数据加以改变；一般情况下，这样的行为是借用规则所不允许的。为了改变数据，这种模式便运用了数据结构内部的一些 `unsafe` 代码，来改变了 Rust 监管可变性与借用的一些一般规则。这些不安全代码向编译器表明，咱们自己在手动检查那些规则，而非依赖于编译器为咱们检查那些规则；在第 19 章将进一步讨论这些不安全代码。
 
-咱们可以只在能够确保借用规则在运行时将被遵循，而即使编译器无法保证这一点时，使用那些运用了内部可变性的类型。那么这个时候所涉及的那些 `unsafe` 代码，就会被封装在某个安全的 API 中，而外层的类型仍然是不可变的（we can use types that use the interior mutability pattern only when we can ensure that the borrowing rules will be followed at runtime, even though the compiler can't guarantee that. The `unsafe` code involved is then wrapped in a safe API, and the outer type is still immutable）。
+只有当我们可以确保在运行时遵循借用规则时，我们才能使用使用内部可变性模式的类型，即使编译器不能保证这一点。然后将涉及的不安全代码包装在安全的 API 中，并且外部类型仍然是不可变的。
 
-接下来就要经由检视这个遵循内部可变性设计模式的 `RefCell<T>` 类型，探讨此概念。
+咱们来通过检视遵循内部可变性模式的 `RefCell<T>` 类型来探讨这个概念。
 
 
-### 使用 `RefCell<T>` 在运行时强制借用规则检查
+### 使用 `RefCell<T>` 在运行时执行借用规则检查
 
 **Enforcing Borrowing Rules at Runtime with `RefCell<T>`**
 
-不同于 `Rc<T>`，这个 `RefCell<T>` 类型，表示其所保存数据上的单个所有权。那么到底是什么令到 `RefCell<T>` 不同于像 `Box<T>` 这样的类型呢？回顾在第 4 章中所掌握的那些借用规则：
+与 `Rc<T>` 不同，`RefCell<T>` 类型表示对其所持有的数据的单一所有权。那么，是什么使 `RefCell<T>` 与 `Box<T>` 这样的类型不同呢？回顾咱们在第四章学到的借用规则：
 
-- 在任何给定时间，咱们都可以有着 *要么* （而非同时） 一个的可变引用，要么任意数量的不可变引用；
-- 引用必须始终是有效的。
+- 在任何给定时间，咱们都可以有着 *要么* （而非同时） 一个可变引用，要么任意数量的不可变引用；
+- 引用必须始终有效。
 
 在引用及 `Box<T>` 之下，这些借用规则的那些不变性，在编译时被强制检查（with references and `Box<T>`, the borrowing rules' invariants are enforced at compile time）。而在 `RefCell<T>` 之下，这些不变性是在 *运行时，runtime*，被强制检查的。对于引用，在破坏这些规则时，就会得到编译时错误。而对于 `RecCell<T>`，在破坏这些规则时，程序就会终止运行并退出。
 
