@@ -928,16 +928,16 @@ warning: build failed, waiting for other jobs to finish...
 
 *清单 15-22：使用 `RefCell<T>` 来改变内层值，而外部值被认为是不可变的*
 
-那个 `sent_messages` 字段，现在就是类型 `RefCell<Vec<String>>`，而非 `Vec<String>` 的了。在其中的 `new` 函数里，这里围绕那个空矢量值，创建了一个新的 `RefCell<Vec<String>>` 实例。
+`sent_messages` 字段现在的类型是 `RefCell<Vec<String>`，而不是 `Vec<String>`。在 `new` 函数中，我们围绕空向量创建一个新的 `RefCell<Vec<String>` 实例。
 
-而对于那个 `send` 方法的实现，首个参数认识 `self` 的一个不可变借用，这与那个特质定义是相匹配的。这里调用了 `self.sent_messages` 值中，那个 `RefCell<Vec<String>>` 类型实例上的 `borrow_mut` 方法，来获取了到这个 `RefCell<Vec<String>>` 实例内部值，亦即那个矢量值的一个可变引用。随后这里调用了到该矢量值可变引用上的 `push` 方法，来最终测试期间所发送的那些消息。
+对于 `send` 方法的实现，第一个参数仍然是 `self` 的不可变借用，这与特质定义相匹配。我们对 `self.send_messages` 中的 `RefCell<Vec<String>` 调用 `borrow_mut`，以获得 `RefCell<Vec<String>` 中值的可变引用，也就是那个矢量。然后，我们可以对该矢量的可变引用调用 `push`，以记录测试期间发送的消息。
 
-这里必须做出的最后一项修改，是在那个断言中：为了看到在那个内部矢量值中有多少的条目，这里就要调用那个 `RefCell<Vec<String>>` 上的 `borrow` 方法，来获取到其中矢量值的一个不可变引用。
+我们必须做的最后一个更改是在断言中：为了查看内层矢量中有多少个条目，我们在 `RefCell<Vec<String>>` 上调用 `borrow` 以获得对该矢量的不可变引用。
 
-既然咱们以及看到怎样使用 `RefCell<T>`，接下来就要探究其原理了！
+现在咱们已经看到了如何使用 `RefCell<T>`，咱们来深入了解其工作原理！
 
 
-### 使用 `RefCell<T>` 在运行时对借用进行追踪
+### 使用 `RefCell<T>` 在运行时记录借用
 
 **Keeping Track of Borrows at Runtime with `RefCell<T>`**
 
