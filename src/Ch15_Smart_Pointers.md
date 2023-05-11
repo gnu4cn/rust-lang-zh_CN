@@ -843,47 +843,10 @@ Rust 没有像其他语言那样拥有对象，Rust 也没有像其他一些语�
 文件名：`src/lib.rs`
 
 ```rust
-pub trait Messenger {
-    fn send(&self, msg: &str);
-}
-
-pub struct LimitTracker<'a, T: Messenger> {
-    messenger: &'a T,
-    value: usize,
-    max: usize,
-}
-
-impl<'a, T> LimitTracker<'a, T>
-where
-    T: Messenger,
-{
-    pub fn new(messenger: &'a T, max: usize) -> LimitTracker<'a, T> {
-        LimitTracker {
-            messenger,
-            value: 0,
-            max,
-        }
-    }
-
-    pub fn set_value(&mut self, value: usize) {
-        self.value = value;
-
-        let percentage_of_max = self.value as f64 / self.max as f64;
-
-        if percentage_of_max >= 1.0 {
-            self.messenger.send("出错：你已超出你的配额！");
-        } else if percentage_of_max >= 0.9 {
-            self.messenger
-                .send("紧急警告：你已用掉你配额的 90% ！");
-        } else if percentage_of_max >= 0.75 {
-            self.messenger
-                .send("警告：你已用掉你配额的 75% ！");
-        }
-    }
-}
+{{#include projects/limit_tracker/src/lib.rs::38}}
 ```
 
-*清单 15-20：就某个值与最大值接近程度加以追踪，并在该值处于不同水平时发出告警的一个库*
+*清单 15-20：跟踪某个值与最大值接近程度，并在值处于不同水平时发出告警的库*
 
 此代码的一个重要部分，即是有着一个取了到 `self` 的不可变引用与消息文本、名为 `send` 方法的那个 `Messenger` 特质。这个特质就是咱们的模拟对象所需实现的接口（the interface, 借鉴了 Java 语言的叫法，参见 [使用接口来拯救！](https://java.xfoss.com/ji-cheng-he-duo-tai-ji-zhi/ch08_interfaces_and_abstract_classes#interface_rescue)），从而这种模拟就可与真实对象的同样方式，而被使用。至于另一重要部分，则是这里打算测试 `LimitTracker` 上那个 `set_value` 方法的行为（注意：这里 `LimitTracker` 命名方式，同样借鉴了 Java 语言中类的命名约定）。这里可以改变所传入的那个 `value` 参数的值，但 `set_value` 不会返回任何咱们对其做出断言的东西。这里是要能够表达出，在咱们以实现了 `Messenger` 特质的某物，及 `max` 的某个特定值，而创建出一个 `LimitTracker` 下，当咱们传入不同数字的 `value` 时，那个信使方法，就被告知要发送一些恰当的消息。
 
