@@ -26,9 +26,9 @@ where
         let percentage_of_max = self.value as f64 / self.max as f64;
 
         match percentage_of_max {
-            max if max >= 1.0 => self.messenger.send("出错：你已超出你的配额！"),
-            max if max >= 0.9 => self.messenger.send("紧急警告：你已用掉你配额的 90% ！"),
-            max if max >= 0.75 => self.messenger.send("警告：你已用掉你配额的 75% ！"),
+            p if p >= 1.0 => self.messenger.send("出错：你已超出你的配额！"),
+            p if p >= 0.9 => self.messenger.send("紧急警告：你已用掉你配额的 90% ！"),
+            p if p >= 0.75 => self.messenger.send("警告：你已用掉你配额的 75% ！"),
             _ => {},
         }
     }

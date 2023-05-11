@@ -843,7 +843,7 @@ Rust 没有像其他语言那样拥有对象，Rust 也没有像其他一些语�
 文件名：`src/lib.rs`
 
 ```rust
-{{#include ../projects/limit_tracker/src/lib.rs::38}}
+{{#include ../projects/limit_tracker/src/lib.rs::35}}
 ```
 
 *清单 15-20：跟踪某个值与最大值接近程度，并在值处于不同水平时发出告警的库*
@@ -916,49 +916,17 @@ error: could not compile `limit_tracker` due to previous error
 warning: build failed, waiting for other jobs to finish...
 ```
 
-由于其中的 `send` 方法取了一个到 `self` 的不可变引用，因此这里是无法修改那个 `MockMessenger` 值来追踪到那些消息的。这里还不能采取报错文本中，使用 `&mut self` 取代的建议，这是由于随后 `send` 的签名，将不与 `Messenger` 特质定义中的函数签名相匹配（请尽情尝试，并观察会得到什么样的报错消息）。
+我们不能修改 `MockMessenger` 来记录消息，因为 `send` 方法需要一个对 `self` 的不可变的引用。我们也不能采纳错误文本中的建议，使用 `&mut self` 来代替，因为那样的话，`send` 的签名就无法与 `Messenger` 特质定义中的签名相匹配（请随意尝试，看看咱们会得到什么样的报错消息）。
 
-这正是内部可变性可帮到忙的一种情形！下面就将把那个 `sent_messages` 存储于一个 `RefCell<T>` 内部，而接下来那个 `send` 方法，就将能够修改 `sent_messages`，以存储咱们曾见到过的那些消息了。下面清单 15-22 给出了那看起来的样子：
+这种情况下，内部可变性可以起到帮助作用！我们将把 `send_messages` 存储在一个 `RefCell<T>` 中，然后 `send` 方法将能够修改 `send_messages` 来存储我们所看到的信息。清单 15-22 显示了这是什么样子：
 
 文件名：`src/lib.rs`
 
 ```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::cell::RefCell;
-
-    struct MockMessenger {
-        sent_messages: RefCell<Vec<String>>,
-    }
-
-    impl MockMessenger {
-        fn new() -> MockMessenger {
-            MockMessenger {
-                sent_messages: RefCell::new(vec! []),
-            }
-        }
-    }
-
-    impl Messenger for MockMessenger {
-        fn send(&self, message: &str) {
-            self.sent_messages.borrow_mut().push(String::from(message));
-        }
-    }
-
-    #[test]
-    fn it_sends_an_over_75_percent_waring_message() {
-        let mock_messenger = MockMessenger::new();
-        let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
-
-        limit_tracker.set_value(80);
-
-        assert_eq! (mock_messenger.sent_messages.borrow().len(), 1);
-    }
-}
+{{#include ../projects/limit_tracker/src/lib.rs:37:}}
 ```
 
-*清单 15-22：在外层值被视为不可变的同时，使用 `RefCell<T>` 改变内层值*
+*清单 15-22：使用 `RefCell<T>` 来改变内层值，而外部值被认为是不可变的*
 
 那个 `sent_messages` 字段，现在就是类型 `RefCell<Vec<String>>`，而非 `Vec<String>` 的了。在其中的 `new` 函数里，这里围绕那个空矢量值，创建了一个新的 `RefCell<Vec<String>>` 实例。
 
