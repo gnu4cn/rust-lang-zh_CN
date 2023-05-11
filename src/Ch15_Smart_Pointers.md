@@ -941,9 +941,9 @@ warning: build failed, waiting for other jobs to finish...
 
 **Keeping Track of Borrows at Runtime with `RefCell<T>`**
 
-在创建不可变及可变引用时，咱们分别用到了 `&` 与 `&mut` 语法。而在 `RefCell<T>` 下，咱们使用的是 `borrow` 与 `borrow_mut` 两个方法，他们均为属于 `RefCell<T>` 那些安全 API 的一部分。其中 `borrow` 方法返回的是灵巧指针类型 `Ref<T>`（the smart pointer type `Ref<T>`），而 `borrow_mut` 则返回的是灵巧指针类型 `RefMut<T>`（the smart pointer type `RefMut<T>`）。这两种返回的类型，都实现了 `Deref` 特质，因此咱们就能向常规引用那样，对待他们。
+当创建不可变和可变引用时，我们分别使用 `&` 和 `&mut` 语法。而对于 `RefCell<T>`，我们使用 `borrow` 和 `borrow_mut` 方法，他们属于 `RefCell<T>` 安全 API 的一部分。`borrow` 方法返回灵巧指针类型 `Ref<T>`，而 `borrow_mut` 返回灵巧指针类型 `RefMut<T>`。这两种类型都实现了 `Deref`，所以我们可以像对待普通引用一样对待他们。
 
-`RefCell<T>` 追踪了有多少个当前活动的 `Ref<T>` 及 `RefMut<T>`。在每次于某个 `RefCell<T>` 值上调用 `borrow` 时，该 `RefCell<T>` 都会增加其有多少个活动不可变借用计数。而在某个 `Ref<T>` 值超出作用域时，该不可变借用计数，就会降低一个。跟编译时借用规则一样，`RefCell<T>` 允许在任何时刻，有着多个不可变借用或一个的可变借用。
+`RefCell<T>` 会记录当前有多少个 `Ref<T>` 和 `RefMut<T>` 灵巧指针是活动的。每次我们调用 `borrow`，`RefCell<T>` 都会增加他的计数，即有多少个不可变借用是活动的。当一个 `Ref<T>` 值超出作用域时，不可变借用的计数就会减少一个。就像编译时的借用规则一样，`RefCell<T>` 允许我们在任何时候有许多不可变借用或一个可变的借用。
 
 在咱们尝试违反这些规则时，与之前在引用下得到编译器报错相反，`RefCell<T>` 的实现将在运行时终止运行。下面清单 15-23 就给出了清单 15-22 中那个 `send` 实现的修改版本。其中故意尝试创建出统一作用域的两个活动可变借用，来演示 `RefCell<T>` 会在运行时阻止咱们这样做。
 
