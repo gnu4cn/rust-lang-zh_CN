@@ -857,7 +857,38 @@ Rust 没有像其他语言那样拥有对象，Rust 也没有像其他一些语�
 文件名：`src/lib.rs`
 
 ```rust
-{{#include ../projects/limit_tracker/src/lib.rs:40:}}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct MockMessenger {
+        sent_messages: Vec<String>,
+    }
+
+    impl MockMessenger {
+        fn new() -> MockMessenger {
+            MockMessenger {
+                sent_messages: vec![],
+            }
+        }
+    }
+
+    impl Messenger for MockMessenger {
+        fn send(&self, message: &str) {
+            self.sent_messages.push(String::from(message));
+        }
+    }
+
+    #[test]
+    fn it_sends_an_over_75_percent_warning_message() {
+        let mock_messenger = MockMessenger::new();
+        let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
+
+        limit_tracker.set_value(80);
+
+        assert_eq!(mock_messenger.sent_messages.len(), 1);
+    }
+}
 ```
 
 *清单 15-21：试图实现一个借用检查器不允许的 `MockMessenger`*
