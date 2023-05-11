@@ -793,11 +793,11 @@ $ cargo run
 
 改变不可变值内部的值，就是 *内部可变性模式，the interior mutablity pattern*。让我们看一下内部可变性有用的一种情况，并检视其如何可行。
 
-### 内部可变性：到不可变值的可变借用
+### 内部可变性：对不可变值的可变借用
 
 **Interior Mutability: A Mutable Borrow to an Immutable Value**
 
-借用规则的一种后果，便是在有着某个不可变值时，是无法可变地借用他的。比如，下面的代码就不会编译：
+借用规则的一种后果是，当咱们有一个不可变的值时，咱们不能以可变方式借用他。比如，下面这段代码就不能编译：
 
 ```rust
 fn main() {
@@ -806,10 +806,10 @@ fn main() {
 }
 ```
 
-在尝试编译此代码时，就会得到以下报错：
+如果咱们试图编译这段代码，咱们会得到以下错误：
 
 ```console
-$ cargo run                                                                                         lennyp@vm-manjaro
+$ cargo run
    Compiling sp_demos v0.1.0 (/home/lennyp/rust-lang/sp_demos)
 error[E0596]: cannot borrow `x` as mutable, as it is not declared as mutable
  --> src/main.rs:3:13
@@ -822,13 +822,12 @@ error[E0596]: cannot borrow `x` as mutable, as it is not declared as mutable
 For more information about this error, try `rustc --explain E0596`.
 error: could not compile `sp_demos` due to previous error;
 ```
+然而，在有些情况下，值在其方法中改变自身，但对其他代码来说却显得不可改变，这将是非常有用的。在该值的方法之外的代码将不能改变该值。使用 `RefCell<T>` 是获得内部可变性能力的一种方法，但是 `RefCell<T>` 并没有完全绕过借用规则：编译器中的借用检查器会放行这种内部可变性，而代之以在运行时借用规则得以检查。如果咱们违反了这些规则，咱们会得到一个 `pani!` 而不是一个编译器报错。
 
-然而，某个值在他的一些方法中对自身加以修改，而对别的代码表现出不可变，这种情况在一些场合是有用的。值那些方法外部的代码，将无法修改该值。使用 `RefCell<T>`，便是获得拥有内部可变性能力的一种途径，但 `RefCell<T>` 并不是完全绕开了借用规则：编译器中的借用检查，放行了这种内部可变性，而取而代之的是，借用规则在运行时得以检查。在违反这些规则时，就会得到一个 `panic!` 而非编译时错误。
-
-接下来就要贯穿其中可使用 `RefCell<T>`，来修改某个不可变值，并发现为何这是有用的一个实际例子。
+咱们来通过一个其中咱们可以使用 `RefCell<T>` 改变一个不可变的值的实际示例，看看为什么这很有用。
 
 
-### 内部可变性的一个用例：模拟对象
+### 内部可变性的用例：模拟对象
 
 **A Use Case for Interior Mutability: Mock Objects**
 
