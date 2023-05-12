@@ -1010,9 +1010,11 @@ error: test failed, to rerun pass `--lib`
 
 *清单 15-24：使用 `Rc<RefCell<i32>>` 创建咱们可改变的 `List`*
 
-这里创建了为 `Rc<RefCell<i32>>` 类型实例的一个值，并将其存储在名为 `value` 的一个变量中，如此咱们就可以在稍后直接访问他。接着这里在 `a` 中，创建了有着保存了 `value` 的 `Cons` 变种的一个 `List`。这里需要克隆 `value`，这样 `a` 与 `value` 都会有着那个内层值 `5` 的所有权，而非将所有权从 `value` 转移到 `a` 或让 `a` 从 `value` 借用。
+我们创建了一个值，他是 `Rc<RefCell<i32>>` 的一个实例，并将其存储在一个名为 `value` 的变量中，以便我们稍后可以直接访问。然后我们以持有 `value` 的一个 `Cons` 变种，在 `a` 中创建了一个 `List`。我们需要克隆 `value`，以便 `a` 和 `value` 都拥有内部值 `5` 的所有权，而不是将所有权从 `value` 转移到 `a` 或让 `a` 从 `value` 借用。
 
-这里把那个列表 `a`，封装在了一个 `Rc<T>` 中，进而在创建列表 `b` 与 `c` 时，二者都可以引用到 `a`，正如咱们在清单 15-18 中所做的那样。在这里已创建出 `a`、`b` 与 `c` 中的三个列表后，就打算把 `10` 加到 `value` 中的那个值。咱们是通过调用 `value` 上的 `borrow_mut` 方法做到这点的，这用到了第 5 章中曾讨论过的自动解引用特性（参见 [`->` 操作符去哪儿了？](Ch05_Using_Structs_to_Structure_Related_Data.md#--操作符the---operator哪去了呢)），来将这个 `Rc<T>` 解引用到内层的 `RefCell<T>` 值。这个 `borrow_mut` 方法返回的是一个 `RefMut<T>` 的灵巧指针，而咱们于其上使用了解引用操作符，并修改了那个内层值。
+我们将列表 `a` 包装在 `Rc<T>` 中，这样当我们创建列表 `b` 和 `c` 时，他们都可以引用 `a`，这就是我们在示例 15-18 中所做的。
+
+在我们创建了 `a`、`b` 和 `c` 中的列表后，我们打算在 `value` 中的值上加 `10`。我们通过在 `value` 上调用 `borrow_mut` 来实现这一目的，他使用了我们在第 `5` 章中讨论过的自动解引用功能，the automatic dereferencing feature，（参见 [`->` 操作符去哪儿了？](Ch05_Using_Structs_to_Structure_Related_Data.md#--操作符the---operator哪去了呢) 小节），将 `Rc<T>` 解引用到内部的 `RefCell<T>` 值。`borrow_mut` 方法返回一个 `RefMut<T>` 灵巧指针，我们对其使用解引用操作符，并改变内部值。
 
 在打印 `a`、`b` 与 `c` 时，就可以看到他们都有了修改后的值 `15` 而非 `5`：
 
