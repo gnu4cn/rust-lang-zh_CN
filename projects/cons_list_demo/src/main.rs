@@ -11,10 +11,12 @@ use std::rc::Rc;
 fn main() {
     let value = Rc::new(RefCell::new(5));
 
-    let a = Rc::new(Cons(
+    let a = Rc::new(
+        Cons(
             Rc::clone(&value),
             Rc::new(Nil)
-    ));
+        )
+    );
 
     let b = Cons(
         Rc::new(RefCell::new(3)),
