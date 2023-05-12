@@ -884,6 +884,12 @@ The Rust Prelude, `std::prelude` 模组。前奏是 Rust 自动导入到每个 R
 
 The interior mutability pattern, Rust 的一种设计模式，用于改变不可变值内部的某个值。
 
+
+- 内存泄漏
+
+Memory leak, 出现未清理内存的情况。
+
+
 - 关联类型
 
 An associated type, 通过 `type Target = t;` 这种语法声明出的类型，是声明泛型参数的一种稍微不同的方式。

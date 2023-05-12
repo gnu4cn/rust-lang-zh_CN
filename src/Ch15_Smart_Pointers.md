@@ -1008,7 +1008,7 @@ error: test failed, to rerun pass `--lib`
 {{#include ../projects/cons_list_demo/src/main.rs}}
 ```
 
-*清单 15-24：使用 `Rc<RefCell<i32>>` 创建咱们可改变的 `List`*
+*清单 15-24：使用 `Rc<RefCell<i32>>` 创建一个咱们可改变的 `List`*
 
 我们创建了一个值，他是 `Rc<RefCell<i32>>` 的一个实例，并将其存储在一个名为 `value` 的变量中，以便我们稍后可以直接访问。然后我们以持有 `value` 的一个 `Cons` 变种，在 `a` 中创建了一个 `List`。我们需要克隆 `value`，以便 `a` 和 `value` 都拥有内部值 `5` 的所有权，而不是将所有权从 `value` 转移到 `a` 或让 `a` 从 `value` 借用。
 
@@ -1028,17 +1028,17 @@ $ cargo run                                                       lennyp@vm-manj
 之后的 c = Cons(RefCell { value: 4 }, Cons(RefCell { value: 15 }, Nil))
 ```
 
-这样的技巧是相当整洁的！通过使用 `RefCell<T>`，咱们就有了对外不可变的 `List` 值（an outwardly immutable `List` value）。而由于咱们可以使用 `RefCell<T>` 上提供了对其内部可变性访问的那些方法，因此就可以在需要的时候修改一些数据。运行时的借用规则检查，保护了咱们免于数据竞争，而有的时候为了数据结构中的此种灵活性，是值得拿运行速度来换取的。请注意 `RefCell<T>` 对于多线程代码是不生效的！`Mutex<T>` 即为线程安全版本的 `RefCell<T>`，而在第 16 章咱们就会讨论到 `Mutex<T>`。
+这个技巧非常整洁! 通过使用 `RefCell<T>`，我们有一个对外不可变的 `List` 值。但是我们可以使用 `RefCell<T>` 上提供对其内部可变性访问的方法，这样我们就可以在需要的时候修改我们的数据。借用规则的运行时检查可以保护我们不受数据竞赛的影响，有时值得用一点速度来换取我们数据结构中的这种灵活性。请注意，`RefCell<T>` 对多线程代码不起作用! `Mutex<T>` 是 `RefCell<T>` 的线程安全版本，我们将在第 16 章讨论 `Mutex<T>`。
 
 
-## 引用循环会泄露内存
+## 引用循环可能会泄露内存
 
 **Reference Cycles Can Leak Memory**
 
-Rust 的内存安全，确保的是难于，但并非不可能，意外创建出绝不会被清理的内存（即所谓的 *内存泄露，memory leak*）。完全防止内存泄露，不是 Rust 那些保证之一，这就意味着在 Rust 中，内存泄露即为内存安全的（preventing memory leaks entirely is not one of Rust's gurantees, meaning memory leaks are memory safe in Rust）。通过使用 `Rc<T>` 及 `RefCell<T>` 就能发现，Rust 是允许内存泄露的：创建出其中以循环方式，指向对方的一些引用是有可能的。由于循环中各个引用条目的引用计数，将永远到不了 `0`，而这些值就永远不会被弃用，这就创造了内存泄露。
+Rust 的内存安全保证，使得意外创建出从未清理过的内存（称为 *内存泄漏，memory leak*）很难，但并非不可能。完全防止内存泄漏不是 Rust 的保证之一，这意味着内存泄漏在 Rust 中是内存安全的。通过使用 `Rc<T>` 和 `RefCell<T>`，我们可以看到 Rust 允许内存泄漏：创建出其中项目在循环中相互指向的引用是可能的。这会造成内存泄漏，因为循环中各个项目的引用计数永远不会达到 0，而值永远不会被弃用。
 
 
-### 创建出循环引用
+### 创建引用循环
 
 **Creaing a Reference Cycle**
 
