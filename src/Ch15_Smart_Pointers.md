@@ -1049,26 +1049,7 @@ Rust 的内存安全保证，使得意外创建出从未清理过的内存（称
 文件名：`src/main.rs`
 
 ```rust
-use std::cell::RefCell;
-use std::rc::Rc;
-use crate::List::{Cons, Nil};
-
-#[derive(Debug)]
-enum List {
-    Cons(i32, RefCell<Rc<List>>),
-    Nil,
-}
-
-impl List {
-    fn tail(&self) -> Option<&RefCell<Rc<List>>> {
-        match self {
-            Cons(_, item) => Some(item),
-            Nil => None,
-        }
-    }
-}
-
-fn main() {}
+{{#include ../projects/ref_cycle_demo/src/main.rs::18}}
 ```
 
 *清单 15-25：包含 `RefCell<T>` 的构造列表定义，因此我们可以修改 `Cons` 变种指向的内容*
@@ -1081,29 +1062,7 @@ fn main() {}
 文件名：`src/main.rs`
 
 ```rust
-fn maiN() {
-    let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));
-
-    println! ("a 的初始 rc 计数 = {}", Rc::strong_count(&a));
-    println! ("a 的下一条目 = {:?}", a.tail());
-
-    let b = Rc::new(Cons(10, RefCell::new(Rc::clone(&a))));
-
-    println! ("b 的创建后 a 的 rc 计数 = {}", Rc::strong_count(&a));
-    println! ("b 的初始 rc 计数 = {}", Rc::strong_count(&b));
-    println! ("b 的下一条目 = {:?}", b.tail());
-
-    if let Some(link) = a.tail() {
-        *link.borrow_mut() = Rc::clone(&b);
-    }
-
-    println! ("在修改 a 之后 b 的 rc 计数 = {}", Rc::strong_count(&b));
-    println! ("在修改 a 之后 a 的 rc 计数 = {}", Rc::strong_count(&a));
-
-    // 取消下面这行注释，就可以看到这里有着循环引用；
-    // 他将溢出堆栈（it will overflow the stack）
-    // println! ("a 的下一条目 = {:?}", a.tail());
-}
+{{#include ../projects/ref_cycle_demo/src/main.rs:20:}}
 ```
 
 *清单 15-26：创建出相互指向的两个 `List` 的循环引用*
