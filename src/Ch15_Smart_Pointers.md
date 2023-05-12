@@ -1000,38 +1000,15 @@ error: test failed, to rerun pass `--lib`
 
 使用 `RefCell<T>` 的一种常见方式是与 `Rc<T>` 结合使用。回顾一下，`Rc<T>` 实现了某个数据的多个所有者，但只提供对数据的不可变访问。如果咱们有一个持有 `RefCell<T>` 的 `Rc<T>`，咱们可以得到一个可以有着多个所有者，*且* 咱们可以改变的值。
 
-比如，回顾清单 15-18 中的构造列表示例，咱们使用 `Rc<T>` 来实现多个列表共用另一列表所有权。由于 `Rc<T>` 只保存不可变值，因此一旦咱们创建出列表中的任何值，咱们就不能改变他们。咱们来加入 `RefCell<T>`，以获得修改列表中值的能力。下面清单 15-24 显示，通过在 `Cons` 定义中使用 `RefCell<T>`，咱们可以修改所有列表中存储的值：
+比如，回顾清单 15-18 中的构造列表示例，咱们使用 `Rc<T>` 来实现多个列表共用另一列表所有权。由于 `Rc<T>` 只保存不可变值，因此一旦咱们创建出列表中的任何值，咱们就再也不能改变他们。咱们来加入 `RefCell<T>`，以获得修改列表中值的能力。下面清单 15-24 显示，通过在 `Cons` 定义中使用 `RefCell<T>`，咱们可以修改所有列表中存储的值：
 
 文件名：`src/main.rs`
 
 ```rust
-#[derive(Debug)]
-enum List {
-    Cons(Rc<RefCell<i32>>, Rc<List>),
-    Nil,
-}
-
-use crate::List::{Cons, Nil};
-use std::cell::RefCell;
-use std::rc::Rc;
-
-fn main() {
-    let value = Rc::new(RefCell::new(5));
-
-    let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
-
-    let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
-    let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
-
-    *value.borrow_mut() += 10;
-
-    println! ("之后的 a = {:?}", a);
-    println! ("之后的 b = {:?}", b);
-    println! ("之后的 c = {:?}", c);
-}
+{{#include ../projects/cons_list_demo/src/main.rs}}
 ```
 
-*清单 15-24：运用 `Rc<RefCell<i32>>` 创建出可改变的 `List`*
+*清单 15-24：使用 `Rc<RefCell<i32>>` 创建咱们可改变的 `List`*
 
 这里创建了为 `Rc<RefCell<i32>>` 类型实例的一个值，并将其存储在名为 `value` 的一个变量中，如此咱们就可以在稍后直接访问他。接着这里在 `a` 中，创建了有着保存了 `value` 的 `Cons` 变种的一个 `List`。这里需要克隆 `value`，这样 `a` 与 `value` 都会有着那个内层值 `5` 的所有权，而非将所有权从 `value` 转移到 `a` 或让 `a` 从 `value` 借用。
 
