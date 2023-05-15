@@ -1119,7 +1119,7 @@ b 的下一条目 = Some(RefCell { value: Cons(5, RefCell { value: Nil }) })
 
 **Creating a Tree Data Structure: a Node with Child Nodes**
 
-作为开头，这里将构建有着了解其子节点的一些节点。这里将创建出一个名为 `Node` 的结构体，保存着自身的 `i32` 值，以及到其子 `Node` 值的一些引用。
+首先，我们将构建一棵树，其中的节点知道他们的子节点。我们将创建一个名为 `Node` 的结构体，他拥有自己的 `i32` 值以及对其子 `Node` 值的引用：
 
 文件名：`src/main.rs`
 
@@ -1133,6 +1133,8 @@ struct Node {
     children: RefCell<Vec<Rc<Node>>>,
 }
 ```
+
+我们希望 `Node` 拥有他的子节点，并且我们希望与变量共用该所有权，以便咱们可以直接访问树中的每个 `Node`。为此，我们将 `Vec<T>` 项定义为 `Rc<Node>` 类型的值。我们还打算修改那些是另一节点的子节点的节点，因此我们在 `Vec<Rc<Node>>` 周围、`children` 字段中有一个 `RefCell<T>`。
 
 这里要的是某个 `Node` 拥有其子节点，并想要以一些变量，来共用那样的所有权，从而就可以直接访问树中的各个 `Node`（we want a `Node` to own its children, and we want to share that ownership with variables so we can access each `Node` in the tree directly）。为了完成这一点，这里把其中的那些 `Vec<T>` 条目，定义为了类型 `Rc<Node>` 的一些值。这里还打算修改哪些节点是另一节点的子节点，因此这里就有一个在 `children` 字段中，包裹着 `Vec<Rc<Node>>` 的 `RefCell<T>`。
 
