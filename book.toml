@@ -12,6 +12,7 @@ additional-css = ["theme/pagetoc.css"]
 additional-js  = ["theme/pagetoc.js"]
 git-repository-url = "https://github.com/gnu4cn/rust-lang-zh_CN"
 git-repository-icon = "fa-github"
+google-analytics="G-1D4GZBE5C5"
 
 [output.html.print]
 enable = false
