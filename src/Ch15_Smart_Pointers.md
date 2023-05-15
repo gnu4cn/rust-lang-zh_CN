@@ -1099,21 +1099,26 @@ b 的下一条目 = Some(RefCell { value: Cons(5, RefCell { value: Nil }) })
 
 创建引用循环不容易做到，但也不是不可能。如果咱们有着其中包含 `Rc<T>` 值的 `RefCell<T>` 值，或类似的带有内部可变性与引用计数类型的嵌套组合，咱们必须确保不创建循环；咱们不能依靠 Rust 来捕获他们。创建引用循环将是咱们程序中的逻辑错误，咱们应该使用自动测试、代码审查和其他软件开发实践来减少这种错误。
 
-另一避免引用循环的办法是重新组织咱们的数据结构，使一些引用表达所有权，而一些引用不表达。因此，咱们可以拥有由一些所有权关系和一些非所有权关系组成的循环，而只有所有权关系会影响一个值是否可以被丢弃。在清单 15-25 中，我们总是希望 `Cons` 变体拥有他们的列表，所以重新组织数据结构是不可能的。咱们来看一个使用由父节点和子节点组成的图的示例，看看什么时候非所有权关系是防止引用循环的合适方式。
+另一避免引用循环的办法是重新组织咱们的数据结构，使一些引用表达所有权，而一些引用不表达。由此，咱们可以有由一些所有权关系和一些非所有权关系组成的循环，而只有所有权关系会影响一个值是否可以被丢弃。在清单 15-25 中，我们总是希望 `Cons` 变体拥有他们的列表，所以重新组织数据结构是不可能的。咱们来看一个使用由父节点和子节点组成的图的示例，看看什么时候非所有权关系是防止引用循环的合适方式。
 
 
-### 防止引用循环：将 `Rc<T>` 转变为 `Weak<T>`
+### 防止引用循环：将 `Rc<T>` 变为 `Weak<T>`
 
-到目前为止，咱们已经证实了调用 `Rc::clone` 会增加某个 `Rc<T>` 示例的 `strong_count`，同时 `Rc<T>` 示例只会在其 `strong_count` 为 `0` 时被清理掉。咱们还可以通过调用 `Rc::downgrade` 并传入一个到某个 `Rc<T>` 的引用，而创建出到该 `Rc<T>` 实例中值的 *弱引用，weak reference*。强引用是咱们可共用某个 `Rc<T>` 实例的方式。弱引用并不表示某种所有权关系，且在某个 `Rc<T>` 实例被清理掉时，他们的计数不会受影响。由于在一旦所涉及到那些值的强引用计数为 `0` 时，涉及到弱引用的全部循环都将被破坏，因此弱引用就不会导致循环引用（weak references don't express an ownership relationship, and their count doesn't affect when an `Rc<T>` instance is cleaned up. They won't cause a reference cycle because any cycle involving some weak references will be broken once the strong reference count of values involved is `0`）。
+**Preventing Referencing Cycles: Turning an `Rc<T>` into `Weak<T>`**
 
-在调用 `Rc::downgrade` 时，就会得到类型 `Weak<T>` 的灵巧指针。调用 `Rc::downgrade` 不是把 `Rc<T>` 实例中的 `strong_count` 加 `1`，而是把 `weak_count` 加 `1`。与 `strong_count` 类似，`Rc<T>` 类型使用 `weak_count` 来追踪存在多少个 `Weak<T>`。不同之处在于，对于 `Rc<T>` 的被清理，是无需 `weak_count` 为 `0` 的。
+到目前为止，我们已经证明了调用 `Rc::clone` 会增加 `Rc<T>` 实例的 `strong_count`，而 `Rc<T>` 实例只有在其 `strong_count` 为 `0` 时才会被清理掉。咱们还可以通过调用 `Rc::downgrade` 并传递对 `Rc<T>` 的引用，来创建对 `Rc<T>` 实例中值的 *弱引用，weak reference*。强引用是咱们共用 `Rc<T>` 实例所有权的方式。弱引用不表达所有权关系，他们的计数不会影响 `Rc<T>` 实例被清理的时间。他们不会引起引用循环，因为任何涉及弱引用的循环，都会在所涉及的值的强引用计数为 `0` 时被打破。
 
-由于 `Weak<T>` 所引用的值，可能已被启用了，因此在以某个 `Weak<T>` 所指向值来完成任何事情时，咱们必须确保那个值仍是存在的。而要确保这一点，是通过在 `Weak<T>` 实例上调用 `upgrade` 方法实现的，该方法将返回一个 `Option<Rc<T>>` 值。在那个 `Rc<T>` 值尚未被弃用时，咱们就会得到一个 `Some` 的结果，而若那个 `Rc<T>` 值已被弃用，则就会得到 `None` 的结果。由于 `upgrade` 返回的是一个 `Option<Rc<T>>`，Rust 就将确保 `Some` 与 `None` 两种情形都被处理，进而就将不会有无效指针。
+当咱们调用 `Rc::downgrade` 时，咱们会得到一个 `Weak<T>` 类型的灵巧指针。调用 `Rc::downgrade` 不是将 `Rc<T>` 实例中的 `strong_count` 增加 `1`，而是将 `weak_count` 增加 `1`。与 `strong_count` 类似，`Rc<T>` 类型使用 `weak_count` 来记录存在多少个 `Weak<T>` 引用。不同的是，在 `Rc<T>` 实例被清理时，`weak_count` 不需要为 `0`。
 
-下面的示例，这里将创建其条目了解各自的子条目 *以及* 各自的父条目的一种树形数据结构，而非之前的其条目仅了解其下一条目的列表数据结构。
+由于 `Weak<T>` 所引用的值可能已被弃用，因此要对 `Weak<T>` 所指向的值执行任何操作，咱们都必须确保该值仍然存在。通过在 `Weak<T>` 实例上调用 `upgrade` 方法来做到这一点，他将返回一个 `Option<Rc<T>>`。如果 `Rc<T>` 的值还没有被弃用，咱们将得到一个 `Some` 的结果；如果 `Rc<T>` 的值已被弃用，咱们将得到一个 `None` 的结果。因为 `upgrade` 返回的是 `Option<Rc<T>>`，Rust会确保 `Some` 和 `None` 的情况都得到处理，而且不会出现无效的指针。
+
+作为一个例子，我们不是使用其项目只知道下一个项目的列表数据结构，而是将创建一个其项目会清楚其子项目 *和* 其父项目的树。
 
 
-**创建一种树形数据结构：有着字节点的节点, Creating a Tree Data Structure: a Node with Child Nodes**
+#### 创建一个树形数据结构：带有子节点的节点
+
+**Creating a Tree Data Structure: a Node with Child Nodes**
+
 
 作为开头，这里将构建有着了解其子节点的一些节点。这里将创建出一个名为 `Node` 的结构体，保存着自身的 `i32` 值，以及到其子 `Node` 值的一些引用。
 
@@ -1156,7 +1161,9 @@ fn main() {
 这里克隆了 `leaf` 中的 `Rc<Node>` 并将其存储在了 `branch` 中，表示 `leaf` 中的 `Node` 现在有了两个所有者：`leaf` 与 `branch`。这里就可以经由 `branch.children`，从 `branch` 到达 `leaf`，但并无从 `leaf` 到 `branch` 的途径。原因就在于 `leaf` 没有到 `branch` 的引用，而就不知道他们是相关的。这里想要 `leaf` 明白，`branch` 是其父节点。接下来就要完成这一点。
 
 
-**在子节点中添加到其父节点的引用，Adding a Reference from a Child to Its Parent**
+#### 在子节点中添加到其父节点的引用
+
+**Adding a Reference from a Child to Its Parent**
 
 要让那个字节点了解他的父节点，这里就需要添加一个 `parent` 字段到这里的 `Node` 结构体定义。麻烦在于确定出 `parent` 字段应为何种类型。咱们清楚他不能包含一个 `Rc<T>`，因为那样就会以 `leaf.parent` 指向 `branch` 且 `branch.children` 指向 `leaf`，而创建出循环引用，这将导致他们的 `strong_count` 值用不为零。
 
@@ -1286,7 +1293,7 @@ fn main() {
 管理这两种计数与值的弃用的全部逻辑，都被内建到了 `Rc<T>` 与 `Weak<T>`，以及二者的 `Drop` 特质实现中。通过在 `Node` 定义中，指明某个子节点到其父节点的关系，应为 `Weak<T>` 的引用，咱们就能够在不创建出循环引用与内存泄露之下，让父节点指向子节点，并反过来让子节点也指向父节点。
 
 
-## 本章小节
+## 本章小结
 
 本章涵盖了怎样运用灵巧指针，来做出相比与 Rust 默认在常规引用下，所做出的不同保证及权衡（this chapter covered how to use smart pointers to make different gurantees and trade-offs from those Rust makes by default with regular references）。其中的 `Box<T>` 类型，有着已知大小，并指向分配在内存堆上的数据。而 `Rc<T>` 类型，则对到内存堆上数据的引用数量加以追踪，因此那个数据变可以有多个所有者。`RefCell<T>` 类型，以其内部可变性，而给到在需要一种不可变类型，却又需要修改那种类型的内层值时，咱们可用的一种类型；这种类型还强制要求在运行时，而非编译时的借用规则检查。
 
