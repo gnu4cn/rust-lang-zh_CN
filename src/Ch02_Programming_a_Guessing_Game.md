@@ -1,21 +1,24 @@
-# 编写一个猜谜游戏
+# 编写猜数游戏
 
-现在就要通过一个动手项目，投身到 Rust 中！本章将通过给出如何在真实程序中使用几个常见 Rust 概念，而对他们进行介绍。将了解有关 `let`、`match` 关键字，方法、关联函数（associated functions）、使用外部 Rust 代码盒子（Rust crates），及更多的 Rust 概念！而在接下来的章节，就会对这些概念进行深入探索。在本章中，将会对基础知识进行实操。
+**Programming a Guessing Game**
 
-这里将实现一个经典的新手编程问题：猜谜游戏。他的工作运作机制为：程序将生成一个 1 到 100 之间的随机整数。随后将提示玩家输入猜测的数字。在玩家输入后，程序将表明猜测的数字是小了还是大了。在猜到正确的数字时，游戏就会打印出一条祝贺消息并推出。
+让我们通过一起完成一个实践项目来学习 Rust 吧! 本章介绍了一些常见的 Rust 概念，告诉咱们如何在一个真正的程序中使用他们。咱们将学习到 `let`、`match`、方法、关联函数、外部代码箱等！在接下来的章节中，我们将更详细地探讨这些概念。在这一章中，咱们将只是练习基础知识。
+
+我们将实现一个经典的初级编程问题：一个猜数游戏。他是这样工作的：程序将生成一个 `1` 到 `100` 之间的随机整数。然后他将提示玩家输入一个猜测。在输入猜测后，程序将显示猜测是否过低或过高。如果猜测正确，游戏将打印一条祝贺信息并退出。
 
 ## 建立一个新项目
 
-要建立新项目，就要前往第一章所创建出的 `projects` 目录，并使用 Cargo 构造一个新项目，像下面这样：
+要建立一个新的项目，请进入咱们在第一章中创建的 `projects` 目录，并使用 Cargo 构造一个新项目，像下面这样：
+
 
 ```console
 $ cargo new guessing_game
 $ cd guessing_game
 ```
 
-第一条命令，`cargo new`，取了项目名称（`guessing_game`）作第一个参数。而第二条命令则是前往到这个新项目的目录下。
+第一条命令，`cargo new`，把项目名称（`guessing_game`）作为第一个参数。而第二条命令则是前往到这个新项目的目录。
 
-来看看这个生成的 `Cargo.toml` 文件：
+看一下生成的 `Cargo.toml` 文件：
 
 文件名：`Cargo.toml`
 
@@ -30,7 +33,7 @@ edition = "2021"
 [dependencies]
 ```
 
-就跟在第 1 章中所看到的那样，`cargo new` 生成了一个 “Hello, world!” 的程序。检视那个 `src/main.rs` 文件：
+正如咱们在第 1 章中所看到的，`cargo new` 为咱们生成了一个 "Hello, world!" 程序。请看 `src/main.rs` 文件：
 
 文件名：`src/main.rs`
 
@@ -40,19 +43,19 @@ fn main() {
 }
 ```
 
-现在就来使用 `cargo run` 命令，在同一个步骤中编译这个 “Hello, world!” 程序并运行他：
+现在我们来使用 `cargo run` 命令，在同一步骤编译并运行这个 "Hello, world!" 程序：
 
 ```console
-$ cargo run                                                                                   ✔ 
+$ cargo run
    Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
     Finished dev [unoptimized + debuginfo] target(s) in 0.44s
      Running `target/debug/guessing_game`
 Hello, world!
 ```
 
-在需要在项目上进行快速迭代时，这个 `run` 命令用起来就相当顺手了，这正是这里在这个游戏中将要做的，在前往下一迭代之前，对每次迭代进行快速测试。
+当咱们需要快速迭代项目时，`run` 命令就会派上用场，就像我们在这个游戏中所做的那样，在继续下一个迭代之前快速测试每个迭代。
 
-请再次打开这个 `src/main.rs` 文件。即将在这个文件中编写所有的代码。
+重新打开 `src/main.rs` 文件。咱们将在这个文件中编写所有的代码。
 
 ## 处理一次猜数
 
