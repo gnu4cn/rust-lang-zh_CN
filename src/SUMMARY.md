@@ -7,7 +7,7 @@
 
 - [入门](Ch01_Getting_Started.md)
 
-- [编写一个猜数游戏](Ch02_Programming_a_Guessing_Game.md)
+- [编写猜数游戏](Ch02_Programming_a_Guessing_Game.md)
 
 - [常见编程概念](Ch03_Common_Programming_Concepts.md)
 
