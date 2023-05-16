@@ -1203,12 +1203,16 @@ struct Node {
 叶子节点的父节点 = None
 ```
 
-在创建那个 `branch` 节点时，由于 `branch` 没有父节点，他也将有一个 `parent` 字段中的新 `Weak<Node>` 引用。这里仍将 `leaf` 作为 `branch` 的子节点之一。一旦咱们有了 `branch` 变量中的那个 `Node` 实例，就可以修改 `leaf`，来给到他一个到其父节点的 `Weak<Node>` 引用。这里使用了 `leaf` 的 `parent` 字段中，`RefCell<Weak<Node>>` 上的 `borrow_mut` 方法，并于随后使用了 `Rc::downgrade` 函数，来子 `branch` 变量中的那个 `Rc<Node>`，创建出到 `branch` 的 `Weak<Node>` 引用。
 
-当咱们再度打印 `leaf` 的父节点时，这次就会得到保存着 `branch` 的一个 `Some` 变种：现在 `leaf` 就可以访问其父节点了！在打印 `leaf` 时，同样避免了清单 15-26 中曾有过的，最终以栈一出而告终的那个循环引用；其中的 `Weak<Node>` 引用，是作为 `(Weak)` 被打印出的：
+当我们创建 `branch` 节点时，他在 `parent` 字段中也会有一个新的 `Weak<Node>` 引用，因为 `branch` 没有父节点。我们仍然将 `leaf` 作为 `branch` 的子节点之一。一旦我们在 `branch` 中有了 `Node` 实例，我们就可以修改 `leaf` 来给他一个到其父节点的 `Weak<Node>` 引用。我们在 `leaf` 的 `parent` 字段中的 `RefCell<Weak<Node>` 上使用 `borrow_mut` 方法，然后我们使用 `Rc::downgrade` 函数从 `branch` 中的 `Rc<Node>` 创建一个对 `branch` 的 `Weak<Node>` 引用。
+
+当我们再次打印 `leaf` 的父节点时，这次我们会得到一个持有 `branch` 的 `Some` 变体：现在 `leaf` 可以访问他的父节点了! 当我们打印 `leaf` 时，我们也避免了像清单 15-26 中那样最终以栈溢出结束的循环；`Weak<Node>` 引用被打印为 `（Weak）`：
+
 
 ```console
-叶子节点的父节点 = Some(Node { value: 5, parent: RefCell { value: (Weak) }, children: RefCell { value: [Node { value: 3, parent: RefCell { value: (Weak) }, children: RefCell { value: [] } }] } })
+叶子节点的父节点 = Some(Node { value: 5, parent: RefCell { value: (Weak) },
+children: RefCell { value: [Node { value: 3, parent: RefCell { value: (Weak) },
+children: RefCell { value: [] } }] } })
 ```
 
 没有了无限输出，就表示此代码并未创建出循环引用。咱们还可以通过查看从调用 `Rc::strong_count` 与 `Rc::weak_count` 得到的值，来说明这一点。
