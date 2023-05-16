@@ -1189,33 +1189,15 @@ struct Node {
 文件名：`src/main.rs`
 
 ```rust
-fn main() {
-    let leaf = Rc::new(Node {
-        value: 3,
-        parent: RefCell::new(Weak::new()),
-        children: RefCell::new(vec! []),
-    });
-
-    println! ("叶子节点的父节点 = {:?}", leaf.parent.borrow().upgrade());
-
-    let branch = Rc::new(Node {
-        value: 5,
-        parent: RefCell::new(Weak::new()),
-        children: RefCell::new(vec! [Rc::clone(&leaf)]),
-    });
-
-    *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
-
-    println! ("叶子节点的父节点 = {:?}", leaf.parent.borrow().upgrade());
-}
+{{#include ../projects/tree_demo/src/main.rs:11:}}
 ```
 
 *清单 15-28：对其父节点 `branch` 有弱引用的 `leaf` 节点*
 
+创建 `leaf` 节点看起来与清单 15-27 相似，除了父字段：`leaf` 开始时没有父节点，所以我们创建一个新的、空的 `Weak<Node>` 引用实例。
 
-这个 `leaf` 节点的创建，与清单 15-27 类似，除了其中的 `parent` 字段：`leaf` 以不带父节点开始，因此这里创建了一个新的、空 `Weak<Node>` 引用实例。
+此时，当我们试图通过使用 `upgrade` 方法来获得对 `leaf` 的父节点的引用时，我们得到的是一个 `None` 值。我们在第一个 `println!` 语句的输出中看到了这一点：
 
-到这里，在咱们尝试通过使用 `upgrade` 方法，获取 `leaf` 的父节点的引用时，就会得到一个 `None` 值。在首个 `println!` 语句的输出中，就看到了这点：
 
 ```console
 叶子节点的父节点 = None
