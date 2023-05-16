@@ -1136,9 +1136,7 @@ struct Node {
 
 我们希望 `Node` 拥有他的子节点，并且我们希望与变量共用该所有权，以便咱们可以直接访问树中的每个 `Node`。为此，我们将 `Vec<T>` 项定义为 `Rc<Node>` 类型的值。我们还打算修改那些是另一节点的子节点的节点，因此我们在 `Vec<Rc<Node>>` 周围、`children` 字段中有一个 `RefCell<T>`。
 
-这里要的是某个 `Node` 拥有其子节点，并想要以一些变量，来共用那样的所有权，从而就可以直接访问树中的各个 `Node`（we want a `Node` to own its children, and we want to share that ownership with variables so we can access each `Node` in the tree directly）。为了完成这一点，这里把其中的那些 `Vec<T>` 条目，定义为了类型 `Rc<Node>` 的一些值。这里还打算修改哪些节点是另一节点的子节点，因此这里就有一个在 `children` 字段中，包裹着 `Vec<Rc<Node>>` 的 `RefCell<T>`。
-
-接下来，这里就将使用这个结构体定义，并创建出有着值 `3` 而没有子节点的一个名为 `leaf` 的 `Node` 实例，以及另一个有着值 `5` 及将 `leaf` 作为其子节点的 `branch` 实例，如下清单 15-27 中所示：
+接下来，我们将使用我们的结构体定义，创建一个名为 `leaf` 的 `Node` 实例，其值为 `3`，没有子节点；另一个名为 `branch` 的实例，其值为 `5`，`leaf` 是其子节点之一，如下清单 15-27 所示：
 
 文件名：`src/main.rs`
 
@@ -1156,21 +1154,21 @@ fn main() {
 }
 ```
 
-*清单 15-27：创建出没有子节点的一个 `leaf` 节点及将 `leaf` 作为其一个子节点的 `branch` 节点*
+*清单 15-27：创建一个没有子节点的 `leaf` 节点和一个以 `leaf` 作为其子节点之一的 `branch` 节点*
 
-
-这里克隆了 `leaf` 中的 `Rc<Node>` 并将其存储在了 `branch` 中，表示 `leaf` 中的 `Node` 现在有了两个所有者：`leaf` 与 `branch`。这里就可以经由 `branch.children`，从 `branch` 到达 `leaf`，但并无从 `leaf` 到 `branch` 的途径。原因就在于 `leaf` 没有到 `branch` 的引用，而就不知道他们是相关的。这里想要 `leaf` 明白，`branch` 是其父节点。接下来就要完成这一点。
+我们克隆了 `leaf` 中的 `Rc<Node>` 并将其存储在 `branch` 中，这意味着 `leaf` 中的 `Node` 现在有两个所有者：`leaf` 和 `branch`。我们可以通过 `branch.children` 从 `branch` 获取到 `leaf`，但是没有办法从 `leaf` 获取到 `branch`。原因是 `leaf` 没有对 `branch` 的引用，不知道他们之间的关系。我们想让 `leaf` 知道 `branch` 是他的父节点。下一步我们将这样做。
 
 
 #### 在子节点中添加到其父节点的引用
 
 **Adding a Reference from a Child to Its Parent**
 
-要让那个字节点了解他的父节点，这里就需要添加一个 `parent` 字段到这里的 `Node` 结构体定义。麻烦在于确定出 `parent` 字段应为何种类型。咱们清楚他不能包含一个 `Rc<T>`，因为那样就会以 `leaf.parent` 指向 `branch` 且 `branch.children` 指向 `leaf`，而创建出循环引用，这将导致他们的 `strong_count` 值用不为零。
+为了让子节点知道他的父节点，我们需要在我们的 `Node` 结构体定义中添加一个父节点字段。问题在于确定出父节点的类型是什么。我们知道他不能包含一个 `Rc<T>`，因为这将创建一个引用循环，即 `leaf.parent` 指向 `branch`，而 `branch.children` 指向 `leaf`，这将导致他们的 `strong_count` 值永远为 0。
 
-以另外一种方式，来设想这样的关系，父节点因拥有他的子节点：在父节点被弃用时，他的那些子节点也应被弃用。然而，子节点则不应拥有他的父节点：在咱们弃用某个子节点时，那个父节点应存在。这正是弱引用的情况！
+以另一种方式思考这些关系，一个父节点应该拥有他的子节点：如果一个父节点被弃用，他的子节点也应该被弃用。然而，一个子节点不应该拥有他的父节点：如果我们弃用某个子节点，父节点应该仍然存在。这就是弱引用的情况！
 
-因此这里将把 `parent` 字段的类型，构造为使用 `Weak<T>`，具体而言就是 `RefCell<Weak<Node>>`，而非 `Rc<T>`。现在这个 `Node` 结构体定义看起来像下面这样：
+因此，我们将使用 `Weak<T>` 代替 `Rc<T>`，具体来说是 `RefCell<Weak<Node>>`。现在我们的节点结构定义如下所示：
+
 
 文件名：`src/main.rs`
 
@@ -1186,7 +1184,7 @@ struct Node {
 }
 ```
 
-节点将能够引用他的副节点，而不拥有父节点。在下面清单 15-28 中，把 `main` 更新为使用这个新定义，进而 `leaf` 节点将有引用其父节点，`branch` 的一种途径：
+节点将能够引用其父节点但不拥有其父节点。在下面清单 15-28 中，我们更新了 `main` 以使用这个新定义，这样 `leaf` 节点将有办法引用其父节点 `branch`：
 
 文件名：`src/main.rs`
 
@@ -1212,7 +1210,8 @@ fn main() {
 }
 ```
 
-*清单 15-28：带有到其父节点 `branch` 的弱引用的 `leaf` 节点*
+*清单 15-28：对其父节点 `branch` 有弱引用的 `leaf` 节点*
+
 
 这个 `leaf` 节点的创建，与清单 15-27 类似，除了其中的 `parent` 字段：`leaf` 以不带父节点开始，因此这里创建了一个新的、空 `Weak<Node>` 引用实例。
 
