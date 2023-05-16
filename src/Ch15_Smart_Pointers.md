@@ -1189,7 +1189,25 @@ struct Node {
 文件名：`src/main.rs`
 
 ```rust
-{{#include ../projects/tree_demo/src/main.rs:11:}}
+fn main() {
+    let leaf = Rc::new(Node {
+        value: 3,
+        parent: RefCell::new(Weak::new()),
+        children: RefCell::new(vec! []),
+    });
+
+    println! ("叶子节点的父节点 = {:?}", leaf.parent.borrow().upgrade());
+
+    let branch = Rc::new(Node {
+        value: 5,
+        parent: RefCell::new(Weak::new()),
+        children: RefCell::new(vec! [Rc::clone(&leaf)]),
+    });
+
+    *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
+
+    println! ("叶子节点的父节点 = {:?}", leaf.parent.borrow().upgrade());
+}
 ```
 
 *清单 15-28：对其父节点 `branch` 有弱引用的 `leaf` 节点*
@@ -1203,7 +1221,6 @@ struct Node {
 叶子节点的父节点 = None
 ```
 
-
 当我们创建 `branch` 节点时，他在 `parent` 字段中也会有一个新的 `Weak<Node>` 引用，因为 `branch` 没有父节点。我们仍然将 `leaf` 作为 `branch` 的子节点之一。一旦我们在 `branch` 中有了 `Node` 实例，我们就可以修改 `leaf` 来给他一个到其父节点的 `Weak<Node>` 引用。我们在 `leaf` 的 `parent` 字段中的 `RefCell<Weak<Node>` 上使用 `borrow_mut` 方法，然后我们使用 `Rc::downgrade` 函数从 `branch` 中的 `Rc<Node>` 创建一个对 `branch` 的 `Weak<Node>` 引用。
 
 当我们再次打印 `leaf` 的父节点时，这次我们会得到一个持有 `branch` 的 `Some` 变体：现在 `leaf` 可以访问他的父节点了! 当我们打印 `leaf` 时，我们也避免了像清单 15-26 中那样最终以栈溢出结束的循环；`Weak<Node>` 引用被打印为 `（Weak）`：
@@ -1215,76 +1232,40 @@ children: RefCell { value: [Node { value: 3, parent: RefCell { value: (Weak) },
 children: RefCell { value: [] } }] } })
 ```
 
-没有了无限输出，就表示此代码并未创建出循环引用。咱们还可以通过查看从调用 `Rc::strong_count` 与 `Rc::weak_count` 得到的值，来说明这一点。
+没有无限的输出表明这段代码没有创建引用循环。我们也可以通过查看调用 `Rc::strong_count` 和 `Rc::weak_count` 得到的值来判断这一点。
 
 
-**`strong_count` 与 `weak_count` 变化的直观表示，Visualizing Changes to `strong_count` and `weak_count`**
+#### 可视化 `strong_count` 和 `weak_count` 的变化
 
-下面来看看这些 `Rc<Node>` 实例，是怎样通过创建出新的内层作用域，并将 `branch` 定义迁移到那个作用域而变化的。通过这样做，咱们就可以看到在 `branch` 被创建出，及在其超出作用域而被弃用时，会发生什么。下面清单 15-29 中给出了这些修改：
+**Visualizing Changes to `strong_count` and `weak_count`**
+
+咱们来看看通过创建一个新的内部作用域并将 `branch` 的创建移到该作用域中，`Rc<Node>` 实例的 `strong_count` 和 `weak_count` 值如何变化。通过这样做，我们可以看到在 `branch` 被创建后，当他离开作用域时，会发生什么。修改部分如下清单 15-29 所示：
 
 文件名：`src/main.rs`
 
 ```rust
-fn main() {
-    let leaf = Rc::new(Node {
-        value: 3,
-        parent: RefCell::new(Weak::new()),
-        children: RefCell::new(vec! []),
-    });
-
-    println! (
-        "叶子节点的强引用计数：{}，弱引用计数：{}\n",
-        Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
-    );
-
-    {
-        let branch = Rc::new(Node {
-            value: 5,
-            parent: RefCell::new(Weak::new()),
-            children: RefCell::new(vec! [Rc::clone(&leaf)]),
-        });
-
-        *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
-
-        println! (
-            "枝干节点的强引用计数：{}，弱引用计数：{}\n",
-            Rc::strong_count(&branch),
-            Rc::weak_count(&branch),
-        );
-        println! (
-            "叶子节点的强引用计数：{}，弱引用计数：{}\n",
-            Rc::strong_count(&leaf),
-            Rc::weak_count(&leaf),
-        );
-
-    }
-    println! ("叶子节点的父节点 = {:?}\n", leaf.parent.borrow().upgrade());
-    println! (
-        "叶子节点的强引用计数：{}，弱引用计数：{}\n",
-        Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
-    );
-}
+{{#include ../projects/tree_demo/src/main.rs:11:}}
 ```
 
-*清单 15-29：在内层作用域中创建 `branch` 并对那些强弱引用计数进行检查*
+*清单 15-29：在内层作用域中创建 `branch` 并检查强引用和弱引用计数*
 
-在 `leaf` 节点被创建出了后，其 `Rc<Node>` 便有了强引用计数 `1` 及弱引用计数 `0`。在那个内层作用域中，这里创建了 `branch` 并将其与 `leaf` 关联，在打印两种计数的那个时间点，`branch` 中 `Rc<Node>` 将有着强计数 `1` 与弱计数 `1`（由于 `leaf.parent` 以一个 `Weak<Node>` 指向了 `branch`）。在打印 `leaf` 中的两个计数时，由于 `branch` 现在有着存储在 `branch.childeren` 中，`leaf` 的 `Rc<Node>` 的一份克隆，因此咱们就会看到他将有着强引用计数 `2`，而他仍将有着弱引用计数 `0`。
+`leaf` 创建后，其 `Rc<Node>` 的 `strong count` 为 `1`，`weak count` 为 `0`。
 
-在那个内存作用域结束时，`brach` 就超出了作用域，而那个 `Rc<Node>` 的强引用计数就会降低到 `0`，因此他的 `Node` 就被丢弃了。源自 `leaf.parent` 的弱引用计数 `1`，与这个 `Node` 是否被弃用无关，因此这里就不会得到任何内存泄露！
+在内层作用域中，我们创建了 `branch` 并将其与 `leaf` 关联，此时当我们打印计数时， `branch` 中的 `Rc<Node>` 将有 `1` 的强计数和 `1` 的弱计数（因为 `leaf.parent` 指向 `branch` 的是 `Weak<Node>`）。当我们打印 `leaf` 中的计数时，我们将看到他的强计数为 `2`，因为 `branch` 现在有一个保存在 `branch.children` 中的 `leaf` 的 `Rc<Node>` 的克隆，但仍然会有一个弱计数为 `0`。
 
-在那个内层作用域结束之后，若咱们尝试访问 `leaf` 的父节点，就将再度得到 `None`。在该程序结束处，由于变量 `leaf` 此时又仅是到那个 `Rc<Node>` 的唯一引用，因此他里面的 `Rc<Node>`，将有着强引用计数 `1` 与弱引用计数 `0`。
+当内层作用域结束时，`branch` 超出作用域，`Rc<Node>` 的强计数减少到 `0`，所以他的 `Node` 被弃用。来自 `leaf.parent` 的弱计数 `1` 对 `Node` 是否被弃用没有影响，所以我们没有任何内存泄露！
 
-管理这两种计数与值的弃用的全部逻辑，都被内建到了 `Rc<T>` 与 `Weak<T>`，以及二者的 `Drop` 特质实现中。通过在 `Node` 定义中，指明某个子节点到其父节点的关系，应为 `Weak<T>` 的引用，咱们就能够在不创建出循环引用与内存泄露之下，让父节点指向子节点，并反过来让子节点也指向父节点。
+如果我们在作用域结束后试图访问 `leaf` 的父节点，我们会再次得到 `None`。在程序结束时，`leaf` 中的 `Rc<Node>` 的强计数为 `1`，弱计数为 `0`，因为现在变量 `leaf` 又是对 `Rc<Node>` 的唯一引用。
+
+所有管理计数和值弃用的逻辑，都内置于 `Rc<T>` 和 `Weak<T>` 及他们的 `Drop` 特质实现中。通过在 `Node` 的定义中指定子节点与其父节点的关系应是 `Weak<T>` 引用，咱们可以让父节点指向子节点，反之亦然，而不会产生引用循环和内存泄漏。
 
 
 ## 本章小结
 
-本章涵盖了怎样运用灵巧指针，来做出相比与 Rust 默认在常规引用下，所做出的不同保证及权衡（this chapter covered how to use smart pointers to make different gurantees and trade-offs from those Rust makes by default with regular references）。其中的 `Box<T>` 类型，有着已知大小，并指向分配在内存堆上的数据。而 `Rc<T>` 类型，则对到内存堆上数据的引用数量加以追踪，因此那个数据变可以有多个所有者。`RefCell<T>` 类型，以其内部可变性，而给到在需要一种不可变类型，却又需要修改那种类型的内层值时，咱们可用的一种类型；这种类型还强制要求在运行时，而非编译时的借用规则检查。
+本章介绍了如何使用灵巧指针来进行与 Rust 默认的普通引用不同的保证和取舍。`Box<T>` 类型有一个已知的大小，指向在内存堆上分配的数据。`Rc<T>` 类型记录了对内存堆上数据的引用数量，因此数据可以有多个所有者。`RefCell<T>` 类型及其内部可变性为我们提供了一种类型，当我们需要不可变类型但需要改变该类型的内部值时，我们可以使用这种类型；他还在运行时而不是在编译时强制执行借用规则。
 
-本章还讨论了 `Deref` 与 `Drop` 两个特质，他们实现了灵巧指针的很多功能。这里探讨了可导致内存泄露的循环引用，以及怎样运用 `Weak<T>` 来防止他们。
+我们还讨论了 `Deref` 和 `Drop` 特质，这两个特质实现了灵巧指针的很多功能。我们探讨了可能导致内存泄露的引用循环以及如何使用 `Weak<T>` 来防止它们。
 
-若这一章激发了你的兴趣，而打算实现自己的灵巧指针，那么请查看 [The Rustonomicon](https://doc.rust-lang.org/nomicon/index.html) 了解更多有用信息。
+如果本章引起了你的兴趣，并且你想实现你自己的智能指针，请查看 ["The Rustonomicon"](https://doc.rust-lang.org/nomicon/index.html) ，以获得更多有用的信息。
 
-接下来，咱们就将谈谈 Rust 中的并发问题了。咱们将了解到少数几个新的灵巧指针。
+接下来，我们将讨论 Rust 中的并发问题。咱们甚至会了解到一些新的灵巧指针。
