@@ -224,7 +224,7 @@ fn main() {
 **<small>表 B-4：泛型</small>**
 
 | 符号 | 说明 |
-| ：--- | ：--- |
+| :-- | :-- |
 | `path<...>` | 指明类型中的泛型参数（比如，`Vec<u8>`） |
 | `path::<...>`, `method::<...>` | 指明表达式中泛型、函数或方法的参数；通常这被称作涡轮鱼语法，turbofish（比如，`"42".parse::<i32>()`，关于 Rust 的 turbofish 语法，请参考：[What is Rust's turbofish](https://techblog.tonsser.com/posts/what-is-rusts-turbofish)），[RUST 中的 turbofish 语法（一）](https://www.jianshu.com/p/9107685ece03) ... |
 | `fn ident<...> ...` | 定义出泛型函数 |
