@@ -232,7 +232,7 @@ fn main() {
 | `enum ident<...> ...` | 定义出泛型枚举 |
 | `impl<...> ...` | 定义出泛型实现 |
 | `for<...> type` | 高阶声明周期边界，higher-ranked lifetime bounds |
-| `type<ident=type>` | 其中一个或更多的关联类型有着指定赋值的某种泛型（a generic type where one or more associated types have specific assignments，比如，`Iterator<Item=T>`）
+| `type<ident=type>` | 其中一个或更多的关联类型有着指定赋值的某种泛型（a generic type where one or more associated types have specific assignments，比如，`Iterator<Item=T>`） |
 
 下表 B-5 展示了出现在使用特质边界的约束性泛型参数上下文中的一些符号，table B-5 shows symbols that appear in the context of constraining generic type parameters with trait bounds。
 
