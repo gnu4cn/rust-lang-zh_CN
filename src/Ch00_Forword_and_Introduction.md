@@ -155,4 +155,4 @@ Rust 语言希望也能支持许多其他用户；这里提到的只是一些最
 
 ## 本书的源码
 
-本书所产生的源码，可在 [Github: gnu4cn/rust-lang](https://github.com/gnu4cn/rust-lang-zh_CN/tree/main/projects) 下载到。
+本书所产生的源码，可在 [Github: gnu4cn/rust-lang](https://github.com/gnu4cn/rust-lang-zh_CN/releases/tag/v0.2.0) 下载到。
