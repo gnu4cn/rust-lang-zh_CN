@@ -2,4 +2,4 @@ book
 target
 Cargo.lock
 /index.html
-.tar.gz
+*.tar.gz
