@@ -17,6 +17,9 @@ google-analytics="G-1D4GZBE5C5"
 [output.html.print]
 enable = false
 
+[output.html.search]
+enable = false
+
 [output.html.favicon]
 png = true
 
