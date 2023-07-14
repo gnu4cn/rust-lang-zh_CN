@@ -22,5 +22,3 @@ enable = false
 
 [output.html.favicon]
 png = true
-
-[output.epub]
