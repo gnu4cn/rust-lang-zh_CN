@@ -85,13 +85,14 @@ fn main() {
 
 *清单 2-1，从用户获取到一个猜数并将其打印出来的代码*
 
-此代码包含了很多信息，那么这里就来一行一行的走一遍。要获取到用户输入并将结果打印出来，就需要将 `io` 输入/输出库带入到作用域中。而 `io` 库则是来自名为 `std` 的标准库：
+这段代码包含大量信息，让我们逐行查看。要获取用户输入，然后将结果打印输出，我们需要将这个 `io` 输入/输出库带入作用域。`io` 库来自标准库，即 `std`：
+
 
 ```rust
 use std::io;
 ```
 
-默认情况下，Rust 只有少数几个定义在标准库中、由标准库带入到每个程序的项目（by default, Rust has a few items defined in the standard library that it brings into the scope of every program）。这个集合被称为 Rust 序曲（`prelude`），在 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html) 中可找到全部的标准库 `prelude` 项目。
+默认情况下，Rust 在标准库中定义并纳入到每个程序作用域的一组项目。这组项目被称为 *前奏，prelude*，咱们可以在 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html) 中查看其中全部的 `prelude` 项目。
 
 在要使用的类型，不在 Rust 序曲集合中时，就必须将那个类型，显式地通过 `use` 语句带入到作用域中。`std::io` 库的使用，提供了数个有用特性，包括接收用户输入的能力。
 
