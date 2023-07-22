@@ -53,7 +53,7 @@ $ cargo run
 Hello, world!
 ```
 
-当咱们需要快速迭代项目时，`run` 命令就会派上用场，就像我们在这个游戏中所做的那样，在继续下一个迭代之前快速测试每个迭代。
+当咱们需要快速迭代项目时，`run` 命令就会派上用场，就像我们在这个游戏中所做的那样，在继续下一次迭代之前快速测试每个迭代。
 
 重新打开 `src/main.rs` 文件。咱们将在这个文件中编写所有的代码。
 
@@ -61,7 +61,7 @@ Hello, world!
 
 **Processing a Guess**
 
-这个猜数游戏的第一部分，将请求用户的输入、处理那个输入，进而检查该输入是否有着正确格式。这里将实现玩家输入一个猜数开始。请敲入清单 2-1 中的代码到 `src/main.rs` 里去。
+猜数游戏程序的第一部分将要求用户输入信息，处理输入的信息，并检查输入信息是否符合预期形式。首先，我们将允许玩家输入一个猜数。请在 `src/main.rs` 中输入清单 2-1 中的代码。
 
 文件名：`src/main.rs`
 
@@ -186,7 +186,7 @@ io::stdin().read_line(&mut guess).expect("读取输入失败");
 若这里没有对 `expect` 方法进行调用，那么该程序会编译，不过会收到一条告警信息：
 
 ```console
-$ cargo build                                                                                    ✔ 
+$ cargo build                                                                                    ✔
    Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
 warning: unused `Result` that must be used
   --> src/main.rs:10:5
@@ -232,7 +232,7 @@ println! ("x = {} 同时 y = {}", x, y);
 下面就来测试一下这猜数游戏的第一部分。用 `cargo run` 运行他：
 
 ```console
-$ cargo run                ✔ 
+$ cargo run                ✔
    Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
     Finished dev [unoptimized + debuginfo] target(s) in 0.68s
      Running `target/debug/guessing_game`
@@ -289,7 +289,7 @@ $ cargo build
 *清单 2-2-1：在添加了作为依赖的 `rand` 代码箱后运行 `cargo build` 的输出（书上的输出）*
 
 ```console
-$ cargo build                                                      ✔ 
+$ cargo build                                                      ✔
     Updating crates.io index
   Downloaded cfg-if v1.0.0
   Downloaded rand_chacha v0.3.1
@@ -321,14 +321,14 @@ $ cargo build                                                      ✔
 若不做任何修改，就立即再次运行 `cargo build`，那么除了那行 `Finished` 输出之外，就再也没有别的输出了。Cargo 明白他以及下载并编译好了那些依赖，还明白尚未对 `Cargo.toml` 文件做任何修改。Cargo 还知道，这里并未对项目代码做任何修改，因此他也没有对项目代码重新编译。既然无事可做，那么他就直接退出了。
 
 ```console
-$ cargo build                                                            ✔ 
+$ cargo build                                                            ✔
     Finished dev [unoptimized + debuginfo] target(s) in 0.00s
 ```
 
 若此时打开 `src/main.rs` 文件，做个细微修改，然后保存并再次构建，那么就只会看到下面这两行输出:
 
 ```console
-cargo build                                                            ✔ 
+cargo build                                                            ✔
    Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
     Finished dev [unoptimized + debuginfo] target(s) in 0.50s
 ```
@@ -408,7 +408,7 @@ fn main() {
 尝试运行几次这个程序：
 
 ```console
-$ cargo run                                                           ✔  4s  
+$ cargo run                                                           ✔  4s 
    Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
     Finished dev [unoptimized + debuginfo] target(s) in 0.54s
      Running `target/debug/guessing_game`
@@ -418,7 +418,7 @@ $ cargo run                                                           ✔ 
 86
 你猜的数为：86
 
-$ cargo run                                                           ✔  9s  
+$ cargo run                                                           ✔  9s 
     Finished dev [unoptimized + debuginfo] target(s) in 0.00s
      Running `target/debug/guessing_game`
 猜出这个数来！
@@ -468,7 +468,7 @@ fn main() {
 然而清单 2-4 中的代码并不会编译。这里试着编译一下：
 
 ```console
-$ cargo build                                                         ✔ 
+$ cargo build                                                         ✔
    Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
 error[E0308]: mismatched types
   --> src/main.rs:22:21
@@ -524,7 +524,7 @@ let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
 现在来运行一下这个程序！
 
 ```console
-$ cargo run                                                       101 ✘  3s  
+$ cargo run                                                       101 ✘  3s 
     Finished dev [unoptimized + debuginfo] target(s) in 0.00s
      Running `target/debug/guessing_game`
 猜出这个数来！
@@ -617,7 +617,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
             Ordering::Less => println! ("太小了！"),
             Ordering::Greater => println! ("太大了！"),
             Ordering::Equal => {
-                println! ("你赢了！"); 
+                println! ("你赢了！");
                 break
             },
         }
@@ -665,7 +665,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 现在程序各方面就应如预期那样工作了。就来试试：
 
 ```console
-$ cargo run                                                       ✔ 
+$ cargo run                                                       ✔
    Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
     Finished dev [unoptimized + debuginfo] target(s) in 0.57s
      Running `target/debug/guessing_game`
@@ -722,7 +722,7 @@ fn main() {
                 Ordering::Less => println! ("太小了！"),
                 Ordering::Greater => println! ("太大了！"),
                 Ordering::Equal => {
-                    println! ("你赢了！"); 
+                    println! ("你赢了！");
                     break
                 },
             }
