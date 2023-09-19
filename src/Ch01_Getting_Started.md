@@ -24,7 +24,7 @@
 若使用的是 Linux 或 macOS，那么请打开一个终端，然后输入下面的命令：
 
 ```console
-$ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```
 
 此命令会下载一个脚本并开始 `rustup` 工具的安装，而 `rustup` 将安装最新的稳定版 Rust。可能会提示输入 `sudo` 密码。在安装成功后，就会出现下面这行！
@@ -308,7 +308,7 @@ $ cargo init
 现在来看看在使用 Cargo 来构建和运行那个 “Hello, World!” 程序有什么不同之处！在 `hello_cargo` 目录，通过敲入下面的命令，来构建该项目：
 
 ```console
-$ cargo build                                                                   ✔ 
+$ cargo build                                                                   ✔
    Compiling hello_cargo v0.1.0 (/home/peng/rust-lang/projects/hello_cargo)
     Finished dev [unoptimized + debuginfo] target(s) in 0.45s
 ```
@@ -348,7 +348,7 @@ Hello, World!
 请注意这次并未见到表示 Cargo 曾在编译 `hello_cargo` 的输出。Cargo 发现这些文件并未发生改变，因此他就运行了那个二进制文件。若曾修改过源代码，那么 Cargo 就会在运行这个项目之前，重新构建该项目，从而会看到这样的输出：
 
 ```console
-$ cargo run                                                                                        ✔ 
+$ cargo run                                                                                        ✔
    Compiling hello_cargo v0.1.0 (/home/peng/rust-lang/projects/hello_cargo)
     Finished dev [unoptimized + debuginfo] target(s) in 0.43s
      Running `target/debug/hello_cargo`
@@ -358,7 +358,7 @@ Hello, Cargo!
 Cargo 还提供了一个叫做 `cargo check` 的命令。此命令会对代码进行快速检查，以确保代码可被编译，但该命令不会产生出可执行程序：
 
 ```console
-$ cargo check                                                                                      ✔ 
+$ cargo check                                                                                      ✔
    Checking hello_cargo v0.1.0 (/home/peng/rust-lang/projects/hello_cargo)
     Finished dev [unoptimized + debuginfo] target(s) in 0.35s
 ```
