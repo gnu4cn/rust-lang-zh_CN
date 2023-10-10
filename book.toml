@@ -6,6 +6,11 @@ src = "src"
 title = "Yet another Chinese rust-lang book."
 description = "又一本 rust-lang 书，Yet another Chinese rust-lang book。"
 
+[preprocessor.last-changed]
+command = "mdbook-last-changed"
+renderer = ["html"]
+
+
 [preprocessor.pagetoc]
 [output.html]
 additional-css = ["theme/pagetoc.css"]
