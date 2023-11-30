@@ -6,6 +6,9 @@
 ---
 
 - [入门](Ch01_Getting_Started.md)
+    - [安装](getting_started/installation.md)
+    - [Hello, World!](getting_started/hello_world.md)
+    - [你好，Cargo！](getting_started/hello_cargo.md)
 
 - [编写猜数游戏](Ch02_Programming_a_Guessing_Game.md)
 
