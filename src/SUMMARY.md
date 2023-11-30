@@ -24,6 +24,9 @@
 # 进阶
 
 - [“掌握” 所有权](Ch04_Understanding_Ownership.md)
+    - [何为所有权？](src/ownership/about_ownership.md)
+    - [引用与借用](src/ownership/references_and_borrowing.md)
+    - [切片类型](src/ownership/the_slice_type.md)
 
 - [使用结构体来对相关数据进行架构](Ch05_Using_Structs_to_Structure_Related_Data.md)
 
