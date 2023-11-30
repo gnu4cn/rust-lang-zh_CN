@@ -1,0 +1,3 @@
+在文件 poem.txt 中检索：to
+Are you nobody, too?
+How dreary to be somebody!
