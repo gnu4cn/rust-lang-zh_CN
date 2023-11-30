@@ -24,26 +24,26 @@
 # 进阶
 
 - [“掌握” 所有权](Ch04_Understanding_Ownership.md)
-    - [何为所有权？](src/ownership/about_ownership.md)
-    - [引用与借用](src/ownership/references_and_borrowing.md)
-    - [切片类型](src/ownership/the_slice_type.md)
+    - [何为所有权？](ownership/about_ownership.md)
+    - [引用与借用](ownership/references_and_borrowing.md)
+    - [切片类型](ownership/the_slice_type.md)
 
 - [使用结构体来对相关数据进行架构](Ch05_Using_Structs_to_Structure_Related_Data.md)
-    - [定义并初始化结构体](src/structs/defining_and_instantiating.md)
-    - [运用结构体的一个示例程序](src/structs/example_program.md)
-    - [方法语法](src/structs/method_syntax.md)
+    - [定义并初始化结构体](structs/defining_and_instantiating.md)
+    - [运用结构体的一个示例程序](structs/example_program.md)
+    - [方法语法](structs/method_syntax.md)
 
 - [枚举与模式匹配](Ch06_Enums_and_Pattern_Matching.md)
-    - [定义一个枚举](src/enums_and_pattern_matching/defining_an_enum.md)
-    - [`match` 控制流结构](src/enums_and_pattern_matching/match_control_flow.md)
-    - [使用 `if let` 的简洁控制流](src/enums_and_pattern_matching/if-let_contorl_flow.md)
+    - [定义一个枚举](enums_and_pattern_matching/defining_an_enum.md)
+    - [`match` 控制流结构](enums_and_pattern_matching/match_control_flow.md)
+    - [使用 `if let` 的简洁控制流](enums_and_pattern_matching/if-let_contorl_flow.md)
 
 - [使用包、代码箱与模组对日趋增长的项目进行管理](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md)
-    - [代码包与代码箱](src/packages_crates_and_modules/packages_and_crates.md)
-    - [定义用于控制作用域及隐私性的模组](src/packages_crates_and_modules/defining_modules.md)
-    - [用于引用模组树中某个项目的路径](src/packages_crates_and_modules/paths.md)
-    - [使用 `use` 关键字将路径带入作用域](src/packages_crates_and_modules/the_use_keyword.md)
-    - [将模组分成不同文件](src/packages_crates_and_modules/separating_modules.md)
+    - [代码包与代码箱](packages_crates_and_modules/packages_and_crates.md)
+    - [定义用于控制作用域及隐私性的模组](packages_crates_and_modules/defining_modules.md)
+    - [用于引用模组树中某个项目的路径](packages_crates_and_modules/paths.md)
+    - [使用 `use` 关键字将路径带入作用域](packages_crates_and_modules/the_use_keyword.md)
+    - [将模组分成不同文件](packages_crates_and_modules/separating_modules.md)
 
 - [常用集合数据结构](Ch08_Common_Collections.md)
 
