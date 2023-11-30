@@ -39,6 +39,11 @@
     - [使用 `if let` 的简洁控制流](src/enums_and_pattern_matching/if-let_contorl_flow.md)
 
 - [使用包、代码箱与模组对日趋增长的项目进行管理](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md)
+    - [代码包与代码箱](src/packages_crates_and_modules/packages_and_crates.md)
+    - [定义用于控制作用域及隐私性的模组](src/packages_crates_and_modules/defining_modules.md)
+    - [用于引用模组树中某个项目的路径](src/packages_crates_and_modules/paths.md)
+    - [使用 `use` 关键字将路径带入作用域](src/packages_crates_and_modules/the_use_keyword.md)
+    - [将模组分成不同文件](src/packages_crates_and_modules/separating_modules.md)
 
 - [常用集合数据结构](Ch08_Common_Collections.md)
 
