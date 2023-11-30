@@ -13,6 +13,11 @@
 - [编写猜数游戏](Ch02_Programming_a_Guessing_Game.md)
 
 - [常见编程概念](Ch03_Common_Programming_Concepts.md)
+    - [变量与可变性](programming_concepts/variables_and_mutability.md)
+    - [数据类型](programming_concepts/data_types.md)
+    - [函数](programming_concepts/functions.md)
+    - [注释](programming_concepts/comments.md)
+    - [控制流](programming_concepts/control_flow.md)
 
 ---
 
