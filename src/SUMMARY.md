@@ -29,6 +29,9 @@
     - [切片类型](src/ownership/the_slice_type.md)
 
 - [使用结构体来对相关数据进行架构](Ch05_Using_Structs_to_Structure_Related_Data.md)
+    - [定义并初始化结构体](src/structs/defining_and_instantiating.md)
+    - [运用结构体的一个示例程序](src/structs/example_program.md)
+    - [方法语法](src/structs/method_syntax.md)
 
 - [枚举与模式匹配](Ch06_Enums_and_Pattern_Matching.md)
 
