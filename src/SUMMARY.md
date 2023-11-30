@@ -66,6 +66,9 @@
 
 
 - [编写自动化测试](Ch11_Writing_Automated_Tests.md)
+    - [怎样编写测试](automated_tests/howto.md)
+    - [控制测试运行方式](automated_tests/how_tests_are_run.md)
+    - [测试的组织](automated_tests/test_organization.md)
 
 ---
 
