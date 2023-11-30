@@ -51,6 +51,9 @@
     - [在哈希图种存储带有关联值的键](common_collections/hash_maps.md)
 
 - [错误的处理](Ch09_Error_Handling.md)
+    - [使用 `panic!` 宏的不可恢复错误](error_handling/panic.md)
+    - [使用 `Result` 的可恢复错误](error_handling/result.md)
+    - [要 `panic!` 还是不要 `panic!`](error_handling/panic_or_not.md)
 
 ---
 
