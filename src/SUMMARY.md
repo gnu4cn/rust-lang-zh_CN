@@ -76,6 +76,12 @@
 # 上篇总结 - 实操
 
 - [一个文件系统 I/O 项目：构建一个命令行程序](Ch12_An_IO_Project_Building_a_Command_Line_Program.md)
+    - [接收命令行参数](io_project/accepting_cli_arguments.md)
+    - [读取文件](io_project/reading_a_file.md)
+    - [重构以改进模块化和错误处理](io_project/refactoring.md)
+    - [以测试驱动方法，开发这个库的功能](io_project/test_driven_dev.md)
+    - [使用环境变量](io_project/env_variables.md)
+    - [将错误消息写到标准错误，而非标准输出](io_project/std_err.md)
 
 
 ---
