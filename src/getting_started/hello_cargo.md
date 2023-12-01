@@ -1,34 +1,39 @@
 # 你好，Cargo！
 
-Cargo 是 Rust 的构建系统和包管理器。由于 Cargo 处理了很多任务，诸如构建代码、下载代码所依赖的库，以及这些库的构建等等，因此绝大多数 Rust 公民都使用这个工具，来管理他们的 Rust 项目。（我们把这些库叫做代码需要依赖（we call the libraries that your code needs *dependencies*）。）
+Cargo 是 Rust 的构建系统，与软件包管理器。大多数 Rustaceans，都会使用这个工具，来管理他们的 Rust 项目，因为 Cargo 会为咱们处理很多任务，例如构建咱们的代码、下载咱们代码所依赖的库，并构建这些库。(我们把咱们代码所需的库，称为 *依赖项, dependencies*）。
 
-对于最简单的那些 Rust 程序，比如才写的那个，是没有任何依赖的。因此若使用 Cargo 来构建这个 `Hello, World!` 项目，那么就只会用到 Cargo 处理代码构建的部分。而随着更为复杂 Rust 程序的编写，就会添加依赖，而在开始一个用到 Cargo 的项目时，完成依赖添加就会容易得多。
+对于那些最简单的 Rust 程序，就像我们目前为止编写的那个程序一样，并无任何依赖项。如果咱们使用 Cargo 构建那个 "Hello, world!" 项目，他就只会使用 Cargo 中，负责构建代码的部分。而当咱们编写更复杂的 Rust 程序时，咱们将添加一些依赖项，这时咱们如果使用 Cargo 启动某个项目，那么添加依赖项，就会容易得多。
 
-由于广大 Rust 项目都用到了 Cargo，本书其余部分就假定了也使用 Cargo。若使用了在 [安装](#安装) 小节中提到的官方安装器进行的 Rust 安装，那么Cargo就已与 Rust 一起安装好了。而若是以其他方式安装的 Rust，那么就要通过在终端中敲入下面的命令，来检查 Cargo 是否已安装妥当：
+由于绝大多数 Rust 项目都使用 Cargo，因此本书的其余部分，假定咱们也在使用 Cargo。如果咱们使用 [“安装”](installation.md) 小节中讨论的官方安装程序，那么 Cargo 会与 Rust 一起安装。如果咱们通过其他方式安装的 Rust，那么请在咱们的终端中，输入以下命令检查 Cargo 是否已安装：
 
 ```console
 $ cargo --version
 ```
 
-若能看到版本号，那么就有了这个工具！而若看到错误，诸如 `command not found`，就请查看你的安装方式的文档，找到怎样单独安装 Cargo 的方法。
+如果咱们看到某个版本号，说明已经安装！如果看到 `command not found` 等错误，则请查看咱们安装方式的文档，确定出如何单独安装 Cargo。
 
 
-## 使用 Cargo 创建项目
+## 用 Cargo 创建一个项目
 
-下面来使用 Cargo 创建一个新项目，并看看与原先的 “Hello, World!” 项目有何不同。现在导航至 `projects` 目录（或确定下来的保存代码的其他地方）。然后不论在那个操作系统之上，运行下面的命令：
+
+咱们来使用 Cargo 创建一个新项目，并看看他与最初的 "Hello, world!" 项目有何不同。请回到咱们的 `projects` 目录（或咱们决定存储代码的任何地方）。然后，在任何操作系统上，运行以下程序：
+
 
 ```console
 $ cargo new hello_cargo
 $ cd hello_cargo
 ```
 
-这第一个命令创建出了一个新的名为 `hello_cargo` 目录。这里就已将项目命名为了 `hello_cargo`，然后 Cargo 将其文件创建在了同名的目录里面。
+第一条命令，会创建出一个名为 `hello_cargo` 的新目录及项目。我们将项目命名为 `hello_cargo`，而 Cargo 就会在同名目录下，创建他的一些文件。
 
-进入到 `hello_cargo` 目录并列出那些文件。就会看到 Cargo 已经为我们生成了两个文件和一个目录：一个 `Cargo.toml`文件与一个里头有着 `main.rs` 文件的 `src` 目录。
+进入 `hello_cargo` 目录并列出其中的文件。咱们将看到，Cargo 为我们生成了两个文件和一个目录：一个 `Cargo.toml` 文件和一个包含 `main.rs` 文件的 `src` 目录。
 
-`cargo new` 还初始化了一个新的、带有 `.gitignore` 文件的 Git 代码仓库。若是在一个既有的 Git 代码仓库运行的 `cargo new`，那么就不会生成那些 Git 文件；通过运用 `cargo new --vcs=git` 可重写此行为。
 
-> 注意：Git 是种常用的版本控制系统。可通过上面的 `--vcs` 命令行参数，让 `cargo new` 使用其他版本控制系统或不使用版本控制系统。请运行 `cargo new --help`命令来查看所有可用选项。
+他还初始化了一个新的 Git 仓库和一个 `.gitignore` 文件。如果咱们在现有的 Git 仓库中运行 `cargo new`，就不会生成这些 Git 文件；咱们可以使用 `cargo new --vcs=git`，来覆盖这一行为。
+
+> **注意**：Git 是种常见的版本控制系统。通过使用 `--vcs` 命令行开关，咱们可以将 `cargo new`，改为使用其他版本控制系统，或不使用版本控制系统。请运行 `cargo new --help`，查看可用选项。
+
+在咱们所选的文本编辑器中，打开 `Cargo.toml`。他应该类似于清单 1-2 中的代码。
 
 
 文件名：`Cargo.toml`
@@ -42,17 +47,18 @@ edition = '2021'
 [dependencies]
 ```
 
-*清单 1-2：由 `cargo new` 所生成的 `Cargo.toml` 的内容*
+*清单 1-2：由 `cargo new` 生成的 `Cargo.toml` 内容*
 
-该文件是 [TOML](https://toml.io/) （ *Tom's Obvious, Minimal Language* ） 格式的，这是 Cargo 的配置格式。
 
-该文件的第一行， `[package]`，是个小节标题，表示接下来的语句是在对一个包进行配置。随着往这个文件添加越来越多的信息，就会添加其他小节。
+该文件属于 [TOML](https://toml.io/)（ *Tom's Obvious, Minimal Language* ）格式，是 Cargo 的配置格式。
 
-接下来的三行，对 Cargo 用于编译程序所需的信息进行了配置：项目名称、版本号及要使用的 Rust 版本。在 [附录 E](Appendix_E.md) 中会讲到这个 `edition` 关键字。
+其中第一行，`[package]` 是个表示以下语句，正在配置某个软件包的小节标题。随着咱们向该文件添加更多信息，我们将添加其他一些小节。
 
-`Cargo.toml` 的最后一行，`[dependencies]`，是要列出项目全部依赖小节开始的地方。在 Rust 中，代码包被称为 *包裹（crates）*。此项目无需任何其他包裹，在第 2 章中的头一个项目，就会用到依赖包裹，因此在那时就会用到这个依赖小节。
+接下来的三行，设置了 Cargo 编译咱们程序所需的一些配置信息：程序名字、版本，以及要使用的 Rust 版本。关于 `edition` 这个关键字，我们将在 [附录 E](../appendix/editions.md) 中讨论。
 
-现在打开 `src/main.rs` 然后看看：
+最后一行，`[dependencies]`（依赖项），是供咱们列出咱们项目全部依赖项的一个小节的开头。在 Rust 中，代码包被称为 *代码箱，crates*。而在本项目中，我们不会需要任何其他代码箱，不过在第 2 章的首个项目中，我们就会用到，因此届时我们将用到这个依赖项小节。
+
+现在打开 `src/main.rs` 看看：
 
 文件名：`src/main.rs`
 
