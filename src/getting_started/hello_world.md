@@ -1,20 +1,26 @@
 # `Hello, World!`
 
-既然已经安装好了 Rust, 那么就来编写第一个 Rust 程序吧。在掌握一门新语言时，传统就是要编写一个小的、打印出文字 `Hello, World!` 到屏幕上的程序，因此这里也会干这同样的事情！
+现在咱们已经安装了 Rust，那么就是时候编写第一个 Rust 程序了。学习一门新语言的传统做法，是编写一个在屏幕上打印出 `Hello, world!` 的小程序，所以咱们在这里，也要做同样的事情。
 
-> 注意：本书假定读者对命令行有着基本的熟悉。Rust 对代码在何处编辑和使用何种工具编辑没有特别要求，因此若优先选择某种集成开发环境，而非命令行，那么使用喜好的 IDE 即可。许多 IDE 都有某种程度的 Rust 支持；请查看 IDE 文档了解有关细节信息。近来，Rust 团队已着手启动良好的IDE支持，且此方面已取得极大进展！
+> **注意**：本书假定读者基本熟悉命令行。Rust 对编辑、工具或代码的存放位置，没有特别的要求，因此如果咱们喜欢使用集成开发环境（IDE），而不是命令行，请随意使用咱们喜欢的集成开发环境。许多集成开发环境，现在都在一定程度上有着 Rust 的支持；详情请查看集成开发环境的文档。Rust 团队一直致力于通过 `rust-analyzer`，实现对集成开发环境的强大支持。详情请参见 [附录 D](../appendix/dev_tools.md)。
 
-## 创建一个项目目录
+
+## 创建项目的目录
+
+**Creating a Project Directory**
+
+
+首先，咱们将创建一个存储咱们 Rust 代码的目录。对于 Rust 来说，代码存放在哪里并不重要，但对于本书中的练习和项目，我们建议在咱们的主目录下，创建一个 `projects` 目录，并将咱们的所有项目，都放在那里。
 
 这里是以构造一个保存 Rust 代码的目录开始的。对于 Rust 来说，代码位居何处并不重要，不过对于本书中的练习与项目，是建议在主目录下构造一个 `projects` 目录，并把全部项目放在那里的。
 
-请打开一个终端，并输入下面的这些命令来构造一个 `projects` 的目录，和一个在 `projects` 下用于 "Hello, World!" 项目的目录。
+请打开某个终端，并输入以下命令，创建 `projects` 目录，并在 `projects` 目录下，创建出这个 "Hello, world!" 的项目目录。
 
 对于 Linux、macOS 和 Windows 上的 `PowerShell`, 请输入：
 
 ```console
-$ mkdir ~/rust-lang/projects
-$ cd ~/rust-lang/projects
+$ mkdir ~/projects
+$ cd ~/projects
 $ mkdir hello_world
 $ cd hello_world
 ```
@@ -22,17 +28,18 @@ $ cd hello_world
 而对于 Windows 的 CMD， 请输入：
 
 ```console
-> mkdir "%USERPROFILE%\rust-lang\projects"
-> cd /d "%USERPROFILE%\rust-lang\projects"
+> mkdir "%USERPROFILE%\projects"
+> cd /d "%USERPROFILE%\projects"
 > mkdir hello_world
 > cd hello_world
 ```
 
-## 编写及运行 Rust 程序
+## 编写并运行一个 Rust 程序
 
-接下来，就要构造一个源代码文件，并命名为 `main.rs`。Rust 文件总是以 `.rs` 扩展名结束。若要在文件名中是一多个单词，那么请使用下划线来将这些单词隔开。比如，请使用 `hello_world.rs` 而不是 `helloworld.rs`。
 
-现在就要打开这个刚创建出的 `main.rs` 文件，并敲入清单 1-1 中的代码。
+接下来，请创建一个新的源文件，并将其命名为 `main.rs`。Rust 文件总是以 `.rs` 扩展名结尾。如果咱们在文件名中，使用了多个单词，惯例是要使用下划线，分隔这些单词。例如，请使用 `hello_world.rs`，而不是 `helloworld.rs`。
+
+现在请打开咱们刚刚创建的 `main.rs` 文件，输入下面清单 1-1 中的代码。
 
 文件名：`main.rs`
 
@@ -42,9 +49,9 @@ fn main() {
 }
 ```
 
-*清单 1-1：打印`Hello, World!` 的程序*
+*清单 1-1：打印出`Hello, World!` 的一个程序*
 
-保存这个文件并回到终端窗口。在 Linux 或 macOS 上，请输入下面的命令来编译和运行这个文件：
+请保存该文件，并返回到 `~/projects/hello_world` 目录下，咱们的终端窗口。在 Linux 或 macOS 上，请输入以下命令，编译并运行该文件：
 
 ```console
 $ rustc main.rs
@@ -52,7 +59,7 @@ $ ./main
 Hello, World!
 ```
 
-在 Windows 上，就要输入命令 `.\main.exe` 而不是 `./main`：
+在 Windows 上，请输入命令 `.\main.exe` 而不是 `./main`：
 
 ```console
 > rustc main.rs
@@ -60,7 +67,18 @@ Hello, World!
 Hello, World!
 ```
 
-而不论所在操作系统为何，字符串 `Hello, World!` 都应打印到终端。而若没有看到这个输出，那么请回到安装小节的 [“问题排除”](#问题排除) 部分获取帮助。
+> **注意**：在 Windows 上使用 ZSH 的 MSYS2 环境下，上述命令的输出：
+
+```console
+➜  hello_word rustc main.rs
+➜  hello_word ls
+main.exe  main.pdb  main.rs
+➜  hello_word ./main.exe
+Hello, World!
+```
+
+不论咱们的操作系统如何，`Hello, world!` 这个字符串都应打印到终端。如果咱们看不到此输出，请参阅安装部分的 [故障排除]() 部分，了解获得帮助的方法。
+
 
 如确实打印出了 `Hello, World!`，那么恭喜你！你已正式编写除了一个 Rust 程序了。那就让你成为了一名 Rust 程序员了 -- 欢迎！
 
@@ -135,4 +153,4 @@ $ ./main # 或在 Windows 上的 .\main.exe
 
 若你对某门动态语言，诸如 Ruby、Python 或者 JavaScript 更为熟悉，那么可能就不习惯于将编译和运行某个程序作为分开的步骤。Rust 是门 *提前编译* 语言（an *ahead-of-time compiled* language），这意味着可对程序进行编译，而将可执行文件交给他人，他们可在未安装 Rust 的情况下运行编译好的可执行文件。而若将某个 `.rb`、`.py`，或者 `.js` 文件交给某人时，他们就需要安装好相应的 Ruby、Python 或 JavaScript 实现。不过在这些语言中，仅需一个命令来编译和运行他们的程序。在编程语言设计中，每件事都有所取舍。
 
-对于简单的程序来说，用 `rustc` 编译就足够了，但随着项目的成长，就希望对所有选项进行管理，并令到代码分享更为简便。接下来，就要介绍 Cargo 工具了，这工具将帮助我们编写出实用的 Rust 程序。
+ 对于简单的程序来说，用 `rustc` 编译就足够了，但随着项目的成长，就希望对所有选项进行管理，并令到代码分享更为简便。接下来，就要介绍 Cargo 工具了，这工具将帮助我们编写出实用的 Rust 程序。
