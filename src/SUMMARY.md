@@ -102,6 +102,12 @@
     - [以定制命令扩展 Cargo](crates-io/custom_commands.md)
 
 - [灵巧指针](Ch15_Smart_Pointers.md)
+    - [使用 `Box<T>` 指向内存堆上的数据](smart_pointers/box-t.md)
+    - [使用 `Deref` 特质将灵巧指针视为常规引用](smart_pointers/deref-t.md)
+    - [使用 `Drop` 特质在内存清理时运行代码](smart_pointers/drop-t.md)
+    - [引用有计数的灵巧指针 `Rc<T>`](smart_pointers/rc-t.md)
+    - [`RefCell<T>` 与内部可变性模式](smart_pointers/refcell-t.md)
+    - [引用环会泄露内存](smart_pointers/ref-cycles.md)
 
 - [无惧并发](Ch16_Fearless_Concurrency.md)
 
