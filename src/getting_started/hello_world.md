@@ -77,12 +77,15 @@ main.exe  main.pdb  main.rs
 Hello, World!
 ```
 
-不论咱们的操作系统如何，`Hello, world!` 这个字符串都应打印到终端。如果咱们看不到此输出，请参阅安装部分的 [故障排除]() 部分，了解获得帮助的方法。
+不论咱们的操作系统如何，`Hello, world!` 这个字符串都应打印到终端。如果咱们看不到此输出，请参阅安装小节的 [故障排除](installation.md#问题排除) 部分，了解获得帮助的方法。
+
+如果 `Hello, World!` 打印出来了，那么恭喜！咱们已经正式编写了一个 Rust 程序。这使咱们成为了一名 Rust 程序员 —— 欢迎！
 
 
-如确实打印出了 `Hello, World!`，那么恭喜你！你已正式编写除了一个 Rust 程序了。那就让你成为了一名 Rust 程序员了 -- 欢迎！
+## Rust 程序剖析
 
-## Rust 程序解析
+**Anatomy of a Rust Program**
+
 
 来仔细回顾一下刚才在 “Hello World！” 程序中发生了什么。这是谜团中第一部分：
 
