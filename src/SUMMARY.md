@@ -134,5 +134,17 @@
     - [关于宏](advanced_features/macros.md)
 
 - [最后项目：构建一个多线程的 Web 服务器](Ch20_Final_Project_Building_a_Multithreaded_Web_Server.md)
+    - [构建一个单线程的 Web 服务器](final_project/single-threaded.md)
+    - [将这个单线程服务器修改为多线程服务器](final_project/multithreaded.md)
+    - [优雅关机与内存清理](final_project/graceful_shutdown.md)
 
 - [附录](Ch21_Appendix.md)
+    - [A - 关键字](appendix/keywords.md)
+    - [B - 运算符与符号](appendix/ops_and_symbols.md)
+    - [C - 派生特质](appendix/derivable_traits.md)
+    - [D - 有用开发工具](appendix/dev_tools.md)
+    - [E - 关于版本](appendix/editions.md)
+    - [F - 本书的一些译本](appendix/translations.md)
+    - [G - Rust 是怎样构造出来的与 “每日 Rust”](appendix/releases.md)
+    - [H - 有用笔记](appendix/notes.md)
+    - [I - 术语清单](appendix/terminology_list.md)
