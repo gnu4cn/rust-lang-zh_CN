@@ -127,6 +127,11 @@
     - [模式语法](patterns/syntax.md)
 
 - [先进特性](Ch19_Advanced_Features.md)
+    - [不安全的 Rust](advanced_features/unsafe.md)
+    - [高级特质](advanced_features/adv_traits.md)
+    - [高级类型](advanced_features/adv_types.md)
+    - [高级函数与闭包](advanced_features/adv_fns_and_closures.md)
+    - [关于宏](advanced_features/macros.md)
 
 - [最后项目：构建一个多线程的 Web 服务器](Ch20_Final_Project_Building_a_Multithreaded_Web_Server.md)
 
