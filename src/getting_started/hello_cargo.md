@@ -68,11 +68,12 @@ fn main() {
 }
 ```
 
-Cargo 以及为我们生成了一个 “Hello, World!” 的程序，这个自动生成的程序就跟之前在清单 1-1 中的一样！到现在，先前的项目与这个 Cargo 生成的项目的不同之处，就是 Cargo 是将代码放在那个 `src` 目录中的，同时在顶层目录还有了一个 `Cargo.toml` 配置文件。
+Cargo 已经为咱们，生成了一个 "Hello, world!" 程序，跟我们在清单 1-1 中，编写的那个程序一样！到目前为止，我们的项目，与 Cargo 生成的项目之间的区别在于，Cargo 将代码放在了 `src` 目录下，同时在顶层目录下，咱们有了一个 `Cargo.toml` 配置文件。
 
-Cargo 希望那些源代码文件，存留在 `src` 目录里头。而顶层的项目目录，只用于 `README` 文件、许可证信息、配置文件及其他与代码无关的东西。使用 Cargo 有助于对项目的组织。一切都有了个地方，且一切都在各自的地方（there's a place for everything, and everything is in its place）。
+Cargo 希望咱们的源文件，位于 `src` 目录中。顶层的项目目录，只用于存放 README 文件、许可证信息、配置文件及其他与代码无关的内容。使用 `Cargo`,可帮助咱们组织项目。所有东西，都有自己的位置，所有东西都各得其所。
 
-若没有使用 Cargo 来开始项目，就如同先前在 “Hello, World!” 项目中所做那样，那么仍旧可使用 Cargo 将其转换为一个项目。将项目代码移入到 `src` 目录并创建出一个适当的 `Cargo.toml` 文件来:
+如果咱们开始了某个不使用 Cargo 的项目，就像 "Hello, world!" 项目中咱们所做的那样，咱们可以将其转换为使用 Cargo 的项目。要将项目代码，移至 `src` 目录，并创建一个恰当的 `Cargo.toml` 文件。
+
 
 ```console
 $ cd hello_world
@@ -81,24 +82,29 @@ $ mv main.rs src/
 $ cargo init
 ```
 
-## 构建和运行一个 Cargo 项目
 
-现在来看看在使用 Cargo 来构建和运行那个 “Hello, World!” 程序有什么不同之处！在 `hello_cargo` 目录，通过敲入下面的命令，来构建该项目：
+## 构建和运行 Cargo 项目
+
+**Building and Running a Cargo Project**
+
+现在，咱们来看看，使用 Cargo 构建和运行 "Hello, world!" 程序时，有哪些不同！请在 `hello_cargo` 目录下，输入以下命令来构建项目：
 
 ```console
-$ cargo build                                                                   ✔
-   Compiling hello_cargo v0.1.0 (/home/peng/rust-lang/projects/hello_cargo)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.45s
+$ cargo build
+   Compiling hello_cargo v0.1.0 (/home/chat/projects/hello_cargo)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.16s
 ```
 
-此命令创建出在 `target/debug/hello_cargo`（或 Windows 上的`target\debug\hello_cargo.exe`）中，而非当前目录下的一个可执行文件。可使用下面这个命令运行那个可执行程序：
+这条命令会在 `target/debug/hello_cargo` （或 Windows 下的 `target\debug\hello_cargo.exe`），而非当前目录下，创建出一个可执行文件。由于默认的构建，属于调试构建，因此 Cargo 会将二进制文件，放到名为 `debug` 的目录中。咱们可以用下面这条命令，运行该可执行文件：
+
 
 ```console
-$ ./target/debug/hello_cargo # 或者在 Windows 上的 .\target\debug\hello_cargo.exe
+$ ./target/debug/hello_cargo # 或 Windows 上的 .\target\debug\hello_cargo.exe
 Hello, world!
 ```
 
-若一切顺利，那么 `Hello, World!` 就会被打印到终端。首次运行 `cargo build`，还会造成 Cargo 在顶层目录创建一个新文件：`Cargo.lock`。该文件会跟踪项目中各个依赖的精确版本。由于这个项目没有依赖，因此该文件有些稀疏。绝无必要手动修改此文件；Cargo 会为我们管理他的内容。
+如果一切顺利，`Hello, world!` 就会打印到终端。首次运行 `cargo build`，还会导致 Cargo 在目录顶层，创建出一个新文件：`Cargo.lock`。该文件会记录项目中依赖项的确切版本。这个项目没有依赖项，因此该文件有点稀疏。咱们无需手动修改这个文件；Cargo 会帮咱们管理其内容。
+
 
 文件名：`Cargo.lock`
 
@@ -114,7 +120,9 @@ version = "0.1.0"
 
 *清单 1-3, `Cargo.lock`*
 
-这里刚刚使用 `cargo build` 构建了一个项目，并用 `./target/debug/hello_cargo` 运行了这个项目，不过这里还可以将代码编译和运行编译结果，全部在一个命令，`cargo run`，中完成：
+
+咱们刚刚使用 `cargo build`，构建了一个项目，并使用 `./target/debug/hello_cargo` 运行了他，但我们也可以使用 `cargo run`，在一条命令中编译代码，然后运行生成的可执行文件：
+
 
 ```console
 $ cargo run
@@ -123,7 +131,10 @@ $ cargo run
 Hello, World!
 ```
 
-请注意这次并未见到表示 Cargo 曾在编译 `hello_cargo` 的输出。Cargo 发现这些文件并未发生改变，因此他就运行了那个二进制文件。若曾修改过源代码，那么 Cargo 就会在运行这个项目之前，重新构建该项目，从而会看到这样的输出：
+相比必须记住运行 `cargo build` 然后使用二进制文件的整个路径，使用 `cargo run` 要更方便，因此大多数开发人员，都会使用 `cargo run`。
+
+请注意，这次我们没有看到，表明 Cargo 正在编译 `hello_cargo` 的输出。Cargo 发现文件没有变化，所以他没有重建，而只是运行了二进制文件。如果咱们修改了源代码，Cargo 就会在运行项目前，重建该项目，咱们就会看到这样的输出：
+
 
 ```console
 $ cargo run                                                                                        ✔
