@@ -110,6 +110,11 @@
     - [引用环会泄露内存](smart_pointers/ref-cycles.md)
 
 - [无惧并发](Ch16_Fearless_Concurrency.md)
+    - [使用线程同步运行代码](concurrency/threads.md)
+    - [使用消息传递再线程间传输数据](concurrency/message_passing.md)
+    - [共用状态的并发](concurrency/shared-state.md)
+    - [使用 `Sync` 与 `Send` 的可扩展并发](concurrency/extensible_concurrency.md)
+
 
 - [Rust 的面向对象编程特性](Ch17_Object_Oriented_Programming_Features_of_Rust.md)
 
