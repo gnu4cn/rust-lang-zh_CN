@@ -324,58 +324,36 @@ Cargo 会认为，这些版本具有与 `0.8.5` 版兼容的公共 API，而这�
 ```console
 $ cargo build
     Updating crates.io index
-  Downloaded rand v0.8.3
-  Downloaded libc v0.2.86
-  Downloaded getrandom v0.2.2
+  Downloaded ppv-lite86 v0.2.17
+  Downloaded rand_chacha v0.3.1
   Downloaded cfg-if v1.0.0
-  Downloaded ppv-lite86 v0.2.10
-  Downloaded rand_chacha v0.3.0
-  Downloaded rand_core v0.6.2
-   Compiling rand_core v0.6.2
-   Compiling libc v0.2.86
-   Compiling getrandom v0.2.2
+  Downloaded rand_core v0.6.4
+  Downloaded getrandom v0.2.11
+  Downloaded rand v0.8.5
+  Downloaded libc v0.2.150
+  Downloaded 7 crates (910.0 KB) in 4.63s
+   Compiling libc v0.2.150
    Compiling cfg-if v1.0.0
-   Compiling ppv-lite86 v0.2.10
-   Compiling rand_chacha v0.3.0
-   Compiling rand v0.8.3
-   Compiling guessing_game v0.1.0 (file:///projects/guessing_game)
-    Finished dev [unoptimized + debuginfo] target(s) in 2.53s
+   Compiling ppv-lite86 v0.2.17
+   Compiling getrandom v0.2.11
+   Compiling rand_core v0.6.4
+   Compiling rand_chacha v0.3.1
+   Compiling rand v0.8.5
+   Compiling guessing_game-xfossdotcom v0.1.1 (/home/chat/rust-lang-zh_CN/projects/guessing_game)
+    Finished dev [unoptimized + debuginfo] target(s) in 7.08s
 ```
 
 *清单 2-2：将 rand 代码箱添加为依赖项后运行 `cargo build` 的输出**
 
 
-```console
-$ cargo build                                                      ✔
-    Updating crates.io index
-  Downloaded cfg-if v1.0.0
-  Downloaded rand_chacha v0.3.1
-  Downloaded rand_core v0.6.3
-  Downloaded getrandom v0.2.7
-  Downloaded ppv-lite86 v0.2.16
-  Downloaded rand v0.8.5
-  Downloaded libc v0.2.126
-  Downloaded 7 crates (773.8 KB) in 3.41s
-   Compiling libc v0.2.126
-   Compiling cfg-if v1.0.0
-   Compiling ppv-lite86 v0.2.16
-   Compiling getrandom v0.2.7
-   Compiling rand_core v0.6.3
-   Compiling rand_chacha v0.3.1
-   Compiling rand v0.8.5
-   Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
-    Finished dev [unoptimized + debuginfo] target(s) in 56.66s
-```
+咱们可能会看到一些不同的版本号（但他们都与代码兼容，这要归功于 SemVer！）和不同的一些行（取决于操作系统），而且这些行的顺序也可能不同。
 
-*清单 2-2-2：在添加了作为依赖的 `rand` 代码箱后运行 `cargo build` 的输出（实际输出）*
+当我们包含了某个外部依赖项时，Cargo 会从作为 [Crates.io](https://crates.io/) 上数据的一份拷贝的 *登记簿，registry* 中，获取该依赖项所需的所有内容的最新版本。Crates.io 是 Rust 生态系统中的人们，发布开源 Rust 项目供他人使用的地方。
 
-这里可能会看到不同的一些版本号（归功于 `SemVer`，这些不同版本号将与示例代码全都兼容！）、不同的输出行（取决于所在的操作系统），以及这些行可能以不同顺序出现。
+更新登记簿后，Cargo 会检查 `[dependencies]` 小节，并下载列出的任何尚未下载的代码箱。在本例中，虽然我们只将 `rand` 列为依赖项，但 Cargo 还抓取了 `rand` 运作所依赖的其他代码箱。下载完这些代码箱后，Rust 会对他们进行编译，然后使用这些可用依赖项，编译项目。
 
-在包含外部依赖时，Cargo 会从 *登记处（registry）* 拉取到那个依赖所需的全部最新版本的代码箱，而所谓登记处，则是 [Crates.io](https://crates.io/) 数据的一份拷贝。Crates.io 是 Rust 生态中的人们，发布给其他人使用的开放源代码项目的地方。
+如果咱们不做任何修改，就立即再次运行 `cargo build`，那么除了 `Finished` 那行外，咱们不会得到任何输出。Cargo 知道他已经下载并编译了依赖项，而咱们也没有在 `Cargo.toml` 文件中，对依赖项做任何修改。Cargo 也知道咱们没有修改代码，所以也不会重新编译项目。无事可做，他就直接退出了。
 
-在更新了登记处索引之后，Cargo 就对 `[denpendencies]` 小节进行查看，并下载所列代码箱中尚未下载的那些。在此实例中，尽管只列出了依赖 `rand`，Cargo 还抓取了其他 `rand` 赖以运作的一些代码箱。在下载了这些代码箱之后，Rust 会对他们进行了编译，并随后以这些可用的依赖，对这项目进行了编译。
-
-若不做任何修改，就立即再次运行 `cargo build`，那么除了那行 `Finished` 输出之外，就再也没有别的输出了。Cargo 明白他以及下载并编译好了那些依赖，还明白尚未对 `Cargo.toml` 文件做任何修改。Cargo 还知道，这里并未对项目代码做任何修改，因此他也没有对项目代码重新编译。既然无事可做，那么他就直接退出了。
 
 ```console
 $ cargo build                                                            ✔
