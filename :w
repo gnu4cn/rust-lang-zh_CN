@@ -191,36 +191,32 @@ let mut bananas = 5; // 可变（mutable）
 
 ### 使用 `Result` 处理潜在失效
 
-**Handle Potential Failure with `Result`**
+**Handle Potential Failure with the `Result` Type**
 
 
-我们仍在研究这行代码。我们现在讨论的是第三行文字，但请注意，他仍然是单个逻辑行代码的一部分。下一部分，便是这个方法：
-
+这里还在解析代码行。尽管这里讨论的是代码文本的第三行，但他仍是单个逻辑代码行的一部分。接下来的部分是这个方法：
 
 ```rust
         .expect("读取输入失败");
 ```
 
-
-我们本可以将这段代码写成：
-
+这代码本可以写成下面这样：
 
 ```rust
 io::stdin().read_line(&mut guess).expect("读取输入失败");
 ```
 
-不过，一个长行难于阅读，所以最好将其分开。在咱们使用 `.method_name()` 语法，调用某个方法时，引入一个换行符，以及另外的空白，来帮助拆分长行，通常是明智之举。现在我们来讨论一下，这一行完成了什么。
+不过这样的一个长代码行，难于阅读，因此最好将其分开为多个断行。在以 `.method_name()` 语法调用方法时，通过引入另起一行及缩进，来将长的代码行拆分为短代码行，通常是明智的。下面就来说说这一行完成了什么。
 
-如早先曾提到的，`read_line` 会将用户输入的任何内容，放入我们传给他的字符串中，但他还会返回一个 `Result` 值。[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) 是个 [*枚举，enumeration*](Ch06_Enums_and_Pattern_Matching.md)，通常称为 `enum`，是可处于多种可能状态之一的一种类型。我们称每种可能状态，为一个 *变种，variant*。
+前面讲过，`read_line`方法将用户敲入的东西，放入到传递给他的那个字符串中，然而 `read_line` 还会返回一个值 -- 在此实例中，返回的就是一个 `io::Result` 类型值。Rust 在他的标准库中，有着数个名为 `Result` 的类型：这是一个泛型的 `Result`，对于那些子模组都有着特定版本，比如这里的 `io::Result`。`Result` 的那些类型都属于 [枚举，enumerations](Ch06_Enums_and_Pattern_Matching.md#定义一个枚举)，枚举常被写为 `enums`，枚举有着一套被称作 *变种（variants）* 的可能值。枚举常常是和 `match` 关键字一起使用的，而 `match` 则是一种条件判断，在符合某个条件时，就可以很方便地根据枚举中的哪个变种，来执行不同代码。
 
-[第 6 章](Ch06_Enums_and_Pattern_Matching.md) 将详细介绍枚举。这些 `Result` 类型的目的，是要编码错误处理信息。
+第 6 章将深入涵盖到枚举数据结构。而这些 `Result` 类型的目的，则是对错误处理信息进行编码。
 
-`Result` 变体，为 `Ok` 和 `Err`。`Ok` 变体表示操作成功，且 `Ok` 内是成功生成的值。`Err` 变体表示操作失败，同时 `Err` 包含了操作如何失败，或为何失败的信息。
+这个 `Result` 的变种，就是 `Ok` 与 `Err`。`Ok` 变种表示该操作是成功的，而在 `Ok` 内部，就是成功生成的值。相反 `Err` 变种，则意味着操作失败了，同时 `Err` 包含了关于操作失败的方式与原因。
 
-与任何类型的值一样，`Result` 类型的值，也有定义于其上的一些方法。`Result` 的实例，有个咱们可以调用的 `expect` 方法。如果 `Result` 实例是个 `Err` 值，`expect` 就将导致程序崩溃，并显示咱们作为参数传递给 `expect` 那条信息。在 `read_line` 方法返回了一个 `Err` 时，那么很可能是底层操作系统出错所致。在这个 `Result` 实例是个 `Ok` 值时，`expect` 将取得那个 `Ok` 持有的返回值，并将该值返回给咱们，以便咱们可以使用他。在本例中，该值就是用户输入的字节数。
+`Result` 类型的那些值，跟其他任何类型都差不多，在这些值上都定义了一些方法。`io::Result` 实例，就有一个可供调用的 [`expect` 方法](https://doc.rust-lang.org/std/result/enum.Result.html#method.expect)。在这个 `io::Result` 实例是个 `Err` 变种时，那么`expect` 方法就会导致程序崩溃，并将传递给 `expect` 方法的参数显示出来。若 `read_line` 方法返回了一个 `Err`，那很可能是来自所采用操作系统错误的结果（if the `read_line` method returns an `Err`, it would likely be the result of an error coming from the underlying operating system）。而若该 `io::Result` 实例是个 `Ok` 值，那么 `expect` 方法就会取得那个 `Ok` 所保存的返回值，并只将该值返回，从而就可以使用到这个返回值。在此实例中，那个值，就是用户输入中的字节数目。
 
-如果咱们不调用 `expect`，这个程序会编译，但会收到警告：
-
+若这里没有对 `expect` 方法进行调用，那么该程序会编译，不过会收到一条告警信息：
 
 ```console
 $ cargo build                                                                                    ✔
@@ -239,42 +235,34 @@ warning: `guessing_game` (bin "guessing_game") generated 1 warning
     Finished dev [unoptimized + debuginfo] target(s) in 0.48s
 ```
 
-Rust 警告说咱们不曾使用 `read_line` 返回的那个 `Result` 值，表明程序还没有处理可能出现的错误。
+Rust 警告说不曾对返回自 `read_line` 的 `Result` 值进行使用，表示程序没有对可能的错误加以处理。
 
-消除这条警告的正确方法，是着手编写出错误处理代码，但在我们的例子中，我们只打算在某个问题出现时，让程序崩溃，因此咱们可以使用 `expect`。咱们将在 [第 9 章](error_handling/result.md) 中，学习如何从错误中恢复。
+消除该警告信息的正确方式，就是要老老实实地编写错误处理代码，而在这个实例中，则只要在问题发生时，崩溃掉这个程序即可，因此这里就可以使用 `expect`。在第 9 章的 [带有 Result 的可恢复错误](Ch09_Error_Handling.md#带有-result-的可恢复错误) 小节，会掌握到如何从错误中恢复过来。
 
-
-### 使用 `println!` 占位符打印值
+### 使用 `println!` 的占位符将值打印出来
 
 **Printing Values with `println!` Placeholders**
 
-这段代码中，除了结尾的大括号，到目前为止就只有一行需要讨论了：
-
+紧接着那个结束花括号前面，就只有剩下的一行代码要讨论了：
 
 ```rust
-    println! ("你猜的数是：{guesss}");
+    println! ("你猜的数是：{}", guess);
 ```
 
-这一行会打印现在包含了用户输入的那个字符串。其中的 `{}` 花括号组，是个占位符：可以把 `{}` 想象成一对用来固定某个值于某处的小蟹钳。在打印某个变量的值时，变量名可以放在这对花括号内。在打印表达式的计算结果时，就要在格式字符串中，放置空的大括号，然后在格式字符串后，添加以逗号分隔的表达式列表，并按照相同的顺序打印到各个空的大括号占位符中。在一次 `println!` 的调用中，打印一个变量和一个表达式的结果，将如下所示：
-
+这行代码是将此刻包含了用户输入的那个字符串打印出来。其中的那套花括号 `{}` ，就是一个占位符（placeholder）：请将`{}`当作是些在那个地方留有一个值的小螃蟹。使用一些这样的花括号，就可以打印出多个值来：第一套花括号保留着在格式化字符串之后列出的第一个值，第二套保留着第二个值，如此等等。一个 `println!` 调用中多个值的打印，看起来会是下面这样：
 
 ```rust
 let x = 5;
 let y = 10;
 
-println! ("x = {x} 而 y + 2 = {}", y + 2);
+println! ("x = {} 同时 y = {}", x, y);
 ```
 
-此代码将打印出 `x = 5 而 y + 2 = 12`。
+此代码将打印出 `x = 5 同时 y = 10`。
 
+### 对第一部分的测试
 
-### 测试第一部分
-
-**Testing the First Part**
-
-
-我们来测试一下，这个猜数游戏的第一部分。请使用 `cargo run` 运行他：
-
+下面就来测试一下这猜数游戏的第一部分。用 `cargo run` 运行他：
 
 ```console
 $ cargo run                ✔
@@ -287,39 +275,28 @@ $ cargo run                ✔
 你猜的数为：6
 ```
 
-至此，这个游戏的第一部分已经完成：我们从键盘获取输入，然后打印出来。
+此刻，这游戏的第一部分就算完成了：这里正从键盘获取到输入，并随后将输入打印出来。
 
 
 ## 生成秘密数字
 
-**Generating a Secret Number**
+接下来，就需要生成一个用户将要试着去猜的秘密数字了。生成的秘密数字应每次都不相同，这样这游戏在多次玩的时候才有趣。为了不让这个游戏太难，这里要用一个 `1` 到 `100` 之间的随机数。Rust 在其标准库中尚未包含随机数功能。不过 Rust 团队还真的提供了一个 [`rand` 代码箱](https://crates.io/crates/rand)，这里就姑且把这样的代码箱，称之为功能吧。
 
+### 运用代码箱（a Crate） 获取到更多功能
 
-接下来，我们需要生成一个用户将尝试猜测的秘密数字。秘密数字应每次都不一样，这样游戏才会有趣，才能玩多次。我们将使用 1 到 100 之间的某个随机数，这样游戏就不会太难。Rust 尚未在其标准库中，包含随机数功能。不过，Rust 团队提供了一个包含上述功能的 [`rand` 代码箱](https://crates.io/crates/rand)。
+请记住，所谓代码箱，即为一些 Rust 源代码文件的集合。之前曾构建好的项目，则是一个 *二进制的代码箱（binary crate）*，那是个可执行程序。而 `rand` 代码箱，则是个 *库代码箱（library crate）*，这样的库代码箱，包含了预期将在其他程序中会用到的代码，同时库代码箱自身并不能执行（the `rand` crate is a *library crate*, which contains code intended to be used in other programs, and can't be executed on its own）。
 
-
-### 使用代码箱获得更多功能
-
-**Using a Crate to Get More Functionality**
-
-
-请记住，代码箱是一些 Rust 源代码文件的集合。我们正在构建的项目，是个 *二进制代码箱，binary crate*，这是个可执行代码箱。而 `rand` 代码箱，则是个 *库代码箱，library crate*，其中包含的代码，旨在用于其他程序，而不能在其自身上执行。
-
-Cargo 的外部板块的协调能力，正是 Cargo 的真正亮点所在。在编写用到 `rand` 的代码之前，我们需要修改那个 `Cargo.toml` 文件，将 `rand` 代码箱作为一个依赖项。现在请打开该文件，在 Cargo 为咱们创建的 `[dependencies]` 小节标题下，添加下面一行。请务必使用这个版本号，准确指定 `rand`，否则本教程中的代码示例，可能无法运行：
-
+Cargo 对外部代码箱的协调能力，正是 Cargo 真正闪耀之处。在能够编写出用到 `rand` 库代码箱的代码之前，先要将 `Cargo.toml` 加以修改，将 `rand` 代码箱作为依赖包含进来。打开那个文件并将下面的行，添加到底部、那个 Cargo 创建出的`[dependencies]` 小节标题之下。要确保像这里一样，带着版本号地精确指明 `rand` 代码箱，否则此教程中的代码示例就不会工作。
 
 文件名：`Cargo.toml`
 
 ```toml
-rand = "0.8.5"
+rand = "0.8.3"
 ```
 
-在这个 `Cargo.toml` 文件中，某个头部之后的所有内容，都是该小节的一部分，一直持续到另一小节开始。在 `[dependencies]` 中，咱们告诉 Cargo，咱们的项目依赖于哪些外部代码箱，以及咱们需要这些代码箱的哪些版本。在本例中，我们使用语义版本说明符 `0.8.5`，指定了 `rand` 这个代码箱。Cargo 能够理解语义的版本编号，Semantic Versioning，有时也称为 *SemVer*，这是一种编写版本号的标准。`0.8.5` 实际上是 `^0.8.5` 的缩写，表示至少是 `0.8.5` 但低于 `0.9.0` 的任何版本。
+在这 `Cargo.toml` 文件中，凡在某个标题之后的东西，都是那个小节的一部分，直到另一小节开始为止。在 `[dependencies]` 小节，告诉 Cargo 的是项目依赖了哪些外部代码箱（external crates），以及所需的这些代码箱版本。在此实例中，就指明了有着语义版本指示符（the semantic version specifier） `0.8.3` 的 `rand` 库代码箱。Cargo 能明白 [语义化版本控制（Sementic Versioning）](http://semver.org/)（有时也叫做 *`SemVer`*），这是编制版本号的标准。数字 `0.8.3` 实际上是 `^0.8.3` 的缩写，表示高于 `0.8.3` 却低于 `0.9.0` 的任何版本。Cargo 认为这些版本有着与 `0.8.3` 兼容的公共 APIs，同时这样的规定，确保了将获取到在本章中代码仍可编译的情况下，最新的补丁发布。那些 `0.9.0` 及更高的版本，无法保证接下来示例用到同样的 API。
 
-Cargo 会认为，这些版本具有与 `0.8.5` 版兼容的公共 API，而这一规范，确保了咱们将得到，仍可与本章中的代码编译的最新补丁发布。任何 `0.9.0` 或更高版本，都不能保证有着与接下来的示例中，用到的相同 API。
-
-现在，在不修改任何代码的情况下，我们来构建一下这个项目，如清单 2-2 所示。
-
+现在，在不修改任何代码的情况下，来构建一下这个项目，如清单 2-2 所示：
 
 ```console
 $ cargo build
@@ -342,8 +319,7 @@ $ cargo build
     Finished dev [unoptimized + debuginfo] target(s) in 2.53s
 ```
 
-*清单 2-2：将 rand 代码箱添加为依赖项后运行 `cargo build` 的输出**
-
+*清单 2-2-1：在添加了作为依赖的 `rand` 代码箱后运行 `cargo build` 的输出（书上的输出）*
 
 ```console
 $ cargo build                                                      ✔
