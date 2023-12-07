@@ -594,7 +594,12 @@ let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
 > 在 Windows 的 MSYS2 上运行时，`bytes` 的输出始终会比咱们看到的字符串，要多两个字节的原因。
 
 
-[字符串上的 `parse` 方法](https://doc.rust-lang.org/std/primitive.str.html#method.parse) 将只会在那些逻辑上可被转换成数字的字符上运作，而因此就很可能引起错误。比如说在字符串包含了 `A👍%` 时，就没有办法将其转换成一个数字。由于 `parse` 方法会失败，因此他返回的是个 `Result` 类型，这与 `read_line` 方法所做的一样（在早先的 [用 `Result` 类型处理潜在失败](#处理潜在的带有-result-的程序失效) 中讨论过）。这里再次使用 `expect` 方法对这个`Result` 进行了同样的处理。在因为 `parse` 无法从字符串创建出一个数字，而返回了一个 `Err` 的 `Result` 变种时，这个 `expect` 就会令到游戏崩溃，并将给他的那条消息打印出来。而在 `parse` 可成功将那个字符串，转换成数字时，`expect` 就会返回 `Result` 的 `Ok` 变种，同时 `expect` 会返回这里想要的、`Ok` 值中的数字。
+[字符串上的 `parse` 方法](https://doc.rust-lang.org/std/primitive.str.html#method.parse)，可将字符串转换为另一类型。在这里，我们要用他，将字符串转换为数字。我们需要使用 `let guess: u32`，告诉 Rust 我们想要的确切数字类型。`guess` 后面的冒号（`:`），告诉 Rust 我们将注解这个变量的类型。Rust 有几种内置的数字类型；这里所看到的 `u32`，是一种无符号的 32 位整数。对于小的正数来说，这是一种不错的默认选择。咱们将在 [第 3 章](https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-types)，了解其他数字类型。
+
+`parse` 这个方法，只适用于逻辑上可以转换成数字的那些字符，因此很容易出错。例如，如果字符串包含着 `A%`，就无法将其转换为数字。因为可能会失败，所以解析方法会返回一个结果类型，就像 read_line 方法一样（在前面的 "使用结果处理潜在失败 "中讨论过）。我们将再次使用 expect 方法，以同样的方式处理这个 Result。如果 parse 因无法从字符串中创建数字而返回 Err Result 变体，那么 expect 调用将导致游戏崩溃，并打印出我们给它的信息。如果 parse 能成功将字符串转换为数字，它将返回 Result 的 Ok 变体，而 expect 将从 Ok 值返回我们想要的数字。
+
+
+此外，本示例程序中的这个 `u32` 注解，及那个与 `secret_number` 的比较，意味着 Rust 将推断出 `secret_number` 也应是个 `u32`。因此，现在这个比较，将是在两个相同类型值之间的了！
 
 现在来运行一下这个程序！
 
