@@ -644,7 +644,7 @@ $ cargo run                                                       101 ✘ 
         match guess.cmp(&secret_number) {
             Ordering::Less => println! ("太小！"),
             Ordering::Greater => println! ("太大！"),
-            Ordering::Equal => { println! ("你赢了！"); break },
+            Ordering::Equal => println! ("你赢了！"),
         }
     }
 }
@@ -715,7 +715,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 }
 ```
 
-在 `你赢了！` 后面添加 `break` 这行，令到程序在用户猜对秘密数字时，退出那个循环。退出那个循环，也意味着退出这个程序，因为循环是 `main` 的最后一部分。
+在 `你赢了！` 后面添加 `break` 这行，令到程序在用户猜对秘密数字时，退出那个循环。退出那个循环，也意味着退出这个程序，因为该循环是 `main` 的最后一部分。
 
 > **译注**：这里有个有趣的地方，`break` 后的分号可有可无，`match` 表达式最后支臂后的逗号，也是可有可无的。
 
