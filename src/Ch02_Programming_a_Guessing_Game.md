@@ -360,7 +360,9 @@ $ cargo build                                                            ✔
     Finished dev [unoptimized + debuginfo] target(s) in 0.00s
 ```
 
-若此时打开 `src/main.rs` 文件，做个细微修改，然后保存并再次构建，那么就只会看到下面这两行输出:
+
+如果咱们打开 `src/main.rs` 文件，进行一些简单的更改，然后保存并再次构建，咱们将只会看到两行输出：
+
 
 ```console
 cargo build                                                            ✔
@@ -368,42 +370,55 @@ cargo build                                                            ✔
     Finished dev [unoptimized + debuginfo] target(s) in 0.50s
 ```
 
-这些行显示 Cargo 只更新了对 `src/main.rs` 文件细微修改的构建。由于依赖不曾改变，因此 Cargo 清除他可以重用那些已经下载和编译好的依赖。
+
+这几行显示，Cargo 只会根据咱们对 `src/main.rs` 文件的微小改动，来更新构建。咱们的依赖依赖并没有改变，因此 Cargo 知道，他可以重复使用已经下载并编译好的那些依赖项。
+
 
 ### 使用 `Cargo.lock` 文件确保可重现的构建
 
 **Ensuring Reproducible Builds with the `Cargo.lock` File**
 
-Cargo 具备一种不论是自己还是其他要构建代码的人来说，确保每次都可以构建出同样程序组件（the same artifact）的机制：除非另有指定，Cargo 都将只使用在 `[denpendencies]` 小节中所指定的依赖版本。比如说下周 `0.8.4` 版本的 `rand` 就要释出，且那个版本包含了一个重要的错误修复，但也包含了一个会破坏咱们代码的特性撤回。为了应对这样的情况，Rust 在首次运行 `cargo build`时，就创建了 `Cargo.lock` 文件，也就是现在在 `guessing_game` 目录下就有这么个文件。
 
-在首次构建项目时，Cargo 会找出那些依赖满足条件的所有版本，并将其写入到这 `Cargo.lock` 文件。在今后对项目进行构建时，Cargo 就会查看是否存在那个 `Cargo.lock` 文件，并使用其中所指定的那些版本，而不会再次完成找出那些版本的工作了。这样就自动实现了可重现的构建。也就是说，得益于这个 `Cargo.lock` 文件，除非显式地升级了 `rand` 的版本号，项目将保持其版本为 `0.8.3`。
+Cargo 有着一种可以确保咱们，或其他人每次构建代码时，都能重建出相同产物的机制： Cargo 将只使用咱们所指定的依赖项版本，除非咱们另有指示。例如，下周 `rand` 代码箱的 `0.8.6` 版本将发布，该版本包含了一个重要的错误修复，但同时也包含了一个会破坏咱们代码的回退。为了处理这个问题，Rust 会在咱们第一次运行 `cargo build` 时，创建 `Cargo.lock` 文件，所以在 `guessing_game` 目录下，我们现在会有这个文件。
+
+当咱们首次构建某个项目时，Cargo 会计算出符合条件依赖项的全部版本，然后将其写入 `Cargo.lock` 文件。在咱们以后再构建项目时，Cargo 就会发现 `Cargo.lock` 文件的存在，并会使用其中指定的版本，而不会再重新计算版本。这样，咱们就能自动进行可重现的构建。换句话说，由于有了 `Cargo.lock` 文件，在咱们明确升级之前，咱们的项目将保持在 `0.8.5` 版本。由于 `Cargo.lock` 文件对于可重现性构建非常重要，因此他通常会与项目中的其他代码一起，进入源代码控制系统。
+
 
 ### 更新代码箱来获取新版本
 
 **Updating a Crate to Get a New Version**
 
-在确实要更新某个代码箱时，Cargo 提供了 `update` 命令，该命令会忽略 `Cargo.lock` 文件，并找出与`Cargo.toml`中的那些规格相适合的全部最新版本。Cargo 随后将把这些版本写入到 `Cargo.lock` 文件。否则的话，默认 Cargo 就会只查找那些高于 `0.8.3` 且低于 `0.9.0` 的版本。在 `rand` 库代码箱已发布了两个新的 `0.8.4` 和 `0.9.0` 版本时，此时若运行 `cargo update`，就会看到下面的输出：
+
+当咱们确实打算更新某个代码箱时，Cargo 提供了 `update` 命令，他会忽略 `Cargo.lock` 文件，并找出所有符合咱们在 `Cargo.toml` 中所要求的最新版本。然后，Cargo 会把这些版本写入 `Cargo.lock` 文件。否则，默认情况下，Cargo 只会查找大于 `0.8.5` 且小于 `0.9.0` 的版本。如果 `rand` 代码箱发布了 `0.8.6` 和 `0.9.0` 这两个新版本，那么运行 `cargo update` 时就会看到下面的内容：
+
 
 ```console
 $ cargo update
     Updating crates.io index
-    Updating rand v0.8.3 -> v0.8.4
+    Updating rand v0.8.5 -> v0.8.6
 ```
 
-Cargo 忽略了那个 `0.9.0` 的发布。此刻还会注意到在 `Cargo.lock` 文件中，一处标记现在所用 `rand` 代码箱版本为 `0.8.4` 的改变。要使用版本 `0.9.0` 或任何 `0.9.x` 系列中某个版本的 `rand`，就必须将 `Cargo.toml` 更新为下面这样：
+
+Cargo 会忽略 `0.9.0` 的版本。此时，咱们还会注意到，`Cargo.lock` 文件中的一处变化，即咱们现在使用的 `rand` 代码箱，版本为 `0.8.6`。要使用 `rand` 或 `0.9.x` 系列中的任何版本，咱们必须更新 `Cargo.toml` 文件，使其看起来像这样：
+
 
 ```toml
 [dependencies]
 rand = "0.9.0"
 ```
 
-在下次运行 `cargo build` 时，Cargo 就会更新可用代码箱的登记处，并根据所指定的新版本，重新对 `rand` 需求加以评估。
+在咱们下次运行 `cargo build` 时，Cargo 会更新可用代码箱的登记簿，the registry of creates available，并根据咱们所指定的新版本，重新计算咱们的 `rand` 需求。
 
-关于 [Cargo](http://doc.crates.io/) 及 [Cargo 生态](http://doc.crates.io/crates-io.html)，有很多要讲的东西，这些在第 14 章会讨论到，而此时，了解上面这些就够了。Cargo 实现了非常便利的库重用，因此 Rust 公民们就能够编写出，从数个软件包组合而来的那些体量较小的项目。
+关于 [Cargo](http://doc.crates.io/) 及 [其生态](http://doc.crates.io/crates-io.html)，还有很多内容要讲，我们将在第 14 章进行讨论，但现在，这就是咱们需要了解的全部内容。Cargo 让重用库变得非常容易，因此 Rustaceans 可以编写出，由多个包组合而成的小型项目。
+
 
 ### 生成随机数
 
-现在就来开始使用 `rand` 库代码箱，生成用于猜测的数字。接下来的步骤就是更新 `src/main.rs`，如下清单 2-3 所示：
+**Generating a Random Number**
+
+
+咱们来开始使用 `rand`，生成一个要猜的数字。下一步是要更新 `src/main.rs`，如下清单 2-3 所示。
+
 
 文件名：`src/main.rs`
 
@@ -412,35 +427,39 @@ use std::io;
 use rand::Rng;
 
 fn main() {
-    println! ("猜出这个数来！");
+    println! ("请猜数！");
 
-    let secret_number = rand::thread_rng().gen_range(1..101);
+    let secret_number = rand::thread_rng().gen_range(1..=100);
 
-    println! ("秘密数字为：{}", secret_number);
+    println! ("秘密数字为：{secret_number}");
 
-    println! ("请输入你猜的数。");
+    println! ("请输入你的猜数。");
 
     let mut guess = String::new();
 
     io::stdin()
         .read_line(&mut guess)
-        .expect("读取行失败......");
+        .expect("读取行失败/failed to read line");
 
-    println! ("你猜的数为：{}", guess);
+    println! ("你猜的是：{guess}");
 }
 ```
 
-*清单 2-3：添加生成随机数的代码*
+*清单 2-3：添加代码以生成随机数*
 
-首先，这里添加了那行 `use rand::Rng`。这 `Rng` 特质（the `Rng` trait）定义了一些随机数生成器实现的方法，而为了使用这些方法，此特质就必须要在作用域中。第 10 章将详细涵盖到特质（traits）。
 
-接下来在中间部分，添加了两行新代码。在第一行代码中，调用了 `rand::thread_rng` 函数，该函数给到了这里即将用到的特定随机数生成器：一个相对于当前执行线程，属于本地的随机数生成器，其用到的种子由操作系统提供。随后在这个随机数生成器实例上的 `gen_range` 方法。该方法是由前面 `use rand::Rng` 语句带入到作用域的 `Rng` 特质定义。这 `gen_range` 方法取的是一个范围表达式，这里用到的范围表达式，所采取的是 `start..end` 形式，该范围表达式包含了左边界，但排除了右边界，因此就要指定 `1..101` 来求得一个 `1` 到 `100` 之间的数字。或者也可以传递范围 `1..=100`，这是等价的。
+首先，我们添加 `use rand::Rng;` 这行。`Rng` 特质，the `Rng` trait，定义了随机数生成器，所实现的那些方法，而这个特质，必须位于咱们要用到那些方法的作用域中。第 10 章将详细介绍特质。
 
-> 注意：对于不知道到底该使用那个 Rust 特质，以及要调用代码箱的那些方法和函数的情况，那么每个代码箱都有着如何使用他的说明文档。Cargo 的另一灵巧特性，便是通过运行 `cargo doc --open` 命令，就会构建出由全部本地依赖提供的文档来，并在浏览器中打开这些文档。比如说若对 `rand` 这个代码箱的其他功能感兴趣，那么运行 `cargo doc --open` 命令然后点击左侧边栏中的 `rand` 即可进一步了解。
+接下来，我们在中间添加两行。在第一行中，我们调用了给到我们要用到随机数生成器的 `rand::thread_rng` 函数：一个相对于当前执行线程本地的，由操作系统提供种子的随机数发生器。然后，我们调用了这个随机数生成器上的 `gen_range` 方法。该方法由咱们已使用 `use rand::Rng;` 语句，带入到作用域的 `Rng` 特质所定义。`gen_range` 方法，取一个范围表达式作为参数，并生成该范围内的一个随机数。我们这里使用的范围表达式类别，形式为 `start...=end`，并包含下上边界，因此我们需要指定 `1...=100`，以请求一个介于 1 和 100 之间的数字。
 
-那第二个新行，则是打印出那个秘密数字。在开发这个程序期间，这是有用的，这样能够对程序进行测试，不过在最终版本那里就会删除这行代码。若程序在一开始就打印出谜底，显然这就算不上是个游戏了。
 
-尝试运行几次这个程序：
+> **注意**：咱们不会只要知道使用哪个特质、调用某个代码箱的哪些方法与函数，因此每个代码箱，都有使用说明文档。Cargo 的另一个特色便是，运行 `cargo doc --open` 命令，就会在本地构建出咱们所有依赖项提供的文档，并在浏览器中打开。例如，如果咱们对 `rand` 代码箱的其他功能感兴趣，那么请运行 `cargo doc --open`，并点击左侧边栏中的 `rand`。
+
+
+第二新的行，会打印秘密数字。这在我们开发程序时很有用，可以用来测试程序，但我们会在最终版本中删除他。如果程序一开始就打印出答案，那就不算是个游戏了！
+
+请试着运行几次程序：
+
 
 ```console
 $ cargo run                                                           ✔  4s 
@@ -464,11 +483,16 @@ $ cargo run                                                           ✔ 
 
 ```
 
-就会得到不同的随机数字，并且他们都应是 `1` 到 `100` 之间的数字。非常棒！
+咱们应得到不同的随机数字，且他们都应是 1 到 100 之间的数字。干得好！
+
 
 ## 将猜数与秘数相比较
 
-既然有了用户输入和随机数，就可以加以比较了。比较的步骤在下面的清单 2-4 中给出了。请注意这个代码还不会编译，原因后面会解释。
+**Comparing the Guess to the Secret Number**
+
+
+现在我们有了用户输入和随机数，我们可以对他们进行比较。该步骤如下清单 2-4 所示。请注意，这段代码还不能编译，我们将对此进行说明。
+
 
 文件名：`src/main.rs`
 
@@ -483,24 +507,28 @@ fn main() {
     println! ("你猜的数为：{}", guess);
 
     match guess.cmp(&secret_number) {
-        Ordering::Less => println! ("太小了！"),
-        Ordering::Greater => println! ("太大了！"),
+        Ordering::Less => println! ("太小！"),
+        Ordering::Greater => println! ("太大！"),
         Ordering::Equal => println! ("你赢了！"),
     }
 }
 ```
 
-*清单 2-4：对比较两个数可能的返回值进行处理*
+*清单 2-4：对比较两个数字可能的返回值进行处理*
 
-首先这里添加了另一个 `use` 语句，将标准库的一个名为 `std::cmp::Ordering` 的类型，带入到作用域。这 `Ordering` 了新是另一个枚举，且其有着 `Less`、`Greater` 和 `Equal` 共计三个变种。这些就是在对两个值进行比较时，三个可能的输出了。
 
-随后在该程序底部，添加了用到这 `Ordering` 类型的五行新代码。其中的 `cmp` 方法是对两个值进行比较，并可在任何被可比较物上进行调用。`cmp` 方法会取一个要与之相比的引用（a reference）：这里他是在将 `guess` 与 `secret_number` 相比。随后他就返回了前面用 `use` 语句带入到作用域的 `Ordering` 枚举的一个变种。这里用一个 `match` 表达式，根据以 `guess` 和 `secret_number` 中的值，对 `cmp` 调用所返回具体 `Odering` 变种，而确定出下一步要做什么。
+首先，我们添加了另一条 `use` 语句，从标准库中，引入名为 `std::cmp::Ordering` 的类型。`Ordering` 类型是另一个枚举，并具有 `Less`、`Greater` 和 `Equal` 三种变体。这正是在比较两个值时，可能出现的三种结果。
 
-`match` 表达式由数个 *支臂（arms）* 构成。每个支臂是由要与之匹配的 *模式（pattern）* ，及在给到 `match` 的值与该支臂的模式符合时，应运行的代码所组成。Rust 取给到 `match` 的值，并以此检视各个支臂的模式。模式及 `match` 结构，是强大的 Rust 特性，实现对代码可能遇到的各种情况的表达，并确保对全部的这些情况进行处理。在第 6 章和第 18 章，相应地将详细涵盖到这些特性。
+然后，我们在底部，添加了用到这个 `Ordering` 类型的五个新行。`cmp` 这个方法，会比较两个值，并可以在任何可被比较的项目上调用。他会取一个到咱们打算比较的任何值的引用：这里他是将 `guess` 与 `secret_number` 进行比较。然后，他会返回我们通过那条 `use` 语句，带入作用域的 `Ordering` 枚举的某个变种。我们使用了一个 `match` 表达式，根据以 `guess` 和 `secret_number` 中的值调用 `cmp` 时，所返回的何种 `Ordering` 变体，来决定下一步的操作。
 
-下面就来对这里使用的 `match` 表达式的一个示例走一遍。假设说用户猜的数是 `50`，同时随机生成的秘密数这次是 `38`。在代码将 `50` 与 `38` 作比较时，由于 `50` 比 `38` 大，因此那个 `cmp` 方法就会返回 `Odering::Greater`。于是 `match` 表达式就获取到值 `Odering::Greater` 并开始对各个支臂的模式进行检查。他看了第一个支臂的模式，是 `Ordering::Less`，并发现值 `Ordering::Greater` 与 `Odering::Less` 不匹配，那么他就会忽略第一个支臂中的代码而移步到下一支臂。下一支臂的模式为 `Ordering::Greater`，这正好与 `Odering::Greater` 相匹配！那个支臂中的相关代码就会执行，进而将 `太大了！`打印到屏幕。在此场景中，由于`match` 表达式无需检视那最后的支臂，因此他就结束了。
+`match` 表达式由数个 *支臂，arms* 组成。而一个支臂则由一个要与之匹配的 *模式，pattern*，以及在给到 `match` 的值，符合该支臂的模式时，要运行的代码组成。Rust 会取给到 `match` 的值，并依次查看每个支臂的模式。模式与这种 `match` 结构，是 Rust 的强大功能：二者可以让咱们，表达出代码可能遇到的各种情况，并确保咱们能处理全部的这些情况。第 6 章和第 18 章，将分别详细介绍这些特性。
 
-然而清单 2-4 中的代码并不会编译。这里试着编译一下：
+咱们来以这里用到的这个 `match` 表达式，看一个示例。假设用户猜的是 50，而这次随机生成的秘密数字是 38。
+
+当代码将 50 与 38 比较时，`cmp` 方法将返回 `Ordering::Greater`，因为 50 大于 38。这个 `match` 表达式就会得到 `Ordering::Greater` 这个值，并开始检查每个支臂的模式。他会查看第一个支臂的模式 `Ordering::Less`，发现值 `Ordering::Greater` 与 `Ordering::Less` 不匹配，因此他会忽略该支臂的代码，而转到下一支臂。下一支臂的模式是 `Ordering::Greater`，这 *确实* 匹配 `Ordering::Greater`！该支臂中的相关代码将执行，并打印 `太大！` 到屏幕。这个 `match` 表达式在第一次成功匹配后，就会结束，因此在这种情况下，其不再查看最后一个支臂。
+
+然而，清单 2-4 中的代码还无法编译。咱们来尝试一下：
+
 
 ```console
 $ cargo build                                                         ✔
@@ -518,9 +546,10 @@ For more information about this error, try `rustc --explain E0308`.
 error: could not compile `guessing_game` due to previous error
 ```
 
-这些错误状态的核心，指向的是存在 *不匹配的类型（mismatched types）*。Rust 有着强静态类型系统（Rust has a strong, static type system）。不过他也有着类型推导（type inference）。在写下 `let mut guess = String::new()` 时，Rust 当时就能推导出 `guess` 应是个 `String`，而没有要求一定要写出该类型i`String`。但对于 `secret_number` 来说，则是一个数字类型。有几种 Rust 数字类型都可以保有一个 `1` 到 `100` 之间的值：`i32`，32 位整数；`u32`，32 位无符号整数；`i64`，64 位整数；还有一些其他的。除非有特别指明，Rust 默认都是个 `i32` 整数，除非在某处给 `secret_number` 添加了引起 Rust 推断出不同数字类型的类型信息，那么 `secret_number` 的类型就会是 `i32`。上面错误的原因，就是 Rust 无法将字符串与数字类型相比较。
 
-最后，这里就要将程序以输入形式读取到的 `String`，转换成具体数字类型，如此就可以将其与`secret_number`进行数学上的比较。这里通过将下面这行添加到 `main` 函数体完成的：
+错误的核心，表明存在 *不匹配的类型，mismatched types*。Rust 有着强大的，静态类型系统。不过，他也有着类型推断，Rust has a strong, static type system. However, it also has type inference。当我们写下 `let mut guess = String::new()` 时，Rust 就能推断出，`guess` 应是个 `String`，而未曾让我们写下类型。另一方面，`secret_number` 是一个数字类型。Rust 的一些数字类型，可以有着介于 1 和 100 之间的某个：`i32`，某个 32 位的数字；`u32`，某个无符号的 32 位数字；`i64`，某个 64 位的数字；以及其他类型。除非另有说明，否则 Rust 默认会使用 `i32`，这即为 `secret_number` 的类型，除非在其他地方，添加了导致 Rust 推断出不同的数值类型的类型信息。上面这个报出的原因，是 Rust 无法比较字符串和数字类型。
+
+最后，我们打算将程序读取的字符串输入，转换为某个真正的数字，这样咱们就可以将其与秘密数字，进行数值比较。我们要通过在那个 `main` 函数主体中，添加下面这行，完成这一点：
 
 文件名：`src/main.rs`
 
@@ -544,7 +573,7 @@ error: could not compile `guessing_game` due to previous error
     }
 ```
 
-添加的那行就是：
+该行为：
 
 ```rust
 let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
