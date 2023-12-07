@@ -2,11 +2,13 @@
 
 **Variables and Mutability**
 
-就如在之前的 ["用变量保存值"](Ch02_Programming_a_Guessing_Game.md#使用变量保存那些值) 小节中所讲的那样，默认变量是不可变的。这是 Rust 所提供的，推动利用 Rust 赋予的安全和易于并发代码编写方式的众多措施之一（by default variables are immutable, this is one of many nudges Rust gives you to write your code in a way that takes advantage of the safety and easy concurrency that Rust offers）。尽管如此，还是有将变量作为可变的选项。下面就来搞清楚，为何 Rust 会鼓励偏向不可变，以及为何有时会希望不接受 Rust 的建议。
 
-在变量为不可变时，一旦值被绑定到某个名字，那么就无法修改那个值了。为对此进行演示，就来通过使用 `cargo new variables` 在 `projects` 目录中生成一个新的名为 `variables` 的项目。
+如同 [“使用变量存储值”](../Ch02_Programming_a_Guessing_Game.md#使用变量存储值) 小节所提到的，默认情况下，变量是不可变的。这是 Rust 给到咱们，以充分利用 Rust 所提供的安全性和易并发性的方式，编写咱们代码的措施之一。不过，咱们仍然可以选择让变量可变。我们来探讨一下，Rust 如何以及为什么鼓励咱们偏爱不可变性，以及为什么有时咱们可能会想要选择放弃。
 
-然后，在那个新的 `variables` 目录中，打开 `src/main.rs` 并将其代码替换为下面的代码。此代码当然不会被编译，这里首先要对不可变错误加以检视。
+当某个变量是不可变的时，那么一旦某个值绑定到某个名字，咱们就无法更改那个值了。为了说明这一点，请使用 `cargo new variables`，在 `projects` 目录中生成一个名为 `variables` 的新项目。
+
+然后，在咱们的新 `variables` 目录下，打开 `src/main.rs`，用下面的代码替换其代码，这段代码现在还不会编译：
+
 
 ```rust
 fn main() {
@@ -18,7 +20,8 @@ fn main() {
 }
 ```
 
-保存并使用 `cargo run` 运行这个程序。就会受到错误消息，如下面这个输出：
+保存并使用 `cargo run` 运行这个程序。咱们应该会收到一条，有关不变性错误的错误信息，如下面这个输出所示：
+
 
 ```console
 $ cargo run                                                    ✔
@@ -39,9 +42,9 @@ For more information about this error, try `rustc --explain E0384`.
 error: could not compile `variables` due to previous error
 ```
 
-此示例显示了编译器如何帮助发现程序中的错误。编译器错误可能令人沮丧，但这些编译器错误真的意味着，程序未有安全地执行要程序做的事情；编译器错误并不表示你不是一名良好的程序员！即使那些经验丰富的 Rust 公民，也会收到编译器错误。
+这个示例展示了，编译器如何帮助咱们发现咱们程序中的错误。编译器报错可能会令人沮丧，但实际上他们只意味着咱们的程序，还不能安全地完成咱们想要他做的事情；他们并 *不* 意味着咱们不是一名优秀的程序员！经验丰富的 Rustaceans 仍然会遇到编译器报错。
 
-该错误消息表示错误原因为 `cannot assing twice to immutable variable 'x'`，是因为有尝试将第二个值赋给那个不可变的 `x` 变量。
+咱们之所以收到了错误消息 `cannot assing twice to immutable variable 'x'`，是因为咱们试图将第二个值，赋值给那个不可变的变量 `x`。
 
 在尝试修改某个被指定为不可变的值时，由于这种情况会导致程序错误，因此这个时候收到编译时错误尤为重要。代码一部分的运作，是建立在值将绝不会改变这种假定上，而代码另一部分却修改了那个值，那么就有可能代码的第一部分未有完成他预计要完成的工作了。此类程序错误的原因，就难于追踪到真相，尤其是在代码第二部分仅 *有的时候* 才对那个值进行修改时。Rust 编译器保证了在表明某个值不会变化时，那么那个值就真的不会变化，如此就不必亲自去紧盯着那个变量了。代码也由此而更易于推演。
 
@@ -51,8 +54,6 @@ error: could not compile `variables` due to previous error
 
 文件名：`src/main.rs`
 
-```rust
-fn main() {
     let mut x = 5;
     println! ("x 的值为：{}", x);
 
