@@ -720,7 +720,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 > **译注**：这里有个有趣的地方，`break` 后的分号可有可无，`match` 表达式最后支臂后的逗号，也是可有可无的。
 
 
-### 无效输入的处理
+### 处理无效输入
 
 **Handling Invalid Input**
 
