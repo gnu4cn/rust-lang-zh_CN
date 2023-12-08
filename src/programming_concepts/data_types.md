@@ -109,9 +109,12 @@ error: could not compile `data_types` (bin "data_types") due to previous error
 
 ### 浮点类型
 
-Rust 同样有两种原生的 *浮点数* 类型，所谓浮点数，是带有小数点的数字。Rust 的浮点数类型为 `f32` 与 `f64`，分别为 32 位及 64 位大小。由于在现代 CPU 上 `f64` 与 `f32` 处理速度大致一样，不过前者具备了更高的精度，因此默认类型就定为了 `f64`。两种浮点数类型都是有符号的。
+**Floating-Point Types**
 
-下面的示例展示了具体的浮点数：
+
+Rust 同样有 *浮点数，floating-point numbers*（带有小数点的数）的两种原始类型。Rust 的浮点类型是 `f32` 和 `f64`，大小分别为 `32` 位和 `64` 位。默认类型是 `f64`，因为在现代 CPU 上，其速度与 `f32` 大致相同，但精度更高。所有浮点类型都是带符号的。
+
+下面是个展示浮点数实际操作的示例：
 
 文件名：`src/main.rs`
 
@@ -122,17 +125,21 @@ fn main() {
 }
 ```
 
-浮点数的表示，符合 [IEEE-754 标准](https://standards.ieee.org/ieee/754/6210/)。`f32` 类型是单精度浮点数，而 `f64` 则是双精度的。
+浮点数根据 [IEEE-754 标准](https://standards.ieee.org/ieee/754/6210/) 表示。`f32` 类型属于单精度浮点数，`f64` 类型有着双精度。
 
-### 数字运算
 
-Rust 支持在所有数字类型上、所期望的那些基本数学运算：加法、减法、乘法、除法，及余数。整数除法会向下取到最接近的整数结果。下面的代码展示了在 `let` 语句中，如何运用各种数字运算：
+### 数值运算
+
+**Numeric Operations**
+
+
+Rust 支持所有数字类型的基本数学运算：加法、减法、乘法、除法和余数，reminder（求模）。整数的除法，会向零截断到最接近的整数。下面的代码展示了，如何在 let 语句中使用每种数字运算：
+
 
 文件名：`src/main.rs`
 
 ```rust
 fn main() {
-
     // 加法
     let sum = 5 + 10;
 
@@ -150,20 +157,27 @@ fn main() {
     let reminder = 43 % 5;
 
     println! ("
-        5 + 10 = {},
-        95.5 - 4.3 = {}
-        4 * 30 = {}
-        56.7 / 32.2 = {}
-        2 / 3 = {}
-        43 % 5 = {}", sum, difference, product, quotient, floored, reminder);
+        5 + 10 = {sum},
+        95.5 - 4.3 = {difference}
+        4 * 30 = {product}
+        56.7 / 32.2 = {quotient}
+        2 / 3 = {floored}
+        43 % 5 = {reminder}");
 }
 ```
 
-这些语句中每个表达式都使用了一个数学运算符，并求到一个单值，该单值随后被绑定到变量。[附录 B](Ch99_Operators.md) 包含了 Rust 所提供的全部运算符。
+
+这些语句中的每个表达式，都使用了个数学运算符，并求值为一个单一值，然后绑定到某个变量。[附录 B](../appendix/ops_and_symbols.md) 列出了 Rust 提供的所有运算符。
+
+
 
 ### 布尔值类型
 
-与多数其他编程语言中一样，Rust 中的布尔值类型也有两个可能的值：`true` 及 `false`。布尔值大小为一个字节。Rust 中的布尔值类型，指定使用 `bool` 关键字。比如：
+**The Boolean Type**
+
+
+与大多数其他编程语言中一样，Rust 中的布尔类型，有两个可能的值：`true` 和 `false`。布尔值的大小为一个字节。Rust 中的布尔类型使用 `bool` 指定。例如:
+
 
 文件名：`src/main.rs`
 
@@ -175,21 +189,27 @@ fn main() {
 }
 ```
 
-主要通过条件判断，来使用布尔值，比如在 `if` 表达式中。在 [控制流（Control Flow）](#控制流程control-flow) 小节，会讲到 Rust 中 `if` 表达式的工作方式。
+
+使用布尔值的主要方式，是经由一些条件，例如某个 `if` 表达式。我们将在 [“控制流”](control_flow.md) 小节，介绍 `if` 表达式在 Rust 中的工作原理。
+
 
 ### 字符类型
 
-Rust 的 `char` 类型，是这门语言最为原生的字母类型。下面就是一些声明 `char` 值的示例：
+**The Character Type**
+
+
+Rust 的 `char` 类型，是这门语言的最原始字母类型。下面是声明出一些 `char` 值的示例：
+
 
 文件名：`src/main.rs`
 
 ```rust
 fn main() {
     let c = 'z';
-    let z = 'ℤ';
+    let z: char = 'ℤ'; // 带有显式的类型注解
     let heart_eyed_cat = '😻';
 
-    println! ("c 为 {}, z 为 {}, 爱心猫: {}", c, z, heart_eyed_cat);
+    println! ("c 为 {c}, z 为 {z}, 爱心猫: {heart_eyed_ca");
 }
 ```
 
