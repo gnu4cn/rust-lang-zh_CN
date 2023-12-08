@@ -46,9 +46,9 @@ Hello, world!
 **Parameters**
 
 
-可将函数定义为有 *参数（parameters）*，所谓参数，就是作为函数签名一部分的一些特殊变量（which are special variables that are part of a function's signature）。在函数有着参数时，就可以提供到函数与这些参数对应的具体值。技术上讲，提供到函数的具体值叫做 *实参（arguments）*，不过在一般聊天中，人们会将 *形参（parameters）* 与 *实参（arguments）* 两个说法互换使用，既指函数定义中的变量，又表示调用函数时所传入的具体值。
+我们可以将函数定义有着一些 *参数，parameters*，他们是函数签名的一部分的一些特殊变量。当某个函数有参数时，咱们就可以为这些参数，提供一些具体值。技术上讲，这些具体值被称为 *实参，arguments*，但在日常交谈中，人们倾向于可互换使用 *形参，parameter* 和 *实参，argument* 这两个词，来指代函数定义中的变量，或调用函数时传入的具体值。
 
-在下面这个版本的 `another_function` 中，就要添加一个参数：
+在下面这个版本的 `another_function` 中，我们添加了一个参数：
 
 文件名：`src/main.rs`
 
@@ -62,21 +62,25 @@ fn another_function(x: i32) {
 }
 ```
 
-试着运行这个程序；就会得到以下输出：
+
+请尝试运行这个程序；咱们应得到以下输出：
+
 
 ```console
-$ cargo run                                                        ✔
-   Compiling functions v0.1.0 (/home/peng/rust-lang/projects/functions)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.48s
-     Running `target/debug/functions`
+$ cargo run
+   Compiling functions v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\functions)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.88s
+     Running `target\debug\functions.exe`
 x 的值为：-5
 ```
 
-`another_function` 的声明，有着一个名为 `x` 的参数。`x` 的类型被指定为 `i32`。在将 `-5` 传入到 `another_function` 时，那个 `println!` 的宏，就将 `-5` 放在那个格式化字符串中两个花括号所在的地方。
 
-在函数签名中，*必须* 声明各个参数的类型。这是 Rust 设计中深思熟虑的决定：在函数定义中要求类型注解，就意味着编译器几近无需在代码中的什么地方使用那些函数的情况下，就能搞清楚是要何种类型（requiring type annotations in function definitions means that the compiler almost never needs you to use them elsewhere in the code to figure out what type you mean）。
+`another_function` 的声明，有个名为 `x` 的参数。`x` 的类型，被指定为了 `i32`。当我们将 `5` 传入到 `another_function` 时，`println!` 这个宏，会将 `5` 在格式字符串中，原先那个包含 `x` 的一对大括号处。
 
-在定义多个参数时，要用逗号（`,`）将那些参数声明分隔开，像下面这样：
+在函数签名中，我们 *必须* 声明出每个参数的类型。这是 Rust 设计中的一个深思熟虑的决定：要求在函数定义中进行类型注解，意味着编译器几乎永远不需要咱们，在代码的其他地方，使用类型注解来确定咱们所指的是何种类型。如果编译器知道函数所期望的类型，他还能给出更有用的错误信息。
+
+定义多个参数时，请用逗号分隔参数声明，如下所示：
+
 
 文件名：`src/main.rs`
 
@@ -86,27 +90,34 @@ fn main() {
 }
 
 fn print_labeled_measurement(value: i32, unit_label: char) {
-    println! ("度量值为：{}{}", value, unit_label);
+    println! ("度量值为：{value}{unit_label}");
 }
 ```
 
-此示例创建了一个名为 `print_labeled_measurement`的、有两个参数的方法。第一个参数名为 `value`，且类型为 `i32`。第二个名为 `unit_label`，同时类型为 `char`。该函数随后会打印出同时包含 `value` 与 `unit_label` 的文本。
 
-来尝试运行此代码。将`functions` 项目中的 `src/main.rs` 中的当前程序，用上面的示例进行替换，并使用 `cargo run` 运行当前程序：
+这个示例创建了一个名为 `print_labeled_measurement`，有着两个参数的函数。其中第一个参数名为 `value`，是个 `i32`。第二个参数名为 `unit_label`，类型为 `char`。该函数随后会打印同时包含 `value` 和 `unit_label` 的文本。
+
+我们来尝试运行这段代码。请用前面的示例，替换 `functions` 项目的 `src/main.rs` 文件中当前的程序，然后使用 `cargo run` 运行他：
+
 
 ```console
-$ cargo run                                                        ✔
-   Compiling functions v0.1.0 (/home/peng/rust-lang/projects/functions)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.45s
-     Running `target/debug/functions`
+$ cargo run
+   Compiling functions v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\functions)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.58s
+     Running `target\debug\functions.exe`
 度量值为：5h
 ```
 
-由于这里以 `5` 作为 `value` 的值，以 `h` 作为 `unit_label` 的值，调用了这个函数，因此该程序的输出，就包含了这些值。
+
+因为我们使用 `5` 作为 `value` 的值、`'h'` 作为 `unit_label` 的值，调用了该函数，所以程序输出会包含这些值。
 
 
 ## 语句及表达式
 
+**Statements and Expressions**
+
+
+函数体由一系列语句组成，可选择以表达式结束。到目前为止，我们所涉及的函数，还未包含结束表达式，但我们已经看到，作为语句的一部分的表达式。因为 Rust 是门基于表达式的语言，所以理解这一点很重要。其他语言没有相同的区别，因此我们来看看，什么是语句和表达式，以及它们的区别如何影响函数的主体。
 函数体是由一系列语句构成，这些语句可以是表达式结束的，也可以不是。到目前为止，所讲到的函数，都没有包含语句以表达式结束，不过有见到过表达式作为语句一部分的情况。由于 Rust 是基于表达式的语言，那么这一点就很重要，是要掌握的特征。其他语言并无这同样的特征，因此接下来就要看看语句和表达式究竟是何物，以及他们对函数体影响的不同。
 
 - *语句（statements）* 是一些完成某些操作而不返回值的指令。

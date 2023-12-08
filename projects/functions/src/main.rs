@@ -1,10 +1,8 @@
 fn main() {
-    println! ("Hello, world!");
-
-    another_function();
+    print_labeled_measurement(5, 'h');
 }
 
-fn another_function() {
-    println! ("另一函数。");
+fn print_labeled_measurement(value: i32, unit_label: char) {
+    println! ("度量值为：{value}{unit_label}");
 }
 
