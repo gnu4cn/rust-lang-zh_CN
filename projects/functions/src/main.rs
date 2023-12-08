@@ -1,9 +1,10 @@
 fn main() {
-    let x = plus_one(-1);
+    println! ("Hello, world!");
 
-    println! ("x 的值为：{}", x);
+    another_function();
 }
 
-fn plus_one(x: i32) -> i32 {
-    x + 1
+fn another_function() {
+    println! ("另一函数。");
 }
+
