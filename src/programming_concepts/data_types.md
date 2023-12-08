@@ -96,15 +96,15 @@ error: could not compile `data_types` (bin "data_types") due to previous error
 >
 > 而使用 `--release` 命令行开关，在发布模式下编译时，Rust 就不会检查会导致中止运行的整数溢出。相反，如果发生溢出，Rust 会执行 *二的补码换行，two's complement wrapping*。简而言之，大于该类型所能容纳最大值的值，会 “折回，wrap around” 到该类型所能容纳的最小值。在 `u8` 的情况下，值 256 会变成 0，值 257 会变成 1，依此类推。程序不会中止运行，但变量的值可能不是咱们期望的值。依赖整数溢出的 wrapping 行为，被视为错误。
 >
-> 要显式地处理溢出的可能性，咱们可以使用标准库为原始数值类型，所提供的下面这一系列方法：
+> 要显式地处理溢出的可能性，咱们可以使用标准库为原始数值类型，提供的下面这些方法系列：
 >
-> - 以 `wrapping_*` 这些方法的所有模式的封装，比如 `wrapping_add`（wrap in all modes with the `wrapping_*` methods, such as `wrapping_add`）；
+> - 使用 `wrapping_*` 系列方法，如 `wrapping_add`，在所有模式下换行，wrap；
 >
-> - 存在以 `checked_*` 方法的溢出时，返回 `None` 值（return the `None` value if there is overflow with the `checked_*` methods）；
+> - 使用 `checked_*` 系列方法，在出现溢出时，则返回 `None` 值；
 >
-> - 返回该值，以及一个表示是否存在带有 `overflowing_*` 方法的溢出的布尔值（return the value and a boolean indicating whether there was overflow with the `overflow_*` methods）；
+> - 使用 `overflowing_*` 系列方法，返回一个值，和一个表明是否存在溢出的布尔值；
 >
-> - 以 `saturating_*` 方法，实现该值的最小或最大值处饱和（saturate at the value's minimum or maximum values with `saturating_*` methods）。
+> - 使用 `saturating_*` 系列方法，对数值的最小值或最大值进行饱和处理。
 
 
 ### 浮点类型
