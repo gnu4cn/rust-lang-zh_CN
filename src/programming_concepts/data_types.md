@@ -323,19 +323,26 @@ let a: [i32, 5] = [-1, 0, 1, 2, 3];
 ```
 
 
-这里，`i32`就是各个元素的类型。在分号之后，数字 `5` 表示该数组包含五个元素。
+这里，`i32` 是每个元素的类型。分号后的数字 `5` 表示该数组包含五个元素。
 
-还可以通过在方括弧（`[]`）中，先指定初始值，接着一个分号（`;`），及随后数组长度的方式，初始化出一个包含各个元素为同一个值的数组，如下所示：
+咱们还可以通过在方括号中，指定初始值、分号和数组长度，来初始化某个数组，使每个元素都包含相同的值，如下所示：
+
 
 ```rust
 let a = [3; 5];
 ```
 
-名叫 `a` 这个这个数组，将包含 `5` 个元素都将被初始化设置为值 `3` 的元素。这与 `let a = [3, 3, 3, 3, 3];` 的写法是一样的，不过是一种更简洁的方式。
 
-### 对数组元素的访问
+名为 `a` 这个数组，将包含 `5` 个元素，都将被初始设置为 `3`。这与写下 `let a = [3, 3, 3, 3, 3]` 相同；但写法更简洁。
 
-一个数组，即是可分配在栈上的、已知及固定大小的一块内存。使用索引，就可以对数组的那些元素进行访问，比如下面这样：
+
+### 访问数组元素
+
+**Accessing Array Elements**
+
+
+数组是可以在堆栈上分配的，已知、固定大小的单块内存。咱们可以使用索引，访问数组中的元素，就像这样：
+
 
 文件名：`src/main.rs`
 
@@ -346,21 +353,44 @@ fn main() {
     let first = a[0];
     let last = a[a.len()-1];
 
-    println! ("数组的第一个元素：{}，最后一个元素：{}", first, last);
+    println! ("数组的第一个元素：{first}，最后一个元素：{last}");
 }
 ```
 
-在这个示例中，由于值 `1` 为该数组中索引为 `[0]` 处的值，因此名为 `first` 的元素将获取到值 `1`。而名为 `last` 的变量，将从数组中的索引 `[4]` 获取到值 `5`。
 
-**无效的数组元素访问**
+在此示例中，名为 `first` 的变量将获得值 `1`，因为这是数组中索引 `[0]` 处的值。名为 `last` 的变量将从数组中的索引 `[4]` 处获取到值 `5`。
 
-下来来看看，在尝试访问超出数组末端的数组元素时，会发生什么。就是说在运行下面这个程序时，与第二章中的猜数游戏类似，要从用户那里获取到一个数组索引：
+> **译注**：`println! ("a[0] 为：{a[0]}");` 这种写法，会报出错误。
+
+```console
+$ cargo build
+   Compiling tuple_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\tuple_demo)
+error: invalid format string: expected `'}'`, found `'['`
+ --> src\main.rs:4:24
+  |
+4 |     println! ("a[0]: {a[0]}");
+  |                      - ^ expected `'}'` in format string
+  |                      |
+  |                      because of this opening brace
+  |
+  = note: if you intended to print `{`, you can escape it using `{{`
+
+error: could not compile `tuple_demo` (bin "tuple_demo") due to previous error
+```
+
+
+### 无效的数组元素访问
+
+**Invalid Array Element Access**
+
+
+我们来看看，如果咱们尝试访问数组中，超过数组末尾的某个元素，会发生什么。假设咱们要运行下面这段，类似于第 2 章中的猜数游戏，从用户处获取数组索引的代码：
+
 
 文件名：`src/main.rs`
 
 ```rust
 use std::io;
-use std::process;
 
 fn main() {
     let a = [1, 2, 3, 4, 5];
@@ -371,34 +401,37 @@ fn main() {
 
     io::stdin()
         .read_line(&mut index)
-        .expect("读取行失败");
+        .expect("读取行失败，failed to read line");
 
-    let index: usize = match index.trim()
-        .parse() {
-            Ok(num) => num,
-            Err(_) => {
-                println! ("输入的索引并非数字");
-                process::exit(0);
-            }
-        };
+    let index: usize = index
+        .trim()
+        .parse()
+        .expect("输入的所以并非一个数字");
 
     let element = a[index];
 
-    println! (
-        "位于索引 {} 处的元素值为：{}",
-        index, element);
+    println! ("位于索引 {index} 出的元素值为：{element}");
 }
 ```
 
-此代码会成功编译。而在使用 `cargo run` 运行此代码，并输入 `0`、`1`、`2`、`3` 或 `4` 时，程序将打印出该数组中对应与那个索引处的值。而若输入了一个超出数组末端的数字，比如 `10`，那么就会看到下面这样的输出：
+
+这段代码会编译成功。如果咱们使用 `cargo run` 运行这段代码，并输入 `0`、`1`、`2`、`3` 或 `4`，该程序将打印出数组中，该索引处的相应值。如果咱们输入的数字超过了数组的末尾，例如 `10`，咱们将看到如下输出：
+
 
 ```console
-thread 'main' panicked at 'index out of bounds: the len is 5 but the index is 10', src/main.rs:24:19
+$ cargo run
+   Compiling tuple_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\tuple_demo)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.10s
+     Running `target\debug\tuple_demo.exe`
+请输入一个数组索引。
+10
+thread 'main' panicked at src\main.rs:19:19:
+index out of bounds: the len is 5 but the index is 10
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: process didn't exit successfully: `target\debug\tuple_demo.exe` (exit code: 101)
 ```
 
-当在索引操作中使用了无效值的时间点，该程序造成了一个 *运行时（runtime）* 错误。该程序以一条错误消息退出，而并未执行那最后的 `println!` 语句。在尝试使用索引访问某个元素时，Rust 会就所指定的索引，小于数组长度进行检查。若该索引大于或等于数组长度，Rust 就会出错。此项检查必须要在运行时进行，尤其是在此示例中，这是因为编译器几无可能知道在用户随后运行此程序时，会输入什么样的值。
 
-这是 Rust 内存安全准则的一个活生生的示例。在许多底层语言中，此种检查都未实现，进而在提供了不正确的索引时，就会访问到无效的内存。Rust 通过立即退出而不是允许这种无效内存访问并继续运行，而保护免于此类错误。第 9 章将对 Rust 的错误处理进行过多的讨论。
+该程序在索引操作中，使用某个无效值时，出现了 *运行时* 错误。程序以一条错误信息退出了，并且没有执行最后的那条 `println!` 语句。当咱们尝试使用索引访问某个元素时，Rust 会检查咱们指定的索引，是否小于数组长度。如果索引大于或等于长度，Rust 就会终止运行。这种检查必须在运行时进行，尤其是在这种情况下，因为编译器不可能知道，某名用户在他们稍后运行代码时，会输入什么值。
 
-
+这是 Rust 内存安全原则，实际应用的一个例子。在许多底层语言中，并无这种检查，而当咱们提供了某个不正确的索引时，无效内存就会被访问到。Rust 通过立即退出，而不是允许这种内存访问并继续，保护咱们免受此类错误的影响。第 9 章将讨论更多的 Rust 错误处理，以及如何编写既不会终止运行，也不允许无效内存访问的，可读安全代码。
