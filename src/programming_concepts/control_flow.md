@@ -272,21 +272,69 @@ $ cargo run
    Compiling loops v0.1.0 (file:///projects/loops)
     Finished dev [unoptimized + debuginfo] target(s) in 0.29s
      Running `target/debug/loops`
-再次！
-再次！
-再次！
-再次！
-^C再次！
+again!
+again!
+again!
+again!
+again!
+^C
+```
+
+其中的符号 `^C`，表示咱们按下 `ctrl-c` 的位置。在 `^C` 之后可能会打印出 `again!` 字样，也可能不会，这取决于代码收到中断信号时，在循环中的位置。
+
+> **译注**：在 Windows 平台上运行 MSYS2 的环境下，按下 `ctrl-c` 的输出如下所示：
+
+```console
+again!
+again!
+again!
+again!
+again!
+again!
+error: process didn't exit successfully: `target\debug\loops.exe` (exit code: 0xc000013a, STATUS_CONTROL_C_EXIT)
+
 ```
 
 
-其中的符号 `^C` 表示按下 `ctrl-c` 的地方。在那个 `^C` 之后，可能会也可能不会看到 `再次！` 被打印出来，取决于程序接收到中断信号时，代码在循环中的何处。
+幸运的是，Rust 还提供了一种使用代码跳出循环的方法。咱们可以在循环中，加入 `break` 关键字，告诉程序何时停止执行该循环。回想一下，我们在第 2 章 [猜对后退出](../Ch02_Programming_a_Guessing_Game.md#猜对后的退出) 小节的猜数游戏中，就是这样做的，当用户猜对数字赢得游戏时，退出那个程序。
 
-幸运的是，Rust 还提供了一种运用代码来跳出循环的方式。可在循环中放置 `break` 关键字，而告诉程序在何时结束执行这个循环。还记得在第 2 章的 [猜对数字后退出程序](Ch02_Programming_a_Guessing_Game.md#猜对后的退出) 小节，就在那个猜数游戏中这样做了，在通过猜到正确数字而赢得游戏时退出那个程序。
+在那个猜数游戏中，我们还使用了 `continue`，在某个循环中，这会告诉程序，跳过该循环的本次迭代中的任何剩余代码，而前往下一迭代。
 
-在那个猜数游戏中，还使用了 `continue` 关键字，循环中的 `continue` 关键字，告诉程序去跳过循环本次迭代的其余全部代码，而前往下一次迭代。
 
-在有着循环里头的循环时，那么 `break` 与 `continue` 就会应用在他们所在点位处的最内层循环（if you have loops within loops, `break` and `continue` apply to the innermost loop at that point）。可选择在某个循环上指定一个 *循环标签（loop label）*，这样就可以与 `break` 或 `continue` 结合使用，来指明这些关键字是要应用到打上标签的循环，而不再是那最里层的循环了。下面就是一个有着两个嵌套循环的示例：
+## 自循环返回值
+
+**Returning Values from Loops**
+
+
+`loop` 的用途之一，是重试咱们已知可能会失败的某项操作，例如检查某个线程是否已完成其作业。咱们可能还需要将该操作的结果，从循环中传递给咱们代码的其余部分。为此，咱们可以将这个咱们打算返回的值，添加在咱们用于停止循环的 `break` 表达式之后；该值将从循环中返回，以便咱们使用，如下所示：
+
+
+```rust
+fn main() {
+    let mut counter = 0;
+
+    let result = loop {
+        counter += 1;
+
+        if counter == 10 {
+            break counter * 2;
+        }
+    };
+
+    println! ("结果为：{result}");
+}
+```
+
+在该循环之前，我们声明了一个名为 `counter` 的变量，并将其初始化为 `0`。 然后咱们声明了一个名为 `result` 的变量，用于保存自该循环返回的值。在循环的每一次迭代中，我们都会给那个 `counter` 变量加 `1`，然后检查这个 `counter` 是否等于 `10`。当他等于 `10` 时，我们使用了带有 `counter * 2` 值的 `break` 关键字。在这个循环结束后，我们使用了一个分号，结束那条把该值赋给 `result` 的语句。最后，我们打印了 `result` 中的值，本例中即为 `20`。
+
+
+### 用于在多个循环之间消除歧义的循环标签
+
+**Loop Labels to Disambiguate Between Multiple Loops**
+
+
+如果咱们有着循环内的循环，`break` 和 `continue` 就会应用于那个地方最内层的循环。咱们可以选择在某个循环上，指定出一个随后可与 `break` 或 `continue` 一起使用的 *循环标签，loop label*，来指定这些关键字适用于某个带标签的循环，而不是最内层的那个循环。循环标签必须以单引号开头。下面是个带有两个嵌套循环的示例：
+
 
 ```rust
 fn main() {
@@ -314,13 +362,15 @@ fn main() {
 }
 ```
 
-其中的外层循环有着标签 `'counting_up`，同时他将从 `0` 计数到 `2`。而其中的内层循环不带标签，会从 `10` 计数到 `9`。其中的第一个未指定标签的 `break` 语句，将只会退出那个内部循环。而那个 `break 'counting_up;` 语句，则会将外层循环退出。此代码会打印出：
+
+其中的外层循环有着标签 `'counting_up`，同时他将从 `0` 计数到 `2`。而其中的内层循环不带标签，会从 `10` 计数到 `9`。未指定标签的第一个 `break` 语句，将只会退出那个内部循环。而那个 `break 'counting_up;` 语句，则会将外层循环退出。此代码会打印出：
+
 
 ```console
-$ cargo run                                                                           INT ✘
-   Compiling loops v0.1.0 (/home/peng/rust-lang/projects/loops)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.18s
-     Running `target/debug/loops`
+$ cargo run
+   Compiling loops v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\loops)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.77s
+     Running `target\debug\loops.exe`
 计数 = 0
 剩余 = 10
 剩余 = 9
@@ -332,88 +382,16 @@ $ cargo run                                                                     
 最终计数 = 2
 ```
 
-### 自循环返回值
-
-**Returning Values from Loops**
-
-`loop` 的一个用途，即是对一个明知会失败的操作进行重试，比如检查某个线程是否已完成他的作业。还可能需要将那个操作的结果，从循环传出来给代码的其余部分。要实现这一点，可将想要返回的值，添加在用于停止该循环的 `break` 表达式之后；那个值就会被返回到该循环的外面，进而就可以用到那个值了，如下所示：
-
-```rust
-fn main() {
-    let mut counter = 0;
-
-    let result = loop {
-        counter += 1;
-
-        if counter == 10 {
-            break counter * 2;
-        }
-    };
-
-    println! ("结果为：{}", result);
-}
-```
-
-在这个循环之前，这里声明了一个名为 `counter` 的变量，并将其初始化为 `0`。随后声明了一个名为 `result` 变量，来保存从该循环所返回的值。在该循环的每次迭代上，是要给 `counter` 变量加上 `1` 的，并随后检查那个计数器是否等于 `10`。在计数器等于 `10` 的时候，就使用有着值 `counter * 2` 的 `break` 关键字。在该循环之后，使用了一个分号来结束将值 `counter * 2` 赋值给 `result` 的那个语句。最后，这里打印出了在 `result` 里的值，即这个示例中的 `20`。
-
-
-### 用于在多个循环之间消除歧义的循环标签
-
-**Loop Labels to Disambiguate Between Multiple Loops**
-
-如果咱们有着一些循环内的循环，`break` 和 `continue` 会应用于最内层循环的其所在之处。咱们可以选择性地，在某个循环上指定出，随后可与 `break` 或 `continue` 一起使用的 *循环标签，loop label*，从而指明这些关键字，会应用于带标签的循环，而不是最内层的循环。循环标签必须以单引号开头。下面是个有着两个嵌套循环的示例：
-
-
-```rust
-fn main() {
-    let mut count = 0;
-
-    'counting_up: loop {
-        println! ("count = {count}");
-        let mut remaining = 10;
-
-        loop {
-            println! ("remaining = {remaining}");
-            if remaining == 9 {
-                break;
-            }
-
-            if count == 2 {
-                break 'counting_up;
-            }
-            remaining -= 1;
-        }
-
-        count += 1;
-    }
-
-    println! ("End count = {count}");
-}
-```
-
-
-其中外层的循环，有着标签 `'counting_up`，而其将从 0 计数到 2。不带标签的内层循环，将从 10 递减计数到 9。第一个未指定标签的 `break`，只会退出那个内层循环。`break 'counting_up;` 语句将退出外循环。这段代码将打印：
-
-
-```console
-$ cargo run
-   Compiling loop_label v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\loop_label)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.95s
-     Running `target\debug\loop_label.exe`
-count = 0
-remaining = 10
-remaining = 9
-count = 1
-remaining = 10
-remaining = 9
-count = 2
-remaining = 10
-End count = 2
-```
 
 ### 使用 `while` 的条件循环
 
-程序经常会对循环里的条件进行求值。当条件为真时，该循环就运行。在条件不再为真时，程序就调用 `break`，把循环停下来。使用 `loop`、`if`、`else` 与 `break` 来实现与此相似的行为，是可能的；若愿意这样做，现在就可以在程序中尝试一下。不过由于这种模式如此常见，以至于 Rust 为此而有了一个内建的语言结构，那就是叫做 `while` 的循环。在下面的清单 3-3 中，就使用了 `while` 来将该程序循环三次，每次都倒计数，并随后在循环结束之后，打印出一条消息而退出。
+**Conditional Loops with `while`**
+
+
+程序经常需要计算循环内的某个条件。当该条件为 `true` 时，循环就会运行。当条件不再为 `true` 时，程序就会调用 `break`，停止该循环。使用 `loop`、`if`、`else` 和 `break` 的组合，实现类似这样的行为使可行的；如果咱们愿意，现在就可以在程序中尝试一下。不过，这种模式是如此常见，以致 Rust 为其提供了一种内置的语言结构，称为 `while` 循环。在下面清单 3-3 中，我们使用 `while` 将该程序循环三次，每次会倒计时，然后在循环结束后，打印一条信息并退出。
+
+
+文件名：`src/main.rs`
 
 ```rust
 fn main() {
@@ -431,50 +409,58 @@ fn main() {
 
 *清单 3-3：使用 `while` 循环在条件保持为真期间运行代码*
 
-此代码结构，消除了使用 `loop`、`if`、`else`、及 `break` 实现同样结构时，很多不可缺少的嵌套，且此结构更为清晰。在条件保持为真期间，代码就会运行；否则，他将退出循环。
+
+这种结构，消除了咱们在使用 `loop`、`if`、`else`、及 `break` 时，必然会有的大量嵌套，且更为清晰。在某个条件计算为 `true` 期间，代码就会运行；否则，他会退出那个循环。
 
 
-###  使用 `for` 对集合进行遍历
+###  使用 `for` 遍历集合
 
-可选择使用 `while` 结构，来对集合，诸如数组，的那些元素进行循环。作为示例，下面清单 3-4 中的循环，将打印出数组 `a` 中的各个元素。
+**Looping Through a Collection with `for`**
+
+
+咱们可以选择使用 `while` 结构，来遍历某种集合（比如数组）的元素。作为示例，下面清单 3-4 中的循环，会打印出数组 `a` 中的各个元素。
+
 
 文件名：`src/main.rs`
 
 ```rust
 fn main() {
     let a = [10, 20, 30, 40, 50];
-
     let mut index = 0;
 
     while index < a.len() {
-        println! ("值为：{}", a[index]);
+        println!("the value is: {}", a[index]);
 
         index += 1;
     }
 }
 ```
 
-*清单 3-4：使用 `while` 循环遍历集合的各个元素*
+*清单 3-4：使用 `while` 循环遍历某个集合的各个元素*
 
-这个程序里，代码会根据那个数组中的元素，往上计数。是以索引 `0` 开始，然后循环，直到循环到了数组中最后的那个索引（即，在 `index < 5` 不再为 `true` 时）。运行此代码将打印出数组中的所有元素：
+
+此处，代码会对数组中的元素，进行向上计数。他会从索引 `0` 处开始，然后循环直到他到达数组中的最终索引（即，当 `index < 5` 不再为 `true` 时）。运行这段代码，将打印出该数组中的每个元素：
+
 
 ```console
-$ cargo run                                                                                  ✔
-   Compiling loops v0.1.0 (/home/peng/rust-lang/projects/loops)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.17s
-     Running `target/debug/loops`
-值为：10
-值为：20
-值为：30
-值为：40
-值为：50
+$ cargo run
+   Compiling loops v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\loops)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.80s
+     Running `target\debug\loops.exe`
+the value is: 10
+the value is: 20
+the value is: 30
+the value is: 40
+the value is: 50
 ```
 
-全部五个数组值都会出现在终端里，跟预期一样。尽管 `index` 在某个时间点达到值 `5`，但该循环会在尝试从那个数组获取第六个值之前，就停止执行。
 
-但这种方法易于出错；在索引值或测试条件不正确时，就会导致该程序出错。比如，若把数组 `a` 的定义修改为有四个元素，而忘记了将那个条件更新到 `while index < 4`，此代码就会出错。由于编译器增加了在那个循环过程中，每次迭代上用于执行对 `index` 是否在数组边界内的，条件检查时间，因此这种方法还慢。
+如预期那样，所有五个数组值都会出现在终端中。即使 `index` 在某一时刻会达到 `5`，这个循环也会在尝试从该数组中，获取第六个值前，停止执行。
 
-作为一种位为简练的替代，就可使用 `for` 循环而对集合中的各个元素，执行一些代码。`for` 循环看起来就跟下面清单 3-5 中的代码一样：
+但是，这种方法容易出错；如果索引值或测试条件不正确，我们可能会导致程序终止运行。例如，如果咱们将 `a` 这个数组的定义，改为有四个元素，但忘记将那个条件更新为 `while index < 4`，这段代码就会终止运行。此外，由于编译器会添加一些在循环的每次迭代时，执行索引是否在数组边界内条件检查的代码，因此该程序还会运行很慢。
+
+作为一种更简洁的替代方法，咱们可以使用 `for` 循环，并为集合中的每个项目执行一些代码。`for` 循环会看起来如下清单 3-5 中的代码。
+
 
 文件名：`src/main.rs`
 
@@ -482,13 +468,13 @@ $ cargo run                                                                     
 fn main() {
     let a = [10, 20, 30, 40, 50];
 
-    for element in a {
-        println! ("值为：{}", element);
+    for el in a {
+        println! ("the value is: {el}");
     }
 }
 ```
 
-*清单 3-5：使用 `for` 循环对结合的各个元素进行遍历*
+*清单 3-5：使用 `for` 循环遍历某个集合的各个元素*
 
 
 在运行这段代码时，将看到与清单 3-4 中同样的输出。更重要的是，现在业已提升了代码的安全性，并消除了可能因超出那个数组末端，或因索引未足够触及而遗失掉一些数组项目，而导致的代码错误。
