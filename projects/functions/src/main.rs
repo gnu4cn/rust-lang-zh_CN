@@ -1,8 +1,9 @@
 fn main() {
-    let y = {
-        let x = 3;
-        x + 1;
-    };
+    let x = plus_one(5);
 
-    println! ("y 的值为：{:?}", y);
+    println! ("x 的值为：{x}");
+}
+
+fn plus_one(x: i32) -> i32 {
+    x + 1;
 }

@@ -242,9 +242,14 @@ error: could not compile `functions` (bin "functions") due to previous error
 
 ## 有返回值的函数
 
-函数可以将值返回给调用他们的代码。在函数有值要返回时，不会就这些返回值命名，但必须在箭头（`->`）后面，声明这些值的类型。在 Rust 中，函数的返回值，与函数体代码块的最后那个表达式的值，二者等价。通过使用 `return` 关键字并指定一个值，即可尽早地给函数返回值，不过大多数函数，都显式地返回最后的那个表达式。下面就是返回值的一个函数示例：
+**Functions with Return Values**
+
+
+函数可以将一些值，返回给调用他们的代码。我们不会给返回值命名，但必须在一个箭头 (`->`) 后，声明他们的类型。在 Rust 中，函数的返回值，与函数体代码块中，最后一个表达式的值同义。咱们可以通过使用 `return` 关键字，并指定某个值来提前从函数中返回，但大多数函数，都是隐式地返回最后一个表达式。下面是个会返回值函数的示例：
+
 
 > 注：关键字 `return` 的使用，标志着函数体的结束，`return` 语句之后的代码，将不再执行。
+
 
 文件名：`src/main.rs`
 
@@ -256,37 +261,62 @@ fn five() -> u32 {
 fn main() {
     let x = five();
 
-    println! ("x 的值为：{}", x);
+    println! ("x 的值为：{x}");
 }
 ```
 
-在那个 `five` 函数中，没有任何函数调用、宏、或者甚至 `let` 语句 -- 只是那个数字 `5` 自己。在 Rust 中这是个完全有效的函数。请注意该函数的返回值类型，也是以 `-> u32` 的形式指定了的。尝试运行此代码；输出应像下面这样：
+
+在其中的函数 `five` 中，没有函数调用、宏，甚至没有 `let` 语句，只有数字 `5` 本身。这在 Rust 中，是个完全有效的函数。请注意，该函数的返回类型，还被指定为 `-> i32`。请尝试运行这段代码；输出应是下面这样：
+
 
 ```console
-$ cargo run                                                        ✔
-   Compiling functions v0.1.0 (/home/peng/rust-lang/projects/functions)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.45s
-     Running `target/debug/functions`
+$ cargo run
+   Compiling functions v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\functions)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.79s
+     Running `target\debug\functions.exe`
 x 的值为：5
 ```
 
-函数 `five` 中的 `5` 即是该函数的返回值，这就是为何返回值类型为 `u32` 的原因。下面来更深入地检视一下。其中有两个重点：首先，代码行`let x = five();` 表明这里使用了某个函数的返回值，来对一个变量进行初始化。由于函数 `five` 返回了一个 `5`，因此那行代码就跟下面的相同：
+
+`five` 中的 `5`，便是该函数的返回值，这就是返回类型为 `i32` 的原因。我们来详细研究一下。有两个要点：首先，`let x = five();` 这行表明，我们正使用某个函数的返回值，来初始化一个变量。因为函数 `five` 的返回值是 `5`，所以这行与下面的行相同：
+
 
 ```rust
 let x = 5;
 ```
 
-其次，函数 `five` 没有参数，并定义了返回值类型，而其函数体只是个孤零零的、不带分号的 `5`，这是由于这个不带分号的 `5`，是个要将其值加以返回的表达式（注：若加上分号，那么就会变成一个语句，返回的将是特殊值 `()`，返回值类型将不再是 `u32`，从而导致编译时错误......）。
 
-下面来看看另一个示例：
+其次，`five` 这个函数没有参数，并定义了返回值的类型，但函数体是个没有分号的孤零零的 `5`，因为他是个我们要返回其值的表达式。
+
+
+咱们来看看另一示例：
+
 
 文件名：`src/main.rs`
 
 ```rust
 fn main() {
-    let x = plus_one(-1);
+    let x = plus_one(5);
 
-    println! ("x 的值为：{}", x);
+    println! ("x 的值为：{x}");
+}
+
+fn plus_one(x: i32) -> i32 {
+    x + 1
+}
+```
+
+
+运行这段代码将打印出 `x 的值为：6`。但如果我们在包含 `x + 1` 那行结束处，加个分号，而将其从表达式改为语句，咱们将得到一个报错：
+
+
+文件名：`src/main.rs`
+
+```rust
+fn main() {
+    let x = plus_one(5);
+
+    println! ("x 的值为：{x}");
 }
 
 fn plus_one(x: i32) -> i32 {
@@ -294,25 +324,26 @@ fn plus_one(x: i32) -> i32 {
 }
 ```
 
-对这段代码进行编译，会产生一条错误，如下所示：
+
+编译这段代码，会产生一条报错，如下所示：
+
 
 ```console
-$ cargo run                                                        ✔
-   Compiling functions v0.1.0 (/home/peng/rust-lang/projects/functions)
+$ cargo run
+   Compiling functions v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\functions)
 error[E0308]: mismatched types
- --> src/main.rs:7:24
+ --> src\main.rs:7:24
   |
 7 | fn plus_one(x: i32) -> i32 {
   |    --------            ^^^ expected `i32`, found `()`
   |    |
   |    implicitly returns `()` as its body has no tail or `return` expression
 8 |     x + 1;
-  |          - help: consider removing this semicolon
+  |          - help: remove this semicolon to return this value
 
 For more information about this error, try `rustc --explain E0308`.
-error: could not compile `functions` due to previous error
+error: could not compile `functions` (bin "functions") due to previous error
 ```
 
-主要错误消息为，“mismatched types，”，该消息表明了此代码的核心问题。函数 `plus_one` 的定义是说他将返回一个 `i32`，然而函数体的语句并未求解到一个值来，求解到的是一个以 `()` 表示的单元类型（the unit type）。因此，就什么也没返回，这是与函数定义相矛盾的，进而导致了一个错误。在此输出中，Rust 提供了一条或许有助于纠正此问题的消息：他建议移除那个分号，那样就会修正该错误。
 
-
+其中的主要错误信息，`mismatched types`，揭示了这段代码的核心问题。函数 `plus_one` 的定义，说他将返回一个 `i32`，但语句不会计算为某个值，而是由 `()` 表示的单元值，the unit type。因此，没有返回任何值，这与函数定义相矛盾，而导致一个报错。在此输出中，Rust 提供了一条，可能有助于纠正此问题的信息：他建议删除分号，这就将会修复这个错误。
