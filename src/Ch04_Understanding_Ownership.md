@@ -1,4 +1,4 @@
-# 掌握 Rust 中的所有权
+# 掌握所有权
 
 **Understanding Ownership**
 
