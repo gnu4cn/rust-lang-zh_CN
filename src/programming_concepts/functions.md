@@ -117,14 +117,16 @@ $ cargo run
 **Statements and Expressions**
 
 
-函数体由一系列语句组成，可选择以表达式结束。到目前为止，我们所涉及的函数，还未包含结束表达式，但我们已经看到，作为语句的一部分的表达式。因为 Rust 是门基于表达式的语言，所以理解这一点很重要。其他语言没有相同的区别，因此我们来看看，什么是语句和表达式，以及它们的区别如何影响函数的主体。
-函数体是由一系列语句构成，这些语句可以是表达式结束的，也可以不是。到目前为止，所讲到的函数，都没有包含语句以表达式结束，不过有见到过表达式作为语句一部分的情况。由于 Rust 是基于表达式的语言，那么这一点就很重要，是要掌握的特征。其他语言并无这同样的特征，因此接下来就要看看语句和表达式究竟是何物，以及他们对函数体影响的不同。
+函数体由一系列语句组成，可选择以表达式结束。到目前为止，我们所涉及的函数，还未包含结束表达式，an ending expression，但我们已经看到，作为语句一部分的表达式。因为 Rust 是门基于表达式的语言，所以理解这一点很重要。其他语言没有这同一区别，因此我们来看看，什么是语句和表达式，以及他们的区别如何影响函数的主体。
 
-- *语句（statements）* 是一些完成某些操作而不返回值的指令。
 
-- *表达式（expressions）* 会求得一个结果值。来看看一些示例。
+- **语句，statements**，是执行某些操作，但不返回值的指令；
 
-这里事实上已经用到了语句和表达式。创建一个变量，并以 `let` 关键字将一个值指派给他，就是一条语句。下面的清单 3-1 中，`let y = 6;` 就是一条语句。
+- **表达式，expressions**，会求得一个结果值。咱们来一些示例。
+
+
+实际上，我们已经使用过语句和表达式。使用 `let` 关键字创建变量并赋个值给他，就是语句。在下清单 3-1 中，`let y = 6;` 就是条语句。
+
 
 文件名：`src/main.rs`
 
@@ -136,9 +138,11 @@ fn main() {
 
 *清单 3-1：包含一条语句的一个 `main` 函数*
 
+
 函数定义也是语句；上面的整个示例本身就是一条语句。
 
-语句不会返回值。因此就无法将一条 `let` 语句，指派给另一变量了，就如同下面代码尝试完成的那样；这就会得到一条错误消息：
+语句不返回值。因此，咱们不能将 `let` 语句，赋值给另一个变量，就像下面的代码试图做的那样；咱们会得到一个报错：
+
 
 文件名：`src/main.rs`
 
@@ -148,29 +152,23 @@ fn main() {
 }
 ```
 
-当运行这个程序时，将收到的错误如下所示：
+
+当咱们运行这个程序时，咱们将得到的报错，会看起来像下面这样：
+
 
 ```console
-$ cargo run                                                        ✔
-   Compiling functions v0.1.0 (/home/peng/rust-lang/projects/functions)
-error: expected expression, found statement (`let`)
- --> src/main.rs:2:14
+$ cargo run
+   Compiling functions v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\functions)
+error: expected expression, found `let` statement
+ --> src\main.rs:2:14
   |
 2 |     let x = (let y = 6);
-  |              ^^^^^^^^^
+  |              ^^^
   |
-  = note: variable declaration using `let` is a statement
-
-error[E0658]: `let` expressions in this position are unstable
- --> src/main.rs:2:14
-  |
-2 |     let x = (let y = 6);
-  |              ^^^^^^^^^
-  |
-  = note: see issue #53667 <https://github.com/rust-lang/rust/issues/53667> for more information
+  = note: only supported directly in conditions of `if` and `while` expressions
 
 warning: unnecessary parentheses around assigned value
- --> src/main.rs:2:13
+ --> src\main.rs:2:13
   |
 2 |     let x = (let y = 6);
   |             ^         ^
@@ -182,16 +180,17 @@ help: remove these parentheses
 2 +     let x = let y = 6;
   |
 
-For more information about this error, try `rustc --explain E0658`.
 warning: `functions` (bin "functions") generated 1 warning
-error: could not compile `functions` due to 2 previous errors; 1 warning emitted
+error: could not compile `functions` (bin "functions") due to previous error; 1 warning emitted
 ```
 
-其中的 `let y = 6` 语句不会返回值，因此这里就没有任何东西给 `x` 绑定。这不同于其他语言所发生的事情，譬如 C 和 Ruby 等，在其他语言中，赋值操作返回的是所赋的那个值。在那些语言中，就可以写下 `x = y = 6`，而让 `x` 与 `y` 同时有了值 `6`；但在 Rust 中却不是这样的。
 
-表达式会求解为一个值，进而构成往后编写的 Rust 代码的绝大部分。设想一个数学运算，比如 `5 + 6`，这就是个将求值为值 `11` 的表达式。
+其中的 `let y = 6` 语句不会返回值，因此 `x` 没有任何绑定对象。这与其他语言（如 C 和 Ruby）的情况不同，在其他语言中，赋值会返回赋值的值。在这些语言中，咱们可以写下 `x = y = 6`，而 `x` 和 `y`，都会有着值 `6`；而在 Rust 中，情况并非如此。
+
+表达式会计算为一个值，并构成咱们在 Rust 中，将编写的其余代码的大部分。请设想某个数学运算，例如 `5 + 6`，这是个会求值为 `11` 的表达式。表达式可以是语句的一部分：在清单 3-1 中，语句 `let y = 6;` 中的 `6`，是个求值为 `6` 的表达式。调用某个函数，便是个表达式。调用某个宏，是个表达式。用花括号创建的某个新作用域块，是个表达式，比如：
 
 表达式可作为语句的一部分：在清单 3-1 中，语句 `let y = 6;` 里的 `6` 就是一个求值到 `6` 的表达式。对函数的调用，同样是个表达式。对宏的调用，也是个表达式。以花括号创建出的新代码块，还是个表达式，比如：
+
 
 文件名：`src/main.rs`
 
@@ -206,7 +205,7 @@ fn main() {
 }
 ```
 
-其中的这个表达式：
+其中这个表达式：
 
  ```rust
 {
@@ -215,9 +214,30 @@ fn main() {
 }
 ```
 
-在这个示例中，就是一个求值为 `4` 的表达式。其求得的值 `4` 会作为那条 `let` 语句的一部分，被绑定到 `y`。请注意那代码块最后的 `x + 1` 的代码行，并没有分号（`;`），而与到目前为止所见到的大多数代码行不同。表达式并不包含最后的分号。若将分号家到表达式末端，就会将其变成一条语句，进而就不再返回值了。在接下来对函数返回值与表达式的探索过程中，请牢记这一点。
 
-> 注：若在上面代码块中的 `x + 1` 后面加上分号，那么 `y` 的值将为 `()` 这一特殊值（类似于 `null`）。进而在接下来的 `println!` 语句中导致出错。
+是个在本示例种，会求值为 `4` 的一个代码块。该值会作为那个 `let` 语句的一部分，被绑定到 `y`。请注意，`x + 1` 这行的结尾，没有分号，这与咱们目前看到的大多数行不同。表达式不会包括结尾的分号。如果咱们在表达式的末尾加上分号，咱们便将其转换为了语句，而他就将不返回值。在接下来咱们探讨函数返回值和表达式时，请牢记这一点。
+
+
+> 注：若在上面代码块中的 `x + 1` 后面加上分号，那么 `y` 的值将为 *单元值，unit* `()` 这一特殊值。进而在接下来的 `println!` 语句中导致出错。
+
+
+```console
+$ cargo run
+   Compiling functions v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\functions)
+error[E0277]: `()` doesn't implement `std::fmt::Display`
+ --> src\main.rs:7:22
+  |
+7 |     println! ("y 的值为：{y}");
+  |                          ^^^ `()` cannot be formatted with the default formatter
+  |
+  = help: the trait `std::fmt::Display` is not implemented for `()`
+  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+  = note: this error originates in the macro `$crate::format_args_nl` which comes from the expansion of the macro `println` (in Nightly
+ builds, run with -Z macro-backtrace for more info)
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `functions` (bin "functions") due to previous error
+```
 
 
 ## 有返回值的函数

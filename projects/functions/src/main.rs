@@ -1,8 +1,8 @@
 fn main() {
-    print_labeled_measurement(5, 'h');
-}
+    let y = {
+        let x = 3;
+        x + 1;
+    };
 
-fn print_labeled_measurement(value: i32, unit_label: char) {
-    println! ("度量值为：{value}{unit_label}");
+    println! ("y 的值为：{:?}", y);
 }
-
