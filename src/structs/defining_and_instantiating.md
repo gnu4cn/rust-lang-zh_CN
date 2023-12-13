@@ -1,11 +1,12 @@
-# 定义并初始化结构体
+# 定义与实例化结构体
 
 **Defining and Instantiating Structs**
 
 
-结构体与之前 [元组类型](Ch03_Common_Programming_Concepts.md#元组类型) 小节中讨论过的元组数据结构类似，二者都保存着多个相关数据。和元组一样，结构体的各个数据片段可以是不同类型。与原则不同的是，在结构体中将给各个数据片段命名，如此各个值表示什么就清楚了。加上这些名字，就意味着相比于元组更为灵活了：不必为了给某个实例指定他的那些值，或要访问实例的那些值，而对实例数据的顺序有所依赖了。
+结构体与 [元组类型](../programming_concepts/data_types.md#元组类型) 小节中，讨论过的元组类似，他们都保存了多个相关的值。与元组一样，结构体中的数据也可以是不同的类型。与元组不同的是，在结构体中，我们会为每条数据命名，这样就能清楚地知道，这些值的含义。添加这些名字，意味着结构体比元组更灵活：咱们不必依赖数据的顺序，来指定或访问某个实例的值。
 
-要定义出一个结构体，就要敲入关键字 `struct`，及整个结构体的名字。结构体名字，应对安排在一起的这些数据片段的意义加以描述。随后，就要这一对花括号里头，定义出各个数据片段的名称与类型，这些数据片段，就叫做 *字段（fields）*。比如，下面的清单 5-1 就给出了一个保存用户账号信息的结构体。
+要定义某个结构体，我们要输入关键字 `struct` 并为这整个结构体命名。结构体的名称，应描述被组合在一起的这些数据的意义。然后，在花括号内，咱们要定义出我们称之为 *字段，fields* 的，这些数据的名字和类型。例如，下面清单 5-1 给出了一个，存储了一名用户账户信息的结构体。
+
 
 ```rust
 struct User {
@@ -18,39 +19,46 @@ struct User {
 
 *清单 5-1：`User` 结构体的定义*
 
-在定义出了结构体后，要用上这个结构体，就要通过给各个字段指定具体值，创建出那个结构体的 *实例（instance）* 来。通过指明结构的名字，并随后加上包含了 `key: value` 键值对的一对花括号，这样创建出一个实例来。键值对中的那些键，就是那些字段的名字，而其中的那些值，则是打算保存在这些字段中的数据。不必按照在结构体中声明那些字段的顺序，来对这些字段进行指明（we don't have to specify the fields in the same order in which we declared them in the struct）。也就是说，结构体定义就如同该类型的通用模板，而实例则将特定数据填充到那个木板中，从而创建出这个类型的值来。比如，就可如下面清单 5-2 中所展示的那样，声明出一个特定的用户来：
+
+要在咱们定义了某个结构体后使用他，我们就要通过为每个字段，指定出具体的值，创建出该结构体的一个 *实例，instance*。我们通过指明该结构体的名字，然后添加一对，包含着一些其中键是字段的名字，值为我们要存储在这些字段中数据的 *key: value* 键值对的花括号。我们不必按照在结构体中声明字段的同样顺序，指定这些字段。换句话说，结构体的定义，就像是该类型的通用模板，而实例则将以特定数据，填充该模板，以创建出该类型的值来。例如，我们可以如下清单 5-2 所示，声明出一个特定的用户。
+
+
+文件名：`src/main.rs`
 
 ```rust
 fn main() {
     let user1 = User {
-        email: String::from("rust@xfoss.com"),
-        username: String::from("unisko"),
         active: true,
-        sign_in_count: 1
-    };
+        username: String::from("someusername123"),
+        email: String::from("someone@example.com"),
+        sign_in_count: 1,
+    }
 }
 ```
 
-*清单 5-2：创建出结构体 `User` 的一个实例来*
+*清单 5-2：创建一个 `User` 结构体的实例*
 
-而要从结构体中获取到指定值，就要使用点表示法（`.`）。在要的仅是该用户的电子邮件地址时，就可以在那些要用到这个值的地方，使用 `user1.email` 。而在该实例为可变时，那么就可以通过使用点表示法，进而给特定字段赋值，而对某个值加以修改。下面的清单 5-3 展示了如何来修改某个可变 `User` 实例 `email` 字段中的值。
+
+要从结构体中获取某个特定值，我们要使用点表示法。例如，要访问这名用户的电子邮件地址，我们会使用 `user1.email`。如果该实例是可变的，我们可以通过使用这种点表示法，而将赋值到某个特定字段，来更改某个值。下面清单 5-3 给出了，如何更改某个可变 `User` 实例的 `email` 字段中的值。
+
 
 文件名：`src/main.rs`
 
 ```rust
 fn main() {
     let mut user1 = User {
-        email: String::from("rust@xfoss.com"),
-        username: String::from("unisko"),
         active: true,
-        sign_in_count: 1
-    };
+        username: String::from("someusername123"),
+        email: String::from("someone@example.com"),
+        sign_in_count: 1,
+    }
 
-    user1.email = String::from("java@xfoss.com");
+    user1.email = String::from("anotheremail@example.com");
 }
 ```
 
 *清单 5-3：对某个 `User` 实例中的 `email` 字段进行修改*
+
 
 请注意这整个实例必须是可变的；Rust 不允许仅将一些字段标记为可变。与所有表达式一样，可以函数体中最后的表达式形式，构造出结构体的新实例，来隐式地返回那个新实例（as with any expression, we can construct a new instance of the struct as the last expression in the function body to implicity return that new instance）。
 
