@@ -330,9 +330,10 @@ fn dangle() -> &String {    // dangle 返回的是个到某 String 的引用
 ```
 
 
-由于变量 `s` 是在函数 `dangle` 内部创建的，那么在函数 `dangle` 的代码执行完毕时，变量 `s` 就将被解除内存分配（deallocated）。而这里还在尝试返回一个到他的引用。那就意味着这个引用，就会指向到一个无效的 `String`。那就不好了！Rust 是不会允许这样干的。
+因为 `s` 是在 `dangle` 内部创建的，所以当 `dangle` 的代码结束时，`s` 将被解除内存分配。然而我们曾试图返回对他的引用。这意味着这个引用，将指向一个无效的 `String`。这可不行！Rust 不允许我们这么做。
 
-这里的解决办法，就是直接返回那个 `String` 值：
+
+这里的解决办法，是直接返回那个 `String` 值：
 
 ```rust
 fn dangle() -> String {
@@ -342,13 +343,20 @@ fn dangle() -> String {
 }
 ```
 
+这会没有任何问题地运作。所有权会被迁出，而不会有任何东西，被解除内存分配。
+
+
 ## 引用的规则
 
 **The Rules of References**
 
-下面来对前面已经讨论过有关引用的东西，进行一下总结回顾：
 
-- 在任意给定时间点，都 *要么* 只能有一个可变引用，*要么* 有任意数量的不可变引用（at any given time, you can have *either* one mutable reference *or* any number of immutable references）；
-- 引用必须一直有效（references must always be valid）。
+我们来回顾一下，我们已讨论过的关于引用的内容：
 
-接下来，咱们将看看，一种不同类别的引用：切片（slices）。
+
+- 在任何时候，咱们都可以有着一个可变引用，或任意数量的不可变引用；
+
+- 引用必须始终有效。
+
+
+接下来，我们来看看另一种引用：切片。
