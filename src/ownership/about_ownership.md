@@ -357,40 +357,42 @@ Rust 有个名为 `Copy` 特质的特殊注解，我们可以把他放在像整�
 
 **Ownership and Functions**
 
+将某个值传递给函数的机制，与为将一个值赋给某个变量类似。将一个变量传递给某个函数，会像赋值一样，进行迁移或拷贝。下面清单 4-3 有着一个，带有一些显示其中变量进入和超出作用域位置注释的示例。
 
-将值传递给函数的语法，与将值赋值给变量的语法，是类似的。将变量传递给函数，就会进行迁移或拷贝，这与赋值所做的别无二致。下面的清单 4-3 有着一个带有一些注解的示例，对其中的变量进入和超出作用域，进行了展示。
 
 文件名：`src/main.rs`
 
-
 ```rust
 fn main() {
-    let s = String::from("hello");  // 变量 s 进到作用域
+    let s = String::from("hello");  // s 进到作用域
 
-    takes_ownership(s);             // 变量 s 的值迁移到这个函数里头......
-                                    // ......进而变量 s 因此不再有效
+    takes_ownership(s);             // 变量 s 的值迁移到这个函数中......
+                                    // ......进而在这里不再有效
 
-    let x = 5;                      // 变量 x 进到作用域
+    let x = 5;                      // x 进到作用域
 
-    makes_copy(x);                  // 变量 x 迁移到到这个函数里，
+    makes_copy(x);                  // x 将迁移到这个函数中，
                                     // 但由于 i32 实现了 `Copy` 特质，因此
-                                    // 后面在使用变量 x 也是没问题的
-}   // 到这里，变量 x 超出了作用域，接着便是变量 s。但由于变量 s 的值已被迁移，因此
-    // 这里不会有特别的事情发生。
+                                    // 后面在使用变量 x 没有问题
+    println! ("x = {x}");
+}   // 到这里，x 超出作用域，接着是 s。但由于 s 的值已被迁移，因此
+    // 不会有特别的事情发生。
 
-fn takes_ownership(some_string: String) {   // 变量 some_string 进到作用域
+fn takes_ownership(some_string: String) {   // some_string 进到作用域
     println! ("{}", some_string);
-}   // 到这里，变量 some_string 便超出作用域，而 `drop` 方法就会被调用。some_string 的
-    // 内存就被释放了。
+}   // 这里，some_string 超出作用域，而 `drop` 方法会被调用。退回的
+    // 内存被释放。
 
-fn makes_copy(some_integer: i32) {  // 变量 some_integer 进到作用域
+fn makes_copy(some_integer: i32) {  // some_integer 进到作用域
     println! ("{}", some_integer);
-}   // 到这里，变量 some_integer 超出作用域。没有特别事情发生。
+}   // 这里，some_integer 超出作用域。没有特别事情发生。
 ```
 
-*清单 4-3：带所有权与作用域注解的函数*
+*清单 4-3：带有所有权与作用域注解的函数*
 
-> 注：下面的代码，仍然会报出：`use of moved value: ``some_string```错误：
+
+> **注**：下面的代码，仍然会报出：`use of moved value: ``some_string```错误：
+
 
 ```rust
 fn takes_ownership(some_string: String) {
@@ -400,7 +402,7 @@ fn takes_ownership(some_string: String) {
 }
 ```
 
-在对 `takes_ownership` 的调用之后，尝试使用变量 `s` 时，Rust 就会抛出一个编译时错误。这样的静态检查，保护咱们免于出错。请将使用变量 `s` 与变量 `x` 的代码，添加到 `main` 函数中，来观察一下在哪些地方可以使用他们，以及所有权规则会怎样阻止这样做。
+如果我们试图在调用 `takes_ownership` 后使用 `s`，Rust 就会抛出一个编译时报错。这些静态检查，可以防止我们犯错。请尝试在 `main` 中，添加使用 `s` 和 `x` 的代码，看看在哪些地方咱们可以使用他们，在哪些地方所有权规则会阻止咱们这样做。
 
 
 ## 返回值与作用域
@@ -408,42 +410,49 @@ fn takes_ownership(some_string: String) {
 **Return Values and Scope**
 
 
-返回值也会转移所有权。下面的清单 4-4 给出了一个返回了某个值的函数示例，该示例有着与清单 4-3 中的那些类似的注释。
+返回值也会转移所有权。下面清单 4-4 给出了一个返回某个值的函数示例，有着与清单 4-3 中类似的注释。
+
 
 文件名：`src/main.rs`
 
 ```rust
 fn main() {
-    let s1 = gives_ownership();         // gives_ownership 将其返回值
-                                        // 迁移到变量 s1 中
+    let s1 = gives_ownership();         // gives_ownership 会将其返回值
+                                        // 迁移到 s1 中
 
-    let s2 = String::from("hello");     // 变量 s2 进入作用域
+    let s2 = String::from("hello");     // s2 进入作用域
 
-    let s3 = takes_and_gives_bake(s2);  // 变量 s2 被迁移到 takes_and_gives_back
-                                        // 中，该函数又将他的返回值迁移到变量 s3 中
+    let s3 = takes_and_gives_bake(s2);  // s2 会被迁移到 takes_and_gives_back
+                                        // 中，其又会将他的返回值迁移到 s3 中
 
-    println! ("{}, {}", s1, s3);
-}   // 到这里，变量 s3 超出作用域而被丢弃。变量 s2 已被迁移，因此什么也不会发生。而
-    // 变量 s1 则超出作用域而被丢弃。
+    println! ("s1: {s1}, s3: {s3}");
+}   // 这里，s3 会超出作用域而被丢弃。变量 s2 已被迁移，因此什么也不会发生。而
+    // s1 则超出作用域而被丢弃。
 
-fn gives_ownership() -> String {    // 函数 gives_ownership 将把他的返回值，迁移
-                                    // 到调用他的函数中（即 main 函数）
-    String::from("归你了")          // 此表达式的值将被返回，并迁出到调用函数
+fn gives_ownership() -> String {                // gives_ownership 将把他的返回值，迁移
+                                                // 到调用他的函数中（即 main 函数）
+
+    let some_string = String::from("归你了");   // some_string 进到作用域
+
+    some_string                                 // some_string 被返回并
+                                                // 迁出到调用函数
 }
 
-// 此函数接收一个 String 并要返回一个 String
+// 此函数取个 String 并会返回一个 String
 fn takes_and_gives_bake(a_string: String) -> String {   // a_string 进入作用域
-    a_string    // a_string 被返回，并迁出到调用函数
+    a_string    // a_string 被返回，并会迁出到调用函数
 }
 ```
 
-*清单 4-4：返回值的所有权转移*
+*清单 4-4：转移返回值的所有权*
 
-变量所有权每次都依循同一模式：在将值赋给另一变量时，所有权就会迁移。包含着内存堆上数据的某个变量，在超出作用域时，除非数据所有权已被迁移至另一变量，否则该值就会被 `drop` 给清理掉。
 
-而在此模式生效时，每个函数下的取得所有权与随后的交回所有权，就有点乏味了。在要某个函数使用某个值而不占据其所有权时，会怎样呢？如果希望再度使用传入到函数中的全部东西，并还要把他们和那些可能要返回的函数体运算结果，一起再传回来，那样就很烦人了。
+变量的所有权每次都会遵循同一模式：将某个值赋值给另一变量，就会迁移他。当某个包含了堆中数据的变量，超出作用域时，除非该数据的所有权已被迁移到另一变量，否则该值就将被 `drop` 清理。
 
-如下面的清单 4-5 所示，Rust 确实允许使用一个元组，返回多个值：
+虽然这种模式可行，但在每个函数中取得所有权，并返回所有权，会有点繁琐。如果我们打算让某个函数使用一个值，但又不打算取得所有权，该怎么办呢？如果我们传入的任何数据，在我们打算再次使用时，都需要传回，此外，我们可能还打算返回函数主体产生的任何数据，这一点非常恼人。
+
+Rust 确实允许咱们使用元组返回多个值，如下清单 4-5 中所示。
+
 
 文件名：`src/main.rs`
 
