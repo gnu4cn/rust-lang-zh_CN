@@ -58,11 +58,12 @@ fn calculate_length(s: &String) -> usize {  // s 是个到某 String 的引用
 ```
 
 
-变量 `s` 于其间有效的那个作用域，与所有函数参数作用域是相同的，而由于变量 `s` 不拥有经引用而指向的那个值的所有权，因此在变量 `s` 停止被使用时，那个所指向的值就不会被丢弃。在函数以引用变量，而非真实值作为参数时，由于根本就没有拥有过所有权，那么就不再需要为了交回所有权，而将那些值返回了。
+变量 `s` 有效的作用域，与任何的函数参数作用域相同，但当 `s` 停止使用时，该引用所指向的值并不会丢弃，因为 `s` 没有所有权。当函数将引用而非实际值作为参数时，我们就不再需要返回值，来归还所有权，因为我们从未拥有过所有权。
 
-咱们把这种创建出引用的行为，叫做 *借用，borrowing*。正如日常生活中，当某人拥有某个物件时，咱们就可以把这个物件从那个人那里借用一下。在使用完毕后，咱们必须将其还回。咱们是不拥有该物件的。
+我们把这种创建出某个引用的行为，称为 *借用，borrowing*。这如同现实生活中，如果某人拥有某样东西，咱们可以向其借用这件东西。用毕时，咱们必须归还。咱们并不拥有这件东西。
 
-那么在尝试修改某个正借用的物件时，又会发生什么呢？请尝试下面清单 4-6 中的代码。提前剧透一下：那代码就不会工作！
+那么，如果我们试图修改借来的东西，会发生什么情况呢？请尝试下面清单 4-6 中的代码。剧透一下：这不会起作用！
+
 
 文件名：`src/main.rs`
 
@@ -78,33 +79,41 @@ fn change(some_string: &String) {
 }
 ```
 
-*清单 4-6：尝试修改被借用值，a borrowed value*
+*清单 4-6：尝试修改某个借用值*
 
-下面就是编译器报错：
+
+下面就是那个报错：
+
 
 ```console
 $ cargo run
-   Compiling ownership_demo v0.1.0 (/home/peng/rust-lang/projects/ownership_demo)
+   Compiling ownership_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\ownership_demo)
 error[E0596]: cannot borrow `*some_string` as mutable, as it is behind a `&` reference
- --> src/main.rs:8:5
+ --> src\main.rs:8:5
   |
-7 | fn change(some_string: &String) {
-  |                        ------- help: consider changing this to be a mutable reference: `&mut String`
 8 |     some_string.push_str(", world!");
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `some_string` is a `&` reference, so the data it refers to cannot be borrowed as mutable
+  |     ^^^^^^^^^^^ `some_string` is a `&` reference, so the data it refers to cannot be borrowed as mutable
+  |
+help: consider changing this to be a mutable reference
+  |
+7 | fn change(some_string: &mut String) {
+  |                         +++
 
 For more information about this error, try `rustc --explain E0596`.
-error: could not compile `ownership_demo` due to previous error
+error: could not compile `ownership_demo` (bin "ownership_demo") due to previous error
 ```
 
-就跟变量默认是不可变的一样，引用也是默认不可变的。不允许修改所引用的某个物件。
+
+正如变量默认是不可变的一样，引用也是如此。我们不能修改我们引用的东西。
 
 
 ## 可变引用
 
 **Mutable References**
 
-使用 *可变引用，mutable reference*，来取代默认不可变引用，只需一些小小调整，就可将清单 4-6 的代码，修改为允许对借用值，a borrowed value 加以修改：
+
+只需稍作调整，使用 *可变引用，mutable reference*，咱们即可修改某个借用值，便可修正清单 4-6 中的代码：
+
 
 文件名：`src/main.rs`
 
@@ -113,8 +122,6 @@ fn main() {
     let mut s = String::from("hello");
 
     change(&mut s);
-
-    println! ("s：{}", s);
 }
 
 fn change(some_string: &mut String) {
@@ -122,7 +129,8 @@ fn change(some_string: &mut String) {
 }
 ```
 
-首先，这里将变量 `s` 改为了 `mut`。随后在调用 `change` 函数处，以 `&mut s` 创建了一个可变的引用变量，并以 `some_string: &mut String`，将那个函数签名，更新为接受一个可变引用变量（a mutable reference）。这样做就很清楚地表明了，那个 `change` 函数将修改他借用的那个值。
+
+首先，我们将 `s` 改为了 `mut`。然后，我们在调用 `change` 函数处，用 `&mut s` 创建了一个可变引用，并更新了函数签名，以 `some_string：&mut String` 来接受一个可变引用。这就清楚地表明，`change` 函数将改变其所借用的值。
 
 可变引用变量有个大的限制：在有着到某值的一个可变引用时，就不能有到那个值的其他引用了。下面尝试创建到变量 `s` 两个可变引用的代码，就会失败：
 

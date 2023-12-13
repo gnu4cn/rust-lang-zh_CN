@@ -1,12 +1,12 @@
 fn main() {
-    let s1 = String::from("hello");
+    let mut s = String::from("hello");
 
-    let length = calculate_length(&s1);
+    change(&mut s);
 
-    println! ("字符串 '{}' 的长度为：{}", s1, length);
+    println! ("s: {s}");
 }
 
-fn calculate_length(s: &String) -> usize {
-    s.len()
+fn change(some_string: &mut String) {
+    some_string.push_str(", world!");
 }
 
