@@ -460,9 +460,9 @@ Rust 确实允许咱们使用元组返回多个值，如下清单 4-5 中所示�
 fn main() {
     let s1 = String::from("hello");
 
-    let (s2, len): (String, usize) = calculate_length(s1);
+    let (s2, len) = calculate_length(s1);
 
-    println! ("字符串 {} 的长度为：{}", s2, len);
+    println! ("字符串 '{}' 的长度为：{}", s2, len);
 }
 
 fn calculate_length(s: String) -> (String, usize) {
@@ -472,6 +472,6 @@ fn calculate_length(s: String) -> (String, usize) {
 }
 ```
 
-*清单 4-5：返回参数所有权*
+*清单 4-5：返回参数的所有权*
 
-这虽然间接实现了消除变量所有权占据下，函数的使用变量，但对于这种本应常见的概念来说，这样做就过于花哨，且带来了大量工作负担。幸运的是，Rust 有着一项使用某个值而不转移所有权，名为 *引用（references）* 的特性。
+但是，对于一个本应很常见的概念来说，这样做太过仪式化和工作量都太大了。幸运的是，Rust 有一种使用某个值，而不转移所有权的特性，叫做 *引用，references*。
