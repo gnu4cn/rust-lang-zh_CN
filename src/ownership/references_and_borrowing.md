@@ -132,28 +132,29 @@ fn change(some_string: &mut String) {
 
 首先，我们将 `s` 改为了 `mut`。然后，我们在调用 `change` 函数处，用 `&mut s` 创建了一个可变引用，并更新了函数签名，以 `some_string：&mut String` 来接受一个可变引用。这就清楚地表明，`change` 函数将改变其所借用的值。
 
-可变引用变量有个大的限制：在有着到某值的一个可变引用时，就不能有到那个值的其他引用了。下面尝试创建到变量 `s` 两个可变引用的代码，就会失败：
+可变引用有个很大的限制：如果咱们有了到某个值的一个可变引用，就不能对该值有其他引用。下面这段试图创建两个到 `s` 可变引用的代码，就会失败：
+
 
 文件名：`src/main.rs`
 
 ```rust
-fn main() {
     let mut s = String::from("hello");
 
     let r1 = &mut s;
     let r2 = &mut s;
 
     println! ("{}, {}", r1, r2);
-}
 ```
 
-下面是编译器报错：
+
+下面是报错信息：
+
 
 ```console
 $ cargo run
-   Compiling ownership_demo v0.1.0 (/home/peng/rust-lang/projects/ownership_demo)
+   Compiling ownership_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\ownership_demo)
 error[E0499]: cannot borrow `s` as mutable more than once at a time
- --> src/main.rs:5:14
+ --> src\main.rs:5:14
   |
 4 |     let r1 = &mut s;
   |              ------ first mutable borrow occurs here
@@ -164,34 +165,38 @@ error[E0499]: cannot borrow `s` as mutable more than once at a time
   |                         -- first borrow later used here
 
 For more information about this error, try `rustc --explain E0499`.
-error: could not compile `ownership_demo` due to previous error
+error: could not compile `ownership_demo` (bin "ownership_demo") due to previous error
 ```
 
-此错误是说，由于在某个时间，多次将 `s` 借用做可变引用，而因此这段代码是无效的。首次可变借用是在 `r1` 中，而这次借用必须持续到其在那个 `println!` 中被使用为止，但就在那个可变引用的创建与使用中间，这里还尝试了在 `r2` 中，创建另一个借用了与 `r1` 同样数据的可变引用变量。
+这个报错讲到，因为我们不能将 `s` 作为可变引用，同一实际借用多次，因此这段代码无效。第一次可变借用是在 `r1` 中，而必须持续到其在 `println!` 中被使用为止，但在这个可变引用的创建和使用之间，我们试图在 `r2` 中，创建另一个借用了与 `r1` 同一数据的可变引用。
 
-这种阻止在同一时间，到同一数据多重可变引用的限制，是允许修改的，但要在极度受控方式下进行（the restriction preventing multiple mutable references to the same data at the same time allows for mutation but in a very controlled fashion）。由于多数语言都允许随时修改数据，而因此多重可变引用正是一些新晋 Rust 公民们纠结不已的东西。有着这个限制的好处，则是 Rust 可以在编译时，对数据竞争加以阻止。与赛跑情形类似，*数据竞争，data race* 会在下面三种现象发生出现时出现：
+防止在同一时间，对同一数据进行多个可变引用的这种限制，允许改变，但改变是在非常受控的方式下进行的。这也是 Rust 新手比较头疼的问题，因为大多数语言，都允许咱们随时改变。有着这种限制的好处是，Rust 可以在编译时，防止数据竞赛。*数据竞赛，data race* 类似于某种竞赛情形，会在下面这三种行为发生时出现：
 
-- 同一时间有两个以上的指针访问着同一数据（two or more pointers access the same data at the same time）；
-- 这些指针中至少有一个，正被用于写那个数据（at least one of the pointers is being used to write to the data）；
-- 没有使用某种机制，来同步对数据的访问（there's no mechanism being used to synchronize access to the data）。
 
-数据竞争导致未定义行为，并在尝试于运行时对其加以追踪的时候，难于排查诊断和修复；Rust 通过拒绝编译带有数据竞争的代码，而防止了这类问题！
+- 两个以上的指针同时访问某同一数据；
 
-与往常一样，可使用花括号来创建一个新的作用域，而实现多个可变应用变量，只要不是 *同时，simultaneous* 的几个就行：
+- 至少有一个指针被用来写该数据；
+
+- 没有同步访问该数据的机制。
+
+数据竞赛会导致未定义的行为，当咱们试图在运行时跟踪他们时，会很难诊断和修复；Rust 通过拒绝编译带有数据竞赛的代码，从而避免了这个问题！
+
+与往常一样，我们可以使用花括号，创建一个新的作用域，从而允许多个可变引用，只要不是 *同时* 的多个：
+
 
 ```rust
     let mut s = String::from("hello");
 
     {
         let r1 = &mut s;
-    }   // 由于在这里变量 r1 超出了作用域，因此就可以
-        // 毫无问题地构造一个新的引用变量了。
+    }   // r1 在这里超出了作用域，因此我们可以毫无问题地构造一个新的引用。
 
     let r2 = &mut s;
 ```
 
 
-对于将可变与不可变引用进行结合的情况，Rust 则会强制执行类似规则。下面的代码会导致错误：
+Rust 对组合可变引用和不可变引用，也执行类似的规则。下面这段代码会导致一个报错：
+
 
 ```rust
     let mut s = String::from("hello");
@@ -203,13 +208,14 @@ error: could not compile `ownership_demo` due to previous error
     println! ("{}, {} 与 {}", r1, r2, r3);
 ```
 
-下面就是那个错误：
+
+下面是那个报错：
 
 ```console
 $ cargo run
-   Compiling ownership_demo v0.1.0 (/home/peng/rust-lang/projects/ownership_demo)
+   Compiling ownership_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\ownership_demo)
 error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immutable
- --> src/main.rs:6:14
+ --> src\main.rs:6:14
   |
 4 |     let r1 = &s;
   |              -- immutable borrow occurs here
@@ -217,32 +223,41 @@ error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immuta
 6 |     let r3 = &mut s;
   |              ^^^^^^ mutable borrow occurs here
 7 |
-8 |     println! ("{}, {} 与 {}", r1, r2, r3);
-  |                               -- immutable borrow later used here
+8 |     println! ("{}, {}, {}", r1, r2, r3);
+  |                             -- immutable borrow later used here
 
 For more information about this error, try `rustc --explain E0502`.
-error: could not compile `ownership_demo` due to previous error
+error: could not compile `ownership_demo` (bin "ownership_demo") due to previous error
 ```
 
-咦！在有着对某个值的不可变引用时，*也是，also* 不可以对其有可变引用的。不可变引用的用户们，并不期望他们所引用的值，在他们眼皮底下突然就变掉！不过由于仅读取数据的不可变引用，对其他读取那个数据的引用，不具备造成影响的能力，因此多个不可变引用倒是可以的。
 
-请注意引用变量的作用域，是从引入这个变量的地方开始，而持续到那个引用变量最后一次被使用为止。举例来说，由于那个不可变引用变量最后的使用，即那个 `println!`，是在那个可变引用变量引入之前发生的，因此下面的代码将会编译：
+呼！我们 *也* 不能在有着到某个值的不可变引用的同时，有着一个到这同一值的可变引用。
+
+某个不可变引用的使用者，不期望该值会突然在他们眼皮底下改变！不过，多个不可变引用是允许的，因为仅在读取数据的使用者，并无影响其他读取该数据使用者的能力。
+
+请注意，引用的作用域从该引用被引入的地方开始，并持续到该引用被最后一次使用处为止。例如，下面这段代码可以编译，因为那个不可变引用的最后一次使用（`println!`），发生在那个可变引用被引入之前：
+
 
 ```rust
     let mut s = String::from("hello");
 
-    let r1 = &s;
-    let r2 = &s;
+    let r1 = &s;    // 没有问题
+    let r2 = &s;    // 没有问题
     println! ("r1 与 r2: {}, {}", r1, r2);
-    // 变量 r1 与 r2 在此点位之后便不再被使用
+    // 变量 r1 与 r2 在此处之后将不会使用了
 
     let r3 = &mut s;    // 这就没问题了
     println! ("r3: {}", r3);
 ```
 
-不可变引用变量 `r1` 与 `r2` 的作用域，在 `println!` 语句，即他们最后被使用的地方之后便结束，而这个地方正是那个可变引用变量 `r3` 被创建之前。这些作用域不会重叠，因此这段代码是允许的。识别出引用变量在作用域结束之前的某处，不再被使用的编译器能力，叫做 *非词法性生命周期，Non-Lexical Lifetimes, 简写做 NLL*，在 [版本手册](https://doc.rust-lang.org/edition-guide/rust-2018/ownership-and-lifetimes/non-lexical-lifetimes.html) 里可阅读到更多有关内容。
 
-虽然这些所有权借用方面的错误，时常令人沮丧，但请记住这正是 Rust 编译器，于早期阶段（在编译时而非运行时）就在指出潜在错误，并表明问题准确所在。代码编写者这才不必去追踪为何数据不是先前所设想的那样。
+不可变引用 `r1` 和 `r2` 的作用域，在他们最后一次被使用的 `println!` 之后，可变引用 `r3` 被创建之前结束。这些作用域不会重叠，因此这段代码会被放行：编译器可以区分出，在作用域结束前的某个点，该引用不再被使用。
+
+
+> **译注**：由于引用属于大小已知、固定不变的类型，因此他们是保存在栈上的，带有 `Copy` 特质，故上面的代码中，在 `let r3 = &mut s;` 语句之前，可以无限次使用 `r1` 和 `r2` 这两个不可变引用，他们不会被迁移到 `println!` 宏及其他函数中。
+
+
+尽管借用方面的报错有时会令人沮丧，但请记住，这是 Rust 编译器在早期（编译时而不是运行时）就指出某个潜在错误，并准确地告诉咱们问题所在。这样，咱们就不必再追踪，为什么咱们的数据和咱们设想的不一样了。
 
 
 ## 悬空引用
@@ -250,13 +265,12 @@ error: could not compile `ownership_demo` due to previous error
 **Dangling References**
 
 
+在带有指针的语言中，就很容易错误地创建出 *悬空指针，dangling pointer*，即在保留了指向某处内存指针的同时，释放了该处内存，从而造成引用了内存中，可能已经给了其他代码的某个位置的指针。相比之下，在 Rust 中，编译器会保证引用，永远不会成为悬空引用：如果咱们有个到某数据的引用，编译器会确保该数据，不会在指向该数据引用超出作用域之前，超出作用域。
 
-在有着指针的那些语言中，都容易通过在保留了到某些内存的一个指针同时，释放了那些内存，而错误地创建出 *悬空指针，a dangling pointer* -- 引用了内存中，可能已经给了其他指针的某个地址的一个指针。在 Rust 中，与此相对照，编译器会确保引用绝不会成为悬空引用：在有着到某数据的引用时，编译器会确保在到该数据的引用，超出作用域之前，被引用的数据不超出作用域。
+我们来尝试创建一个悬挂引用，看看 Rust 如何通过编译时报错，来防止他们：
 
-下面就来创建一个悬空引用，看看 Rust 如何以编译器错误，来阻止悬空引用：
 
 文件名：`src/main.rs`
-
 
 ```rust
 fn main() {
@@ -270,14 +284,14 @@ fn dangle() -> &String {
 }
 ```
 
-下面就是报错：
+下面是那个报错：
 
 
 ```console
 $ cargo run
-   Compiling ownership_demo v0.1.0 (/home/peng/rust-lang/projects/ownership_demo)
+   Compiling ownership_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\ownership_demo)
 error[E0106]: missing lifetime specifier
- --> src/main.rs:5:16
+ --> src\main.rs:5:16
   |
 5 | fn dangle() -> &String {
   |                ^ expected named lifetime parameter
@@ -286,31 +300,35 @@ error[E0106]: missing lifetime specifier
 help: consider using the `'static` lifetime
   |
 5 | fn dangle() -> &'static String {
-  |                ~~~~~~~~
+  |                 +++++++
 
 For more information about this error, try `rustc --explain E0106`.
-error: could not compile `ownership_demo` due to previous error
+error: could not compile `ownership_demo` (bin "ownership_demo") due to previous error
 ```
 
-此错误消息提到了一个这里还没有讲到特性：生命周期（lifetimes）。在第 10 章将 [详细讨论生命周期](Ch10_Generic_Types_and_Lifetimes.md#使用生命周期对引用加以验证)。不过，忽略掉生命周期有关的那部分错误，那么该错误消息就真的包含了，这段代码为何是问题代码的关键原因：
+这条报错信息，涉及我们尚未讲到的一项特性：生命周期。我们将在第 10 章，详细讨论生命周期。但是，如果咱们不考虑生命周期的部分，这条消息确实包含了，为什么这段代码会出现问题的关键所在：
+
 
 ```console
 this function's return type contains a borrowed value, but there is no value
 for it to be borrowed from
 ```
 
-下面来细看一下，这里的 `dangle` 代码各个阶段到底发生了什么：
+
+我们来仔细看看，咱们 `dangle` 代码的每个阶段，到底发生了什么：
+
 
 文件名：`src/main.rs`
 
 ```rust
-fn dangle() -> &String {    // 函数 dangle 返回的是到某个 String 值的引用
-    let s = String::from("hello");  // 变量 s 是个新的 String 值
+fn dangle() -> &String {    // dangle 返回的是个到某 String 的引用
+    let s = String::from("hello");  // s 是个新的 String
 
-    &s  // 这里返回了一个到该 String，变量 s 的引用
-}   // 到这里，变量 s 超出了作用域，进而被丢弃了。他的内存就没了。
+    &s  // 咱们返回了一个指向那个 String，s 的引用
+}   // 这里，s 超出了作用域，进而被丢弃。他的内存就没了。
     // 危险所在！
 ```
+
 
 由于变量 `s` 是在函数 `dangle` 内部创建的，那么在函数 `dangle` 的代码执行完毕时，变量 `s` 就将被解除内存分配（deallocated）。而这里还在尝试返回一个到他的引用。那就意味着这个引用，就会指向到一个无效的 `String`。那就不好了！Rust 是不会允许这样干的。
 
