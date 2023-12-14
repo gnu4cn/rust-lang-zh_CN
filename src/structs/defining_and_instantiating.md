@@ -57,12 +57,13 @@ fn main() {
 }
 ```
 
-*清单 5-3：对某个 `User` 实例中的 `email` 字段进行修改*
+*清单 5-3：修改某个 `User` 实例的 `email` 字段中的值*
 
 
-请注意这整个实例必须是可变的；Rust 不允许仅将一些字段标记为可变。与所有表达式一样，可以函数体中最后的表达式形式，构造出结构体的新实例，来隐式地返回那个新实例（as with any expression, we can construct a new instance of the struct as the last expression in the function body to implicity return that new instance）。
+请注意，整个实例必须是可变的；Rust 不允许我们，只将某些字段标记为可变。与任何表达式一样，我们可以将结构体的新实例，构造为函数体的最后一个表达式，从而隐式地返回该新实例。
 
-下面的清单 5-4，展示了一个以给定电子邮件和用户名，返回一个 `User` 实例的 `build_user` 函数。其中的 `active` 字符会得到值 `true`，而那个 `sign_in_count` 则会得到值 `1`。
+下面清单 5-4，给出了一个以给定电子邮件和用户名，返回一个 `User` 实例的 `build_user` 函数。`active` 字段会得到值 `true`，`sign_in_count` 会得到值 `1`。
+
 
 ```rust
 fn build_user(email: String, username: String) -> User {
