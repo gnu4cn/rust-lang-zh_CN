@@ -134,7 +134,10 @@ fn area(rectangle: &Rectangle) -> u32 {
 **Adding Useful Functionality with Derived Traits**
 
 
-如果能在调试程序期间打印出 `Rectangle` 的实例，并查看到所有字段的值，那就会派上用场。下面的清单 5-11 尝试了使用之前各章已经用到 [`println!` 宏](https://doc.rust-lang.org/std/macro.println.html)。不过这段代码不会工作。
+如果能在咱们调试咱们的程序期间，打印出 `Rectangle` 实例并查看其所有字段的值，那将会非常有用。下面清单 5-11 尝试使用 `println!` 宏，就像我们在前几章中使用的那样。但这行不通。
+
+
+文件名：`src/main.rs`
 
 ```rust
 struct Rectangle {
@@ -152,39 +155,49 @@ fn main() {
 }
 ```
 
-*清单 5-11：尝试打印出一个 `Rectangle` 实例*
+*清单 5-11：尝试打印某个 `Rectangle` 实例*
 
-在编译这段代码时，会得到有着以下核心消息的错误：
+
+当我们编译这段代码时，会得到一个带有下面这条核心信息的报错：
+
 
 ```console
 error[E0277]: `Rectangle` doesn't implement `std::fmt::Display`
 ```
 
-`println!` 宏可完成许多种类的格式化，而默认情况下，那对花括号告诉 `println!` 的是，要使用名为 `Display` 的格式化操作：即用于最终用户直接消费的输出（the `println!` macro can do many kinds of formatting, and by default, the curly brackets tell `println!` to use formatting known as `Display`: output intended for direct end user consumption）。因为在要将一个 `1` 或其他任何原生类型，展示给用户时，都只有唯一的一种方式，因此，对于至今为止已见到过的那些原生类型来说，默认都是实现了 `Display` 的。而对于结构体来说，由于存在更多的显示可能：是要逗号还是不要？要打印出那对花括号吗？所有字段都要展示出来吗？因此 `println!` 对输出进行格式化的方式，就不那么清楚了。正是因为这种模棱两可，Rust 于是就不尝试猜测代码编写者想要的样子，而结构体也就没有一个事先提供的、与 `println!` 和 `{}` 占位符一起使用的 `Display` 实现了。
 
-在继续阅读该错误消息时，就会发现下面这个有用注解：
+`println!` 宏可以执行多种格式化，而默认情况下，其中的花括号会告诉 `println!`，使用被称为 `Display` 的格式：供最终用户直接使用的输出。我们目前看到的原生类型，默认都实现了 `Display`，因为只有一种咱们想要的方式，将 `1` 或其他原生类型展示给用户。但对于结构体，`println!` 应如何格式输出的方式，就不那么清晰了，因为有更多的显示可能性： 咱们要不要逗号？要不要打印花括号？是否所有字段都应被显示出来？由于这种模糊性，Rust 不会试图猜测我们想要什么，同时结构体没有提供某种 `Display` 实现，来与 `println!` 和 `{}` 占位符一起使用。
+
+如果我们继续阅读那些报错信息，就会发现这条有用的说明：
+
 
 ```console
    = help: the trait `std::fmt::Display` is not implemented for `Rectangle`
    = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
 ```
 
-来试一下！这个 `println!` 的宏调用，现在看起来是这样 `println! ("rect1 为 {:?}", rect1);`。将说明符 `:?` 放在那对花括号里头，就会告诉 `println!`，这里是要使用一个名为 `Debug` 的输出。而 `Debug` 特质就令到这里可将那个结构体，以对开发者有用的方式打印出来，如此就可以在对代码进行调试时，看到那个结构体的值了。
 
-在此改变下，对该代码进行编译。见鬼！还是得到个错误：
+我们来试试把！那个 `println!` 宏调用现在将看起来像 `println! ("rect1 is {:?}"，rect1);`。在大括号中加上 `:?` 说明符，就告诉 `println!`，我们打算使用一种名为 `Debug` 的输出格式。`Debug` 特质使我们能以一种，对开发人员有用的方式打印出咱们的结构体，这样我们在调试代码时，就能看到他的值。
+
+编译有着此项修改的代码。糟糕！我们仍然得到一个报错：
+
 
 ```console
 error[E0277]: `Rectangle` doesn't implement `Debug`
 ```
 
-不过编译器再度给到一个帮助性注释：
+
+但编译器再次给了我们一个有用的提示：
+
 
 ```console
    = help: the trait `Debug` is not implemented for `Rectangle`
    = note: add `#[derive(Debug)]` to `Rectangle` or manually `impl Debug for Rectangle`
 ```
 
-Rust *确实* 带有打印输出调试信息的功能，不过这里必须显式地选择上那功能，从而使得那功能对这个结构体可用。而要实现这个目的，就要在紧接着结构体定义之前，加上外层属性 `#[derive(Debug)]`（the outer attribute `#[derive(Debug)`），如下面的清单 5-12 所示。
+
+Rust *确实* 包含了打印调试信息的功能，但我们必须显式地选择，将该功能用于我们的结构体。为此，我们要在结构体定义之前，添加外层属性 `#[derive(Debug)]`，如下清单 5-12 所示。
+
 
 文件名：`src/main.rs`
 
@@ -205,9 +218,11 @@ fn main() {
 }
 ```
 
-*清单 5-12：加入派生 `Debug` 特质的属性，进而运用调试格式化将那个 `Rectangle` 实例打印出来*
+*清单 5-12：添加属性以派生 `Debug` 特质，并使用调试格式打印 `Rectangle` 实例*
 
-此时在运行这个程序时，就不会收到任何错误了，且会看到下面的输出：
+
+现在，当我们运行该程序时，我们不会收到任何报错，并且我们将看到以下输出：
+
 
 ```console
 $ cargo run
@@ -217,7 +232,9 @@ $ cargo run
 rect1 为：Rectangle { width: 30, height: 50 }
 ```
 
-很棒！这虽不是最漂亮的输出，但他给出了该实例全部字段的值，这无疑在调试期间会有帮助。在有着较大的结构体时，让输出更容易阅读一点就会有用；对于那些更大结构体的情形，就可在 `println!` 中使用 `{:#?}` 而非 `{:?}`。而在这个示例中，使用 `{:#?}` 样式将输出：
+
+不错！这不是最漂亮的输出，但他显示了该实例所有字段的值，这在调试期间绝对有帮助。当我们有更大的结构体时，让输出更容易阅读会很有用；在这些情况下，我们可以在 `println!` 字符串中，使用 `{:#?}` 代替 `{:?}`。在本例中，使用 `{:#?}` 样式，将输出如下内容：
+
 
 ```console
 cargo run
@@ -230,11 +247,15 @@ rect1 为：Rectangle {
 }
 ```
 
-使用 `Debug` 格式化将某个值打印出来的另一种方式，就是使用 [`dbg!` 宏](https://doc.rust-lang.org/std/macro.dbg.html)，这个 `dbg!` 宏会占据某个表达式的所有权，而将那个 `dbg!` 宏调用出现在代码中所在的文件与行号，与那个表达式的结果值一并打印出来，同时返回结果值的所有权（another way to print out a value using the [`dbg!` macro](https://doc.rust-lang.org/std/macro.dbg.html), which takes ownership of an expression, prints the file and line number of where that `dbg!` macro call occurs in your code along with the resulting value of that expression, and returns ownership of the value）。
 
-> 注意：对 `dbg!` 宏的调用，会打印到标准错误控制台流（the standard error console stream, `stderr`），这与 `println!` 宏打印到标准输出控制台流（the standard output console stream, `stdout`）相反。在第 12 章中的 [将错误消息写到标准错误而非标准输出](Ch12_An_I_O_Project_Building_a_Command_Line_Program.md#把错误消息写到标准错误而非标准输出) 小节，将讲到更多有关 `stderr` 与 `stdout` 的内容。
+使用 `Debug` 格式打印出某个值的另一种方法，是使用 [`dbg!` 宏](https://doc.rust-lang.org/std/macro.dbg.html)，他会取得某个表达式的所有权（与取得引用的 `println!` 相反），打印咱们代码中，这个 `dbg!` 宏调用出现的文件与行号，以及表达式的结果值，并返回该值的所有权。
 
-以下是个其中对赋值给 `width` 字段，以及在变量 `rect1` 中的整个结构体的值感兴趣的示例：
+
+> 注意：调用 `dbg!` 宏会打印到标准错误控制台流 (`stderr`)，这与打印到标准输出控制台流 (`stdout`) 的 `println!` 相反。关于 `stderr` 和 `stdout`，我们将在第 12 章 [将错误信息写入标准错误而不是标准输出](../io_project/std_err.md) 小节中详细讨论。
+
+
+下面是个，其中我们对分配给 `width` 字段的值，以及 `rect1` 中的整个结构体的值感兴趣的实例：
+
 
 ```rust
 #[derive(Debug)]
@@ -255,25 +276,39 @@ fn main() {
 }
 ```
 
-这里可将 `dbg!` 放在表达式 `30 * scale` 附近，同时由于 `dbg!` 返回了该表达式值的所有权，因此 `width` 字段将获取到与不在此处调用 `dbg!` 同样的值。由于这里不想要 `dbg!` 取得 `rect1` 的所有权，因此在下一个对 `dbg!` 的调用中，使用到到 `rect1` 的引用。下面就是这个示例输出的样子：
+
+我们可以将 `dbg!` 放在表达式 `30 * scale` 的周围，由于 `dbg!` 会返回该表达式值的所有权，因此那个 `width` 字段，将获得与该处没有调用 `dbg!` 时相同的值。我们不打算让 `dbg!` 取得 `rect1` 的所有权，因此在下一次调用中，使用了对 `rect1` 的引用。下面是这个示例的输出结果：
+
 
 ```console
-cargo run
-   Compiling rectangles v0.1.0 (/home/peng/rust-lang/projects/rectangles)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.22s
-     Running `target/debug/rectangles`
-[src/main.rs:11] 30 * scale = 60
-[src/main.rs:15] &rect1 = Rectangle {
+$ cargo run
+   Compiling rectangles v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\rectangles)
+warning: fields `width` and `height` are never read
+ --> src\main.rs:3:5
+  |
+2 | struct Rectangle {
+  |        --------- fields in this struct
+3 |     width: u32,
+  |     ^^^^^
+4 |     height: u32,
+  |     ^^^^^^
+  |
+  = note: `Rectangle` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+  = note: `#[warn(dead_code)]` on by default
+
+warning: `rectangles` (bin "rectangles") generated 1 warning
+    Finished dev [unoptimized + debuginfo] target(s) in 0.68s
+     Running `target\debug\rectangles.exe`
+[src\main.rs:11] 30 * scale = 60
+[src\main.rs:15] &rect1 = Rectangle {
     width: 60,
     height: 50,
 }
 ```
 
-这里就可以看到，输出的第一部分来自 `src/main.rs` 文件的第 10 行，正是对表达式 `30 * scale` 进行调式的地方，而该表达式的结果值即为 `60`（在整数原生值上实现的 `Debug` 格式化只打印他们的值）。在 `src/main.rs` 第 14 行上的 `dbg!` 调用，输出了 `rect1`，即那个 `Rectangle` 结构体的值。这个输出使用了 `Rectangle` 类型的良好 `Debug` 格式化。在尝试搞清楚代码在做什么时，这个 `dbg!` 宏真的会相当有用！
 
-除 `Debug` 特质外，Rust 业已提供了数个与 `derive` 属性一起使用的其他特质，这些特质把有用的行为表现，添加到那些定制类型。Rust 提供的那些特质及其行为，在 [附录 C](Ch21_Appendix.md#附录-c派生特质) 小节中有列出。在第 10 章中，就会涉及到怎样去实现这些有着定制行为的特质，以及怎样创建自己的特质。除了 `derive` 之外，同样还有许多别的属性；有关属性的更多信息，请参阅 [Rust 参考手册的 “属性” 小节](https://doc.rust-lang.org/reference/attributes.html)。
+我们可以看到，输出的第一部分来自 `src/main.rs` 第 11 行，其中我们调试了 `30 * scale` 这个表达式，而其结果值是 `60`（对整数实现的 `Debug` 格式，就是只打印其值）。`src/main.rs` 第 15 行的 `dbg!` 调用，会输出 `&rect1` 的值，这正是那个 `Rectangle` 结构体。该输出使用了 `Rectangle` 这个类型的良好 `Debug` 格式。当你试图弄清咱们的代码在做什么时，`dbg!` 这个宏确实很有帮助！
 
-这里的 `area` 函数，是相当专用的：他只会计算矩形的面积。由于 `area` 方法不会在其他任何类型上工作，因此将此行为与这里的 `Rectangle` 结构体更紧密的联系起来，就会变得有帮助。接下来就要看看，怎样通过将这个 `area` 函数，转变成一个定义在这里的 `Rectangle` 类型上的方法，而继续重构这段代码。
+除了这个 `Debug` 特质外，Rust 还为我们提供了许多与这个 `derive` 属性配合使用的特质，这些特质可以为我们的自定义类型，添加有用的行为。[附录 C](../appendix/derivable_traits.md) 列出了这些特质及其行为。我们将在第 10 章，介绍如何使用自定义行为实现这些特质，以及如何创建咱们自己的特质。除了 `derive` 之外，还有许多其他属性；有关详细信息，请参阅 [《Rust 参考》中的 "属性 "部分](https://doc.rust-lang.org/reference/attributes.html)。
 
-
-
+我们的 `area` 函数，是非常专门的：他只会计算矩形的面积。如果能将这一行为，与咱们的 `Rectangle` 结构体更紧密地联系在一起，将会很有帮助，因为他无法与任何其他类型一起工作。我们来看看，咱们可以怎样通过将这个 `area` 函数，转化为定义在 `Rectangle` 类型上的 `area` 方法，来继续重构这段代码。
