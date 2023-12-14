@@ -87,7 +87,8 @@ fn build_user(email: String, username: String) -> User {
 **Using the Field Init Shorthand**
 
 
-由于在清单 5-4 中的参数名字与结构体字段名字完全一样，因此就可以 *字段初始化简写（field init shorthand）* 语法，来重写 `build_user` 方法，如此一来，`build_user` 函数在没有 `email` 与 `username` 重复的情况下，也有与之前版本同样的表现，如下清单 5-5 所示：
+由于清单 5-4 中的参数名字，和结构体字段名字完全相同，我们可以使用 *字段初始化简写法，field init shorthand* 语法，重写 `build_user`，使其行为完全相同，而不重复使用 `username` 和 `email`，如下清单 5-5 所示。
+
 
 ```rust
 fn build_user(email: String, username: String) -> User {
@@ -100,19 +101,21 @@ fn build_user(email: String, username: String) -> User {
 }
 ```
 
-*清单 5-5：由于 `email` 与 `username` 参数与结构体字段有着同样名字，而使用了字段初始化简写的 `build_user` 函数*
-
-在这里，正创建一个 `User` 结构体的新实例，该结构体有一个名为 `email` 的字段。这里打算将 `email` 字段的值，设置为 `build_user` 函数的 `email` 参数中的值。由于 `email` 字段与 `email` 参数有着同样的名字，因此只就需写下 `email`，而非 `email: email`。
+*清单 5-5：由于 `username` 与 `email` 两个参数有着与结构体字段同样的名字，而使用了字段初始化简写法的 `build_user` 函数*
 
 
-## 使用结构体更新语法，从其他实例创建实例
+在这里，我们正创建 `User` 结构体的一个新实例，其中有个名为 `email` 的字段。我们希望将 `email` 字段的值，设置为 `build_user` 函数的 `email` 参数中的值。因为 `email` 字段和 `email` 参数同名，所以我们只需写下 `email` 而不是 `email:email`。
+
+
+## 使用结构体更新语法，从另一实例创建出实例
 
 **Creating Instances from Other Instances with Struct Update Syntax**
 
 
-创建出包含另一实例绝大部分值，而修改一些值的新实例，通常是有用的做法。而使用 *结构体更新语法（struct update syntax）* 就能做到这点。
+创建一个其中包含另一实例中的大部分值，但要更改其中某些值的新实例，通常很有用。咱们可以使用 *结构体更新语法*，完成这一点。
 
-首先，在下面的清单 5-6 中展示了如何按常规，不使用更新语法的情况下，创建出在 `user2` 中的一个新 `User` 实例。这里给 `email` 设置了一个新的值，而在其他方面，则使用了来自之前在清单 5-1 中创建的 `user1` 的那些同样值。
+首先，在下面清单 5-6 中，我们给出了在不使用这种更新语法下，如何常规地在 `user2` 中创建一个新 `User` 实例。我们为 `email` 字段设置了一个新值，但对其他字段，使用了咱们在清单 5-2 中，创建的 `user1` 中的那些同样值。
+
 
 ```rust
 fn main() {
@@ -127,35 +130,40 @@ fn main() {
 }
 ```
 
-*清单 5-6：使用一个 `user1` 的值创建出一个新的 `User` 实例*
+*清单 5-6：创建一个用到 `user1` 中值的新 `User` 实例*
 
-而使用结构体更新语法，就可以较少代码，达成同样效果，如下面的清单 5-7 中所给出的那样。其中的 `..` 语法，指明了未显式设置的其余字段，将有着与所给实例中的字段同样的值。
+
+如下清单 5-7 所示，使用结构体更新语法，我们可以用较少的代码，实现相同的效果。语法 `..` 指明了，其余未显式设置的字段，应有着与给定实例中字段，相同的值。
+
 
 ```rust
 fn main() {
     // --跳过代码--
 
     let user2 = User {
-        email: String::from("java@xfoss.com"),
+        email: String::from("another@example.com"),
         ..user1
     };
 }
 ```
 
-*清单 5-7：使用结构体更新语法来设置 `User` 实例的 `email` 字段值，而使用来自 `user1` 的其余值*
-
-清单 5-7 中的代码同样创建了在变量 `user2` 中，一个有着 `email` 的不同值，但有着来自 `user1` 的 `username`、`active` 及 `sign_in_count` 同样值。其中的 `..user1` 必须要在最后，这样来指明全部剩余字段都应从 `user1` 中的相应字段获取值，但对于其他字段值的指定，则可选择所要的任意字段，以任意顺序进行，而不论在结构体定义中这些字段的顺序为何（the `..user1` must come last to specify that any remaining fields should get their values from the corresponding fields in `user1`, but we can choose to specify values for as many fields as we want in any order, regardless of the order of the fields in the struct's definition）。
-
-请注意结构体更新语法，像赋值一样使用了 `=`；这是由于结构体更新语法迁移了数据，就跟在之前的 ["变量与数据互动方式：迁移"](Ch04_Understanding_Ownership.md#变量与数据互操作方式之一迁移所有权) 小节中看到的那样。在此示例中，在创建了 `user2` 之后，由于变量 `user1` 中的 `username` 字段中的 `String` 值，已被迁移到 `user2` 中了，因此就再也不能使用变量 `user1` 了。若给到 `user2` 的 `email` 及 `username` 字段都是新的 `String` 值，而因此只使用来自 `user1` 的 `active` 和 `sign_in_count` 值，那么在创建了 `user2` 之后，`user1` 仍将是有效的。因为 `active` 和 `sign_in_count` 的类型，都是实现了 `Copy` 特质的类型，因此就会应用在 [唯栈数据：拷贝](Ch04_Understanding_Ownership.md#唯栈数据拷贝stack-only-data-copy) 小节中的行为表现。
+*清单 5-7：使用结构体更新语法设置某个 `User` 实例的新 `email` 值，但使用来自 `user1` 的其余值*
 
 
-## 使用不带命名字段的元组结构体，来创建不同类型
+清单 5-7 中的代码，也创建出了一个 `user2` 中，有着不同 `email` 值，却有着来自 `user1` 的 `username`、`active` 和 `sign_in_count` 等字段同样值的实例。`..user1` 必须放在最后，以指定其余字段应从 `user1` 中的相应字段获取值，但我们可以选择以任意顺序，为任意多个字段指定值，与结构体定义中的字段顺序无关。
+
+请注意，结构更新语法像赋值一样，用到了 `=` 操作符；这是因为他迁移了数据，正如我们在 [变量和数据相互作用：迁移](../ownership/about_ownership.md#变量与数据相互作用迁移) 小节中所看到的。在本例中，创建出 `user2` 后，我们不能再将 `user1` 作为一个整体使用，因为 `user1` 的 `username` 字段中的那个 `String`，已被迁移到了 `user2` 中。如果我们同时为 `user2` 的 `email` 和 `username`，赋予了新的 `String` 值，从而只使用 `user1` 中的 `active` 和 `sign_in_count` 两个值，那么`user1` 在创建出 `user2` 后，仍然会有效。`active` 和 `sign_in_count` 都是实现了 `Copy` 特质的类型，因此将适用我们在 [唯栈数据：拷贝](../ownership/about_ownership.md#唯栈数据拷贝) 小节中，曾讨论过的行为。
+
+
+## 使用没有命名字段的元组结构体，创建不同类型
 
 **Using Tuple Structs without Named Fields to Create Different Types**
 
-Rust 还支持看起来像元组的结构体，叫做 *元组结构体（tuple structs）*。元组结构体这一类型，多了类型名称中结构体这一部分所提供的意义，却并没有与各字段相关联的名字；而是，元组结构体他们那些字段的类型。在要给予整个元组一个名字，并令到元组成为不同于其他元组的一种类型，且在如同在常规结构体中那样，给各个字段取名字是多余的等等，在这样的情况下，元组结构体就会有用。
 
-要定义一个元组结构体，就要以 `struct` 关键字和该结构体的名字开头，接着是一些在元组中的类型。比如，下面分别定义和使用了两个元组结构体 `Color` 与 `Point`:
+Rust 还支持称为 *元组结构体，tuple structs* 的，看起来类似于元组的结构体。元组结构体有着结构体名称所提供的附带意义，但却没有与其字段相关联的名字；相反，他们只有字段的类型。如果咱们打算给这整个元组一个名字，并将该元组构造为不同于其他元组的类型，并且在给常规结构体中的各个字段命名会显得冗长或多余时，那么元组结构体就非常有用。
+
+要定义元组结构体，就要以 `struct` 关键字以及该结构体的名字开头，然后是元组中的类型。例如，下面我们定义并使用了两个名为 `Color` 和 `Point` 的元组结构体：
+
 
 ```rust
 struct Color(i32, i32, i32);
@@ -168,15 +176,17 @@ fn main() {
 }
 ```
 
-请注意，由于这里的 `black` 与 `origin` 两个值是不同元组结构体的实例，因此他们属于不同类型。尽管结构体里的那些字段有着同样类型，对于所定义每个结构体，都是其自身的类型。比如，某个接收类型 `Color` 参数的函数，就无法接收 `Point` 值做参数，尽管这两种类型都是由三个 `i32` 值构成的。除此之外，元组结构体的实例，与元组表现一样：可将他们解构为三个独立部分，可使用 `.` 后面跟上索引，来访问单独值，等等。
+
+请注意，其中的 `black` 和 `origin` 两个值，属于不同类型，因为他们是不同元组结构体的实例。咱们定义的每个结构体，都属于其自己的类型，即使结构体中的字段，可能具有相同类型。例如，取 `Color` 类型参数的某个函数，就不能取某个 `Point` 作为参数，尽管这两种类型，都是由三个 `i32` 值组成。此外，元组结构体的实例，在咱们可以将其解构为他们的单独部分，以及咱们可以使用 `.` 后跟索引来访问单独值两个方面，类似于元组。
 
 
-## 不带任何字段的类单元结构体
+## 不带任何字段的类单元值结构体
 
 **Unit-Like Structs Without Any Fields**
 
 
-还可以定义没有任何字段的结构体！由于这些没有任何字段的结构体，与曾在 [元组类型](Ch03_Common_Programming_Concepts.md#元组类型) 小节提到过的单元类型 `()` 表现类似，因此他们叫做 *类单元结构体（unit-like structs）*。当需要在某类型上实现某个特质（trait），却又不希望将任何数据存储在那个类型自身里面时，类单元结构体就就有用（unit-like structs can be useful when you need to implement a trait on some type but don't have any data that you want to store in the type itself）。在第 10 章就会讨论到特质。下面是一个声明和初始化名为 `AlwaysEqual` 的单元结构体的示例：
+咱们还可以定义出，没有任何字段的结构体！这些结构体被称为 *类单元值结构体，unit-like structs*，因为他们的行为类似于我们在 [元组类型](../programming_concepts/data_types.md#元组类型) 小节中，提到的单元值类型 `()`。当咱们需要在某种类型上，实现某个特质，但又没有咱们打算存储在该类型中的任何数据时，类单元值结构体就会派上用场。我们将在第 10 章讨论特质。下面是个名为 `AlwaysEqual` 的单元值结构体的声明和实例化示例：
+
 
 ```rust
 struct AlwaysEqual;
@@ -185,6 +195,7 @@ fn main() {
     let subject = AlwaysEqual;
 }
 ```
+
 
 要定义出 `AlwaysEqual`，就要使用 `struct` 关键字、想要的名字，随后一个分号即可。是不需要花括号或圆括号的！随后就可以类似方式，得到一个在 `subject` 变量中的 `AlwaysEqual` 的示例了：使用定义的名字，不带任何花括弧或原括弧。设想稍后就要将此类型的表现，实现为每个 `AlwaysEqual` 的实例，总是等于任何其他类型的每个实例，这样做或许是为测试目的，而要有这样的已知结果（imagine that later we'll implement behavior for this type such that every instance of `AlwaysEqual` is always equal to every instance of any other type, perhaps to have a known result for testing purposes）。对于这样的行为表现，是不需要任何数据的！在第 10 章就会看到怎样定义特质，以及在包括类单元结构体在内的任何类型上，怎样实现特质。
 
