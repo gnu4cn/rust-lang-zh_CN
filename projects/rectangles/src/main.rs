@@ -4,14 +4,21 @@ struct Rectangle {
     height: u32,
 }
 
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
 fn main() {
-    let scale = 2;
-
     let rect1 = Rectangle {
-        width: dbg! (30 * scale),
+        width: 30,
         height: 50,
-    };
+    }
 
-    dbg! (&rect1);
+    println! (
+        "该矩形的面积为 {} 平方像素。"
+        rect1.area()
+    );
 }
 

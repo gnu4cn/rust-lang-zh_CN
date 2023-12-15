@@ -5,6 +5,12 @@ struct User {
     sign_in_count: u64,
 }
 
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
 fn main() {
     let user1 = User {
         active: true,
