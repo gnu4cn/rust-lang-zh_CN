@@ -8,17 +8,30 @@ impl Rectangle {
     fn area(&self) -> u32 {
         self.width * self.height
     }
+
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        (self.width > other.width && self.height > other.height)
+            || (self.width > other.height && self.height > other.width)
+    }
 }
 
 fn main() {
     let rect1 = Rectangle {
         width: 30,
         height: 50,
-    }
+    };
 
-    println! (
-        "该矩形的面积为 {} 平方像素。"
-        rect1.area()
-    );
+    let rect2 = Rectangle {
+        width: 10,
+        height: 40,
+    };
+
+    let rect3 = Rectangle {
+        width: 48,
+        height: 28,
+    };
+
+    println! ("rect1 可以容纳 rect2 吗？{}", rect1.can_hold(&rect2));
+    println! ("rect1 可以容纳 rect3 吗？{}", rect1.can_hold(&rect3));
 }
 

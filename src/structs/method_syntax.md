@@ -88,20 +88,25 @@ fn main() {
 >
 > 在 C 和 C++ 中，有两种不同的操作符用于调用方法：如果是直接调用对象上的方法，咱们会使用 `.`；如果是调用到对象的某个指针上的方法，并且需要首先解引用该指针时，则要使用 `->`。换句话说，如果 `object` 是个指针，则 `object->something()` 类似于 `(*object).something()`。
 >
-> Rust 并无 `->` 操作符的等价操作符；相反，Rust 有着一项名为 *自动引用与解引用（automatic referencing and dereferencing）* 的特性。而方法调用就是 Rust 中有着这种行为表现的少数几个地方之一。
+> Rust 没有与 `->` 等价的运算符；相反，Rust 有一项称为 *自动引用和解引用，automatic referencing and dereferencing* 的特性。在 Rust 中，调用方法是少数几个具有这种行为的地方之一。
 >
-> 以下就是该特性的工作原理：在以 `object.something()` 调用某个方法时，Rust 会自动加上 `&`、`&mut` 或 `*`，这样 `object` 就会匹配上该方法的签名。换句话说，下面的语句是一致的：
+> 其工作原理如下：当咱们以 `object.something()` 调用某个方法时，Rust 会自动加入 `&`、`&mut` 或 `*`，以便 `object` 与该方法的签名相匹配。换句话说，下面两个方法是相同的：
 >
 ```rust
 p1.distance(&p2);
 (&p1).distance(&p2);
 ```
 >
-> 第一个语句看起来要清楚不少。由于方法有着明确的接收者 -- 即 `self` 的类型，因此这种自动引用的行为会生效。在给定了接收者和方法名字后，Rust 就可明确地确定出该方式到底是在读取（`&self`）、改变（`&mut self`），或者是在消费（`self`）。Rust 实现了方法接收者的隐式借用这一事实，是为实现所有权系统在编程实践中符合人机交互，而所做努力的较大部分（the fact that Rust makes borrowing implicit for method receivers is a big part of making ownership ergonomic in practice）。
+> 第一种看起来更简洁。这种自动引用行为之所以有效，是因为方法有明确的接收者 -- 类型 `self`。有了方法的接收者和名字，Rust 就能明确确定，该方法是在读取 (`&self`)、改变 (`&mut self`) 还是消费 (`self`)。Rust 将方法的接收者，构造为隐式借用，这一事实，是在实践中，令到所有权符合人机工程学的重要部分。
 
-## 有着更多参数的方法
 
-下面就来通过在 `Rectangle` 结构体上实现另一个方法，练习一下方法的运用。这次就要 `Rectangle` 的一个实例，去取得另一个 `Rectangle` 的实例，并在第二个 `Rectangle` 完全能放入到 `self` （即第一个 `Rectangle` ）里头时返回 `true`；否则这个方法就会返回 `false`。也就是，一旦定义了这个 `can_hold` 方法，就要能够编写下面清单 5-14 中的那个程序。
+## 带有更多参数的方法
+
+**Methods with More Parameters**
+
+
+我们来通过在 `Rectangle` 结构体上，实现第二个方法，来练习运用方法。这一次，我们希望 `Rectangle` 的实例，取另一 `Rectangle` 实例，在第二个 `Rectangle` 可以完全容纳在 `self`（第一个 `Rectangle`）中时，则返回 `true`；否则，返回 `false`。也就是说，只要我们已定义出 `can_hold` 方法，我们就可以编写下面清单 5-14 中所示的程序。
+
 
 文件名：`src/main.rs`
 
@@ -122,21 +127,24 @@ fn main() {
         height: 45,
     };
 
-    println! ("rect1 可以装下 rect2 吗？{}", rect1.can_hold(&rect2));
-    println! ("rect1 可以装下 rect3 吗？{}", rect1.can_hold(&rect3));
+    println! ("rect1 可以容纳 rect2 吗？{}", rect1.can_hold(&rect2));
+    println! ("rect1 可以容纳 rect3 吗？{}", rect1.can_hold(&rect3));
 }
 ```
 
-*清单 5-14：对尚未成文的 `can_hold` 方法进行使用*
+*清单 5-14：使用尚未编写的 `can_hold` 方法*
 
-由于 `rect2` 的两个边都小于 `rect1` 的两个边，而 `rect3` 的两个边都要长于 `rect1` 的两个边，因此预期的输出将看起来像下面这样：
+
+由于 `rect2` 两个边都小于 `rect1` 的两个边，而 `rect3` 则宽于 `rect1`，因此预期输出结果如下：
+
 
 ```console
-rect1 可以装下 rect2 吗？true
-rect1 可以装下 rect3 吗？false
+rect1 可以容纳 rect2 吗？true
+rect1 可以容纳 rect3 吗？false
 ```
 
-这里知道要定义的是个方法，因此那将会在 `impl Rectangle` 代码块内部。而方法的名称将是 `can_hold`，同时他会取得作为参数的另一 `Rectangle` 值的不可变借用。通过观察调用该方法的代码，就可以得出那个参数的类型了：`rect1.can_hold(&rect2)` 传入的是 `&rect2`，正是到变量 `rect2` 的不可变借用，而 `rect2` 又是 `Rectangle` 的一个实例。由于这里只需要读取 `rect2`（而非写入，那就意味着将需要一个可变借用了），同时这里是想要 `main` 函数保留 `rect2` 的所有权，这样就可以在 `can_hold` 方法调用之后，还可以再度使用 `rect2`，因此这样做是有理由的。`can_hold` 方法的返回值，将是个布尔值，而该方法的实现会检查 `self` 的宽和高，相应地是否都大于另一个 `Rectangle` 的宽和高。下面就把这个新的 `can_hold` 方法，加入到清单 5-13 的 `impl` 代码块，如下清单 5-15 所示。
+我们知道咱们是要定义某个方法，因此其将位于那个 `impl Rectangle` 代码块中。方法的名称，将是 `can_hold`，同时他将取另一 `Rectangle` 的不可变借用作为参数。通过查看调用该方法的代码，我们可以判断出该参数的类型：`rect1.can_hold(&rect2)` 传入了 `&rect2`，其为对 `Rectangle` 实例 `rect2` 的不可变借用。这是有道理的，因为我们只需要读取 `rect2`（而不是写入，那意味着我们需要一个可变借用），而且我们希望 `main` 保留对 `rect2` 的所有权，这样我们就可以在调用 `can_hold` 方法后，再次使用他。`can_hold` 的返回值，将是个布尔值，其实现将检查 `self` 宽度和高度，是否分别大于另一 `Rectangle` 的宽度和高度。咱们来将这个新的 `can_hold` 方法，添加到清单 5-13 中的 `impl` 代码块中，如下清单 5-15 所示。
+
 
 文件名：`src/main.rs`
 
@@ -153,9 +161,22 @@ impl Rectangle {
 }
 ```
 
-*清单 5-15：对在 `Rectangle` 上的、取另一 `Rectangle` 实例作为参数的 `can_hold` 方法进行实现*
+*清单 5-15：在 `Rectangle` 上实现这个会取另一 `Rectangle` 实例作为参数的 `can_hold` 方法*
 
-在以清单 5-14 中的 `main` 函数来运行此代码是，就会得到想要的输出。方法可取得在 `self` 参数之后添加到其签名的多个参数，同时这些参数就像函数中的参数一样生效。
+
+当我们使用清单 5-14 中的 `main` 函数，运行这段代码时，就会得到我们想要的输出。方法可以取我们在 `self` 参数后，添加到签名的多个参数，而这些参数的作用，就跟函数中的参数一样。
+
+
+> **译注**：实际上，这个 `can_hold` 的实现有错误，因为其没有考虑到矩形倒转后可以容纳的情况，改进后的 `can_hold` 如下。
+
+
+```rust
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        (self.width > other.width && self.height > other.height)
+            || (self.width > other.height && self.height > other.width)
+    }
+
+```
 
 
 ## 关联函数
