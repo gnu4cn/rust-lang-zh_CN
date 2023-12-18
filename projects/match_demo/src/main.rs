@@ -17,10 +17,15 @@ fn value_in_cents(coin: Coin) -> u8 {
     }
 }
 
-fn main() {
-    let penny = Coin::Penny;
-    let dime = Coin::Dime;
-
-    println! ("{}", value_in_cents(penny));
-    println! ("{}", value_in_cents(dime));
+fn plus_one(x: Option<i32>) -> Option<i32> {
+    match x {
+        Some(i) => Some(i + 1),
+    }
 }
+
+fn main() {
+    let five = Some(5);
+    println! ("six: {:?}, none: {:?}", plus_one(five), plus_one(None));
+}
+
+

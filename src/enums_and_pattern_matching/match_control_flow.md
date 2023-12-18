@@ -60,12 +60,13 @@ fn value_in_cents(coin: Coin) -> u8 {
 **Patterns that Bind to Values**
 
 
-`match` 支臂的另一有用特性，便是这些支臂可绑定到值与模式进行匹配值的多个部分（another useful feature of `match` arms is that they can bind to the parts of the values that match the pattern）。这就是从枚举变种提取出值的原理。
+`match` 支臂的另一有用特性是，他们可以绑定到匹配该模式的值的部分。这就是我们从枚举变种中，提取值的方法。
 
-作为一个示例，下面就来将这里的枚举变种之一，修改为其内部保存数据。自 1999 年到 2008 年，美国在 25 美分硬币的一面，铸造上 50 个州不同的设计。别的硬币则没有这样的州份设计，因此只有这些 25 美分硬币才有这额外价值。那么就可以通过修改这个 `Quarter` 变种为内部包含一个 `UsState` 值，来将此信息添加到这里的 `enum` 类型，就如同下面清单 6-4 中所做的。
+举个例子，我们来改变 `Coin` 这个枚举中的某个枚举变种，在其内部保存数据。从 1999 年到 2008 年，美国为 50 个州铸造了其中一面图案各不相同的 25 美分硬币。其他硬币都没有州的图案，因此只有 25 美分硬币，有着这种额外价值。我们可以通过更改 `Quarter` 变量，包含一个存储在其中的 `UsState` 值，具体做法见下面清单 6-4。
+
 
 ```rust
-#[derive(Debug)]    // 这样就可以很快对州份进行检查
+#[derive(Debug)]    // 这样就可以很快检查州份
 enum UsState {
     Alabama,
     Alaska,
@@ -80,9 +81,13 @@ enum Coin {
 }
 ```
 
-来设想一下有个朋友是在尝试收集全部 50 个州份的 25 美分硬币。在按照硬币类型对零钱进行分类的同时，还将叫出与每个 25 美分硬币关联的州份名字，如此就可以在发现那个 25 美分硬币，是那位朋友还没有的时候，就可以把那个硬币添加到收藏。
+*清单 6-4：其中 `Quarter` 变量还包含一个 `UsState` 值的 `Coin` 枚举*
 
-而在这个代码的 `match` 表达式中，就要添加一个名为 `state` 的变量到匹配变种 `Coin::Quarter` 的那些值。在有 `Coin::Quarter` 匹配时，这个 `state` 变量就会绑定到那个 25 美分硬币的状态值。随后就可以在那个支臂的代码里，使用 `state` 变量了，如同下面这样：
+
+设想某位朋友正在努力收集 50 个州的 25 美分硬币。当我们按照硬币种类，对零钱进行分类时，我们还会喊出与每个 25 美分硬币相关的州名，这样，如果我们的朋友没有这个硬币，他们就可以将其添加到自己的收藏中。
+
+在这段代码的 `match` 表达式中，我们就要在匹配 `Coin::Quarter` 变种值的模式中，添加一个名为 `state` 的变量。当某个 `Coin::Quarter` 匹配时，这个 `state` 变量，就会绑定到那个 25 美分银币的州份。然后，我们就可以在该支臂的代码中，使用 `state` 了，就像下面这样：
+
 
 ```rust
 fn value_in_cents(coin: Coin) -> u8 {
@@ -98,60 +103,70 @@ fn value_in_cents(coin: Coin) -> u8 {
 }
 ```
 
-这时在调用了 `value_in_cents(Coin::Quarter(UsState::Alaska))` 后，`coin` 就将是 `Coin::Quarter(UsState::Alaska)`。在将该值与各支臂进行比较时，在到达 `Coin::Quarter(state: UsState)` 支臂之前，是不会有任何支臂于其匹配的。而在 `Coin::Quarter(state: UsState)` 支臂处，`state` 所绑定的，将是值 `UsState::Alaska`。这时就可以使用那个 `println!` 表达式中的绑定，进而就从 `Quarter` 的 `Coin` 枚举变种，获取到那个内部 `state` 值了。
+
+如果我们调用 `value_in_cents(Coin::Quarter(UsState::Alaska))`，`coin` 就会是 `Coin::Quarter(UsState::Alaska)`。当我们将该值，与每个匹配臂进行比较时，在我们到达 `Coin::Quarter(state)` 前，没有一个匹配支臂会匹配 。而在 `Coin::Quarter(state)` 处，`state` 的绑定值，将是 `UsState::Alaska`。然后，我们就可以在 `println!` 表达式中使用该绑定，从而从这个 `Coin` 枚举变种中，得到 `Quarter` 的内部州份值。
 
 
-## 使用 `Option<T>` 的模式匹配
+## 匹配 `Option<T>`
 
 **Matching with `Option<T>`**
 
 
-在前一小节，那里是想要在运用 `Option<T>` 时，从 `Some` 情形中获取到那个内部的 `T` 值；像前面对 `Coin` 枚举所做的那样，也可以这样来对 `Option<T>` 加以处理！比较的不再是那些硬币，而是将比较 `Option<T>` 的两个变种，不过那个 `match` 表达式的原理还是一样的。
+在上一节中，我们希望在使用 `Option<T>` 时，从 `Some` 情形中获取到内部的 `T` 值；我们也可以使用 `match` 来处理 Option<T>，就像我们在处理 `Coin` 枚举时所做的那样！我们将比较 `Option<T>` 的两个变种，而不是比较那些硬币，但 `match` 表达式的工作方式会保持不变。
 
-下面就假设说要编写一个取 `Option<i32>` 类型值的函数，同时当 `Option<i32>` 里面有个值时，就将 `1` 加到那个值上。在 `Option<i32>` 里没有值时，该函数则会返回 `None` 值，并不会尝试执行任何运算。
+假设我们要编写一个，会取某个 `Option<i32>` 值的函数，并在其中有值时，将 1 与该值相加。如果里面没有值，该函数应返回 `None` 值，且不会尝试执行任何运算。
 
-归功于 `match` 表达式，这个函数写起来很容易，他将看起来像下面清单 6-5 这样。
+由于有了 `match` 表达式，这个函数非常容易编写，看起来就像下面清单 6-5 一样。
+
 
 ```rust
 fn plus_one(x: Option<i32>) -> Option<i32> {
     match x {
         None => None,
-        Some(n) => Some(n + 1),
+        Some(i) => Some(i + 1),
     }
 }
 
 fn main() {
     let five = Some(5);
-    let none = None;
-    println! ("{:?}, {:?}", plus_one(five), plus_one(none));
+    let six = plus_one(five);
+    let none = plus_one(None);
 }
 ```
 
-*清单 6-5：在 `Option<i32>` 类型上运用了 `match` 表达式的一个函数*
+*清单 6-5：使用了某个 `Option<i32>` 上的 `match` 表达式的函数*
 
-下面就来详细检视一下 `plus_one` 函数的首次执行。在调用 `plus_one(five)` 时，`plus_one` 函数体中的变量 `x` 将有着值 `Some(5)`。之后就会与 `match` 表达式的各个支臂进行比较。
 
-```rust
-        None => None,
-```
 
-该 `Some(5)` 值不与模式 `None` 匹配，因此就会继续到下一支臂。
+我们来详细看看，`plus_one` 的第一次执行。当我们调用 `plus_one(five)` 时，`plus_one` 主体中的变量 `x` 的值为 `Some(5)`。然后，我们将其与每个匹支臂进行比较：
 
-```rust
-        Some(n) => Some(n + 1),
-```
-
-`Some(5)` 与 `Some(n)` 匹配吗？当然是匹配的！这里有着同样的变种。这个 `n` 绑定的是包含在 `Some` 中的那个值，因此 `n` 就会取到值 `5`。随后该 `match` 支臂中的代码就会被执行，从而就会将 `1` 加到 `n` 的值，并创建出一个新的、内部有着这里的和 `6` 的 `Some` 值来。
-
-现在来看看清单 6-5 中第二个 `plus_one` 的调用，其中 `x` 则是 `None` 了。这里进入到那个 `match` 表达式，并与第一个支臂进行比较。
 
 ```rust
         None => None,
 ```
 
-他是匹配的！就没有要加的值了，因此程序就停下来并返回 `=>` 右侧上的那个 `None` 值。由于第一个支臂已经匹配，因此就不会再比较其他支臂了。
 
-在许多场合，将 `match` 表达式与枚举结合都是有用的。在 Rust 代码中将会看到很多这样的模式：对某个枚举的 `match` 操作，将某个变量绑定到内部数据，并随后据此执行代码（`match` against an enum, bind a variable to the data inside, and then execute code based on it）。在刚开始的时候这显得有些难以琢磨，而一旦熟悉了这种模式，就会希望在全部语言中都有这样的模式。这样的模式一直是编程者的最爱。
+`Some(5)` 这个值与模式 `None` 不匹配，因此我们继续到下一支臂：
+
+
+```rust
+        Some(i) => Some(i + 1),
+```
+
+
+`Some(5)` 是否匹配 `Some(i)` 呢？匹配！我们有着同样的变种。`i` 会与包含在 `Some` 中的值绑定，因此 `i` 会取得值 `5`。然后该匹配支臂中的代码会被执行，因此咱们会将 1 与 `i` 的值相加，并创建处一个新的，其中有着咱们的和 `6` 的 `Some` 值。
+
+现在我们来看看清单 6-5 中，`plus_one` 的第二次调用，其中 `x` 为 `None`。我们进入那个 `match` 表达式，并与第一支臂进行比较：
+
+
+```rust
+        None => None,
+```
+
+
+他匹配了！没有相加的值，因此程序停止，并返回 `=>` 右侧的 `None`。因为第一个支臂已经匹配，就不会比较其他支臂了。
+
+在很多情况下，将 `match` 和枚举结合，都是很有用的。咱们会经常在 Rust 代码中，看到这种模式：对枚举 `match`，将某个变量与枚举中的数据绑定，然后基于他执行代码。这在一开始有点棘手，而一旦咱们习惯了，咱们就会希望在所有语言中，都能使用他。这一直是用户的最爱。
 
 
 ## 匹配要彻底
@@ -159,38 +174,46 @@ fn main() {
 **Matches Are Exhaustive**
 
 
-这里有个需要讨论到的 `match` 表达式的另一方面。想想这个有着代码错误而不会编译的 `plus_one` 版本：
+我们还需要讨论 `match` 表达式的另一方面：支臂的模式，必须涵盖所有可能性。请看下面这个版本的 `plus_one` 函数，其有着一个错误，而因此不会编译：
+
 
 ```rust
     fn plus_one(x: Option<i32>) -> Option<i32> {
         match x {
-            Some(n) => Some(n + 1),
+            Some(i) => Some(i + 1),
         }
     }
 ```
 
-这里没有对 `None` 情形加以处理，因此该代码就会引起错误。幸运的是，那是个 Rust 知道怎样取捕获的代码错误。在尝试编译此代码时，就会得到这样的错误：
+
+我们没有处理 `None` 的情况，因此这段代码会引起错误。幸运的是，这是个 Rust 知道如何捕捉的错误。如果我们尝试编译这段代码，我们将得到下面这个报错：
+
 
 ```console
 $ cargo run
-   Compiling enum_demo v0.1.0 (/home/peng/rust-lang/projects/enum_demo)
+   Compiling match_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\match_demo)
 error[E0004]: non-exhaustive patterns: `None` not covered
-   --> src/main.rs:2:11
-    |
-2   |     match x {
-    |           ^ pattern `None` not covered
-    |
+  --> src\main.rs:21:11
+   |
+21 |     match x {
+   |           ^ pattern `None` not covered
+   |
 note: `Option<i32>` defined here
-    = note: the matched value is of type `Option<i32>`
+  --> /rustc/79e9716c980570bfd1f666e3b16ac583f0168962\library\core\src\option.rs:563:1
+  ::: /rustc/79e9716c980570bfd1f666e3b16ac583f0168962\library\core\src\option.rs:567:5
+   |
+   = note: not covered
+   = note: the matched value is of type `Option<i32>`
 help: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown
-    |
-3   ~         Some(n) => Some(n + 1),
-4   ~         None => todo!(),
-    |
+   |
+22 ~         Some(i) => Some(i + 1),
+23 ~         None => todo!(),
+   |
 
 For more information about this error, try `rustc --explain E0004`.
-error: could not compile `enum_demo` due to previous error
+error: could not compile `match_demo` (bin "match_demo") due to previous error
 ```
+
 
 Rust 是知道这里未曾覆盖到每种可能情形，并甚至清楚这里忘记了那个模式！ Rust 中的 `match` 表达式要是 *彻底的（exhaustive）*：为了让代码有效，就必须穷尽所有的可能性。尤其是在 `Option<T>` 这个示例中，在 Rust 阻止这里忘记显式地处理 `None` 这个情形时，在这里可能会有个 `null` 值时，他就保护了避免有个值的错误假设，进而让那个先前讨论到的十亿美金错误成为不可能了。
 
