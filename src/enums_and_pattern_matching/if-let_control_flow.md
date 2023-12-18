@@ -1,9 +1,10 @@
-# 使用 `if let` 的简洁控制流
+# 使用 `if let` 的简明控制流
 
 **Concise Control Flow with `if let`**
 
 
-`if let` 语法，实现了将 `if` 与 `let` 关键字，结合为不那么冗长的，处理与一个模式相匹配，而忽略其余模式的一些值的处理方式（the `if let` syntax lets you combine `if` and `let` into a less verbose way to handle that match one pattern while ignoring the rest）。设想下面清单 6-6 中的这个程序，该程序是要对 `config_max` 变量中的 `Option<u8>` 值进行匹配，而只打算在该值为 `Some` 变种时，才执行代码。
+`if let` 这种语法，可让咱们将 `if` 和 `let` 结合起来，以一种不那么冗长的方式，处理与一种模式匹配的值，而忽略其他值。请看下面清单 6-6 中，会匹配 `config_max` 变量中的一个 `Option<u8>` 值，但只在该值为 `Some` 变体时，才打算执行代码的程序。
+
 
 ```rust
     let config_max = Some(3u8);
@@ -14,7 +15,8 @@
     }
 ```
 
-*清单 6-6：一个仅在乎当值为 `Some` 时运行代码的 `match` 表达式*
+*清单 6-6：只关心值为 `Some` 时执行代码的 `match` 表达式*
+
 
 在该值为 `Some` 时，这里就通过将那个 `Some` 变种中的值，绑定到这个模式中的变量 `max`，而打印出该值来。这里并不想要对那个 `None` 值做什么操作。为满足 `match` 表达式的要求，这里必须在处理仅仅一个变种之后，添加 `_ => ()`，这就是要添加的恼人样板代码。
 
