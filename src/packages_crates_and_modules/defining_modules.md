@@ -75,12 +75,14 @@ pub mod vegetables;
 ```
 
 
-而语句 `pub mod vegetables;` 表示在 `src/garden/vetables.rs` 中的代码也会被编译器包含：
+在这里，`pub mod vegetables;` 表示也包含了 `src/garden/vegetables.rs` 中的代码。这些代码是:
+
 
 ```rust
 #[derive(Debug)]
 pub struct Asparagus {}
 ```
+
 
 现在就来进入到这些规则的细节，并在实际操作中对他们进行演示吧！
 
