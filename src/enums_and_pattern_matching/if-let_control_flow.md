@@ -10,7 +10,7 @@
     let config_max = Some(3u8);
 
     match config_max {
-        Some(max) => println! ("极大值被配置为了 {}"， max);
+        Some(max) => println! ("The maximum is configured to be {}", max),
         _ => ();
     }
 ```
@@ -18,21 +18,25 @@
 *清单 6-6：只关心值为 `Some` 时执行代码的 `match` 表达式*
 
 
-在该值为 `Some` 时，这里就通过将那个 `Some` 变种中的值，绑定到这个模式中的变量 `max`，而打印出该值来。这里并不想要对那个 `None` 值做什么操作。为满足 `match` 表达式的要求，这里必须在处理仅仅一个变种之后，添加 `_ => ()`，这就是要添加的恼人样板代码。
+如果值为 `Some`，我们会将该值绑定到模式中的变量 `max`，打印出 `Some` 变种中的值。我们不打算对 `None` 值，做任何处理。为了满足 `match` 表达式的要求，我们必须在仅处理一个变种后，加上 `_ => ()`，而这是很烦人的样板代码。
 
-相反，可使用 `if let` 语法，以较简短方式写出来。下面的代码与清单 6-6 中的 `match` 表达式表现一致：
+相反，我们可以使用 `if let`，以更简短的方式编写这段代码。以下代码的行为，与清单 6-6 中的 `match` 表达式相同：
+
 
 ```rust
     let config_max = Some(3u8);
 
     if let Some(max) = config_max {
-        println! ("极大值被设置为了 {}", max);
+        println! ("The maximum is configured to be {}", max);
     }
 ```
 
-`if let` 语法会接收由等号分隔的一个模式与一个表达式。他与 `match` 原理相同，其中的表达式被给到 `match` 表达式，而其中的模式就是 `match` 表达式的第一支臂。在此示例中，模式即为 `Some(max)`，而这个 `max` 就绑定到了 `Some` 里面的那个值。由此，这里随后就可以与在相应的 `match` 支臂中使用 `max` 的同样方式，在后面的那个 `if let` 代码块中对 `max` 进行使用。而在该值 `config_max` 不与该模式匹配时，那个 `if let` 代码块中的代码，就不会运行。
 
-> ***注***：`if let` 实际上是两部分，其中 `let Some(max) = config_max` 是个 scrutinee expression。
+语法 `if let` 取以等号分隔的一个模式和表达式。其工作原理与 `match` 表达式相同，`if let` 中的表达式，会被给到 `match`，而其中的模式，便是 `match` 的首个支臂。在本例中，模式为 `Some(max)`，`max` 会绑定大 `Some` 中的值。我们随后便可以在 `if let` 代码块的正文中，以咱们曾在对应的  `match` 支臂中使用 `max` 的同样方式，使用 `max` 了。如果值与模式不匹配，就不会运行这个 `if let` 代码块中的代码。
+
+
+> **译注**：`if let` 实际上是两部分，其中 `let Some(max) = config_max` 是个检验表达式 scrutinee expression。后面会看到类似的 `while let` 语法。
+
 
 使用 `if let` 语法，就意味着较少输入、较少的缩进，以及更少的样板代码。不过会损失 `match` 表达式强制要求的穷尽检查。是根据特定情形下，手头正在做的事情，在 `match` 表达式与 `if let` 语法之间加以选择的，以及考量为收获到简洁，而是否值得损失穷尽性检查。
 
