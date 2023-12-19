@@ -11,7 +11,7 @@
 
     match config_max {
         Some(max) => println! ("The maximum is configured to be {}", max),
-        _ => ();
+        _ => ()
     }
 ```
 
