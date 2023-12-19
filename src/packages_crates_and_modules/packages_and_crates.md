@@ -9,22 +9,24 @@
 
 代码箱有两种形式：二进制代码箱或库代码箱。*二进制板条箱，binary creates* 属于可以编译成咱们可以运行的可执行文件的程序，例如命令行程序或服务器。每个二进制代码箱，都必须有个名为 `main` 的函数，定义出可执行文件运行时会发生什么。到目前为止，我们创建的所有代码箱，都是二进制代码箱。
 
-*库代码箱* 是没有 `main` 函数的，且他们不会编译到可执行文件。相反，他们定义的是计划在多个项目下共用的功能。比如在 [第二章](Ch02_Programming_a_Guessing_Game.md#生成随机数) 中用到的 `rand` 代码箱，就提供了生成随机数的功能。在多数时候当 Rust 公民提到 “代码箱（crate）” 时，他们指的就是库代码箱，并且他们将 “代码箱（crate）” 与一般编程概念中的 “库（library）” 互换使用。
+*库代码箱，library crates* 没有 `main` 函数，也不会编译成可执行文件。相反，他们定义了旨在与多个项目共享的功能。例如，我们在 [第 2 章](../Ch02_Programming_a_Guessing_Game.md#生成随机数) 中，使用的 `rand` 代码箱，就提供了生成随机数的功能。大多数时候，当 Rustaceans 说 “代码箱，crate” 时，他们指的是库代码箱，而且他们会将 “代码箱”，与一般的编程概念 “库，library” 互换使用。
 
-*代码箱根（crate root）* 是个 Rust 编译器开始之处的源文件，并构成了代码箱的根模组（the *crate root* is a source file that the Rust compiler starts from and makes up the root module of your crate. 后面在 [定义控制作用域和私有化的模组](#定义控制作用域和隐私的模组) 小节，将深入探讨到模组概念）。
+而 *代码箱根，crate root*，则是个 Rust 编译器开始之处的源代码文件，并构成了咱们代码箱的 *根模组，root module*（我们将在 [定义控制作用域和隐私的模组](/packages_crates_and_modules/defining_modules.md) 小节，深入探讨模组）。
 
-*包（a package）* 即为提供了一套功能的一个或多个代码箱的捆绑包（a *package* is a bundle of one or more crates that provides a set of functionality）。包，包含了描述如何构建那些代码箱的一个 `Cargo.toml` 文件。Cargo 本身实际上就是，包含了前面曾用于构建代码的命令行工具二进制代码箱的包。Cargo 包还包含了一个该二进制代码箱所依赖的库代码箱。别的项目便可依靠这个 Cargo 库代码箱，来运用与 Cargo 命令行工具，所用到的同样逻辑。
+*包，package* 是提供了一组功能的一或多个代码箱的捆绑。包会包含一个描述如何构建这些代码箱的 `Cargo.toml` 文件。Cargo 实际上就是个包含了咱们用来构建代码的命令行工具的包。Cargo 包还包含该二进制代码箱所依赖的库代码箱。其他项目可以依赖于 Cargo 的库代码箱，使用与 Cargo 这个命令行工具所使用的同样逻辑。
 
-代码包能包含些什么，是由数条规则所确定的。一个代码包，可包含尽可能多的二进制代码箱，但却只能包含至多一个的库代码箱。一个代码包必须包含至少一个代码箱，不管是库或二进制代码箱。
+某个包可以包含任意数量的二进制代码箱，但最多只能包含一个库代码箱。某个包必须至少包含一个代码箱，无论是库代码箱，还是二进制代码箱。
 
-下面就来看看在创建代码包时，会发生些什么。首先，这里要敲入命令 `cargo new`:
+我们来看看当我们创建出某个软件包时，会发生什么。首先，我们输入命令 `cargo new`：
+
 
 ```console
-$ cargo new my-project
+
+$ cargo new my-project --vcs=none
      Created binary (application) `my-project` package
-$ ls my-project                                                                            ✔
+$ ls my-project
 Cargo.toml  src
-$ ls my-project/src                                                                        ✔
+$ ls my-project/src
 main.rs
 ```
 
