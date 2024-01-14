@@ -3,7 +3,7 @@
 **Paths for Referring to an Item in the Module Tree**
 
 
-为告诉 Rust 在模块树中的何处，可以找到某个项目，我们就像在文件系统中一样，用到了路径。要调用某个函数，我们需要知道他的路径。
+为告诉 Rust 在模组树中的何处，可以找到某个项目，我们就像在文件系统中一样，用到了路径。要调用某个函数，我们需要知道他的路径。
 
 路径有两种形式：
 
@@ -42,22 +42,25 @@ pub fn eat_at_restaurant() {
 *清单 7-3：使用绝对与相对路径，调用 `add_to_waitlist` 函数*
 
 
-第一次调用 `eat_at_restaurant` 中的 `add_to_waitlist` 函数时，我们使用的是绝对路径。`add_too_waitlist` 函数与 `eat_at_restaurant`，定义在同一个代码箱中，这意味着我们可以使用 `crate` 关键字，来开始绝对路径。然后，我们逐个包含后续模块，直到找到 `add_to_waitlist`。咱们可以想象某种具有相同结构的文件系统：我们指定 `/front_of_house/hosting/add_to_waitlist` 路径，来运行 `add_to_waitlist` 程序；使用 `crate` 这个名字，从代码箱根目录开始，就像在 shell 中，使用 `/` 从文件系统根目录开始一样。
+第一次调用 `eat_at_restaurant` 中的 `add_to_waitlist` 函数时，我们使用的是绝对路径。`add_too_waitlist` 函数与 `eat_at_restaurant`，定义在同一个代码箱中，这意味着我们可以使用 `crate` 关键字，来开始绝对路径。然后，我们逐个包含后续模组，直到找到 `add_to_waitlist`。咱们可以想象某种具有相同结构的文件系统：我们指定 `/front_of_house/hosting/add_to_waitlist` 路径，来运行 `add_to_waitlist` 程序；使用 `crate` 这个名字，从代码箱根目录开始，就像在 shell 中，使用 `/` 从文件系统根目录开始一样。
 
 第二次在 `eat_at_restaurant` 中调用 `add_too_waitlist` 时，我们使用了相对路径。该路径以 `front_of_house` 开头，`front_of_house` 是与 `eat_at_restaurant` 定义在模组树同一级别处，模组的名字。在这里，文件系统等价的做法，是使用路径 `front_of_house/hosting/add_to_waitlist`。以模组名字开头，就意味着路径是相对的。
 
-至于究竟要选择相对路径，还是绝对路径，是要基于手头项目，而将作出的决定，并取决于是更倾向于把程序项目定义代码迁移到单独的地方，还是要把他们和要用到他们的代码放在一起。比如，在将 `front_of_house` 模组与 `eat_at_restaurant` 函数，移入到一个名为 `customer_experience` 的模组中时，那么就需要更新那个到 `add_to_waitlist` 的绝对路径，但那个相对路径则仍将有效。但如果将 `eat_at_restaurant` 函数单独移入到一个名为 `dining` 的模组，那么到 `add_to_waitlist` 函数的绝对路径就会依旧保持那样，但那个相对路径则需要被更新。由于今后多半要把代码定义和项目调用，迁移为各自独立，因此总体上偏好是要指明绝对路径。
+选择使用相对路径还是绝对路径，取决于咱们的项目，也取决于咱们更倾向于将项目定义代码，与使用项目的代码分开移动，还是一起移动。例如，如果我们将 `front_of_house` 模组和 `eat_at_restaurant` 函数，移到名为 `customer_experience` 的模组中，我们就需要更新 `add_too_waitlist` 的绝对路径，但相对路径仍然有效。但是，如果我们将 `eat_at_restaurant` 函数单独移到名为 `dining` 的模组中，那么 `add_too_waitlist` 调用的绝对路径将保持不变，但相对路径则需要更新。一般来说，我们更倾向于指定绝对路径，因为我们更有可能希望，独立地移动项目的代码定义和项目的调用。
 
-接下来就要尝试编译清单 7-3，并找出他为何不编译的原因！所得到的错误如下清单 7-4 所示。
+我们来试着编译清单 7-3，看看他为什么还不能编译！我们得到的错误信息，如清单 7-4 所示。
+
 
 ```console
-$ cargo build                                                                ✔
-   Compiling restaurant v0.1.0 (/home/peng/rust-lang/restaurant)
+$ cargo build
+   Compiling restuarant v0.1.0 (/home/hector/restuarant)
 error[E0603]: module `hosting` is private
- --> src/lib.rs:9:28
+ --> src/lib.rs:8:28
   |
-9 |     crate::front_of_house::hosting::add_to_waitlist();
-  |                            ^^^^^^^ private module
+8 |     crate::front_of_house::hosting::add_to_waitlist();
+  |                            ^^^^^^^  --------------- function `add_to_waitlist` is not publicly re-exported
+  |                            |
+  |                            private module
   |
 note: the module `hosting` is defined here
  --> src/lib.rs:2:5
@@ -66,10 +69,12 @@ note: the module `hosting` is defined here
   |     ^^^^^^^^^^^
 
 error[E0603]: module `hosting` is private
-  --> src/lib.rs:12:21
+  --> src/lib.rs:10:21
    |
-12 |     front_of_house::hosting::add_to_waitlist();
-   |                     ^^^^^^^ private module
+10 |     front_of_house::hosting::add_to_waitlist();
+   |                     ^^^^^^^  --------------- function `add_to_waitlist` is not publicly re-exported
+   |                     |
+   |                     private module
    |
 note: the module `hosting` is defined here
   --> src/lib.rs:2:5
@@ -78,22 +83,22 @@ note: the module `hosting` is defined here
    |     ^^^^^^^^^^^
 
 For more information about this error, try `rustc --explain E0603`.
-error: could not compile `restaurant` due to 2 previous errors
+error: could not compile `restuarant` (lib) due to 2 previous errors
 ```
 
-*清单 7-4：构建清单 7-3 中代码时的编译器错误*
+*清单 7-4：构建清单 7-3 中代码时的编译器报错*
 
-该错误消息讲到，模组 `hosting` 是私有的。也就是说，这里的 `hosting` 模组与 `add_to_waitlist` 函数的路径都是正确的，但由于 Rust 没有到私有部分的访问权限，而不会允许咱们使用他们。在 Rust 中，全部程序项目（函数、方法、结构体、枚举、模组，以及常量等），默认对父模组都是私有的。在打算将某个项目，比如函数或结构体，构造为私有时，就要将其放在某个模组里。
 
-父模组中的项目，是无法使用子模组内部的那些私有项目的，但子模组中的项目，则可以使用他们祖辈模组中的项目。这是由于子模组封装并隐藏了他们的实现细节，但子模组却可以看到他们被定义处的上下文（the context in which they're defined）。继续之前的那个比喻，请把这些隐私规则，想做是饭馆后台（the back office of a restaurant）：那里所发生的事情对饭馆顾客是隐私的，但后台经理们却可以看到并完成他们所运营饭馆里的全部事情。
+错误消息表明，模组 `hosting` 是私有的。换句话说，我们有了 `hosting` 模组和 `add_too_waitlist` 函数的正确路径，但 Rust 不允许我们使用他们，因为其无法访问私有部分。在 Rust 中，所有项目（函数、方法、结构体、枚举、模组和常量），默认都是父模组私有的。如果咱们打算将函数或结构体等项目私有化，可以将其放入模组中。
 
-Rust 选择了让模组系统以这种方式发挥作用，从而默认就将内部实现细节给隐藏了。如此一来，就清楚可修改内部代码的哪些部分，而不会破坏外层代码。尽管如此，Rust 还是提供了通过使用 `pub` 关键字，把某个程序项目构造为公共项目，而将子模组代码的内层部分，暴露给外层祖辈模组的选项。
+父模组中的项目，不能使用子模组中的私有项目，但子模组中的项目，却可以使用其祖辈模组中的项目。这是因为子模组封装并隐藏了他们的实现细节，但子模组可以看到定义他们的上下文。继续我们的比喻，请把隐私规则，想象成某家餐厅的后台办公室：里面发生的事情，对餐厅顾客来说是隐私，但办公室经理，却可以看到执行做他们所经营餐厅里的一切事情。
+
+Rust 选择让模组系统以这种方式运行，以便在默认情况下，隐藏内部实现细节。这样，咱们就明白，在不破坏外部代码的情况下，可以修改内部代码的哪些部分。不过，Rust 确实提供了选项，让咱们可以通过使用 `pub` 关键字，将子模组的内部代码，公开给外部的祖辈模组。
 
 
 ##  使用 `pub` 关键字暴露路径
 
 **Exposing Paths with the `pub` Keyword**
-
 
 下面回到清单 7-4 中，告知 `hosting` 模组为私有的那个错误。这里希望在父模组中的 `eat_at_restaurant` 函数，有着到那个 `hosting` 子模组中的 `add_to_waitlist` 函数的访问权限，因此就要将该模组，以 `pub` 关键字标记起来，如下面清单 7-5 中所示。
 
