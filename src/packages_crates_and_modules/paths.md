@@ -42,9 +42,9 @@ pub fn eat_at_restaurant() {
 *清单 7-3：使用绝对与相对路径，调用 `add_to_waitlist` 函数*
 
 
-在 `eat_at_restaurant` 中，第一次调用那个 `add_to_waitlist` 函数使用的是绝对路径。由于这个 `add_to_waitlist` 函数，是定义在与 `eat_at_restaurant` 同一个代码箱中，这意味着此处可以使用 `crate` 关键字，来开始一个绝对路径。随后这里包括了到那个 `add_to_waitlist` 为止的各个后续模组。可以设想有着这同样结构的一个文件系统：即要指明路径 `/front_of_house/hosting/add_to_waitlist`，来运行那个 `add_to_waitlist` 程序；使用 `crate` 字面值名字，而自该代码箱根部开始，就跟使用 `/` 来从 shell 中文件系统根部开始类似。
+第一次调用 `eat_at_restaurant` 中的 `add_to_waitlist` 函数时，我们使用的是绝对路径。`add_too_waitlist` 函数与 `eat_at_restaurant`，定义在同一个代码箱中，这意味着我们可以使用 `crate` 关键字，来开始绝对路径。然后，我们逐个包含后续模块，直到找到 `add_to_waitlist`。咱们可以想象某种具有相同结构的文件系统：我们指定 `/front_of_house/hosting/add_to_waitlist` 路径，来运行 `add_to_waitlist` 程序；使用 `crate` 这个名字，从代码箱根目录开始，就像在 shell 中，使用 `/` 从文件系统根目录开始一样。
 
-在 `eat_at_restaurant` 里第二次调用 `add_to_waitlist` 时，这里使用了绝对路径。该路径是以 `front_of_house`，即那个与 `eat_at_restaurant` 定义在模组树的同一级别的模组名字，开始的。此处文件系统的等价物，将是使用路径 `front_of_house/hosting/add_to_waitlist`。以模组名字开始，就意味着该路径是绝对的。
+第二次在 `eat_at_restaurant` 中调用 `add_too_waitlist` 时，我们使用了相对路径。该路径以 `front_of_house` 开头，`front_of_house` 是与 `eat_at_restaurant` 定义在模组树同一级别处，模组的名字。在这里，文件系统等价的做法，是使用路径 `front_of_house/hosting/add_to_waitlist`。以模组名字开头，就意味着路径是相对的。
 
 至于究竟要选择相对路径，还是绝对路径，是要基于手头项目，而将作出的决定，并取决于是更倾向于把程序项目定义代码迁移到单独的地方，还是要把他们和要用到他们的代码放在一起。比如，在将 `front_of_house` 模组与 `eat_at_restaurant` 函数，移入到一个名为 `customer_experience` 的模组中时，那么就需要更新那个到 `add_to_waitlist` 的绝对路径，但那个相对路径则仍将有效。但如果将 `eat_at_restaurant` 函数单独移入到一个名为 `dining` 的模组，那么到 `add_to_waitlist` 函数的绝对路径就会依旧保持那样，但那个相对路径则需要被更新。由于今后多半要把代码定义和项目调用，迁移为各自独立，因此总体上偏好是要指明绝对路径。
 
