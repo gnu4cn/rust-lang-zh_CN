@@ -14,11 +14,12 @@
 
 绝对路径和相对路径，后面都有一或多个用双冒号（`::`）分隔的标识符。
 
-回到清单 7-1，假设我们要调用 `add_too_waitlist` 函数。这等同于在询问：`add_to_waitlist` 函数的路径是什么？下面清单 7-3 包含着去掉了部分模组及函数的清单 7-1。
+回到清单 7-1，假设我们要调用 `add_too_waitlist` 函数。这等同于在询问：`add_to_waitlist` 函数的路径是什么？下面清单 7-3 包含了去掉了部分模组及函数的清单 7-1。
 
-这里将给出从定义在该代码箱根部的一个新函数 `eat_at_restaurant`，调用那个 `add_to_waitlist` 函数的两种方式。其中那些路径都是正确的，但由于存在别的问题，而将阻止此示例如往常那样编译。这里会稍加解释为何会这样。
+我们将展示两种从代码箱根处，定义的新函数 `eat_at_restaurant`，调用 `add_too_waitlist` 函数的方法。这两个路径都是正确的，但还存在另一将导致本示例无法按原样编译的问题。我们稍后会解释原因。
 
-其中的 `eat_at_restaurant` 函数，是这里的库代码箱公共 API 的一部分，因此要将其以 `pub` 关键字进行标记。在后面的 [使用 `pub` 关键字对路径进行暴露](#使用-pub-关键字对路径进行暴露) 小节，深入到更多有关 `pub` 关键字的细节。
+`eat_at_restaurant` 函数，是咱们库代码箱公共 API 的一部分，因此我们使用了 `pub` 关键字对其进行标记。在 [使用 pub 关键字暴露路径](#使用-pub-关键字暴露路径) 小节，我们将详细介绍 `pub`。
+
 
 文件名：`src/lib.rs`
 
@@ -38,7 +39,8 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-*清单 7-3：使用绝对与相对路径两种方式，调用 `add_to_waitlist` 函数*
+*清单 7-3：使用绝对与相对路径，调用 `add_to_waitlist` 函数*
+
 
 在 `eat_at_restaurant` 中，第一次调用那个 `add_to_waitlist` 函数使用的是绝对路径。由于这个 `add_to_waitlist` 函数，是定义在与 `eat_at_restaurant` 同一个代码箱中，这意味着此处可以使用 `crate` 关键字，来开始一个绝对路径。随后这里包括了到那个 `add_to_waitlist` 为止的各个后续模组。可以设想有着这同样结构的一个文件系统：即要指明路径 `/front_of_house/hosting/add_to_waitlist`，来运行那个 `add_to_waitlist` 程序；使用 `crate` 字面值名字，而自该代码箱根部开始，就跟使用 `/` 来从 shell 中文件系统根部开始类似。
 
@@ -88,7 +90,7 @@ error: could not compile `restaurant` due to 2 previous errors
 Rust 选择了让模组系统以这种方式发挥作用，从而默认就将内部实现细节给隐藏了。如此一来，就清楚可修改内部代码的哪些部分，而不会破坏外层代码。尽管如此，Rust 还是提供了通过使用 `pub` 关键字，把某个程序项目构造为公共项目，而将子模组代码的内层部分，暴露给外层祖辈模组的选项。
 
 
-##  使用 `pub` 关键字对路径进行暴露
+##  使用 `pub` 关键字暴露路径
 
 **Exposing Paths with the `pub` Keyword**
 
