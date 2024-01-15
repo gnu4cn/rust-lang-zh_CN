@@ -100,7 +100,7 @@ Rust 选择让模组系统以这种方式运行，以便在默认情况下，隐
 
 **Exposing Paths with the `pub` Keyword**
 
-下面回到清单 7-4 中，告知 `hosting` 模组为私有的那个错误。这里希望在父模组中的 `eat_at_restaurant` 函数，有着到那个 `hosting` 子模组中的 `add_to_waitlist` 函数的访问权限，因此就要将该模组，以 `pub` 关键字标记起来，如下面清单 7-5 中所示。
+我们回到清单 7-4 中的报错，该报错告诉我们，`hosting` 模组是私有的。我们希望父模组中的 `eat_at_restaurant` 函数，能访问子模组中的 `add_too_waitlist` 函数，因此我们在 `hosting` 模组中，标记了 `pub` 关键字，如清单 7-5 所示。
 
 
 文件名：`src/lib.rs`
@@ -121,9 +121,11 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-*清单 7-5：将 `hosting` 模组声明为 `pub` 以在 `eat_at_restaurant` 中使用他*
+*清单 7-5：将 `hosting` 模组声明为 `pub`，以便在 `eat_at_restaurant` 中使用他*
 
-不幸的是，清单 7-5 中的代码仍以错误告终，如下清单 7-6 中所示：
+
+不幸的是，如下清单 7-6 所示，清单 7-5 中的代码仍会导致报错。
+
 
 ```console
 $ cargo build
@@ -156,14 +158,15 @@ For more information about this error, try `rustc --explain E0603`.
 error: could not compile `restaurant` due to 2 previous errors
 ```
 
-*清单 7-6：构造清单 7-5 中代码时的编译器错误*
+*清单 7-6：构建清单 7-5 中代码时出现的编译器报错*
 
 
-怎么回事呢？将 `pub` 关键字加在 `mod hosting` 前面，是把该模组构造为公共模组。有了此修改，那么在能够访问 `front_of_house` 时，就能够访问 `hosting`。但 `hosting` 模组的 *内容（contents）* 仍是私有的；将模组构造为公开，并不会将其内容构造为公开。在模组上的 `pub` 关键字，只是让其祖辈模组中的代码可以引用到他，而不是访问其内层代码。由于模组是些容器，因此仅将模组构造为公开，是做不了什么的；这就需要更进一步，而选择将模组里的一个或更多的程序项目，也构造为公开。
+发生了什么？在 `hosting` 模组前添加 `pub` 关键字后，该模组就变成了公共模组。有了这个改动，如果我们能访问 `front_of_house`，也就能访问 `hosting`。但是，`hosting` 的 *内容* 仍然是私有的；将该模组构造为公开，并不会使其内容公开。模组上的 `pub` 关键字，只能让其先辈模组中的代码引用他，而不能访问其内部代码。因为模组是个容器，所以只将模组公开并不能做什么；我们需要更进一步，选择将其模组中的一或多个项目也公开。
 
-清单 7-6 中的错误说到，那个 `add_to_waitlist` 函数是私有的。适用于结构体、枚举、函数即方法等的隐私规则，与适用于模组的一样。
+清单 7-6 中的报错表明，`add_too_waitlist` 函数是私有的。隐私规则适用于结构体、枚举、函数和方法以及模组。
 
-下面就来通过把 `pub` 关键字，添加在 `add_to_waitlist` 函数定义之前，而将其构造为公开函数，如下清单 7-7 所示。
+我们还可以在 `add_too_waitlist` 函数的定义前，添加 `pub` 关键字，使其成为公共函数，如清单 7-7 所示。
+
 
 文件名：`src/lib.rs`
 
@@ -183,9 +186,9 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-*清单 7-7：把 `pub` 关键字添加到 `mod hosting` 与 `fn add_to_waitlist`，实现从 `eat_at_restaurant` 调用该函数*
+*清单 7-7：在 `mod hosting` 和 `fn add_too_waitlist` 中添加 `pub` 关键字后，我们就可以在 `eat_at_restaurant` 中调用了这个函数*
 
-现在该代码就会编译了！接下来看看其中绝对与相对路径，以弄明白为何添加 `pub` 关键字，就实现了在遵循隐私规则之下，使用到 `add_to_waitlist` 中的这些路径的原因。
+现在代码可以编译了！要了解为何添加 `pub` 关键字后，我们就可以在 `add_too_waitlist` 中，在遵守隐私规则下使用这些路径，我们来看看其中的绝对路径和相对路径。
 
 在那个绝对路径中，是以这里代码箱模组树的根、字面值 `crate` 开始的。那个 `front_of_house` 模组，即为被定义在该代码箱根中。尽管 `front_of_house` 模组不是公开的，但由于 `eat_at_restaurant` 函数被定义在与 `front_of_house` 同一模组中（即 `eat_at_restaurant` 与 `front_of_house` 是姊妹关系），因此是可以从 `eat_at_restaurant` 函数引用 `front_of_house` 的。接下来就是那个被标记了 `pub` 的 `hosting` 模组了。由于这里可以访问 `hosting` 的父模组，因此就可以访问 `hosting`。最后，由于那个 `add_to_waitlist` 函数被 `pub` 标记过，且这里可以访问他的父模组，因此该函数调用就生效了！
 
