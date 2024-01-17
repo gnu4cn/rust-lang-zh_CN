@@ -190,7 +190,7 @@ pub fn eat_at_restaurant() {
 
 现在代码可以编译了！要了解为何添加 `pub` 关键字后，我们就可以在 `add_too_waitlist` 中，在遵守隐私规则下使用这些路径，我们来看看其中的绝对路径和相对路径。
 
-在那个绝对路径中，是以这里代码箱模组树的根、字面值 `crate` 开始的。那个 `front_of_house` 模组，即为被定义在该代码箱根中。尽管 `front_of_house` 模组不是公开的，但由于 `eat_at_restaurant` 函数被定义在与 `front_of_house` 同一模组中（即 `eat_at_restaurant` 与 `front_of_house` 是姊妹关系），因此是可以从 `eat_at_restaurant` 函数引用 `front_of_house` 的。接下来就是那个被标记了 `pub` 的 `hosting` 模组了。由于这里可以访问 `hosting` 的父模组，因此就可以访问 `hosting`。最后，由于那个 `add_to_waitlist` 函数被 `pub` 标记过，且这里可以访问他的父模组，因此该函数调用就生效了！
+在绝对路径中，我们从 `crate` 开始，他是咱们代码箱模组树的根。`front_of_house` 模组就定义在代码箱根中。虽然 `front_of_house` 不是公有的，但由于 `eat_at_restaurant` 函数与 `front_of_house` 模组定义在同一个模组中（也就是说，`eat_at_restaurant` 和 `front_of_house` 属于姊妹关系），我们可以在 `eat_at_restaurant` 中引用 `front_of_house`。接下来是标有 `pub` 的 `hosting` 模组。我们可以访问 `hosting` 的父模组，因此可以访问 `hosting`。最后，`add_to_waitlist` 函数被标记为 `pub`，我们可以访问他的父模组，因此这个函数调用是有效的！
 
 在那个相对路径中，除了第一步外，其中的逻辑与绝对路径相同：与从代码箱根开始不同，该相对路径是从 `front_of_house` 处开始的。这个 `front_of_house` 模组，是定义在与 `eat_at_restaurant` 函数同样的模组中，那么从 `eat_at_restaurant` 定义所在处的这个模组开始的相对路径，就是有效的。随后由于 `hosting` 与 `add_to_waitlist` 都是以 `pub` 关键字标记过，那么该路径其余部分就都工作了，同时此函数调用就是有效的了！
 
