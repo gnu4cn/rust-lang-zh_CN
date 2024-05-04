@@ -192,9 +192,9 @@ pub fn eat_at_restaurant() {
 
 在绝对路径中，我们从 `crate` 开始，他是咱们代码箱模组树的根。`front_of_house` 模组就定义在代码箱根中。虽然 `front_of_house` 不是公有的，但由于 `eat_at_restaurant` 函数与 `front_of_house` 模组定义在同一个模组中（也就是说，`eat_at_restaurant` 和 `front_of_house` 属于姊妹关系），我们可以在 `eat_at_restaurant` 中引用 `front_of_house`。接下来是标有 `pub` 的 `hosting` 模组。我们可以访问 `hosting` 的父模组，因此可以访问 `hosting`。最后，`add_to_waitlist` 函数被标记为 `pub`，我们可以访问他的父模组，因此这个函数调用是有效的！
 
-在那个相对路径中，除了第一步外，其中的逻辑与绝对路径相同：与从代码箱根开始不同，该相对路径是从 `front_of_house` 处开始的。这个 `front_of_house` 模组，是定义在与 `eat_at_restaurant` 函数同样的模组中，那么从 `eat_at_restaurant` 定义所在处的这个模组开始的相对路径，就是有效的。随后由于 `hosting` 与 `add_to_waitlist` 都是以 `pub` 关键字标记过，那么该路径其余部分就都工作了，同时此函数调用就是有效的了！
+在相对路径中，除了第一步外，逻辑与绝对路径是相同的：路径不从代码箱根开始，而是从 `front_of_house` 开始。`front_of_house` 模组与 `eat_at_restaurant`，定义在同一个模组中，因此从定义出 `eat_at_restaurant` 的模组处开始的相对路径就是可行的。然后，由于 `hosting` 和 `add_to_waitlist` 被标记为了 `pub`，因此该路径的其余部分也有效，这个函数调用也就有效了！
 
-在计划分享库代码箱，进而其他项目可使用到其代码时，公开 API 即是与该代码箱用户的合约，定下了与库代码箱代码互动的方式。在管理对公共 API 的修改方面，则有着诸多考量，以让人们更易于依赖到咱们的代码箱。这些考量超出了本书的范围；若对这方面感兴趣，那么请参阅 [Rust API 指南](https://rust-lang.github.io/api-guidelines/)。
+若咱们计划分享出咱们的库代码箱，以便其他项目可以使用咱们的代码，那么我们的公共 API，就是咱们与代码箱用户之间的合约，他决定了用户如何与咱们的代码交互。而在管理公开 API 变更方面，为使对咱们代码箱有依赖的人们更容易一些，则需要考虑诸多因素。这些考量超出了本书的范围；如果你对这个主题感兴趣，请参阅 [Rust API 指南](https://rust-lang.github.io/api-guidelines/)。
 
 
 > **带有一个二进制与一个库的 Rust 代码包最佳实践（Best Practice for Packages with a Binary and a Library）**
