@@ -43,6 +43,51 @@ $ xcode-select --install
 Linux 用户一般应根据其发行版的文档，安装 GCC 或 Clang。例如，如果咱们使用 Ubuntu，则可以安装 `build-essential` 软件包。
 
 
+### 使用国内 Crates、rustup 源
+
+
+使用字节提供的 Rust 镜像源 [https://rsproxy.cn](https://rsproxy.cn/)，可提升 Rust 安装及 Crates 下载速度。
+
+
+- 在 `~/.zshrc` 或 `~/.bashrc` 中加入以下内容
+
+
+```bash
+export RUSTUP_DIST_SERVER="https://rsproxy.cn"
+export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+```
+
+
+- 创建/修改 `~/.cargo/config`，加入以下内容
+
+
+```conf
+[source.crates-io]
+replace-with = 'rsproxy'
+
+[source.rsproxy]
+registry = "https://rsproxy.cn/crates.io-index"
+
+[registries.rsproxy]
+index = "https://rsproxy.cn/crates.io-index"
+
+[net]
+git-fetch-with-cli = true
+```
+
+
+- 首次安装 `rustup`
+
+
+```console
+# export the env above first
+curl --proto '=https' --tlsv1.2 -sSf https://rsproxy.cn/rustup-init.sh | sh
+```
+
+
+> **参考**：[Rust使用国内Crates 源、 rustup源 |字节跳动新的 Rust 镜像源以及安装rust](https://blog.csdn.net/inthat/article/details/106742193)
+
+
 ## 在 Windows 上安装 `rustup`
 
 
