@@ -265,20 +265,21 @@ mod back_of_house {
 }
 
 pub fn eat_at_restaurant() {
-    // 点下一份带有黑麦土司的夏日早餐, rye, US /raɪ/, UK /rai/, n.黑麦, 黑麦粒
+    // 点一份带黑麦土司的夏日早餐, rye, US /raɪ/, UK /rai/, n.黑麦, 黑麦粒
     let mut meal = back_of_house::Breakfast::summer("Rye");
     meal.toast = String::from("Wheat");
     println! ("请给我一份 {} 土司", meal.toast);
 
-    // 若不把接下来的行注释掉，那么就不会编译；这里不允许查看或修改
-    // 餐食搭配的应季水果
+    // 若不把接下来这行注释掉，那么就不会编译；这里不允许查看或修改
+    // 这份餐搭配的应季水果
     // meal.seasonal_fruit = String::from("blueberries");
 }
 ```
 
-*清单 7-9：有着一些公共字段与私有字段的一个结构体*
+*清单 7-9：带有一些公开字段与一些私有字段的结构体*
 
-由于 `back_of_house::Breakfast` 结构体中的 `toast` 字段是公开的，因此在 `eat_at_restaurant` 中就可以使用点符号（`.`），对 `toast` 字段进行写入与读取。请注意由于 `seasonal_fruit` 是私有的，因此这里不能在 `eat_at_restaurant` 中使用那个 `seasonal_fruit` 字段。尝试将那个对 `seasonal_fruit` 字段值进行修改的行解除注释，看看将得到什么样的错误！
+
+由于 `back_of_house::Breakfast` 结构体中的 `toast` 字段是公开的，因此在 `eat_at_restaurant` 中，我们可以使用点符号（`.`）写入和读取这个 `toast` 字段。请注意，我们不能在 `eat_at_restaurant` 中，使用 `seasonal_fruit` 字段，因为 `seasonal_fruit` 是私有的。请尝试取消注释那个修改 `seasonal_fruit` 字段值的行，看看会出现什么错误！
 
 
 ```console
