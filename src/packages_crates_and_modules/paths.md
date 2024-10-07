@@ -186,7 +186,7 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-*清单 7-7：在 `mod hosting` 和 `fn add_too_waitlist` 中添加 `pub` 关键字后，我们就可以在 `eat_at_restaurant` 中调用了这个函数*
+*<a name="list_7-7">清单 7-7</a>：在 `mod hosting` 和 `fn add_too_waitlist` 中添加 `pub` 关键字后，我们就可以在 `eat_at_restaurant` 中调用了这个函数*
 
 现在代码可以编译了！要了解为何添加 `pub` 关键字后，我们就可以在 `add_too_waitlist` 中，在遵守隐私规则下使用这些路径，我们来看看其中的绝对路径和相对路径。
 

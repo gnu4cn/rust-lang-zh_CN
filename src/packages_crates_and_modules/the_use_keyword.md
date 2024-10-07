@@ -1,9 +1,8 @@
-# 使用 `use` 关键字将路径带入作用域
+# 使用 `use` 关键字将路径纳入作用域
 
 **Bringing Paths into Scope with the `use` Keyword**
 
-
-为调用一些函数，而不得不写出他们的路径，就会感到不便与重复。比如在清单 7-7 中，对于到 `add_to_waitlist` 函数，无论是选择绝对路径还是相对路径，在每次在打算调用 `add_to_waitlist` 时，都必须还要指明 `front_of_house` 与 `hosting`。幸运的是，有简化此过程的办法：这里可以使用 `use` 关键字，一次性创建出到某个路径的快捷方式，尔后就可以在该作用域中所有地方，使用这个较短名字了。
+必须写出调用函数的路径，可能会让人感到不便和重复。在 [清单 7-7](paths.md#list_7-7) 中，无论我们选择 `add_too_waitlist` 函数的绝对路径还是相对路径，每次要调用 `add_too_waitlist` 时，都必须指定 `front_of_house` 和 `hosting`。幸运的是，有种方法可以简化这一过程：我们可以使用 `use` 关键字，为路径创建一个快捷方式，然后在作用域的其他地方，使用这个较短的名字。
 
 在下面清单 7-11 中，就将 `crate::front_of_house::hosting` 模组，带入到了 `eat_at_restaurant` 函数的作用域，由此就只须指明 `hosting::add_to_wait`，而在 `eat_at_restaurant` 中调用这个 `add_to_waitlist` 函数了。
 
