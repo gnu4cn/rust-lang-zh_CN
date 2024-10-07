@@ -295,9 +295,10 @@ For more information about this error, try `rustc --explain E0616`.
 error: could not compile `restaurant` due to previous error
 ```
 
-还请留意由于 `back_of_restaurant::Breakfast` 有个私有字段，那么该结构体就需要提供一个公开的、构造出`Breakfast` 实例的关联函数（这里将该函数命名为了 `summer`）。若 `Breakfast` 没有这样一个函数，那么由于在 `eat_at_restaurant` 中无法设置那个私有 `seasonal_fruit` 字段的值，因此就没法在 `eat_at_restaurant` 中创建处一个 `Breakfast` 的实例来。
+另外，请注意，由于 `back_of_house::Breakfast` 有个私有字段，因此该结构体就需要提供一个构造 `Breakfast` 实例的公开关联汉斯（我们在这里将其命名为 `summer`）。如果 `Breakfast` 结构体没有一个这样的函数，我们就无法在 `eat_at_restaurant` 中，创建出 `Breakfast` 结构体的实例，因为我们无法在 `eat_at_restaurant` 中设置那个私有 `seasonal_fruit` 字段值。
 
-与此相比，在将枚举构造为公开时，该枚举的全部变种此时都是公开的。这里就只需在 `enum` 关键字前的 `pub` 关键字，如下清单 7-10 中所示。
+
+相反，如果我们将某个枚举构造为公开，那么他的所有变种都会是公开的。我们只需要在 `enum` 关键字前，加上 `pub` 关键字，如下清单 7-10 所示。
 
 文件名：`src/lib.rs`
 
@@ -317,8 +318,8 @@ pub fn eat_at_restaurant() {
 
 > appetizer, US/ˈæpəˌtaɪzər/, UK/ˈæpəˌtaɪzə(r)/ n.（餐前的）开胃品
 
-*清单 7-10：将枚举指定为公开，则会将其全部变种构造为公开*
+*清单 7-10：将某个枚举指定为公开，会使其所有变种公开*
 
-由于这里将那个 `Appetizer` 枚举构造为了公开，因此就可以在 `eat_at_restaurant` 中使用 `Soup` 与 `Salad` 变种。除非枚举的各个变种是公开的，否则枚举就不是非常有用了；若在所有场合，都必须以 `pub` 关键字来对全部枚举变种进行注解，那就会让人觉得烦恼不已，因此默认枚举变种就是公开的。而结构体则通常无需其字段保持公开就有用处，因此结构体的那些字段，就遵循了除非以 `pub` 关键字注释，而默认全部为私有的一般规则。
+因为我们将这个 `Appetizer` 枚举构造为了公开，所以我们可以在 `eat_at_restaurant` 中，使用 `Soup` 和 `Salad` 两个变种。
 
-还有一个尚未讲到的涉及 `pub` 关键字的情况，那也是最后的一项模组系统特性：`use` 关键字。后面会先讲 `use` 本身，然后再给出怎样结合 `pub` 与 `use`。
+除非枚举变种是公开的，否则枚举的用处就不大；如果每次都要给所有枚举变种注释上 `pub`，那就太烦人了，所以枚举变种默认是公开的。通常结构体在其字段不公开的情况下也很有用，因此结构体字段遵循了一般规则，即除非被注释为 `pub`，否则默认情况下所有字段，都是私有的。
