@@ -106,6 +106,38 @@ curl --proto '=https' --tlsv1.2 -sSf https://rsproxy.cn/rustup-init.sh | sh
 本书的其余部分使用了，可同时在 *cmd.exe* 和 PowerShell 中运行的命令。如果存在某些具体差异，我们将解释要使用哪个。
 
 
+### 设置镜像加速
+
+
+以管理员权限启动 Powershell，执行以下命令设置 `RUSTUP_DIST_SERER` 和 `RUSTUP_UPDATE_ROOT` 两个环境变量。
+
+
+```powershell
+[environment]::SetEnvironmentvariable("RUSTUP_DIST_SERVER", "https://mirrors.ustc.edu.cn/rust-static", "User")
+[environment]::SetEnvironmentvariable("RUSTUP_UPDATE_ROOT", "https://mirrors.ustc.edu.cn/rust-static/rustup", "User")
+```
+
+保持这个 Powershell 窗口打开。
+
+
+执行下载到的 `rustup-init.exe` 程序，将以上述设置的两个环境变量安装 Rust。
+
+打开普通 Powershell 窗口，执行以下命令，创建镜像的 Cargo 配置。
+
+
+```powershell
+"[source.crates-io]
+registry = 'https://github.com/rust-lang/crates.io-index'
+replace-with = 'ustc'
+[source.ustc]
+registry = 'https://mirrors.ustc.edu.cn/crates.io-index/'
+"|Out-File -Encoding utf8 $home\.cargo\config
+```
+
+
+> **参考**：[Windows 安装 Rust 并设置镜像加速](https://www.cnblogs.com/timefiles/p/17930394.html)
+
+
 ## 问题排除
 
 要检查 Rust 安装是否正确，请打开 shell 并输入这一行：
