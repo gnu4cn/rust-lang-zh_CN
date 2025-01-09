@@ -256,3 +256,8 @@ error: could not compile `hashmap_demo` due to 2 previous errors
 标准库 API 文档对矢量、字符串及哈希图有着的、对这些练习将有帮助的方法都有说明！
 
 接下来就要进入到一些其中某些操作可能失败的程序，那么现在就是讨论错误处理的最佳时机。下一章就要来完成对错误处理的讨论了！
+
+
+（End）
+
+

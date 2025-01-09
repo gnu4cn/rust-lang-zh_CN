@@ -46,3 +46,8 @@ fn main() {
 ```
 
 Rust 还有另一种注释，即文档注释，documentation comments，我们将在第 14 章 [“将 Crate 发布到 Crates.io”](../crates-io/publishing.md) 一节中讨论。
+
+
+（End）
+
+

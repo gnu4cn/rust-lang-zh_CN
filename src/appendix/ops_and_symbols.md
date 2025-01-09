@@ -200,3 +200,8 @@
 | `[type; len]` | 包含着 `len` 个 `type` 的实例数组的字面值 |
 | `expr[expr]` | 对集合进行索引，collection indexing。是可过载的 `(Index, IndexMut)`，overloadable `(Index, IndexMut)` |
 | `expr[..]`, `expr[a..]`, `expr[..b]`, `expr[a..b]` | 用到了 `Range`、`RangeFrom`、`RangeTo` 或 `RangeFull` 作为 “索引”的，带有集合切片集合索引，collection indexing pretending to be collection slicing, using `Range`, `RangeFrom`, `RangeTo`, or `RangeFull` as the "index" |
+
+
+（End）
+
+

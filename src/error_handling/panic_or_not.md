@@ -134,3 +134,8 @@ impl Guess {
 Rust 的那些错误处理特性，被设计用于帮助编写更为健壮的代码。`panic!` 这个宏，发出了程序处于其无法处理状态的信号，并让咱们告知进程停下来，而不是尝试以无效或不正确的一些值继续运行。而 `Result` 这个枚举则使用了 Rust 的类型系统，来表示以代码可以从中恢复过来的某种方式的一些操作失败（the `Result` enum uses Rust's type system to indicate that operations might fail in a way that your code could recover from）。还可使用 `Result` 来告诉调用了咱们代码的代码，需要处理潜在的成功与失败情形。在一些适当情形下，运用 `panic!` 与 `Result` 就会令到咱们的代码在各种不可避免的问题面前，更加可靠。
 
 既然这里已经见识到标准库在 `Option` 与 `Result` 枚举上，运用到泛型的一些有用方式，那么接下来就要谈及泛型的原理，以及怎样在咱们的代码中运用泛型。
+
+
+（End）
+
+

@@ -11,3 +11,8 @@ Rust 标准库中包含了几种名为 *集合（collections）* 的有用数据
 要了解由标准库所提供的其他类别集合，请参阅 [文档](https://doc.rust-lang.org/std/collections/index.html)。
 
 这里将讨论怎样创建与更新矢量、字符串与哈希映射，同时会讨论他们因何而变得特殊。
+
+
+（End）
+
+

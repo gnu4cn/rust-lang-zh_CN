@@ -132,3 +132,8 @@ fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
 
 
 接下来，咱们就要看看宏了！
+
+
+（End）
+
+

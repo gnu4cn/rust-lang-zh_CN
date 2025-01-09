@@ -262,3 +262,8 @@ error: could not compile `structs_demo` due to 2 previous errors
 ```
 
 > 在第 10 章中，我们将讨论如何修复这些报错，以便咱们在结构体中存储引用，但现在，我们将使用自有类型（如 `String`）而不是引用（如 `&str`），来修复这类报错。
+
+
+（End）
+
+

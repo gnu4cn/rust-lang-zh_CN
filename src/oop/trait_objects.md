@@ -233,3 +233,8 @@ error: could not compile `simple_gui` due to previous error
 回顾第 10 章中 [“运用了泛型的代码性能问题”](Ch10_Generic_Types_Traits_and_Lifetimes.md#使用泛型参数代码的性能问题) 小节中，在泛型之上运用特质边界时，咱们关于由编译器所完成的单一化过程，the monomorphization process 的讨论：编译器会为咱们在泛型参数处，用到的各个具体类型，而产生出非通用的函数及方法实现。单一化过程所产生的代码，便是在进行 *静态调遣，static dispatch*，这是编译器清楚，咱们在编译时调用的为哪个方法时的情况。这与 *动态调遣，dynamic dispatch* 是相反的，动态调遣是编译器在编译时，无法区分出咱们所调用的为何方法时的情况。在动态调遣情况下，编译器产生出将在运行时，得出要调用方法的代码。
 
 在咱们运用特质对象时，Rust 就必须使用动态调遣。对于全部可能与用到特质对象代码一起使用的类型，编译器并无掌握，因此他就不明白要调用何种类型上的哪个方法。相反，在运行时，Rust 会使用特质对象内部的指针，来掌握要调用哪个方法。这种做法会导致静态调遣下所不会发生的运行时开销。动态调遣还会阻止编译器内联某个方法代码的抉择，这就相应地阻止了一些优化。然而，咱们却真切地获得了，如同咱们在清单 17-5 中所编写的代码那样的灵活性，同时才能够支持清单 17-9 中那样的情况，如此其便是一种需要考量的取舍了。when we use trait objects, Rust must use dynamic dispatch. The compiler doesn't know all the types that might be used with the code that's using trait objects, so it doesn't know which method implemented on which type to call. Instead, at runtime, Rust uses the pointers inside the trait object to know which method to call. This lookup incurs a runtime cost that doesn't occur with static dispatch. Dynamic dispatch also prevents the compiler from choosing to inline a method's code, which in turn prevents some optimizations. However, we did get extra flexibility in the code that we wrote in Listing 17-5 and were able to support in Listing 17-9, so it's a trade-off to consider.
+
+
+（End）
+
+

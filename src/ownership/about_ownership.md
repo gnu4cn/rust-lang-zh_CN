@@ -475,3 +475,8 @@ fn calculate_length(s: String) -> (String, usize) {
 *清单 4-5：返回参数的所有权*
 
 但是，对于一个本应很常见的概念来说，这样做太过仪式化和工作量都太大了。幸运的是，Rust 有一种使用某个值，而不转移所有权的特性，叫做 *引用，references*。
+
+
+（End）
+
+

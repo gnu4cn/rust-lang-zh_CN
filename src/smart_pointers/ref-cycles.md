@@ -240,3 +240,8 @@ children: RefCell { value: [] } }] } })
 如果本章引起了你的兴趣，并且你想实现你自己的智能指针，请查看 ["The Rustonomicon"](https://doc.rust-lang.org/nomicon/index.html) ，以获得更多有用的信息。
 
 接下来，我们将讨论 Rust 中的并发问题。咱们甚至会了解到一些新的灵巧指针。
+
+
+（End）
+
+

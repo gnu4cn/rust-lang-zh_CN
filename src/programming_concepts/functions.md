@@ -347,3 +347,8 @@ error: could not compile `functions` (bin "functions") due to previous error
 
 
 其中的主要错误信息，`mismatched types`，揭示了这段代码的核心问题。函数 `plus_one` 的定义，说他将返回一个 `i32`，但语句不会计算为某个值，而是由 `()` 表示的单元值，the unit type。因此，没有返回任何值，这与函数定义相矛盾，而导致一个报错。在此输出中，Rust 提供了一条，可能有助于纠正此问题的信息：他建议删除分号，这就将会修复这个错误。
+
+
+（End）
+
+

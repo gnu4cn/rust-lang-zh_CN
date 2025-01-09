@@ -160,3 +160,8 @@ fn main() {
 为帮助 IDE 集成，Rust 社区建议使用 [`rust-analyzer`](https://rust-analyzer.github.io/)。此工具是一套以编译器为中心，操 [语言服务器协议，Language Server Protocol](http://langserver.org/) 的实用工具；而所谓语言服务器协议，则是用于各种 IDEs 和编程语言，二者相互之间通信的一种规格。有多种不同客户端可使用 `rust-analyzer`，比如 [Visual Studio Code 的 Rust 分析器插件](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)。
 
 请访问 `rust-analyzer` 项目 [主页](https://rust-analyzer.github.io/)，了解其安全说明，随后在咱们的特定 IDE 中安装该语言的服务器支持。咱们的 IDE 就能获得诸如自动补全、跳至定义及行内报错等能力。
+
+
+（End）
+
+

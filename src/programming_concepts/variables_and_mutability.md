@@ -227,3 +227,8 @@ error: could not compile `variables` (bin "variables") due to previous error
 
 
 现在我们已经探讨了变量的工作原理，我们来看看，他们可以拥有的更多数据类型。
+
+
+（End）
+
+

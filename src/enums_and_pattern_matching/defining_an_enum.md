@@ -295,3 +295,8 @@ error: could not compile `option_demo` (bin "option_demo") due to previous error
 那么，当咱们有着某个 `Option<T>` 类型的值时，该怎样从 `Some` 变种中获取到那个 `T` 值，以便使用该值呢？`Option<T>` 这个枚举，有着大量在不同场景下，都有用的方法；咱们可以在 [其文档](https://doc.rust-lang.org/std/option/enum.Option.html) 中，查看这些方法。熟悉 `Option<T>` 的方法，将对咱们的 Rust 之旅大有裨益。
 
 一般来说，为了使用某个 `Option<T>` 值，咱们需要编写处理每个变种的代码。咱们会想要一些，仅在咱们有个 `Some(T)` 值时才会运行的代码，而这些代码，就可以使用内部的 `T` 值；咱们会想要另一些，只有在咱们有个 `None` 值时才会运行的代码，而这些代码就没有可用的 `T` 值。与枚举一起使用的 `match` 表达式，便是一种正好完成这个目的的控制流结构：他会根据枚举有着哪一个变种，而运行不同的代码，而这些代码，就可以使用匹配值内部的数据。
+
+
+（End）
+
+

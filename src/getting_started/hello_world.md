@@ -162,3 +162,8 @@ $ ./main # 或在 Windows 上的 .\main.exe
 如果咱们更熟悉 Ruby、Python 或 JavaScript 等某门动态语言，则可能不习惯于将编译和运行某个程序，作为单独的步骤。Rust 属于一门 *提前编译，ahead-of-time compiled* 语言，这意味着，你能够编译某个程序，并把可执行文件交给其他人，而即使他们没有安装 Rust，也可以运行这个可执行程序。而如果咱们给别人某个 `.rb`、`.py` 或 `.js` 文件，他们就需要分别安装 Ruby、Python 或 JavaScript 的某种实现。不过在这些语言中，咱们只需要一条命令，来编译并运行咱们的程序。在语言设计中，一切都需要权衡利弊，everything is a trade-off in language design。
 
 对于简单程序，使用 `rustc` 编译就可以了，但随着项目的发展，咱们会希望管理所有选项，以及并方便共用咱们的代码。接下来，我们将介绍，将会帮助咱们编写真实世界 Rust 程序的 Cargo 工具。
+
+
+（End）
+
+

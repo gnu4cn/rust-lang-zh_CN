@@ -114,3 +114,8 @@
 `Default::default` 函数，通常是与第 5 章中 [“使用结构体更新语法从其他实例创建出实例”](Ch05_Using_Structs_to_Structure_Related_Data.md#使用结构体更新语法从其他实例创建出实例) 小节里曾讨论过的结构体更新语法结合使用的。咱们可以定制结构体的几个字段，并在随后通过使用 `..Default::default()`，为其余字段设置并使用默认值。
 
 在 `Option<T>` 实例上使用 `unwrap_or_default` 方法时，便是需要 `Default` 特质的一个示例。当那个 `Option<T>` 为 `None` 时，方法 `unwrap_or_default` 就将返回存储在 `Option<T>` 中，那个类型 `T` 的 `Default::default` 结果。
+
+
+（End）
+
+

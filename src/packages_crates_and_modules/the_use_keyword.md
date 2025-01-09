@@ -304,3 +304,8 @@ use std::collections::*;
 这条 `use` 语句会将 `std::collections` 中定义的所有公开项目引入当前作用域。使用全局操作符时要当心！全局性会使咱们更难分辨，哪些名称是在作用域中，以及程序中使用的名字是在何处定义。
 
 全局操作符通常在测试时使用，以便将所有被测试内容引入 `tests` 模块；我们将在第 11 章 [“如何编写测试”](../automated_tests/howto.md#怎样编写测试) 小节中讨论这个问题。全局操作符有时也作为前奏模式，the prelude pattern，的一部分使用：有关该模式的更多信息，请参阅 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html#other-preludes)。
+
+
+（End）
+
+

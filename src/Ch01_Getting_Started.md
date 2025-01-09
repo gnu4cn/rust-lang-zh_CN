@@ -7,3 +7,8 @@
 - 编写一个打印出 `Hello, world!` 的程序；
 
 - 使用 Rust 的包管理器与构建系统 Cargo 。
+
+
+（End）
+
+

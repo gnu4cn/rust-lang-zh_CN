@@ -312,3 +312,8 @@ warning: `rectangles` (bin "rectangles") generated 1 warning
 除了这个 `Debug` 特质外，Rust 还为我们提供了许多与这个 `derive` 属性配合使用的特质，这些特质可以为我们的自定义类型，添加有用的行为。[附录 C](../appendix/derivable_traits.md) 列出了这些特质及其行为。我们将在第 10 章，介绍如何使用自定义行为实现这些特质，以及如何创建咱们自己的特质。除了 `derive` 之外，还有许多其他属性；有关详细信息，请参阅 [《Rust 参考》中的 "属性 "部分](https://doc.rust-lang.org/reference/attributes.html)。
 
 我们的 `area` 函数，是非常专门的：他只会计算矩形的面积。如果能将这一行为，与咱们的 `Rectangle` 结构体更紧密地联系在一起，将会很有帮助，因为他无法与任何其他类型一起工作。我们来看看，咱们可以怎样通过将这个 `area` 函数，转化为定义在 `Rectangle` 类型上的 `area` 方法，来继续重构这段代码。
+
+
+（End）
+
+
