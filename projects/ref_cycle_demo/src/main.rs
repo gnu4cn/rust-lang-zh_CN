@@ -20,7 +20,7 @@ impl List {
 fn main() {
     let a = Rc::new(
         Cons(
-            5, 
+            5,
             RefCell::new(Rc::new(Nil))
         )
     );
@@ -30,7 +30,7 @@ fn main() {
 
     let b = Rc::new(
         Cons(
-            10, 
+            10,
             RefCell::new(Rc::clone(&a))
         )
     );

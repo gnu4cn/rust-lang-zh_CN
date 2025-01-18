@@ -1,4 +1,4 @@
-# 引用循环可能会泄露内存
+# 引用循环会泄露内存
 
 **Reference Cycles Can Leak Memory**
 
@@ -17,7 +17,7 @@ Rust 的内存安全保证，使得意外创建出从未清理过的内存（称
 文件名：`src/main.rs`
 
 ```rust
-{{#include ../projects/ref_cycle_demo/src/main.rs::18}}
+{{#include ../../projects/ref_cycle_demo/src/main.rs::18}}
 ```
 
 *清单 15-25：包含 `RefCell<T>` 的构造列表定义，因此我们可以修改 `Cons` 变种指向的内容*
@@ -30,7 +30,7 @@ Rust 的内存安全保证，使得意外创建出从未清理过的内存（称
 文件名：`src/main.rs`
 
 ```rust
-{{#include ../projects/ref_cycle_demo/src/main.rs:20:}}
+{{#include ../../projects/ref_cycle_demo/src/main.rs:20:}}
 ```
 
 *清单 15-26：创建出相互指向的两个 `List` 的循环引用*
@@ -215,7 +215,7 @@ children: RefCell { value: [] } }] } })
 文件名：`src/main.rs`
 
 ```rust
-{{#include ../projects/tree_demo/src/main.rs:11:}}
+{{#include ../../projects/tree_demo/src/main.rs:11:}}
 ```
 
 *清单 15-29：在内层作用域中创建 `branch` 并检查强引用和弱引用计数*
