@@ -91,7 +91,7 @@ Rust 没有像其他语言那样拥有对象，Rust 也没有像其他一些语�
 文件名：`src/lib.rs`
 
 ```rust
-{{#include ../projects/limit_tracker/src/lib.rs::35}}
+{{#include ../../projects/limit_tracker/src/lib.rs::35}}
 ```
 
 *清单 15-20：跟踪某个值与最大值接近程度，并在值处于不同水平时发出告警的库*
@@ -171,7 +171,7 @@ warning: build failed, waiting for other jobs to finish...
 文件名：`src/lib.rs`
 
 ```rust
-{{#include ../projects/limit_tracker/src/lib.rs:37:}}
+{{#include ../../projects/limit_tracker/src/lib.rs:37:}}
 ```
 
 *清单 15-22：使用 `RefCell<T>` 来改变内层值，而外部值被认为是不可变的*
@@ -255,7 +255,7 @@ error: test failed, to rerun pass `--lib`
 文件名：`src/main.rs`
 
 ```rust
-{{#include ../projects/cons_list_demo/src/main.rs}}
+{{#include ../../projects/cons_list_demo/src/main.rs}}
 ```
 
 *清单 15-24：使用 `Rc<RefCell<i32>>` 创建一个咱们可改变的 `List`*
