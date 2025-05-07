@@ -1,7 +1,6 @@
 [book]
 authors = ["Lenny Peng"]
 language = "zh"
-multilingual = false
 src = "src"
 title = "Yet another Chinese rust-lang book."
 description = "又一本 rust-lang 书，Yet another Chinese rust-lang book。"
