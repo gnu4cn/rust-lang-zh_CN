@@ -116,6 +116,10 @@
     - [使用 `Sync` 与 `Send` 的可扩展并发](concurrency/extensible_concurrency.md)
 
 
+- [异步编程基础：`async`、`await`、`Futures` 与流](Ch16_1_async_programming.md)
+    - [`Futures` 与异步语法](async/futures.md)
+
+
 - [Rust 的面向对象编程特性](Ch17_Object_Oriented_Programming_Features_of_Rust.md)
     - [面向对象语言的特征](oop/characteristics_oop.md)
     - [使用允许不同类型值的特质对象](oop/trait_objects.md)
