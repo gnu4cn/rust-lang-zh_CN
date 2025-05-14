@@ -1,4 +1,4 @@
-# 定义一个枚举
+# 定义枚举
 
 **Defining an Enum**
 
