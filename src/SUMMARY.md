@@ -36,7 +36,7 @@
 - [枚举与模式匹配](Ch06_Enums_and_Pattern_Matching.md)
     - [定义一个枚举](enums_and_pattern_matching/defining_an_enum.md)
     - [`match` 控制流结构](enums_and_pattern_matching/match_control_flow.md)
-    - [使用 `if let` 的简洁控制流](enums_and_pattern_matching/if-let_control_flow.md)
+    - [使用 `if let` 与 `let else` 的简明控制流](enums_and_pattern_matching/if-let_control_flow.md)
 
 - [使用包、代码箱与模组对日趋增长的项目进行管理](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md)
     - [代码包与代码箱](packages_crates_and_modules/packages_and_crates.md)
@@ -117,7 +117,8 @@
 
 
 - [异步编程基础：`async`、`await`、`Futures` 与流](Ch16_1_async_programming.md)
-    - [`Futures` 与异步语法](async/futures.md)
+    - [与异步语法](async/futures.md)
+    - [应用带有异步的并发](async/concurrency_n_async.md)
 
 
 - [Rust 的面向对象编程特性](Ch17_Object_Oriented_Programming_Features_of_Rust.md)

@@ -1,4 +1,4 @@
-# 使用 `if let` 的简明控制流
+# 使用 `if let` 与 `let else` 的简明控制流
 
 **Concise Control Flow with `if let`**
 
@@ -69,7 +69,100 @@ if let Coin::Quarter(state) = coin {
 ```
 
 
-如果咱们遇到咱们的程序中，有着使用 `match` 表示表达显得过于冗长的逻辑，那么请记住，`if let` 也在 Rust 工具箱中。
+## 使用 `let...else` 继续 “快乐小道”
+
+**Staying on the "Happy Path" with `let...else`**
+
+
+一种常见的模式，是当某个值存在时执行某些计算，否则返回一个默认值。继续以带有 `UsState` 值的硬币为例，若我们打算根据 25 美分硬币上州份有多少年历史，而说些有趣的话，我们可以在 `UsState` 上引入一个检查该州有多少年历史的方法，就像这样：
+
+
+```rust
+impl UsState {
+    fn existed_in(&self, year: u16) -> bool {
+        match self {
+            UsState::Alabama => year >= 1819,
+            UsState::Alaska => year >= 1959,
+            // -- snip --
+        }
+    }
+}
+```
+
+然后，通过在条件主体中引入一个 `state` 变量，我们就可以使用 `if let`，匹配该硬币的类型，如清单 6-7 所示。
+
+文件名：`src/main.rs`
+
+```rust
+fn describe_state_quarter(coin: Coin) -> Option<String> {
+    if let Coin::Quarter(state) = coin {
+        if state.existed_in(1900) {
+            Some(format!("{state:?} is pretty old, for America!"))
+        } else {
+            Some(format!("{state:?} is relatively new."))
+        }
+    } else {
+        None
+    }
+}
+```
+
+*清单 6-7：通过使用嵌套在 `if let` 中的条件，检查某个州在 1900 时是否存在*
+
+
+这样虽然完成了工作，但却把该项工作推到了那个 `if let` 语句的主体中，而如果要完成的工作比较复杂，可能就很难准确地理解，顶层分支之间的关系。我们还可以利用表达式会产生一个值，从 `if let` 中要么产生 `state`，或提前返回这一事实，如清单 6-8 所示。(咱们也可以对 `match` 做类似的事情。）
+
+
+文件名：`src/main.rs`
+
+```rust
+fn describe_state_quarter(coin: Coin) -> Option<String> {
+    let state = if let Coin::Quarter(state) = coin {
+        state
+    } else {
+        return None;
+    };
+
+    if state.existed_in(1900) {
+        Some(format!("{state:?} is pretty old, for America!"))
+    } else {
+        Some(format!("{state:?} is relatively new."))
+    }
+}
+```
+
+*清单 6-8：使用 `if let` 产生一个值，或提前返回*
+
+
+不过，这样做本身就有点恼人！`if let` 的一个分支会产生了一个值，而另一分支则会从整个函数返回。
+
+
+为更好地表达这种常见模式，Rust 提供了 `let...else`。`let...else` 语法的左侧是个模式，右侧是个表达式，与 `if let` 非常相似，但他没有 `if` 分支，只有 `else` 分支。在模式匹配时，他将在外层作用域中，绑定模式中的值。在模式 *不* 匹配时，程序将流入 `else` 支臂，而该支臂必须从函数中返回。
+
+在清单 6-9 中，咱们可以看到在 `if let` 处 使用 `let...else` 时清单 6-8 效果。请注意，这种方法在该函数主体中，保持了 “快乐路径”，而没有 `if let` 那样，两个分支的控制流明显不同。
+
+
+文件名：`src/main.rs`
+
+```rust
+fn describe_state_quarter(coin: Coin) -> Option<String> {
+    let Coin::Quarter(state) = coin else {
+        return None;
+    };
+
+    if state.existed_in(1900) {
+        Some(format!("{state:?} is pretty old, for America!"))
+    } else {
+        Some(format!("{state:?} is relatively new."))
+    }
+}
+```
+
+*清单 6-9：使用 `let...else` 明确该函数的流程*
+
+
+如果咱们遇到程序中的逻辑过于冗长，而无法使用 `match` 表达的情形，那么请记住，`if let` 与 `let...else` 也是 Rust 工具箱中的工具。
+
 
 
 # 本章小结
