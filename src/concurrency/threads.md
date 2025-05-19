@@ -178,7 +178,7 @@ fn main() {
 诸如 `join` 于何处被调用这样的细节，均会影响到咱们的线程，是否在同一时间运行。
 
 
-## 在线程上使用 `move` 闭包
+## 对线程使用 `move` 闭包
 
 **Using `move` Closures with Threads**
 
