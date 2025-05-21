@@ -117,8 +117,9 @@
 
 
 - [异步编程基础：`async`、`await`、`Futures` 与流](Ch16_1_async_programming.md)
-    - [与异步语法](async/futures.md)
+    - [未来值与异步语法](async/futures.md)
     - [应用带有异步的并发](async/concurrency_n_async.md)
+    - [使用任意数量的未来值](async/multiple_futures.md)
 
 
 - [Rust 的面向对象编程特性](Ch17_Object_Oriented_Programming_Features_of_Rust.md)
