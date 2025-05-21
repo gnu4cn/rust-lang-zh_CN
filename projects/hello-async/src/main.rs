@@ -1,29 +1,32 @@
-use std::future::Future;
-use std::time::Duration;
-use trpl::Either;
+use std::{pin::pin, time::Duration};
+use trpl::{ReceiverStream, Stream, StreamExt};
 
 fn main() {
-    trpl::run( async {
-        let slow = async {
-            trpl::sleep(Duration::from_secs(5)).await;
-            "I finished!"
-        };
+    trpl::run(async {
+        let mut messages =
+            pin!(get_messages().timeout(Duration::from_millis(200)));
 
-        match timeout(slow, Duration::from_secs(2)).await {
-            Ok(message) => println!("Succeeded with '{message}'"),
-            Err(duration) => {
-                println!("Failed after {} seconds", duration.as_secs())
+        while let Some(result) = messages.next().await {
+            match result {
+                Ok(message) => println!("{message}"),
+                Err(reason) => eprintln!("Problem: {reason:?}"),
             }
         }
-    });
+    })
 }
 
-async fn timeout<F: Future> (
-    future_to_try: F,
-    max_time: Duration,
-) -> Result<F::Output, Duration> {
-    match trpl::race(future_to_try, trpl::sleep(max_time)).await {
-        Either::Left(output) => Ok(output),
-        Either::Right(_) => Err(max_time),
-    }
+fn get_messages() -> impl Stream<Item = String> {
+    let (tx, rx) = trpl::channel();
+
+    trpl::spawn_task(async move {
+        let messages = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+        for (index, message) in messages.into_iter().enumerate() {
+            let time_to_sleep = if index % 2 == 0 { 100 } else { 300 };
+            trpl::sleep(Duration::from_millis(time_to_sleep)).await;
+
+            tx.send(format!("Message: '{message}'")).unwrap();
+        }
+    });
+
+    ReceiverStream::new(rx)
 }
