@@ -181,10 +181,21 @@ error[E0752]: `main` function is not allowed to be `async`
 
 
 ```rust
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+
+    trpl::run(async {
+        let url = &args[1];
+        match page_title(url).await {
+            Some(title) => println!("The title for {url} was {title}"),
+            None => println!("{url} had no title"),
+        }
+    })
+}
 ```
 
 
-*清单 17-4：使用 `trpl:run` 等待某个异步代码块*
+<a name="listing-17-4"></a> *清单 17-4：使用 `trpl:run` 等待某个异步代码块*
 
 
 当我们运行这段代码时，我们会得到最初咱们预期的行为：

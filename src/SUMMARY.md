@@ -121,6 +121,7 @@
     - [应用带有异步的并发](async/concurrency_n_async.md)
     - [使用任意数量的未来值](async/multiple_futures.md)
     - [流：序列中的未来值](async/streams.md)
+    - [近观异步相关的特质](async/async_traits.md)
 
 
 - [Rust 的面向对象编程特性](Ch17_Object_Oriented_Programming_Features_of_Rust.md)
