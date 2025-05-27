@@ -73,7 +73,7 @@ error[E0308]: mismatched types
         trpl::join_all(futures).await;
 ```
 
-*清单 17-16：使用 `Box::new` 对齐某个 `Vec` 中的未来值类型*
+<a name="listing-17-16"></a> *清单 17-16：使用 `Box::new` 对齐某个 `Vec` 中的未来值类型*
 
 
 不幸的是，这段代码仍不会编译。事实上，我们在第二和第三个 `Box::new` 调用处，都遇到了与之前同样的基本报错，同时还出现了指向 `Unpin` 特质的新报错。我们稍后再来看 `Unpin` 的报错。首先，我们来通过显式地注解 `futures` 这个变量的类型，修复 `Box::new` 调用上的类型错误（见清单 17-17）。
@@ -86,7 +86,7 @@ error[E0308]: mismatched types
             vec![Box::new(tx1_fut), Box::new(rx_fut), Box::new(tx_fut)];
 ```
 
-*清单 17-17：通过显式类型生命，修复类型不匹配报错的其余部分*
+<a name="listing-17-17"></a> *清单 17-17：通过显式类型生命，修复类型不匹配报错的其余部分*
 
 
 这个类型声明有些重要，我们先来了解一下：
