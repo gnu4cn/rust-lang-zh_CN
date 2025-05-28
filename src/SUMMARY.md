@@ -48,7 +48,7 @@
 - [常用集合数据结构](Ch08_Common_Collections.md)
     - [使用矢量值存储值的清单](common_collections/vectors.md)
     - [使用字符串存储 UTF-8 编码的文本](common_collections/strings.md)
-    - [在哈希图种存储带有关联值的键](common_collections/hash_maps.md)
+    - [在哈希图中存储带有关联值的键](common_collections/hash_maps.md)
 
 - [错误的处理](Ch09_Error_Handling.md)
     - [使用 `panic!` 宏的不可恢复错误](error_handling/panic.md)
