@@ -237,7 +237,7 @@ children: RefCell { value: [] } }] } })
 
 我们还讨论了 `Deref` 和 `Drop` 特质，这两个特质实现了灵巧指针的很多功能。我们探讨了可能导致内存泄露的引用循环以及如何使用 `Weak<T>` 来防止它们。
 
-如果本章引起了你的兴趣，并且你想实现你自己的智能指针，请查看 ["The Rustonomicon"](https://doc.rust-lang.org/nomicon/index.html) ，以获得更多有用的信息。
+如果本章引起了你的兴趣，并且你想实现你自己的灵巧指针，请查看 ["The Rustonomicon"](https://doc.rust-lang.org/nomicon/index.html) ，以获得更多有用的信息。
 
 接下来，我们将讨论 Rust 中的并发问题。咱们甚至会了解到一些新的灵巧指针。
 
