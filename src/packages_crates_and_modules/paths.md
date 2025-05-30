@@ -1,4 +1,4 @@
-#  用于引用模组树中项目的路径
+# 引用模组树中项目的路径
 
 **Paths for Referring to an Item in the Module Tree**
 

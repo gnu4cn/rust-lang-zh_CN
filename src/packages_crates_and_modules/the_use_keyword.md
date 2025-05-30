@@ -192,7 +192,7 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-*清单 7-17：使用 `pub use` 让任何代码都可以从新作用域中使用某个名字*
+<a name="listing-7-17"></a> *清单 7-17：使用 `pub use` 让任何代码都可以从新作用域中使用某个名字*
 
 在这一修改之前，外部代码必须使用 `restaurant::front_of_house::hosting::add_too_waitlist()` 路径，来调用 `add_to_waitlist` 函数，这还需要 `front_of_house` 模组被标记为 `pub`。现在，这个 `pub use` 已经从该根模组中，重新导出了 `hosting` 模组，外部代码就可以使用 `restaurant::hosting::add_to_waitlist()` 路径了。
 
