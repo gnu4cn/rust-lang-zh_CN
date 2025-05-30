@@ -116,7 +116,7 @@
     - [使用 `Sync` 与 `Send` 的可扩展并发](concurrency/extensible_concurrency.md)
 
 
-- [异步编程基础：`async`、`await`、`Futures` 与流](Ch16_1_async_programming.md)
+- [异步编程基础：异步、等待、未来值与流](Ch16_1_async_programming.md)
     - [未来值与异步语法](async/futures.md)
     - [应用带有异步的并发](async/concurrency_n_async.md)
     - [使用任意数量的未来值](async/multiple_futures.md)
