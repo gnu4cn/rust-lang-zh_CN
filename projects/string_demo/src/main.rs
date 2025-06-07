@@ -1,7 +1,11 @@
 fn main() {
-    let mut s = String::from("hello");
+    let s = "नमस्ते";
 
-    s.push_str(", world!"); // push_str() 方法会追加一个字面值，到某个 String
+    for c in s.chars() {
+        println! ("{}", c);
+    }
 
-    println! ("{}", s); // 这将打印出 `hello, world!`
+    for b in s.bytes() {
+        println! ("{}", b);
+    }
 }
