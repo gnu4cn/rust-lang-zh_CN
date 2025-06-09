@@ -39,7 +39,7 @@ pub fn add_one(x: i32) -> i32 {
 
 处于便利目的，运行 `cargo doc --open` 将构建出当前代码箱文档（以及咱们代码箱全部依赖的文档）的 HTML，并随后在 web 浏览器中打开得到的结果。导航到那个 `add_one` 函数，咱们将看到文档注释中的文本如何渲染出来，如下图片 14-01 中所示：
 
-![`add_one` 函数的 HTML 文档](images/14-01.png)
+![`add_one` 函数的 HTML 文档](../images/14-01.png)
 
 *图 14-01：`add_one` 函数的 HTML 文档*
 
@@ -141,7 +141,7 @@ error: doctest failed, to rerun pass `--doc`
 
 当咱们运行 `cargo doc --open` 时，这些注释将显示在 `cargo_features_demo` 代码箱文档的首页，he front page，位处代码箱公开项目的清单之上，如下图 14-02 中所示：
 
-![渲染出的 `cargo_features_demo` 代码箱文档](images/14-02.png)
+![渲染出的 `cargo_features_demo` 代码箱文档](../images/14-02.png)
 
 *图 14-02：渲染出的 `cargo_features_demo` 代码箱文档, 包括着将该代码箱作为整体描述的注释*
 
@@ -200,7 +200,7 @@ pub mod utils {
 
 下图 14-03 展示了由 `cargo doc` 产生出的该代码箱文档首页，看起来的样子：
 
-![列出 `kinds` 与 `utils` 两个模组的 `art` 代码箱文档首页](images/14-03.png)
+![列出 `kinds` 与 `utils` 两个模组的 `art` 代码箱文档首页](../images/14-03.png)
 
 *图 14-3：列出 `kinds` 与 `utils` 两个模组的 `art` 代码箱文档首页*
 
@@ -258,7 +258,7 @@ pub mod utils;
 
 如下图 14-04 中所示，`cargo doc` 为此代码箱所产生出的 API 文档，现在将在首页上列出并链接到重导出项，从而令到 `PrimaryColor` 与 `SecondaryColor` 两个类型及 `mix` 函数更易于找到。
 
-![列出了重导出项目的 `art` 代码箱文档首页](images/14-04.png)
+![列出了重导出项目的 `art` 代码箱文档首页](../images/14-04.png)
 
 *图 14-4：列出重导出项的 `art` 代码箱文档首页*
 

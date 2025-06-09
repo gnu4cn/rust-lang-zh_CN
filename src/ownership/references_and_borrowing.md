@@ -27,7 +27,7 @@ fn calculate_length(s: &String) -> usize {
 首先，请注意变量声明和函数返回值中的所有元组代码都不见了。其次，请注意我们将 `&s1` 传入到 `calculate_length`，且在其定义中，我们使用了 `&String` 而不是 `String`。这些 `&` 符合表示了 *引用*，而他们允许咱们，在取得某个值所有权的情况下，对其进行引用。下图 4-5 描述了这一概念。
 
 
-![指向 `String s1` 的 `&String s` 图示](images/Ch04_05.svg)
+![指向 `String s1` 的 `&String s` 图示](../images/Ch04_05.svg)
 
 *图 4-5：指向 `String s1` 的 `&String s` 图示*
 

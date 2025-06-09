@@ -21,7 +21,7 @@
 
 让我们回到清单 15-5 中咱们的构造列表示例。回想一下，我们用 `Box<T>` 定义了他。这一次，我们将创建两个列表，二者会公用第三个列表的所有权。从概念上看，这类似于下图 15-3：
 
-![`b` 与 `c` 两个列表，共用了第三列表 `a` 的所有权](images/15-03.svg)
+![`b` 与 `c` 两个列表，共用了第三列表 `a` 的所有权](../images/15-03.svg)
 
 *图 15-03：两个列表`b` 与 `c`，共用第三个列表 `a` 的所有权*
 
@@ -76,7 +76,7 @@ error: could not compile `sp_demos` due to previous error;
 文件名：`src/main.rs`
 
 ```rust
-{{#rustdoc_include ../projects/rc_demo/src/main.rs}}
+{{#include ../../projects/rc_demo/src/main.rs}}
 ```
 
 *清单 15-18：使用 `Rc<T>` 的 `List` 定义*
