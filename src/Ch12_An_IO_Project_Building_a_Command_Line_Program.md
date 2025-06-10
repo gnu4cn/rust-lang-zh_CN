@@ -19,6 +19,3 @@ Rust 的速度、安全性、单一二进制可执行程序输出，还有跨平
 这里还会简要对闭包、迭代器及特质对象等，进行简要介绍，后面的 [第 13 章](Ch13_Functional_Languages_Features_Iterator_and_Closures.md) 与 [第 17 章](Object_Oriented_Programming_Features_of_Rust.md) 等章节，将详细讲解到这些特性。
 
 
-（End）
-
-

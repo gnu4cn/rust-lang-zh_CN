@@ -23,6 +23,3 @@
 本章时与模式相关全部内容的一个参考。咱们将涵盖运用模式的那些有效位置、可证伪与不可证伪模式的区别，the difference between refutable and irrefutable patterns，以及可能见到的那些不同类别的模式语法。在本章最后，咱们将获悉，如何运用模式来清晰地表达许多概念。
 
 
-（End）
-
-
