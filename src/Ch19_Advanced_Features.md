@@ -8,9 +8,18 @@
 
 - 不安全的 Rust, unsafe Rust: 怎样选择不使用 Rust 的一些保证，而由程序员亲自负责维持这些保证；
 
-- 高级特质，advanced traits: 关联类型，associated types、默认类型参数，default type parameters、完全合格语法，fully qualified syntax、超特质，supertraits 及与特质相关的新型模式，the newtype pattern in relation to traits;
++ 一些高级特质，advanced traits:
+    - 关联类型，associated types；
+    - 默认类型参数，default type parameters；
+    - 完全合格语法，fully qualified syntax；
+    - 超特质，supertraits；
+    - 及与特质相关的新型模式，the newtype pattern in relation to traits。
 
-- 高级类型：更多有关新型模式的内容、类型别名，type aliases、永恒类型，the never type 以及动态大小的类型，dynamically sized types；
++ 一些高级类型：
+    - 更多有关新型模式的内容；
+    - 类型别名，type aliases；
+    - 永恒类型，the never type；
+    - 以及动态大小的类型，dynamically sized types。
 
 - 高级函数与高级闭包：函数指针与返回的闭包，function pointers and returning closures；
 
