@@ -2,7 +2,7 @@
 
 **Unrecoverable Errors with `panic!`**
 
-某些时候，在代码中不好的事情发生了，而对其无计可施。在这些情形下，Rust 有着 `panic!` 宏。在 `panic!` 宏执行时，程序就会打印一条失败消息，释放（unwind）并清理掉栈，并在随后退出。在侦测到某种类别的代码错误，且在编写程序时刻，尚不清楚怎样处理这个故障时，就会触发一个程序中止（invoke a panic）。
+某些时候在咱们代码中不好的事情发生，而咱们对其无计可施。在这些情况下，Rust 有着 `panic!` 这个宏。在 `panic!` 宏执行时，程序就会打印一条失败消息，释放（unwind）并清理掉栈，并在随后退出。在侦测到某种类别的代码错误，且在编写程序时刻，尚不清楚怎样处理这个故障时，就会触发一个程序中止（invoke a panic）。
 
 > **对程序终止进行响应的栈解除或栈终止（Unwinding the Stack or Aborting in Response to a Panic）**
 >
