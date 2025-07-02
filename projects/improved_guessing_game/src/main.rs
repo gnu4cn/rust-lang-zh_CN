@@ -1,11 +1,14 @@
 use rand::Rng;
 use std::{cmp::Ordering, io, process};
 
+mod guessing_game;
+use crate::guessing_game::Guess;
+
 fn main() {
     loop {
         println! ("\n---猜出这个数来！---");
 
-        let secret_number: u32 = rand::thread_rng().gen_range(1..101);
+        let secret_number: i32 = rand::rng().random_range(1..101);
 
         // println! ("随机生成的秘密数字为：{}", secret_number);
 
@@ -23,7 +26,7 @@ fn main() {
             }
 
             // let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
-            let guess: i32 = match guess.trim().parse()
+            let guess_number: i32 = match guess.trim().parse()
             {
                 Ok(num) => num,
                 Err(_) => {
@@ -32,12 +35,9 @@ fn main() {
                 },
             };
 
-            if guess < 1 || guess > 100 {
-                println!("秘密数字将在 1 和 100 之间。");
-                continue;
-            }
+            let guess: Guess = Guess::new(guess_number);
 
-            match guess.cmp(&secret_number) {
+            match guess.value().cmp(&secret_number) {
                 Ordering::Less => println! ("太小！"),
                 Ordering::Greater => println! ("太大！"),
                 Ordering::Equal => {
