@@ -406,7 +406,7 @@ fn main() {
     let index: usize = index
         .trim()
         .parse()
-        .expect("输入的所以并非一个数字");
+        .expect("输入的索引并非一个数字");
 
     let element = a[index];
 
