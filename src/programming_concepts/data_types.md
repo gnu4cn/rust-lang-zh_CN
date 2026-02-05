@@ -319,7 +319,7 @@ let months = ["January", "February", "March", "April", "May", "June", "July",
 
 
 ```rust
-let a: [i32, 5] = [-1, 0, 1, 2, 3];
+let a: [i32; 5] = [-1, 0, 1, 2, 3];
 ```
 
 
