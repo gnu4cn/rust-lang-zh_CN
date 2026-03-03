@@ -3,17 +3,27 @@
 **Programming a Guessing Game**
 
 
-咱们来一起通过一个实践项目，了解 Rust 吧！本章通过演示如何在一个实际程序中，如何运用他们，从而介绍一些常见 Rust 概念。咱们将了解 `let`、`match`、方法、关联函数、外部代码箱等！在接下来的章节中，我们将更详细地探讨这些概念。在本章中，咱们将只练习这些基本知识。
+咱们来一起完成一个实践项目，开始学习 Rust！这一章通过向咱们展示如何在实际程序中如何运用他们，向咱们介绍一些常见 Rust 概念。咱们将了解
 
-我们将实现一个经典的初学者编程问题：猜数游戏。其原理如下：程序将随机生成一个介于 1 和 100 之间的整数。然后，程序会提示玩家，输入一个猜测值。猜测值输入后，程序会显示猜测值是过低还是过高。如猜测正确，游戏将打印一条祝贺信息并退出。
+- `let`
+- `match`
+- 方法
+- 关联函数
+- 外部代码箱
+
+等等！在接下来的章节中，我们将更详细地探讨这些概念。在本章中，咱们将只练习这些基本知识。
+
+我们将实现一个经典的初学者编程问题：猜数游戏。其原理如下：
+
+- 程序将随机生成一个介于 1 和 100 之间的整数；
+- 然后，程序会提示玩家，输入一个猜测值；
+- 猜测值输入后，程序会显示猜测值是过低还是过高；
+- 如猜测正确，游戏将打印一条祝贺信息并退出。
 
 
 ## 建立一个新项目
 
-**Setting Up a New Project**
-
-
-要建立一个新项目，请进入咱们在第 1 章中，创建的 `projects` 目录，并使用 Cargo 创建一个新项目，像这样：
+要建立一个新项目，请进入咱们在第 1 章中创建的 `projects` 目录，并使用 Cargo 构造一个新项目，像这样：
 
 
 ```console
@@ -21,7 +31,7 @@ $ cargo new guessing_game
 $ cd guessing_game
 ```
 
-第一条命令，`cargo new`，取项目名字（`guessing_game`）作为第一个参数。第二条命令会更改到新项目的目录。
+第一条命令，`cargo new`，取项目名字（`guessing_game`）作为第一个参数。第二条命令切换到这个新项目的目录。
 
 查看生成的 `Cargo.toml` 文件：
 
@@ -32,14 +42,12 @@ $ cd guessing_game
 [package]
 name = "guessing_game"
 version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+edition = "2024"
 
 [dependencies]
 ```
 
-正如咱们在第 1 章中所看到的，`cargo new` 会给咱们生成一个 "Hello, world!" 程序。请查看 `src/main.rs` 文件：
+正如咱们在第 1 章中所看到的，`cargo new` 会为咱们生成一个 "Hello, world!" 程序。请查看 `src/main.rs` 这个文件：
 
 
 文件名：`src/main.rs`
@@ -53,24 +61,23 @@ fn main() {
 现在我们来使用 `cargo run` 命令，在同一步骤编译并运行这个 "Hello, world!" 程序：
 
 ```console
+$ cd ~/rust-lang-zh_CN/projects/guessing_game
 $ cargo run
-   Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.44s
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running `target/debug/guessing_game`
 Hello, world!
 ```
 
-当咱们需要在某个项目快速迭代，就像我们在这个游戏中将要做的，在进入下一迭代之前，快速测试每一次迭代时，`run` 这个命令就会派上用场。
+当咱们需要对某个项目快速迭代，就像我们在这个游戏中将要做的，而在继续下一迭代前快速测试每次迭代时，`run` 这个命令就会派上用场。
 
 请重新打开 `src/main.rs` 文件。咱们将在这个文件中，编写所有代码。
 
 
-## 处理一个猜数
-
-**Processing a Guess**
+## 处理猜数
 
 
-猜数游戏程序的第一部分，将请求用户输入，处理输入信息，并检查输入信息是否符合预期形式。首先，我们将允许玩家输入一个猜测。请在 `src/main.rs` 中，输入清单 2-1 中的代码。
+猜数游戏程序的第一部分，将请求用户输入，处理这个输入，并检查输入是否为预期形式。首先，我们将允许玩家输入一个猜测。请将清单 2-1 中的代码，输入到 `src/main.rs` 中。
 
 
 文件名：`src/main.rs`
@@ -79,77 +86,69 @@ Hello, world!
 use std::io;
 
 fn main() {
-    println! ("请猜这个数！");
+    println!("猜猜这个数!");
 
-    println! ("请输入你的猜数。");
+    println!("请输入你的猜数。");
 
     let mut guess = String::new();
 
     io::stdin()
         .read_line(&mut guess)
-        .expect("读取行失败/failed to read line");
+        .expect("读取行失败");
 
-    println! ("你猜的是：{guess}");
+    println!("你猜的是: {guess}");
 }
 ```
 
 *清单 2-1，从用户处获取一个猜数并将其打印出来的代码*
 
-
-这段代码包含了大量信息，所以我们来逐行查看。要获取用户输入，然后将结果打印输出，我们就需要将 `io` 这个输入/输出库，带入作用域。`io` 库来自标准库，即 `std`：
-
+这段代码包含了大量信息，所以我们来逐行查看。要获取用户输入，然后将结果作为输出打印，我们就需要将 `io` 这个输入/输出库，带入作用域。`io` 库来自标准库，称为 `std`：
 
 ```rust
 use std::io;
 ```
 
+默认情况下，Rust 在标准库中定义了一个项目集合，其会带入到每个程序作用域中。这个集合被称为 *前奏，prelude*，在 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html) 中，咱们就能看到这个集合中的全部项目。
 
-默认情况下，Rust 在标准库中定义了一组，其会带入到每个程序作用域中的项目。这组项目被称为 *前奏，prelude*，咱们可以在 [标准库文档](https://doc.rust-lang.org/std/prelude/index.html) 中，查看他当中的全部项目。
+当咱们打算使用的某个类型不在前奏中时，咱们就必须以一条 `use` 语句，显式地将该类型带入作用域。使用 `std::io` 这个库，提供到咱们数种有用功能，包括接受用户输入的能力。
 
-如果咱们打算使用的某个类型不在前奏中，那么就必须用一条 `use` 语句，显式地将该类型带入作用域。使用 `std::io` 库，提供到咱们许多有用功能，包括接受用户输入的能力。
-
-正如咱们在第 1 章所看到的，`main` 函数是该程序的入口，the entry point into the program：
+正如咱们在第 1 章所看到的，`main` 函数是程序的入口点，the entry point into the program：
 
 
 ```rust
 fn main() {
 ```
 
-`fn` 语法声明了一个新函数；括号 `()` 表明没有参数；花括号，`{`，开启了该函数的。
+`fn` 这一语法，会声明一个新的函数；括号 `()` 表明没有参数；而花括号 `{` 开启了该函数的函数体。
 
-同样如同咱们在第 1 章中所掌握的，`println!` 是个将字符串打印到屏幕上的宏，a macro：
+如同咱们还在第 1 章中所了解的，`println!` 是个打印字符串到屏幕的宏，a macro：
 
 
 ```console
     println! ("猜出这个数来！");
-
     println! ("请输入你猜的数。");
 ```
 
-这段代码打印出说明游戏是什么，以及要求用户输入的提示信息。
+这段代码正打印提示信息，说明游戏为何并请求用户输入。
 
 
 ### 使用变量存储值
 
-**Storing Values with Variables**
 
-
-接下来，我们将创建一个 *变量，variable*，来存储用户输入，就像这样：
-
+接下来，我们将创建一个 *变量，variable* 存储用户输入，就像这样：
 
 ```rust
     let mut guess = String::new();
 ```
 
-
-现在，程序开始变得有趣起来！在这短短一行中，发生了很多事情。我们使用 `let` 语句，创建这个变量。下面是另一个例子：
+现在，程序开始变得有趣起来！在这短短一行中，发生了很多事情。我们使用 `let` 语句创建变量。下面是另一个例子：
 
 
 ```rust
 let apples = 5;
 ```
 
-这一行创建了个名为 `apples` 的新变量，并将其与值 5 绑定。在 Rust 中，变量默认是不可变的，immutable，这意味着一旦我们赋给变量某个值，该值就不会改变。我们将在第 3 章 [“变量和可变性”](programming_concepts/variables_and_mutability.md) 小节中，详细讨论这一概念。要使某个变量可变，我们就要在该变量的名字前，添加 `mut` 关键字：
+这一行创建了个名为 `apples` 的新变量，并将其与值 `5` 绑定。在 Rust 中，变量默认是不可变的，immutable，这意味着一旦我们赋予变量某个值，那么该值就不会改变。我们将在第 3 章 [“变量和可变性”](programming_concepts/variables_and_mutability.md) 小节中，详细讨论这一概念。要使某个变量可变，我们就要在该变量的名字前添加 `mut` 关键字：
 
 
 ```rust
@@ -157,21 +156,17 @@ let apples = 5; // 不可变（immutable）
 let mut bananas = 5; // 可变（mutable）
 ```
 
-> **注意**：其中的 `//` 语法，会开始一条持续到行尾的注释。Rust 会忽略注释中的所有内容。我们将在 [第 3 章](programming_concepts/comments.md) 详细讨论注释。
+> **注意**：其中的 `//` 语法会开始一条注释，一直持续到行尾。Rust 会忽略注释中的所有内容。我们将在 [第 3 章](programming_concepts/comments.md) 详细讨论注释。
 
 
-回到猜数游戏程序，咱们现在知道，`let mut guess` 将引入一个名为 `guess` 的可变变量。等号（`=`）告诉 Rust，我们现在打算给变量绑定某个东西。等号右边是 `guess` 要被绑定到的，调用 `String::new` 函数的结果，该函数会返回一个 `String` 的新实例。而 [`String`](https://doc.rust-lang.org/std/string/struct.String.html) 是标准库所提供的一种字符串类型，是可增长的、UTF-8 编码的文本。
+回到猜数游戏程序，咱们现在知道，`let mut guess` 将引入一个名为 `guess` 的可变变量。等号（`=`）告诉 Rust，现在我们打算绑定某个东西到该变量。等号右边是 `guess` 要被绑定到的值，返回一个 `String` 的新实例的函数。所谓 [`String`](https://doc.rust-lang.org/std/string/struct.String.html) ，是由标准库提供的一种字符串类型，是可增长的、UTF-8 编码的文本。
 
-`::new` 代码行中的 `::` 语法，表明 `new` 是 `String` 类型的一个关联函数。所谓 *关联函数，associated function*，是实现于某个类型（此示例中即 `String`）上，实现的一个函数。这个 `new` 函数，会创建一个新的空字符串。在许多类型上，咱们都会发现一个 `new` 函数，因为他是个那些构造某种新值函数的通用名称。
+`::new` 代码行中的 `::` 语法，表明 `new` 是 `String` 类型的一个关联函数。所谓 *关联函数，associated function*，是在某个类型，这一情形下即 `String`，上实现的函数。这个 `new` 函数会创建一个新的空字符串。在许多类型上，咱们都将发现一个 `new` 函数，因为他是构造某种新值函数的通用名字。
 
-在那个 `::new` 代码行中的 `::` 语法，表示其中的 `new` 是 `String` 类型的一个关联函数（an associated funtion of the `String` type）。至于 *关联函数（associated function）*，指的是应用到某种类型上的函数，在此实例中，类型就是 `String` 了。这个 `new` 函数创建了一个新的、空空的字符串。由于`new` 是个构造某种新值的常见函数，因此在许多类型上，都将找到 `new` 函数。
-
-总的来说，`let mut guess = String::new();` 这行，创建了当前绑定了一个新的、空的 `String` 实例的一个可变变量。呼！
+完整来说，`let mut guess = String::new();` 这行，已创建了个可变变量，该变量当前绑定到一个新的、`String` 的空实例。呼！
 
 
 ### 接收用户输入
-
-**Receiving User Input**
 
 
 回顾一下，在程序的第一行，我们使用 `use std::io;`，包含了标准库中的输入/输出功能。现在，我们将调用 `io` 模组中，将允许咱们处理用户输入的 `stdin` 函数：
