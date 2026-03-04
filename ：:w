@@ -418,14 +418,17 @@ Cargo 会忽略 `0.999.0` 这个版本。此时，咱们还会注意到咱们 `C
 rand = "0.999.0"
 ```
 
-下次咱们运行 `cargo build` 时，Cargo 将更新可用的代码箱登记簿，the registry of crates available，并根据咱们已指定的新版本，重新计算咱们的 `rand` 需求。
+在咱们下次运行 `cargo build` 时，Cargo 会更新可用代码箱的登记簿，the registry of creates available，并根据咱们所指定的新版本，重新计算咱们的 `rand` 需求。
 
-关于 [Cargo](http://doc.crates.io/) 及 [其生态](http://doc.crates.io/crates-io.html)，还有很多内容要讲，我们将在 [第 14 章](./Ch14_More_about_Cargo_and_Crates-io.md) 讨论，但现在，这就是咱们需要了解的全部内容。Cargo 让重用库变得非常容易，因此 Rustaceans 就能够编写出由数个包组装而成的一些小型项目。
+关于 [Cargo](http://doc.crates.io/) 及 [其生态](http://doc.crates.io/crates-io.html)，还有很多内容要讲，我们将在第 14 章进行讨论，但现在，这就是咱们需要了解的全部内容。Cargo 让重用库变得非常容易，因此 Rustaceans 可以编写出，由多个包组合而成的小型项目。
 
 
 ### 生成随机数
 
-咱们来开始使用 `rand` 生成一个要猜的数字。下一步是要更新 `src/main.rs`，如下清单 2-3 中所示。
+**Generating a Random Number**
+
+
+咱们来开始使用 `rand`，生成一个要猜的数字。下一步是要更新 `src/main.rs`，如下清单 2-3 所示。
 
 
 文件名：`src/main.rs`
@@ -435,11 +438,11 @@ use std::io;
 use rand::Rng;
 
 fn main() {
-    println! ("猜猜这个数!");
+    println! ("请猜数！");
 
     let secret_number = rand::thread_rng().gen_range(1..=100);
 
-    println! ("秘密数字是：{secret_number}");
+    println! ("秘密数字为：{secret_number}");
 
     println! ("请输入你的猜数。");
 
@@ -447,47 +450,47 @@ fn main() {
 
     io::stdin()
         .read_line(&mut guess)
-        .expect("读取行失败！");
+        .expect("读取行失败/failed to read line");
 
-    println! ("你猜的是: {guess}");
+    println! ("你猜的是：{guess}");
 }
 ```
 
-*清单 2-3：添加生成随机数的代码*
+*清单 2-3：添加代码以生成随机数*
 
 
-首先，我们要添加行 `use rand::Rng;`。`Rng` 这个特质定义了随机数生成器所实现的一些方法，而这个特质必须要在咱们要用到那些方法的作用域中。[第 10 章](./generic_types_traits_and_lifetimes/traits.md) 将详细介绍特质。
+首先，我们添加 `use rand::Rng;` 这行。`Rng` 特质，the `Rng` trait，定义了随机数生成器，所实现的那些方法，而这个特质，必须位于咱们要用到那些方法的作用域中。第 10 章将详细介绍特质。
 
-接下来，我们在中间添加了两行。在第一行中，我们调用了 `rand:thread_rng` 这个函数，他给到我们即将用到的特定随机数生成器，the particular random number generator：一个属于当前执行线程本地的，由操作系统提供种子的随机数生成器。然后，我们调用了这个随机数生成器上的 `gen_range` 方法。这个方法是由我们以 `use rand::Rng;` 语句，带入到作用域的 `Rng` 特质定义的。`gen_range` 方法会取一个范围表达式作为参数，生成该范围中的一个随机数。我们这里使用的范围表达式类别，采用了 `start..=end` 形式，并包含下上边界，因此我们需要指定 `1...=100`，请求一个 1 和 100 之间的数字。
-
-
-> **注意**：咱们不会凭空知道要使用哪个特质、调用某个代码箱中的哪些方法与函数，因此每个代码箱都有使用说明文档。Cargo 的另一巧妙特性便是，运行 `cargo doc --open` 命令就将在本地构建出有所有咱们依赖项所提供的文档，并在咱们浏览器中打开。例如，当咱们对 `rand` 代码箱中别的功能感兴趣时，那么就运行 `cargo doc --open`，并点击左侧边栏中的 `rand`。
+接下来，我们在中间添加两行。在第一行中，我们调用了给到我们要用到随机数生成器的 `rand::thread_rng` 函数：一个相对于当前执行线程本地的，由操作系统提供种子的随机数发生器。然后，我们调用了这个随机数生成器上的 `gen_range` 方法。该方法由咱们已使用 `use rand::Rng;` 语句，带入到作用域的 `Rng` 特质所定义。`gen_range` 方法，取一个范围表达式作为参数，并生成该范围内的一个随机数。我们这里使用的范围表达式类别，形式为 `start...=end`，并包含下上边界，因此我们需要指定 `1...=100`，以请求一个介于 1 和 100 之间的数字。
 
 
-第二个新行会打印秘密数字。这在我们开发程序时很有用，能够测试程序，但我们将在最终版本中删除他。如果这个程序一开始就打印出答案，那就不算是个游戏了！
+> **注意**：咱们不会只要知道使用哪个特质、调用某个代码箱的哪些方法与函数，因此每个代码箱，都有使用说明文档。Cargo 的另一个特色便是，运行 `cargo doc --open` 命令，就会在本地构建出咱们所有依赖项提供的文档，并在浏览器中打开。例如，如果咱们对 `rand` 代码箱的其他功能感兴趣，那么请运行 `cargo doc --open`，并点击左侧边栏中的 `rand`。
 
-尝试运行这个程序几次：
+
+第二新的行，会打印秘密数字。这在我们开发程序时很有用，可以用来测试程序，但我们会在最终版本中删除他。如果程序一开始就打印出答案，那就不算是个游戏了！
+
+请试着运行几次程序：
 
 
 ```console
-$ cargo run
-   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+$ cargo run                                                           ✔  4s 
+   Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.54s
      Running `target/debug/guessing_game`
-猜猜这个数!
-秘密数字是：14
-请输入你的猜数。
-80
-你猜的是: 80
+猜出这个数来！
+随机生成的秘密数字为：40
+请输入你猜的数。
+86
+你猜的数为：86
 
-$ cargo run
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+$ cargo run                                                           ✔  9s 
+    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
      Running `target/debug/guessing_game`
-猜猜这个数!
-秘密数字是：49
-请输入你的猜数。
-5
-你猜的是: 5
+猜出这个数来！
+随机生成的秘密数字为：30
+请输入你猜的数。
+27
+你猜的数为：27
 
 ```
 
