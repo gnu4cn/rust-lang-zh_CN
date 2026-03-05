@@ -2,7 +2,13 @@
 
 如同 [“以变量存储值”](../Ch02_Programming_a_Guessing_Game.md#以变量存储值) 小节中所提到的，默认情况下，变量属于不可变的。这是 Rust 给到咱们的众多推动之一，允许咱们以利用 Rust 提供的安全性和简单并发性方式，编写咱们的代码。但是，咱们仍有着将咱们的变量构造为可变的选项。我们来探讨一下，Rust 怎样及为何鼓励咱们偏爱不可变性，以及为什么有时咱们可能需要放弃这点。
 
-> **译注**：Erlang/OTP 语言中的变量，完全是不可变的。Rust 受到 Erlang/OTP 语言的影响。参见：[Erlang 变量不会变](https://erlang.xfoss.com/part-ii/Ch03-basic_concepts.html#erlang-%E5%8F%98%E9%87%8F%E4%B8%8D%E4%BC%9A%E5%8F%98)。
+> **译注**：Erlang/OTP 语言中的变量，完全是不可变的。Rust 受到 Erlang/OTP 语言的影响。
+>
+> 参见：
+>
+> - [Erlang 变量不会变](https://erlang.xfoss.com/part-ii/Ch03-basic_concepts.html#erlang-%E5%8F%98%E9%87%8F%E4%B8%8D%E4%BC%9A%E5%8F%98)
+>
+> - [Rust (programming language)](https://en.wikipedia.org/wiki/Rust_(programming_language))
 
 当变量不可变时，那么一旦某个值绑定到某个名字，咱们就无法更改那个值了。为演示这点，请通过使用 `cargo new variables`，在 `projects` 目录下生成一个名为 `variables` 的新项目。
 
