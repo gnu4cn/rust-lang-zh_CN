@@ -732,7 +732,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ### 处理无效输入
 
-为进一步完善游戏行为，我们可以让游戏忽略非数字，这样用户就可以继续猜测，而不是在用户输入非数字时程序崩溃。通过修改 `guess` 从字符串转换为 `u32` 的行，咱们就可以做到这一点，如下清单 2-5 所示。
+为进一步完善游戏的行为，我们来将游戏构造为忽略非数字，以便用户可以继续猜数，而不是在用户输入非数字时崩溃程序。通过修改其中 `guess` 从字符串转换为 `u32` 的行，咱们便可做到这点，如下清单 2-5 中所示。
 
 
 文件名：`src/main.rs`
@@ -742,106 +742,113 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
         io::stdin()
             .read_line(&mut guess)
-            .expect("读取行失败/failed to read line");
+            .expect("读取行失败！");
 
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
             Err(_) => continue,
         };
 
-        println! ("你猜的是：{guess}");
+        println! ("你猜的是: {guess}");
 
         // --跳过--
 ```
 
-*清单 2-5：忽略非数字的猜数并请求另一个猜数，而不是让程序崩溃*
+*清单 2-5：忽略非数字的猜数并请求另一猜数，而不是让崩溃程序*
 
 
-我们从一个 `expect` 调用，切换到了一个 `match` 表达式，以从出错时崩溃程序，转换为处理这个出错。请记住，`parse` 回返回一个 `Result` 类型，而 `Result` 是个枚举，有 `Ok` 和 `Err` 两个变种。我们在这里使用了个 `match` 表达式，就像在在处理 `cmp` 方法的 `Ordering` 结果时一样。
+我们从 `expect` 调用切换到 `match` 表达式，以从出错时崩溃程序转而处理错误。请记住，`parse` 会返回一个 `Result` 类型，而 `Result` 是个枚举，有着 `Ok` 和 `Err` 两个变种。我们在这里使用了个 `match` 表达式，就像我对 `cmp` 方法的 `Ordering` 结果所做的一样。
 
-如果 `parse` 成功地将那个字符串转换为数字，他将返回一个包含结果数字的 `Ok` 值。该 `Ok` 值将与第一支臂的模式匹配，而这个 `match` 表达式将只返回 `parse` 所生成并放入 `Ok` 值的那个 `num` 值。这个数字最终会出现在，我们要创建的新 `guess` 变量中。
+当 `parse` 能够成功将字符串转换为数字时，他将返回包含着结果数字的一个 `Ok` 值。该 `Ok` 值将匹配第一支臂的模式，而 `match` 表达式将只返回 `parse` 生成并放入 `Ok` 值的 `num` 值。这个数字最终将位于我们所期望的我们正创建的新 `guess` 变量中。
 
-如果 `parse` *无* 法将该字符串转化为数字，他将返回一个其中包含了更多该错误的信息的 `Err` 值。`Err` 值不会匹配到第一个 `match` 支臂中的 `Ok(num)` 模式，但会匹配到第二个支臂中的 `Err(_)` 模式。其中的下划线 `_`，是个总括值，a catchall value；在这个示例中，我们表示要匹配所有 `Err` 值，无论他们包含什么信息。因此，程序将执行第二个支臂的代码 `continue`，这告诉程序，要前往循环的下一次迭代，而请求另一个猜数。因此，实际上，程序会忽略 `parse` 可能遇到的所有错误！
+当 `parse` *不* 能该字符串转换为数字时，他将返回一个包含着更多有关该错误信息的 `Err` 值。`Err` 值不会匹配第一个 `match` 支臂中的 `Ok(num)` 模式，但他确实会匹配到第二个支臂中的 `Err(_)` 模式。其中的下划线 `_`，是个总括值，a catchall value；在这个示例中，我们表明我们打算匹配所有 `Err` 值，无论他们内部有着何种信息。因此，程序将执行第二个支臂的代码，`continue`，这告诉程序，要前往 `loop` 的下一次迭代，而请求另一个猜数。因此，程序会有效地忽略 `parse` 可能遇到的所有错误！
 
-现在，程序中的一切都应按预期运行。我们来试一下他：
+
+现在，这个程序中的一切都应按预期运行。我们来试一下：
 
 
 ```console
-$ cargo run                                                       ✔
-   Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.57s
+$ cargo run
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running `target/debug/guessing_game`
-
----猜出这个数来！---
-请输入你猜的数。（ ‘Q/quit’ 退出游戏）
-50
-你猜的数为：50
-太小了！
-请输入你猜的数。（ ‘Q/quit’ 退出游戏）
-75
-你猜的数为：75
+猜猜这个数!
+秘密数字是：88
+请输入你的猜数。
+adb
+请输入你的猜数。
+88
+你猜的是: 88
 你赢了！
 ```
 
-太棒了！最后再做一个微小的调整，我们就可以完成这个猜数游戏了。请注意，程序仍在打印出秘密数字。这对测试很有效，但却毁掉了这个游戏。咱们来删除那个输出秘密数字的 `println!`。清单 2-6 给出了最终代码。
+太棒了！只需最后一个微小调整，我们即将完成这个猜数游戏了。回想一下这个程序仍在打印秘密数字。这对测试来说效果很好，但却毁掉了这个游戏。咱们来删除那个输出秘密数字的 `println!`。清单 2-6 给出了最终代码。
 
 
 文件名：`src/main.rs`
 
 ```rust
+use std::cmp::Ordering;
+use std::io;
+
 use rand::Rng;
-use std::{cmp::Ordering, io, process};
 
 fn main() {
+    println! ("猜猜这个数!");
+
+    let secret_number = rand::thread_rng().gen_range(1..=100);
+
     loop {
-        println! ("\n---猜出这个数来！---");
+        println! ("请输入你的猜数。");
 
-        let secret_number: u32 = rand::thread_rng().gen_range(1..101);
+        let mut guess = String::new();
 
-        // println! ("随机生成的秘密数字为：{}", secret_number);
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("读取行失败！");
 
-        loop {
-            println! ("请输入你猜的数。（ ‘Q/quit’ 退出游戏）");
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
 
-            let mut guess: String = String::new();
+        println! ("你猜的是: {guess}");
 
-            io::stdin()
-                .read_line(&mut guess)
-                .expect("读取行失败/failed to read line");
-
-            if guess.trim().eq("Q") || guess.trim().eq("quit") { process::exit(0); }
-
-            // let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
-            let guess: u32 = match guess.trim().parse() {
-                Ok(num) => num,
-                Err(_) => { println! ("请输入一个数字！"); continue },
-            };
-
-            println! ("你猜的数为：{}", guess);
-
-            match guess.cmp(&secret_number) {
-                Ordering::Less => println! ("太小！"),
-                Ordering::Greater => println! ("太大！"),
-                Ordering::Equal => {
-                    println! ("你赢了！");
-                    break
-                },
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println! ("太小！"),
+            Ordering::Greater => println! ("太大！"),
+            Ordering::Equal => {
+                println! ("你赢了！");
+                break
             }
         }
     }
 }
 ```
 
-*清单 2-6：完全的猜数游戏代码*
+*清单 2-6：完整的猜数游戏代码*
 
 
-至此，咱们已经成功构建了这个猜数游戏。恭喜！
+至此，咱们已成功构建了这个猜数游戏。恭喜！
 
 
 ## 本章小结
 
 
-这个项目以实践的方式，向咱们介绍了许多新的 Rust 概念：`let`、`match`、函数、外部代码箱的使用等等。在接下来的几章中，咱们将更详细地了解这些概念。第 3 章涵盖了大多数编程语言都有的概念，如变量、数据类型和函数等，并展示了如何在 Rust 中使用他们。第 4 章探讨了所有权，这是 Rust 不同于其他语言的一个特性。第 5 章会讨论结构体和方法语法，第 6 章解释了枚举的工作原理。
+这个项目以实践的方式，向咱们介绍了许多新的 Rust 概念：
+
+- `let`
+- `match`
+- 函数
+- 外部代码箱的使用等等。
+
+
+在接下来的几章中，咱们将更详细地了解这些概念。
+
+- 第 3 章涵盖了大多数编程语言都有的一些概念，如变量、数据类型和函数等，并展示了如何在 Rust 中使用他们；
+- 第 4 章探讨了所有权，这是 Rust 不同于其他语言的一个特性；
+- 第 5 章会讨论结构体及方法语法；
+- 第 6 章解释了枚举的工作原理。
 
 
 （End）
