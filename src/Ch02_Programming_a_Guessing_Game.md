@@ -100,7 +100,7 @@ fn main() {
 }
 ```
 
-*<a name="list-2-1">清单 2-1</a>，从用户处获取一个猜数并将其打印出来的代码*
+*<a href="#list-2-1">清单 2-1</a>，从用户处获取一个猜数并将其打印出来的代码*
 
 这段代码包含了大量信息，所以我们来逐行查看。要获取用户输入，然后将结果作为输出打印，我们就需要将 `io` 这个输入/输出库，带入作用域。`io` 库来自标准库，称为 `std`：
 
@@ -359,7 +359,7 @@ remote: Total 1043606 (delta 693593), reused 848030 (delta 620187), pack-reused 
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 9m 51s
 ```
 
-*<a name="list-2-2">清单 2-2</a>：在添加 `rand` 代码箱作为依赖项添加后，运行 `cargo build` 的输出**
+*<a href="#list-2-2">清单 2-2</a>：在添加 `rand` 代码箱作为依赖项添加后，运行 `cargo build` 的输出**
 
 > **译注**：这里译者使用了国内的 `ustc` Cargo 登记簿镜像。
 
@@ -453,7 +453,7 @@ fn main() {
 }
 ```
 
-*<a name="list-2-3">清单 2-3</a>：添加生成随机数的代码*
+*<a href="#list-2-3">清单 2-3</a>：添加生成随机数的代码*
 
 
 首先，我们要添加行 `use rand::Rng;`。`Rng` 这个特质定义了随机数生成器所实现的一些方法，而这个特质必须要在咱们要用到那些方法的作用域中。[第 10 章](./generic_types_traits_and_lifetimes/traits.md) 将详细介绍特质。
@@ -499,7 +499,7 @@ $ cargo run
 
 现在我们有了用户输入和随机数，我们可以比较他们。该步骤于清单 2-4 中所示。请注意，这段代码还不会编译，我们将进行解释。
 
-<a name="list_2-4"></a>
+<a href="#list_2-4"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -520,7 +520,7 @@ fn main() {
 }
 ```
 
-*<a name="list-2-4">清单 2-4</a>：处理比较两个数字可能的返回值*
+*<a href="#list-2-4">清单 2-4</a>：处理比较两个数字可能的返回值*
 
 
 首先，我们添加另一条 `use` 语句，将一个名为 `std::cmp::Ordering` 的类型，从标准库中带入作用域。`Ordering` 类型属于另一个枚举，有着 `Less`、`Greater` 及 `Equal` 三种变体。这正是咱们在比较两个值时，可能的三种结果。
@@ -754,7 +754,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
         // --跳过--
 ```
 
-*<a name="list-2-5">清单 2-5</a>：忽略非数字的猜数并请求另一猜数，而不是让崩溃程序*
+*<a href="#list-2-5">清单 2-5</a>：忽略非数字的猜数并请求另一猜数，而不是让崩溃程序*
 
 
 我们从 `expect` 调用切换到 `match` 表达式，以从出错时崩溃程序转而处理错误。请记住，`parse` 会返回一个 `Result` 类型，而 `Result` 是个枚举，有着 `Ok` 和 `Err` 两个变种。我们在这里使用了个 `match` 表达式，就像我对 `cmp` 方法的 `Ordering` 结果所做的一样。
@@ -826,7 +826,7 @@ fn main() {
 }
 ```
 
-*<a name="list-2-6">清单 2-6</a>：完整的猜数游戏代码*
+*<a href="#list-2-6">清单 2-6</a>：完整的猜数游戏代码*
 
 
 至此，咱们已成功构建了这个猜数游戏。恭喜！
