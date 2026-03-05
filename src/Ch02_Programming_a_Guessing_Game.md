@@ -494,12 +494,10 @@ $ cargo run
 咱们应得到不同的随机数字，且他们都应是 1 到 100 之间的数字。干得好！
 
 
-## 将猜数与秘数相比较
-
-**Comparing the Guess to the Secret Number**
+## 比较猜数与秘密数
 
 
-现在我们有了用户输入和随机数，我们可以对他们进行比较。该步骤如下清单 2-4 所示。请注意，这段代码还不能编译，我们将对此进行说明。
+现在我们有了用户输入和随机数，我们可以比较他们。该步骤于清单 2-4 中所示。请注意，这段代码还不会编译，我们将进行解释。
 
 <a name="list_2-4"></a>
 文件名：`src/main.rs`
@@ -522,61 +520,72 @@ fn main() {
 }
 ```
 
-*清单 2-4：对比较两个数字可能的返回值进行处理*
+*清单 2-4：处理比较两个数字可能的返回值*
 
 
-首先，我们添加了另一条 `use` 语句，从标准库中，引入名为 `std::cmp::Ordering` 的类型。`Ordering` 类型是另一个枚举，并具有 `Less`、`Greater` 和 `Equal` 三种变体。这正是在比较两个值时，可能出现的三种结果。
+首先，我们添加另一条 `use` 语句，将一个名为 `std::cmp::Ordering` 的类型，从标准库中带入作用域。`Ordering` 类型属于另一个枚举，有着 `Less`、`Greater` 及 `Equal` 三种变体。这正是咱们在比较两个值时，可能的三种结果。
 
-然后，我们在底部，添加了用到这个 `Ordering` 类型的五个新行。`cmp` 这个方法，会比较两个值，并可以在任何可被比较的项目上调用。他会取一个到咱们打算比较的任何值的引用：这里他是将 `guess` 与 `secret_number` 进行比较。然后，他会返回我们通过那条 `use` 语句，带入作用域的 `Ordering` 枚举的某个变种。我们使用了一个 `match` 表达式，根据以 `guess` 和 `secret_number` 中的值调用 `cmp` 时，所返回的何种 `Ordering` 变体，来决定下一步的操作。
+然后，我们在底部添加用到这个 `Ordering` 类型的五个新行。`cmp` 这个方法会比较两个值，并可在任何可比较项目上调用。他会取一个到咱们打算比较的任何值的引用：这里他正将 `guess` 与 `secret_number` 比较。然后，他会返回我们以 `use` 语句带入作用域的 `Ordering` 枚举的某个变种。我们使用一个 `match` 表达式，根据 `guess` 和 `secret_number` 中值下，对 `cmp` 的调用所返回的何种 `Ordering` 变种，决定下一步要做什么。
 
-`match` 表达式由数个 *支臂，arms* 组成。而一个支臂则由一个要与之匹配的 *模式，pattern*，以及在给到 `match` 的值，符合该支臂的模式时，要运行的代码组成。Rust 会取给到 `match` 的值，并依次查看每个支臂的模式。模式与这种 `match` 结构，是 Rust 的强大功能：二者可以让咱们，表达出代码可能遇到的各种情况，并确保咱们能处理全部的这些情况。第 6 章和第 18 章，将分别详细介绍这些特性。
+`match` 表达式由一些 *支臂，arms* 组成。而支臂由要匹配的 *模式，pattern*，及在给到 `match` 的值符合该支臂的模式时，要运行的代码组成。Rust 会取得给到 `match` 的值，并依次查看各个支臂的模式。模式与 `match` 结构，属于 Rust 的强大功能：二者让咱们可以表达出咱们代码可能遇到的各种情况，他们确保咱们能处理全部的这些情况。这两种特性，将在 [第 6 章](./enums_and_pattern_matching/match_control_flow.md) 和 [第 19 章](./Ch18_Patterns_and_Matching.md) 分别详细介绍。
 
-咱们来以这里用到的这个 `match` 表达式，看一个示例。假设用户猜的是 50，而这次随机生成的秘密数字是 38。
+咱们来以这里用到的 `match` 表达式，看一个示例。假设用户猜的是 50，而这次随机生成的秘密数字是 38。
 
-当代码将 50 与 38 比较时，`cmp` 方法将返回 `Ordering::Greater`，因为 50 大于 38。这个 `match` 表达式就会得到 `Ordering::Greater` 这个值，并开始检查每个支臂的模式。他会查看第一个支臂的模式 `Ordering::Less`，发现值 `Ordering::Greater` 与 `Ordering::Less` 不匹配，因此他会忽略该支臂的代码，而转到下一支臂。下一支臂的模式是 `Ordering::Greater`，这 *确实* 匹配 `Ordering::Greater`！该支臂中的相关代码将执行，并打印 `太大！` 到屏幕。这个 `match` 表达式在第一次成功匹配后，就会结束，因此在这种情况下，其不再查看最后一个支臂。
+当代码比较 50 与 38 时，`cmp` 方法将返回 `Ordering::Greater`，因为 50 大于 38。`match` 表达式会得到 `Ordering::Greater` 这个值，并开始检查各个支臂的模式。他看着第一个支臂的模式，`Ordering::Less`，发现值 `Ordering::Greater` 未匹配 `Ordering::Less`，因此他会忽略该支臂的代码并移步到下一支臂。下一支臂的模式是 `Ordering::Greater`，这 *确实* 匹配 `Ordering::Greater`！该支臂中的相关代码将执行，并打印 `太大！` 到屏幕。`match` 表达式会在第一次成功匹配后结束，因此在这种情况下他将不查看最后支臂。
 
 然而，清单 2-4 中的代码还无法编译。咱们来尝试一下：
 
 
 ```console
-$ cargo build                                                         ✔
-   Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
+$ cargo build
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
 error[E0308]: mismatched types
   --> src/main.rs:22:21
    |
 22 |     match guess.cmp(&secret_number) {
-   |                     ^^^^^^^^^^^^^^ expected struct `String`, found `i32`
+   |                 --- ^^^^^^^^^^^^^^ expected `&String`, found `&{integer}`
+   |                 |
+   |                 arguments to this method are incorrect
    |
    = note: expected reference `&String`
-              found reference `&i32`
+              found reference `&{integer}`
+note: method defined here
+  --> /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/core/src/cmp.rs:987:8
 
 For more information about this error, try `rustc --explain E0308`.
-error: could not compile `guessing_game` due to previous error
+error: could not compile `guessing_game` (bin "guessing_game") due to 1 previous error
 ```
 
 
-错误的核心，表明存在 *不匹配的类型，mismatched types*。Rust 有着强大的，静态类型系统。不过，他也有着类型推断，Rust has a strong, static type system. However, it also has type inference。当我们写下 `let mut guess = String::new()` 时，Rust 就能推断出，`guess` 应是个 `String`，而未曾让我们写下类型。另一方面，`secret_number` 是一个数字类型。Rust 的一些数字类型，可以有着介于 1 和 100 之间的某个：`i32`，某个 32 位的数字；`u32`，某个无符号的 32 位数字；`i64`，某个 64 位的数字；以及其他类型。除非另有说明，否则 Rust 默认会使用 `i32`，这即为 `secret_number` 的类型，除非在其他地方，添加了导致 Rust 推断出不同的数值类型的类型信息。上面这个报出的原因，是 Rust 无法比较字符串和数字类型。
+该报错的核心，指出了有着 *不匹配类型，mismatched types*。Rust 有着强大的、静态的类型系统。不过，他也有类型推断，Rust has a strong, static type system. However, it also has type inference。在我们写下 `let mut guess = String::new()` 后，Rust 就能够推断出 `guess` 应是个 `String`，而未曾让我们写下类型。另一方面，`secret_number` 是个数字类型。Rust 的一些数字类型，可以有 1 和 100 之间的值：
 
-最后，我们打算将程序读取的字符串输入，转换为某个真正的数字，这样咱们就可以将其与秘密数字，进行数值比较。我们要通过在那个 `main` 函数主体中，添加下面这行，完成这一点：
+- `i32`，32 位数字；
+- `u32`，无符号的 32 位数字；
+- `i64`，64 位数字；
+- 以及其他类型。
+
+
+除非另有说明，否则 Rust 默认为 `i32`，这便是 `secret_number` 的类型，除非咱们别处添加了将导致 Rust 推断出不同数值类型的类型信息。这一报错的原因是 Rust 无法比较字符串和数字类型。
+
+最终，我们会打算将程序作为输入读取的 `String` 转换为某种数字类型，以便我们可将其与秘密数字进行数值比较。我们要通过添加下面这行到 `main` 函数体完成这点：
 
 文件名：`src/main.rs`
 
 ```rust
     // --跳过前面的代码--
-
-    let mut guess: String = String::new();
+    let mut guess = String::new();
 
     io::stdin()
         .read_line(&mut guess)
-        .expect("读取行失败......");
+        .expect("读取行失败！");
 
     let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
 
-    println! ("你猜的数为：{}", guess);
+    println! ("你猜的是: {guess}");
 
     match guess.cmp(&secret_number) {
-        Ordering::Less => println! ("太小了！"),
-        Ordering::Greater => println! ("太大了！"),
+        Ordering::Less => println! ("太小！"),
+        Ordering::Greater => println! ("太大！"),
         Ordering::Equal => println! ("你赢了！"),
     }
 ```
@@ -587,65 +596,62 @@ error: could not compile `guessing_game` due to previous error
 let guess: u32 = guess.trim().parse().expect("请输入一个数字！");
 ```
 
-我们创建了一个名为 `guess` 的变量。但是等等，程序中不是已经有一个名为 `guess` 的变量了吗？是有的，但好在 Rust 允许我们用一个新值，对 `guess` 的前一个值进行遮蔽处理。*遮蔽特性，shadowing* 允许咱们，重复使用这个 `guess` 变量名，而不必被迫创建出，诸如 `guess_str` 和 `guess` 这样的两个唯一变量。我们将在 [第 3 章](programming_concepts/variables_and_mutability.md#遮蔽shadowing) 中详细介绍这一功能，而现在我们要知道，当咱们打算将某个值，从一种类型转换为另一类型时，就经常会用到这一特性。
+我们创建了个名为 `guess` 的变量。但等等，这个程序不是已经有了个名为 `guess` 的变量了吗？确实如此，但好在 Rust 允许我们以一个新值，遮蔽 `guess` 的先前值。所谓 *遮蔽，shadowing*，允许咱们重用 `guess` 这个变量名，而不是强迫我们创建两个唯一变量，比如 `guess_str` 和 `guess`。我们将在 [第 3 章](programming_concepts/variables_and_mutability.md#遮蔽) 中更详细地介绍这一特性，而现在我们要知道，当咱们打算将某个值从一种类型转换为另一类型时，会经常用到这一特性。
 
-我们将这个新变量，绑定到 `guess.trim().parse()` 这个表达式。表达式中的 `guess`，指的是包含了作为字符串的输入的那个原始 `guess` 变量。某个 `String` 实例上的 `trim` 方法，将消除开头和结尾的空白，我们必须这样做才能将字符串与 `u32` 进行比较，而 `u32` 只能包含数字数据。用户必须按下回车键，来满足 `read_line` 并输入他们的猜数，这会添加一个换行符到输入字串。例如，如果用户输入 5 并按回车键，`guess` 就会看起来是这样的：`5\n`。`\n` 表示 “换行/newline”。(在 Windows 系统中，按下回车键会产生是回车和换行，即 `\r\n`）。<sup>译注 1</sup> `trim` 方法可以去掉 `\n` 或 `\r\n`，结果就只有 `5` 了。
+我们将这个新变量绑定到 `guess.trim().parse()` 这个表达式。表达式中的 `guess`，指的是包含了作为字符串的输入的原先 `guess` 变量。`String` 实例上的 `trim` 方法，将消除开头和结尾的任何空白，在将字符串转换为 `u32` 前我们必须执行此操作，`u32` 只能包含数字数据。用户必须按下回车键 `enter`，满足 `read_line` 并输入他们的猜数，这会添加一个换行符到字符串。例如，当用户输入 `5` 并按回车键时，`guess` 看起来是这样的：`5\n`。其中 `\n` 表示 “换行/newline”。(在 Windows 系统上，按下回车键会产生回车和换行，即 `\r\n` <sup>1</sup>）。`trim` 方法会消除 `\n` 或 `\r\n`，得到仅 `5`。
 
 > **译注 1**：这也是为何先前的代码：
 >
-```rust
-    let bytes = io::stdin()
-        .read_line(&mut guess)
-        .expect("读取行失败/failed to read line");
-```
+> ```rust
+>     let bytes = io::stdin()
+>         .read_line(&mut guess)
+>         .expect("读取行失败/failed to read line");
+> ```
 >
 > 在 Windows 的 MSYS2 上运行时，`bytes` 的输出始终会比咱们看到的字符串，要多两个字节的原因。
 
 
-[字符串上的 `parse` 方法](https://doc.rust-lang.org/std/primitive.str.html#method.parse)，可将字符串转换为另一类型。在这里，我们要用他，将字符串转换为数字。我们需要使用 `let guess: u32`，告诉 Rust 我们想要的确切数字类型。`guess` 后面的冒号（`:`），告诉 Rust 我们将注解这个变量的类型。Rust 有几种内置的数字类型；这里所看到的 `u32`，是一种无符号的 32 位整数。对于小的正数来说，这是一种不错的默认选择。咱们将在 [第 3 章](https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-types)，了解其他数字类型。
+[字符串上的 `parse` 方法](https://doc.rust-lang.org/std/primitive.str.html#method.parse) 会将字符串转换为另一类型。在这里，我们用他将字符串转换为数字。我们需要通过使用 `let guess: u32`，告诉 Rust 我们想要的确切数字类型。`guess` 后的冒号（`:`）告诉 Rust，我们将注解这个变量的类型。Rust 有几种内置的数字类型；这里看到的 `u32`，属于一种无符号的 32 位整数。对于小的正数来说，这是种不错的默认选项。咱们将在 [第 3 章](https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-types) 中了解其他数字类型。
 
-此外，本示例程序中的这个 `u32` 注解，及那个与 `secret_number` 的比较，意味着 Rust 将推断出 `secret_number` 也应是个 `u32`。因此，现在这个比较，将是在两个相同类型值之间的了！
+此外，这个示例程序中的 `u32` 注解及与 `secret_number` 的比较，意味着 Rust 将推断出 `secret_number` 也应是个 `u32`。因此，现在这个比较将是两个相同类型值间的了！
 
-`parse` 这个方法，只适用于逻辑上可以转换成数字的那些字符，因此很容易出错。例如，如果字符串包含着 `A👍%`，就无法将其转换为数字。因为其可能会失败，所以 `parse` 方法会返回一个结果类型，就像 `read_line` 方法一样（早先曾在 [“使用 `Result` 处理潜在失败”](#使用-result-处理潜在失效) 小节中讨论过）。我们将再次通过使用 `expect` 方法，以同样方式处理这个 `Result`。如果 `parse` 因无法从那个字符串，创建出一个数字而返回 `Err` 的 `Result` 变种，则 `expect` 这个调用，将导致游戏崩溃，并打印出我们给到他的信息。如果 `parse` 能成功将那个字符串转换为数字，他将返回 `Result` 的 `Ok` 变种，而 `expect` 将从这个 `Ok` 值，返回我们想要的数字。
+`parse` 方法将只工作于逻辑上可转换为数字的一些字符，因此容易引发错误。例如，当字符串包含了 `A👍%` 时，就无法将其转换为数字。因为 `parse` 方法可能失败，`parse` 方法就会返回一个 `Result` 类型，就像 `read_line` 方法一样（早先在 [“以 `Result` 处理潜在失败”](#以-result-处理潜在失效) 中曾讨论过）。我们将再次通过使用 `expect` 方法，以同样方式处理这个 `Result`。当 `parse` 因无法从字符串创建出一个数字而返回 `Err` 的 `Result` 变种时，那么这个 `expect` 调用将崩溃游戏并打印我们给他的信息。当 `parse` 能成功转换字符串为数字时，他将返回 `Result` 的 `Ok` 变种，而 `expect` 就将从这个 `Ok` 值返回我们想要的数字。
 
-现在咱们来运行一下这个程序：
+现在咱们来运行这个程序：
 
 
 ```console
-$ cargo run                                                       101 ✘  3s 
-    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
+$ cargo run
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
      Running `target/debug/guessing_game`
-猜出这个数来！
-随机生成的秘密数字为：66
-请输入你猜的数。
-   76
-你猜的数为：76
-太大了！
+猜猜这个数!
+秘密数字是：57
+请输入你的猜数。
+  80
+你猜的是: 80
+太大！
 ```
 
+不错！即使有空格添加在猜数前，程序仍然识别出用户猜测的是 76。请多运行几次程序，验证在不同输入类别下的不同行为：猜对数字、猜的数字太大、猜的数字太小等等。
 
-不错！即使在猜数前添加了空格，程序仍然能判断出，用户猜测的数字是 76。请多运行几次程序，验证在不同输入情况下的不同行为：猜对数字、猜的数字太大、猜的数字太小等等。
-
-我们现在已经让这个游戏的大部分工作了，但用户只能猜一次数。我们就来通过添加一个循环，改变这种情况！
-
-
-## 通过循环实现多次猜数
-
-**Allowing Multiple Guesses with Looping**
+现在我们让这个游戏的大部分都工作了，但用户只能猜一次数。我们来通过添加一个循环，改变这种情况！
 
 
-`loop` 关键字会创建出一个无限循环。我们将添加一个让用户有更多机会猜出数字的循环：
+## 以循环实现多次猜数
+
+
+`loop` 关键字会创建出一个无限循环。我们将添加一个循环，让用户有更多机会猜出数字：
 
 
 文件名：`src/main.rs`
 
 ```rust
     // --跳过--
-
-    println! ("随机生成的秘密数字为：{}", secret_number);
+    println! ("秘密数字是：{secret_number}");
 
     loop {
-        println! ("请输入你猜的数。");
+        println! ("请输入你的猜数。");
 
         // --跳过--
 
@@ -658,52 +664,48 @@ $ cargo run                                                       101 ✘ 
 }
 ```
 
-正如咱们所看到的，我们把从猜测输入提示开始的所有内容，都移到了一个循环中。请务必将循环内的那些行，缩进另外四个空格，然后再次运行程序。这个程序现在将一直不停要求另一个猜数，这实际上引入了一个新问题。用户似乎无法退出！
+正如咱们所看到的，我们已将猜数输入提示之后的所有内容，都移入到一个循环中。要确保将这个循环内部的每行代码，都再缩进四个空格，并再次运行这个程序。程序现在一直不停地请求另一个猜数，这实际上引入了一个新问题。用户似乎无法退出了！
 
-用户可以始终通过使用键盘快捷键 `ctrl-c` 来中断这个程序。但还有一种方法可以摆脱这个贪得无厌的怪物，正如 [“将猜测与秘密数字进行比较”](#将猜数与秘数相比较) 小节，`parse` 的讨论中所提到的：如果用户输入的答案不是数字，这个程序就会崩溃。我们可以利用这一点，允许用户退出，如下所示：
+用户始终可通过键盘快捷键 `ctrl-C` 中断程序。但正如 [比较猜数与秘密数](#比较猜数与秘密数) 中 `parse` 的讨论中所提到的，还有另一种逃离这个贪婪怪物的办法：当用户输入某个非数字答案时，这个程序就将崩溃。我们可以利用这点允许用户退出，如下所示：
 
 
 ```console
 $ cargo run
-   Compiling guessing_game v0.1.0 (/home/peng/rust-lang/projects/guessing_game)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.53s
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
      Running `target/debug/guessing_game`
-
----猜出这个数来！---
-请输入你猜的数。（ ‘Q/quit’ 退出游戏）
-50
-你猜的数为：50
-太小了！
-请输入你猜的数。（ ‘Q/quit’ 退出游戏）
-75
-你猜的数为：75
-太大了！
-请输入你猜的数。（ ‘Q/quit’ 退出游戏）
-62
-你猜的数为：62
-太大了！
-太小了！
-请输入你猜的数。（ ‘Q/quit’ 退出游戏）
-55
-你猜的数为：55
+猜猜这个数!
+秘密数字是：2
+请输入你的猜数。
+45
+你猜的是: 45
+太大！
+请输入你的猜数。
+1
+你猜的是: 1
+太小！
+请输入你的猜数。
+30
+你猜的是: 30
+太大！
+请输入你的猜数。
+2
+你猜的是: 2
 你赢了！
-
----猜出这个数来！---
-请输入你猜的数。（ ‘Q/quit’ 退出游戏）
+请输入你的猜数。
 quit
-thread 'main' panicked at '请输入一个数字！: ParseIntError { kind: InvalidDigit }', src/main.rs:25:51
+
+thread 'main' (406104) panicked at src/main.rs:21:47:
+请输入一个数字！: ParseIntError { kind: InvalidDigit }
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-输入 `quit` 将退出这个游戏，但咱们会发现，输入任何其他非数字的输入，也会退出游戏。至少可以说，这是次优的；我们希望在猜中正确数字后，这个游戏也会停止。
+输入 `quit` 将退出游戏，但正如咱们将发现的，输入任何其他非数字输入也会这样。至少可以说，这是次优的；我们希望正确数字猜到后游戏也会停止。
 
 
 ### 猜对后的退出
 
-**Quitting After a Correct Guess**
-
-
-我们来通过添加一个 `break` 语句，将这个游戏编程为在用户获胜后退出：
+我们来通过添加一个 `break` 语句，将游戏编程为在用户获胜后退出：
 
 
 文件名：`src/main.rs`
@@ -716,22 +718,19 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
             Ordering::Greater => println! ("太大！"),
             Ordering::Equal => {
                 println! ("你赢了！");
-                break;
-            },
+                break
+            }
         }
     }
 }
 ```
 
-在 `你赢了！` 后面添加 `break` 这行，令到程序在用户猜对秘密数字时，退出那个循环。退出那个循环，也意味着退出这个程序，因为该循环是 `main` 的最后一部分。
+在 `println! ("你赢了！");` 后添加 `break` 行，令到程序在用户正确猜出秘密数字时退出循环。退出这个循环也意味着退出程序，因为该循环是 `main` 的最后部分。
 
 > **译注**：这里有个有趣的地方，`break` 后的分号可有可无，`match` 表达式最后支臂后的逗号，也是可有可无的。
 
 
 ### 处理无效输入
-
-**Handling Invalid Input**
-
 
 为进一步完善游戏行为，我们可以让游戏忽略非数字，这样用户就可以继续猜测，而不是在用户输入非数字时程序崩溃。通过修改 `guess` 从字符串转换为 `u32` 的行，咱们就可以做到这一点，如下清单 2-5 所示。
 
