@@ -1,47 +1,40 @@
 #  数据类型
 
-**Data Types**
+Rust 中的每个值都属于某种特定的 *数据类型，data type*，这会告诉 Rust 正被指定的是何种类别的数据，以便他知道如何处理该数据。我们将研究两个数据类型子集：标量类型及复合类型。
 
-
-Rust 中的每个值，都属于特定的 *数据类型，data type*，这会告诉 Rust，正被指定的是何种数据类型，以便他知道，如何处理这个数据。我们将研究两个数据类型的子集：标量类型和复合类型，scalar and compound。
-
-请记住，Rust 是门 *静态类型，statically typed* 的语言，这意味着在编译时，他必须知道所有变量的类型。编译器通常可以根据值，以及咱们使用值的方式，推断出我们打算使用的类型。在可能存在多种类型的情况下，例如在第 2 章 [“将猜数与秘密数字进行比较”](../Ch02_Programming_a_Guessing_Game.md#将猜数与秘数相比较) 小节中，咱们曾使用 `parse` 将一个 `String` 转换为数字类型时，我们就必须添加一个类型注解，就像下面这样：
+请记住，Rust 属于一门 *静态类型，statically typed* 的语言，这意味着他必须在编译时就知道，所有变量的类型。编译器通常可以根据值及咱们使用值的方式，推断出我们打算使用的类型。在可能有多种类型，比如在第 2 章 [“比较猜数与秘密数”](../Ch02_Programming_a_Guessing_Game.md#比较猜数与秘密数) 小节中，咱们曾使用 `parse` 将 `String` 转换为数字类型时，我们必须添加类型注解，就像下面这样：
 
 
 ```rust
 let guess: u32 = "42".parse().expect("这不是个数字！");
 ```
 
-
-如果我们不添加上面代码中所示的 `: u32` 类型注解，Rust 将显示如下错误，这意味着编译器需要我们提供更多信息，才能知道我们打算使用哪种类型：
+当我们不添加前面代码中所示的 `: u32` 类型注解时，Rust 将显示以下错误，这意味着编译器需要我们提供更多信息，才能知道我们打算使用何种类型：
 
 
 ```console
 $ cargo build
-   Compiling data_types v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\data_types)
-error[E0282]: type annotations needed
- --> src\main.rs:2:9
+   Compiling type_annotation v0.1.0 (/home/hector/rust-lang-zh_CN/projects/type_annotation)
+error[E0284]: type annotations needed
+ --> src/main.rs:2:9
   |
-2 |     let guess = "42".parse().expect("这不是个数字！");
-  |         ^^^^^
+2 |     let guess = "42".parse().expect("Not a number!");
+  |         ^^^^^        ----- type must be known at this point
   |
+  = note: cannot satisfy `<_ as FromStr>::Err == _`
 help: consider giving `guess` an explicit type
   |
-2 |     let guess: /* Type */ = "42".parse().expect("这不是个数字！");
+2 |     let guess: /* Type */ = "42".parse().expect("Not a number!");
   |              ++++++++++++
 
-For more information about this error, try `rustc --explain E0282`.
-error: could not compile `data_types` (bin "data_types") due to previous error
+For more information about this error, try `rustc --explain E0284`.
+error: could not compile `type_annotation` (bin "type_annotation") due to 1 previous error
 ```
 
-
-咱们将看到，其他数据类型的不同类型注解。
+咱们将看到其他数据类型的不同类型注解。
 
 
 ## 标量类型
-
-**Scalar Types**
-
 
 所谓 *标量，scalar* 类型，表示单个值。Rust 有四种主要的标量类型：整数、浮点数、布尔值和字符。咱们可能在其他编程语言中，见过这些类型。我们来了解一下，他们在 Rust 中是如何工作的。
 
