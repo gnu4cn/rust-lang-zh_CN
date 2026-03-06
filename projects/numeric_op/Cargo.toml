@@ -1,5 +1,5 @@
 [package]
-name = "tuple_demo"
+name = "numeric_op"
 version = "0.1.0"
 edition = "2024"
 

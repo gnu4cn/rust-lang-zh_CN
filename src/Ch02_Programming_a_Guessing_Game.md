@@ -592,7 +592,7 @@ error: could not compile `guessing_game` (bin "guessing_game") due to 1 previous
     }
 ```
 
-该行为：
+这一行为：
 
 ```rust
 let guess: u32 = guess.trim().parse().expect("请输入一个数字！");

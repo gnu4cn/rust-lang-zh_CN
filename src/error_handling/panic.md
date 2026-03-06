@@ -1,4 +1,4 @@
-# 使用 `panic!` 的不可恢复错误
+# `panic!` 下的不可恢复错误
 
 **Unrecoverable Errors with `panic!`**
 
