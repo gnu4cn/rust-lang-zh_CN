@@ -81,7 +81,7 @@ x 的值为：5
 x 的值为：6
 ```
 
-在使用 `mut` 后，我们就可以将绑定到 `x` 的值从 `5` 修改为 `6` 了。最终，决定是否要使用可变取决于咱们自己，取决于在特定情形下咱们认为哪种最清楚明了。
+在使用 `mut` 后，我们就可以将绑定到 `x` 的值从 `5` 修改为 `6` 了。最终，决定是否要使用可变取决于咱们自己，取决于咱们认为在特定情形下哪种最清楚明了。
 
 
 ## 声明常量
@@ -141,22 +141,19 @@ x 的值为：6
 下面是个常量声明的示例：
 
 ```rust
-const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;
+    const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;
 ```
 
-这个常量的名字是 `THREE_HOURS_IN_SECONDS`，其值被设置为 60（一分钟的秒数）乘以 60（一小时的分钟数）再乘以 3（本程序中要计算的小时数）的结果。Rust 的常量命名约定，是使用全大写字母，单词之间使用下划线。编译器可以在编译时，计算一个有限的运算集，这让我们可以选择，以一种更容易理解和验证的方式写出这个值，而不是将这个常量设置为值 10,800。有关在声明常量时，可以使用哪些运算的更多信息，请参阅 [Rust 参考手册中，关于常量求值的小节](https://doc.rust-lang.org/reference/const_eval.html)。
+这个常量的名字是 `THREE_HOURS_IN_SECONDS`，其值被设为 60（一分钟的秒数）乘以 60（一小时的分钟数）再乘以 3（这个程序中要计算的小时数）的结果。Rust 的常量命名约定，是要使用全大写字母，单词之间带有下划线。编译器能够在编译时计算一个有限的运算集，这让我们可以选择以一种更容易理解和验证的方式写出这个值，而不是将这个常量设为值 10,800。有关在声明常量时可使用哪些运算的更多信息，请参阅 Rust 参考手册中，[有关常量求值的小节](https://doc.rust-lang.org/reference/const_eval.html)。
 
-常量在程序运行的整个过程中，在其声明的范围内都有效。这一属性使得常量对于程序域中，多个部分可能需要了解的值，例如游戏中允许任何玩家获得的最大点数或光速，会非常有用。
+常量在程序运行的整个时间内，在他们被声明的范围内都有效。这一属性使得常量对于咱们程序域中，程序的多个部分可能需要了解的值非常有用，例如游戏中允许任何玩家获得的最大点数，或光速等。
 
-将整个程序中要用到的一些值，命名为常量，有助于向未来的代码维护者，传达该值的含义。此外，如果将来需要更新硬编码值，只需更改咱们代码中的一处即可。
+给咱们程序整个范围中都要用到的一些硬编码值作为常量命名，有助于向代码的未来维护者传达该值的含义。此外，当硬编码值今后需要更新时，咱们需更修改的只有一处，这也很有帮助。
 
 
 ## 遮蔽
 
-**Shadowing**
-
-
-如同咱们曾在 [第 2 章](../Ch02_Programming_a_Guessing_Game.md#将猜数与秘数相比较) 的猜数游戏教程中，所看到的，咱们可以声明出一个，与先前的某个变量同名的新变量。Rustaceans 会说，第一个变量是被第二个 *遮蔽了，shadowd*，这意味着当你使用这个变量的名字时，编译器将看到的，是第二个变量。实际上，第二个变量覆盖了第一个，将变量名的任何使用，都带到自己身上，直到他自己被遮蔽，或作用域结束。像下面这样，通过使用相同的变量名，和重复使用 `let` 关键字，咱们便可以遮蔽某个变量：
+正如咱们曾在 [第 2 章](../Ch02_Programming_a_Guessing_Game.md#比较猜数与秘密数) 的猜数游戏教程中所看到的，咱们可以声明一个与某个先前变量同名的新变量。Rustaceans 会说，第一个变量是被第二个 *遮蔽了，shadowed*，这意味着当咱们使用这个变量的名字时，编译器将看到的是第二个变量。实际上，第二个变量掩盖了第一个，将这一变量名的任何用途都归为自身，直到他自己被遮蔽或作用域结束。通过使用相同变量的名字，并重复使用 `let` 关键字，咱们便可遮蔽某个变量，如下所示：
 
 
 文件名：`src/main.rs`
@@ -176,71 +173,58 @@ fn main() {
 }
 ```
 
-
-```console
-内部作用域中 x 的值为：12
-x 的值为：6
-```
-
 > 注意：遮蔽特性的使用，不需要 `mut` 关键字。
 
-这个程序首先将 `x`，绑定到 5 的值。然后通过重复 `let x =`，创建出一个新变量 `x`，将原来的值加上 `1`，这样 `x` 的值就是 `6`。然后，在用大括号创建的一个内层作用域中，第三个 `let` 语句也对 `x` 进行了遮蔽处理，并创建了一个新变量，将先前的值乘以 `2`，使 `x` 的值为 `12`。当这个作用域结束时，内部的遮蔽结束，`x` 返回到 `6`。当我们运行这个程序时，他将输出如下内容：
+这个程序首先会绑定 `x` 到一个 5 的值。然后，他通过重复 `let x =` 创建出一个新的变量 `x`，取原先值并加 `1`，因此 `x` 的值为 `6`。然后，在一个以大括号创建的内层作用域中，第三个 `let` 语句同样遮蔽了 `x` 而创建出一个新变量，将先前值乘以 `2` 使 `x` 的值为 `12`。当该作用域结束时，内部的遮蔽就结束了，`x` 回到为 `6`。当我们运行这个程序时，他将输出以下内容：
 
 
 ```console
 $ cargo run
-   Compiling variables v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\variables)
-    Finished dev [unoptimized + debuginfo] target(s) in 1.03s
-     Running `target\debug\variables.exe`
+   Compiling shadowing v0.1.0 (/home/hector/rust-lang-zh_CN/projects/shadowing)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running `target/debug/shadowing`
 内部作用域中 x 的值为：12
 x 的值为：6
 ```
-遮蔽操作不同于将变量构造为 `mut`，因为如果我们不小心在没有使用 `let` 关键字的情况下，将变量重新赋值，咱们就会得到一个编译时报错。而通过使用 `let` 关键字，我们可以对某个值执行一些变换，但在这些变换完成后，该变量将不可变。
+遮蔽不同于将变量构造为 `mut`，因为当我们不小心在没有使用 `let` 关键字下，尝试重新赋值到这个变量时，咱们将得到一个编译时报错，a compile-time error。而通过使用 `let` 关键字，我们可对某个值执行一些变换，而在这些变换完成后，让该变量不可变。
 
-`mut` 与遮蔽的另一个区别是，当我们再次使用 `let` 关键字时，我们实际上是创建了一个新变量，因此我们可以改变该值的类型，而可以重复使用这个同样的名字。例如，假设咱们的程序要求用户，通过输入一些空格字符，来给出他们想要的某些文本之间多少个空格，然后我们打算将这个输入，存储为一个数字：
-
-
-```rust
-let spaces = "    ";
-let spaces = spaces.len();
-```
-
-
-第一个 `spaces` 变量，属于字符串类型，而第二个 `spaces` 变量，则是数字类型。遮蔽就这样，让我们不必使用不同的名称，如 `spaces_str` 与 `spaces_num`；相反，我们可以重复使用这个更简单的 `spaces` 名称。然而，如果我们尝试使用 `mut` 来实现这一点，如下所示，咱们就会收到一个编译时报错：
+`mut` 与遮蔽的另一区别是，由于当我们再次使用 `let` 关键字时，我们实际上创建了个新的变量，因此我们可以改变这个值的类型，却重用了同一名字。例如，假设咱们的程序要求用户通过输入一些空格字符，给出他们想要一些文本间有多少个空格，然后我们打算将该输入存储为数字：
 
 
 ```rust
-let mut spaces = "    ";
-spaces = spaces.len();
+    let spaces = "    ";
+    let spaces = spaces.len();
+```
+
+第一个 `spaces` 变量属于字符串类型，而第二个 `spaces` 变量则是数字类型。遮蔽因此而让我们不必想出不同的名称，比如 `spaces_str` 与 `spaces_num`；相反，我们可以重用这个更简单的 `spaces` 名字。然而，当我们尝试对此使用 `mut`，如下所示，咱们将得到一个编译时报错：
+
+
+```rust
+    let mut spaces = "    ";
+    spaces = spaces.len();
 ```
 
 
-该报错表明，我们不允许改变变量的类型：
+该报错表明，我们未被允许改变变量的类型：
 
 
 ```console
 $ cargo run
-   Compiling variables v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\variables)
+   Compiling shadowing v0.1.0 (/home/hector/rust-lang-zh_CN/projects/shadowing)
 error[E0308]: mismatched types
- --> src\main.rs:3:14
+ --> src/main.rs:3:14
   |
 2 |     let mut spaces = "    ";
   |                      ------ expected due to this value
 3 |     spaces = spaces.len();
   |              ^^^^^^^^^^^^ expected `&str`, found `usize`
-  |
-help: try removing the method call
-  |
-3 -     spaces = spaces.len();
-3 +     spaces = spaces;
-  |
 
 For more information about this error, try `rustc --explain E0308`.
-error: could not compile `variables` (bin "variables") due to previous error
+error: could not compile `shadowing` (bin "shadowing") due to 1 previous error
 ```
 
 
-现在我们已经探讨了变量的工作原理，我们来看看，他们可以拥有的更多数据类型。
+现在我们已经探讨了变量的工作原理，我们来看看他们可以有的更多数据类型。
 
 
 （End）
