@@ -1,6 +1,4 @@
-# 将代码箱发布到 Crates.io
-
-**Publishing a Crate to Crates.io**
+# 发布代码箱到 Crates.io
 
 咱们已将 [crates.io](https://crates.io) 上的一些包，用作了咱们项目的依赖，而通过发布自己的包，咱们还可以与其他人分享咱们自己的代码。位于 [crates.io](https://crates.io) 网站的代码箱登记，会分发咱们包的源码，因此其主要保存开放源码的代码。
 
@@ -8,9 +6,6 @@ Rust 与 Cargo，均有着令到咱们所发布的包，易于为他人找到并
 
 
 ## 制作有用的文档注释
-
-**Making Useful Documentation Comments**
-
 
 准确地为咱们的包编写文档，将帮助到其他使用者获悉怎样及何时来使用他们，因此投入时间来编写文档是值得的。第 3 章中，咱们曾讨论过如何使用双斜杠 `//`来注释 Rust 代码。Rust 还有用于文档的一种将生成 HTML 文档的特殊注释，而被方便地称作 *文档注释，documentation comment*。这些 HTML 会显示出公开 API 项目的文档注释内容，这些内容是为对了解怎样 *使用，use* 咱们的代码箱，而非咱们代码箱如何实现感兴趣的程序员所准备的。
 
