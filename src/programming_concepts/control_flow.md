@@ -152,7 +152,7 @@ $ cargo run
 
 ### 在 `let` 语句中使用 `if`
 
-因为 `if` 属于表达式，所以我们可以在 `let` 语句的右侧使用他，将结果赋值给某个变量，如下清单 3-2 所示。
+因为 `if` 属于表达式，所以我们可以在 `let` 语句的右侧使用他，将结果赋值给某个变量，如下清单 3-2 中那样。
 
 
 <a name="listing_3-2"></a>
@@ -222,19 +222,16 @@ error: could not compile `branches` (bin "branches") due to 1 previous error
 
 ## 循环下的重复
 
-多次执行某个代码块，通常很有用。为此，Rust 提供了数种 *循环，loops*，他们会将循环体内的代码，执行到底，然后立即从头开始。为实验循环，咱们来创建一个名为 `loops` 的新项目。
+多次执行某个代码块通常很有用。出于这一任务，Rust 提供了数种 *循环，loops*，他们运行循环体内的代码直到结束，然后立即从头开始。为实验循环，咱们来构造一个名为 `loops` 的新项目。
 
-Rust 有着三种循环：`loop`、`while` 及 `for`。咱们来一一尝试。
-
-
-### 使用 `loop` 关键字重复代码
-
-**Repeating Code with `loop`**
+Rust 有着三种循环类别：`loop`、`while` 及 `for`。咱们来一一尝试。
 
 
-`loop` 这个关键字，告诉 Rust 一直一遍又一遍地执行某个代码块，直到咱们明确告诉他停止为止。
+### 以 `loop` 关键字重复代码
 
-作为一个示例，请将咱们 `loops` 目录中的 `src/main.rs` 文件，修改为下面这样：
+`loop` 关键字会告诉 Rust 一遍又一遍地执行某个代码块，要么永远执行，要么直到咱们明确告诉他停止为止。
+
+作为一个示例，修改咱们 `loops` 目录中的 `src/main.rs` 文件为下面这样：
 
 
 文件名：`src/main.rs`
@@ -248,11 +245,12 @@ fn main() {
 ```
 
 
-当我们运行这个程序时，我们会看到 `again!` 不断重复打印出来，直到我们手动停止这个程序为止。大多数终端，都支持用于中断某个陷入连续循环程序的键盘快捷键 `ctrl-c`。来试试看吧：
+当我们运行这个程序时，我们将看到 `again!` 被不断打印，直到我们手动停止程序为止。大多数终端都支持 `crtl-C` 中断某个陷入连续循环程序。尝试一下：
 
 
 ```console
 $ cargo run
+   Compiling branches v0.1.0 (/home/hector/rust-lang-zh_CN/projects/loops)
    Compiling loops v0.1.0 (file:///projects/loops)
     Finished dev [unoptimized + debuginfo] target(s) in 0.29s
      Running `target/debug/loops`
@@ -264,30 +262,30 @@ again!
 ^C
 ```
 
-其中的符号 `^C`，表示咱们按下 `ctrl-c` 的位置。在 `^C` 之后可能会打印出 `again!` 字样，也可能不会，这取决于代码收到中断信号时，在循环中的位置。
+其中符号 `^C` 代表咱们按下 `ctrl-C` 的位置。
+
+咱们可能会也可能不会在 `^C` 之后看到 `again!` 打印出来，取决于代码收到中断信号时其在循环中的位置。
 
 > **译注**：在 Windows 平台上运行 MSYS2 的环境下，按下 `ctrl-c` 的输出如下所示：
-
-```console
-again!
-again!
-again!
-again!
-again!
-again!
-error: process didn't exit successfully: `target\debug\loops.exe` (exit code: 0xc000013a, STATUS_CONTROL_C_EXIT)
-
-```
-
-
-幸运的是，Rust 还提供了一种使用代码跳出循环的方法。咱们可以在循环中，加入 `break` 关键字，告诉程序何时停止执行该循环。回想一下，我们在第 2 章 [猜对后退出](../Ch02_Programming_a_Guessing_Game.md#猜对后的退出) 小节的猜数游戏中，就是这样做的，当用户猜对数字赢得游戏时，退出那个程序。
-
-在那个猜数游戏中，我们还使用了 `continue`，在某个循环中，这会告诉程序，跳过该循环的本次迭代中的任何剩余代码，而前往下一迭代。
+>
+> ```console
+> again!
+> again!
+> again!
+> again!
+> again!
+> again!
+> error: process didn't exit successfully: `target\debug\loops.exe` (exit code: 0xc000013a, STATUS_CONTROL_C_EXIT)
+>
+> ```
 
 
-## 自循环返回值
+幸运的是，Rust 也提供了使用代码跳出循环的方法。咱们可放置 `break` 关键字在循环中，告诉程序何时停止执行循环。回想一下，我们在第 2 章 的 [猜对后退出](../Ch02_Programming_a_Guessing_Game.md#猜对后的退出) 小节的猜数游戏中的猜数游戏中就这样做了，当用户猜对数字赢得游戏时退出程序。
 
-**Returning Values from Loops**
+在猜数游戏中我们还使用了 `continue`，其在循环中会告诉程序，跳过循环的本次迭代中任何剩余代码，而前往下一次迭代。
+
+
+## 从循环返回值
 
 
 `loop` 的用途之一，是重试咱们已知可能会失败的某项操作，例如检查某个线程是否已完成其作业。咱们可能还需要将该操作的结果，从循环中传递给咱们代码的其余部分。为此，咱们可以将这个咱们打算返回的值，添加在咱们用于停止循环的 `break` 表达式之后；该值将从循环中返回，以便咱们使用，如下所示：
