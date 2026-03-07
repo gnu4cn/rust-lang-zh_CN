@@ -6,7 +6,7 @@
 *原作者：Steve Klabnik，Carol Nichols 与 Chris Krycho, 在来自 Rust 社区的贡献下*
 
 
-此版本的教材，假定咱们正使用 Rust `1.90.0` （发布于 2025-09-18）或更新版本，在所有项目的 `Cargo.toml` 文件中的 `edtion = "2024"` 下，以将这些项目配置为使用 Rust 2024 版本的习语。请参阅 [第 1 章的 “安装” 小节](Ch01_Getting_Started.md#安装) 进行安装，或升级 Rust，并参阅 [附录 E](appendix/editions.md) 了解有关版本的信息。
+此版本的教材，假定咱们正使用 Rust `1.90.0` （发布于 2025-09-18）或更新版本，在所有项目的 `Cargo.toml` 文件中的 `edtion = "2024"` 下，以将这些项目配置为使用 Rust 2024 版本的习语。请参阅 [第 1 章的 “安装” 小节](Ch01_Getting_Started.md#安装) 进行安装或升级 Rust，并参阅 [附录 E](appendix/editions.md) 了解有关版本的信息。
 
 ```console
 $ rustc --version
@@ -46,7 +46,7 @@ Rust 编程语言在短短几年间取得了长足发展，从由一小群初生
 
 Rust 之旅始终伴随着协作、学习与迭代。这门语言及其生态系统的成长，正是背后充满活力、多元包容社区的真实写照。从核心语言设计师，到普通贡献者，数千名开发者的共同努力，造就了 Rust 这般独特而强大的工具。拿起这本书，咱们不仅是在学习一门新语言，更是在加入一场运动 —— 让软件更卓越、更安全、更令人愉悦。
 
-欢迎加入Rust社区！
+欢迎加入 Rust 社区！
 
 -- *Bec Rumbul，Rust 基金会执行董事*
 
@@ -66,10 +66,10 @@ Rust 之旅始终伴随着协作、学习与迭代。这门语言及其生态系
 Rust还为系统编程领域带来了当代开发者工具：
 
 - Cargo，Rust 所包含的依赖管理器与构建工具，使添加、编译和管理依赖变得简单，并在整个 Rust 生态系统中保持一致；
-- Rustfmt 格式化工具确保了不同的开发人员有一致的编码风格。
+- Rustfmt 格式化工具确保了不同的开发人员有一致的编码风格；
 - Rust 语言服务器支持集成开发环境(IDE)集成，以实现代码补全和内联错误信息。
 
-通过使用这些工具和Rust生态系统中的其他工具，开发人员可以在编写系统级代码时提高工作效率。
+通过使用这些工具和 Rust 生态系统中的其他工具，开发人员可以在编写系统级代码时提高工作效率。
 
 
 ### 学生
@@ -105,23 +105,24 @@ Rust 语言希望也能支持许多其他用户；这里提到的只是一些最
 
 在本书中，咱们会发现有两种章节：概念章节和项目章节。在概念章节中，咱们将学习 Rust 的某个方面。在项目章节中，咱们将一起构建小程序，应用咱们到目前为止所学到的知识。第 2 章、第 12 章和第 20 章是项目章节；其余的是概念章节。
 
-第 1 章介绍了如何安装 Rust，如何编写 "Hello, world!" 程序，以及如何使用 Rust 的包管理器和构建工具 Cargo。第 2 章是用 Rust 编写程序的实践介绍，让咱们构建出一个数字猜谜游戏。这里咱们从高层次上介绍了一些概念，后面的章节将提供更多的细节。如果咱们想马上动手，第 2 章就是这样的地方。第 3 章介绍了与其他编程语言类似的 Rust 特性，在第 4 章中咱们将了解 Rust 的所有权系统。如果你是一个特别细致的学习者，喜欢在学习每一个细节后再继续学习，你可能想跳过第 2 章，直接学习第 3 章，当你想在一个项目中应用你学到的细节时，再回到第 2 章。
+[第 1 章](./Ch01_Getting_Started.md) 介绍了如何安装 Rust，如何编写 "Hello, world!" 程序，以及如何使用 Rust 的包管理器和构建工具 Cargo。[第 2 章](./Ch02_Programming_a_Guessing_Game.md) 是用 Rust 编写程序的实践介绍，让咱们构建出一个数字猜谜游戏。这里咱们从高层次上介绍了一些概念，后面的章节将提供更多的细节。如果咱们想马上动手，第 2 章就是这样的地方。[第 3 章](./Ch03_Common_Programming_Concepts.md) 介绍了与其他编程语言类似的 Rust 特性，在 [第 4 章](./Ch04_Understanding_Ownership.md) 中咱们将了解 Rust 的所有权系统。如果你是一个特别细致的学习者，喜欢在学习每一个细节后再继续学习，你可能想跳过第 2 章，直接学习第 3 章，当你想在一个项目中应用你学到的细节时，再回到第 2 章。
 
-第 5 章讨论了结构和方法，第 6 章包括枚举、`match` 表达式和 `if let` 控制流结构。咱们将使用结构体和枚举来构造 Rust 中的自定义类型。
+[第 5 章](./Ch05_Using_Structs_to_Structure_Related_Data.md) 讨论了结构和方法，[第 6 章](./Ch06_Enums_and_Pattern_Matching.md) 包括枚举、`match` 表达式和 `if let` 控制流结构。咱们将使用结构体和枚举来构造 Rust 中的自定义类型。
 
-在第 7 章中，咱们将了解 Rust 的模组系统，以及组织代码的隐私规则及其公共应用编程接口，Application Programming Interface, API。第 8 章讨论了标准库提供的一些常见的集合数据结构，如向量、字符串和哈希图。第 9 章探讨了 Rust 的错误处理的概念和技巧。
+在 [第 7 章](./Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md) 中，咱们将了解 Rust 的模组系统，以及组织代码的隐私规则及其公共应用编程接口，Application Programming Interface, API。[第 8 章](./Ch08_Common_Collections.md) 讨论了标准库提供的一些常见的集合数据结构，如向量、字符串和哈希图。[第 9 章](./Ch09_Error_Handling.md) 探讨了 Rust 的错误处理的概念和技巧。
 
-第 10 章深入探讨了泛型、特性和生命期，他们让咱们有能力定义出适用于多种类型的代码。第 11 章是关于测试的，即便有 Rust 的安全保证，为确保咱们程序逻辑正确，测试仍是必要不可缺少的。在第 12 章中，我们将对 `grep` 命令行工具中的一个子集的功能建立自己的实现，他可以在文件中搜索文本。为此，我们将使用我们在前几章中讨论的许多概念。
+[第 10 章](./Ch10_Generic_Types_Traits_and_Lifetimes.md) 深入探讨了泛型、特性和生命期，他们让咱们有能力定义出适用于多种类型的代码。[第 11 章](./Ch11_Writing_Automated_Tests.md) 是关于测试的，即便有 Rust 的安全保证，为确保咱们程序逻辑正确，测试仍是必要不可缺少的。在 [第 12 章](./Ch12_An_IO_Project_Building_a_Command_Line_Program.md) 中，我们将对 `grep` 命令行工具中的一个子集的功能建立自己的实现，他可以在文件中搜索文本。为此，我们将使用我们在前几章中讨论的许多概念。
 
-第 13 章探讨了闭包和迭代器：来自于函数式编程语言的 Rust 特性。在第 14 章中，我们将更深入地研究 Cargo，并讲到与他人共享库的最佳实践。第 15 章讨论了标准库提供的灵巧指针和实现其功能的特质。
+[第 13 章](./Ch13_Functional_Language_Features_Iterators_and_Closures.md) 探讨了闭包和迭代器：来自于函数式编程语言的 Rust 特性。在 [第 14 章](./Ch14_More_about_Cargo_and_Crates-io.md) 中，我们将更深入地研究 Cargo，并讲到与他人共享库的最佳实践。[第 15 章](./Ch15_Smart_Pointers.md) 讨论了标准库提供的灵巧指针和实现其功能的特质。
 
-第 16 章，咱们将过目不同的并发编程模型，并探讨 Rust 如何帮助咱们大胆地以多线程方式编程。第 17 章着眼于 Rust 习语如何与您可能熟悉的面向对象编程原则进行比较。
+[第 16 章](./Ch16_Fearless_Concurrency.md)，咱们将过目不同的并发编程模型，并探讨 Rust 如何帮助咱们大胆地以多线程方式编程。在 [第 17 章](./Ch16_1_async_programming.md) 中，我们在此基础上探讨 Rust 的 `async` 与 `await` 语法，以及任务、未来值与流，以及他们所实现的轻量级并发模型。
 
-第 18 章是关于模式和模式匹配的参考，他们是在整个 Rust 程序中表达思想的强大方式。第 19 章包含大量有趣的高级主题，包括不安全的 Rust、宏，以及更多关于生命周期、特征、类型、函数和闭包的内容。
 
-第 20 章，咱们将完成其中实现了底层线程化的 web 服务器！
+[第 18 章](./Ch17_Object_Oriented_Programming_Features_of_Rust.md) 着眼于 Rust 习语如何与咱们可能熟悉的面向对象编程原则进行比较。[第 19 章](./Ch18_Patterns_and_Matching.md) 是关于模式和模式匹配的参考，他们是在整个 Rust 程序中表达思想的强大方式。[第 20 章](./Ch19_Advanced_Features.md) 包含大量有趣的高级主题，包括不安全的 Rust、宏，以及更多关于生命周期、特征、类型、函数和闭包的内容。
 
-最后，一些附录以更类似于参考的格式包含有关该语言的有用信息。附录 A 涵盖了 Rust 的关键字，附录 B 涵盖了 Rust 的运算符和符号，附录 C 涵盖了标准库提供的可派生特质，附录 D 涵盖了一些有用的开发工具，附录 E 解释了 Rust 版本。在附录 F 中，你可以找到这本书的翻译，在附录 G 中，我们将介绍 Rust 是如何构造的以及什么是每日 Rust, nightly Rust。
+在 [第 21 章](./Ch20_Final_Project_Building_a_Multithreaded_Web_Server.md)，咱们将完成其中实现了底层线程化 web 服务器的一个项目！
+
+最后，一些附录以更类似于参考的格式，包含有关这门语言的有用信息。[附录 A](./appendix/keywords.md) 涵盖了 Rust 的关键字，[附录 B](./appendix/ops_and_symbols.md) 涵盖了 Rust 的运算符和符号，[附录 C](./appendix/derivable_traits.md) 涵盖了标准库提供的可派生特质，[附录 D](./appendix/dev_tools.md) 涵盖了一些有用的开发工具，[附录 E](./appendix/editions.md) 解释了 Rust 版本。在 [附录 F](./appendix/translations.md) 中，你可以找到这本书的翻译，在 [附录 G](./appendix/releases.md) 中，我们将介绍 Rust 是如何构造的以及什么是每日 Rust, nightly Rust。
 
 阅读本书并无定法：你要跳着去读，也是可以的！在遇到疑惑时，或许就不得不跳回去看看了。你只要怎么有效就行了。
 
@@ -131,9 +132,5 @@ Rust 语言希望也能支持许多其他用户；这里提到的只是一些最
 
 ## 本书的源码
 
-本书所产生的源码，可在 [Github: gnu4cn/rust-lang](https://github.com/gnu4cn/rust-lang-zh_CN/releases/tag/v0.2.0) 下载到。
-
-
-（End）
-
+本书所产生的源码，可在 [Github: gnu4cn/rust-lang](https://github.com/gnu4cn/rust-lang-zh_CN/projects) 下载到。
 
