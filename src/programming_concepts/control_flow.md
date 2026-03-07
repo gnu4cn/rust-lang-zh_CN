@@ -1,19 +1,14 @@
 # 控制流
 
-**Control Flow**
 
-
-根据某个条件是否为 `true` 来运行某些代码，以及在某个条件为 `true` 时重复运行某些代码的能力，是大多数编程语言的基本构件。让咱们控制 Rust 代码执行流程的最常用结构，是 `if` 表达式及循环。
+根据某个条件是否为 `true` 运行某些代码，及在某个条件为 `true` 时重复运行某些代码的能力，是大多数编程语言中的基本构件。允许咱们控制 Rust 代码执行流程的最常见结构，为 `if` 表达式和循环。
 
 
 ## `if` 表达式
 
-**`if` Expressions**
+`if` 表达式允许咱们根据条件分支咱们的代码。咱们提供某个条件，然后声明：“当这一条件满足，则运行这个代码块。当该条件不满足，则不运行这个代码块"。
 
-
-`if` 表达式允许咱们，根据条件分支代码。咱们提供某个条件，然后声明：“如果此条件满足，则运行这个代码块。如果该条件不满足，则不运行此代码块"。
-
-请在咱们 `projects` 目录下，创建一个名为 `branches` 的新项目，来探索这个 `if` 表达式。在其中的 `src/main.rs` 文件中，输入以下内容：
+请在咱们的 `projects` 目录下创建一个名为 `branches` 的新项目来探讨 `if` 表达式。在 `src/main.rs` 文件中，输入以下内容：
 
 
 文件名：`src/main.rs`
@@ -31,24 +26,21 @@ fn main() {
 ```
 
 
-所有 `if` 表达式，都以关键字 `if` 开头，后跟某个条件。在本例中，那个条件检查了变量 `number` 是否有着小于 `5` 的值。我们将在该条件为真时，要执行的代码块，放在紧接着该条件之后，于一对花括号内。与 `if` 表达式中这个条件相关的代码块，有时被称为 *支臂，arms*，就像我们在第 2 章 [“将猜数与秘密数字进行比较”](../Ch02_Programming_a_Guessing_Game.md#将猜数与秘数相比较) 小节中，曾讨论过的 `match` 表达式中的支臂一样。
+所有 `if` 表达式都以关键字 `if` 开头，后跟某个条件。在本例中，条件会检查 `number` 这个是否有着小于 `5` 的值。我们把在该条件为 `true` 时要执行的代码块，在紧接着该条件之后，放在一对花括号内。与 `if` 表达式中条件相关的代码块，有时被称为 *支臂，arms*，就像我们在第 2 章的 [“比较猜数与秘密数”](../Ch02_Programming_a_Guessing_Game.md#比较猜数与秘密数) 小节中，曾讨论过的 `match` 表达式中的支臂一样。
 
-此外，我们还可以保护一个 `else` 表达式，我们在这里就选择了这样做，以便在那个条件计算为 `false` 时，为程序提供另一个要执行的代码块。如果我们不提供一个 `else` 表达式，而那个条件为 `false` 时，程序就将跳过这个 `if` 代码块，继续执行下一段代码。
+可选地，我们还可以包含一个 `else` 表达式，这里我们就选择了这样做，以便在条件计算为 `false` 时为程序提供一个要执行的替代代码块。当我们不提供 `else` 表达式而条件为 `false` 时，程序将跳过这个 `if` 代码块并继续到下一段代码。
 
 请尝试运行这段代码；咱们应看到以下输出：
 
-
 ```console
 $ cargo run
-   Compiling branches v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\branches)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.86s
-     Running `target\debug\branches.exe`
+   Compiling branches v0.1.0 (/home/hector/rust-lang-zh_CN/projects/branches)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running `target/debug/branches`
 条件为真
 ```
 
-
-我们来试着将 `number` 的值，更改为使这个条件为 `false` 的值，看看会发生什么：
-
+我们来尝试将 `number` 的值修改为使该条件为 `false` 的值，看看会发生什么：
 
 ```rust
     let number = 7;
@@ -60,14 +52,13 @@ $ cargo run
 
 ```console
 $ cargo run
-   Compiling branches v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\branches)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.76s
-     Running `target\debug\branches.exe`
+   Compiling branches v0.1.0 (/home/hector/rust-lang-zh_CN/projects/branches)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/debug/branches`
 条件为假
 ```
 
-
-还值得注意的是，这段代码中的那个条件，*必须* 要是个 `bool`。如果该条件不是个 `bool`，我们就将得到一个报错。例如，请尝试运行以下代码：
+还值得注意的是，这段代码中的条件 *必须* 要个 `bool` 值。当条件不是个 `bool` 值时，我们将得到一个报错。例如，请尝试运行以下代码：
 
 
 文件名：`src/main.rs`
@@ -83,24 +74,24 @@ fn main() {
 ```
 
 
-这次那个 `if` 的条件，计算为一个 `3` 的值，Rust 就会抛出一个错误：
+这次 `if` 条件会计算为一个 `3` 的值，Rust 就会抛出一个错误：
 
 
 ```console
 $ cargo run
-   Compiling branches v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\branches)
+   Compiling branches v0.1.0 (/home/hector/rust-lang-zh_CN/projects/branches)
 error[E0308]: mismatched types
- --> src\main.rs:4:8
+ --> src/main.rs:4:8
   |
 4 |     if number {
   |        ^^^^^^ expected `bool`, found integer
 
 For more information about this error, try `rustc --explain E0308`.
-error: could not compile `branches` (bin "branches") due to previous error
+error: could not compile `branches` (bin "branches") due to 1 previous error
 ```
 
 
-该错误表明，Rust 期望得到一个 `bool`，但得到的却是个整数。与 Ruby 和 JavaScript 等语言不同，Rust 不会自动尝试将非布尔类型，转换为布尔类型。咱们必须显式的，并始终提供一个布尔值给 `if` 作为其条件。例如，如果我们希望 `if` 的代码块，仅在某个数字不等于 `0` 时运行，我们可以将这个 `if` 表达式，改为下面这样：
+这个错误指出，Rust 期望的是一个 `bool` 值却得到了个整数。与诸如 Ruby 及 JavaScript 等语言不同，Rust 将不会自动尝试转换非布尔类型为布尔类型。咱们必须显式并始终提供布尔值给 `if` 作为其条件。例如，若我们希望 `if` 的代码块仅在某个数字不等于 `0` 时运行，那么我们可将这个 `if` 表达式改为以下这个：
 
 
 文件名：`src/main.rs`
@@ -115,15 +106,13 @@ fn main() {
 }
 ```
 
-运行此代码，就会打印出 `数字为非零数`。
+运行此代码将打印 `数字为非零数`。
 
 
-### 使用 `else if` 处理多重条件
-
-**Handling Multiple Conditions with `else if`**
+### 以 `else if` 处理多重条件
 
 
-通过在 `else if` 表达式中，组合 `if` 和 `else`，咱们可以使用多重条件。例如：
+咱们可通过在 `else if` 表达式中组合 `if` 和 `else` 使用多重条件。例如：
 
 
 文件名：`src/main.rs`
@@ -144,31 +133,29 @@ fn main() {
 }
 ```
 
-该程序有四条其可采取的可能路径。运行该程序后，咱们将看到以下的输出：
+这个程序有四条其可能采取的可能路径。运行该程序后，咱们应看到以下输出：
 
 
 ```console
 $ cargo run
-   Compiling branches v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\branches)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.69s
-     Running `target\debug\branches.exe`
+   Compiling branches v0.1.0 (/home/hector/rust-lang-zh_CN/projects/branches)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/debug/branches`
 数字可被 3 整除
 ```
 
 
-当该程序执行时，他会依次检查每个 `if` 表达式，并执行条件求值为 `true` 的第一个主体。请注意，虽然 `6` 能被 `2` 整除，但我们并没有看到输出 `数字可被 2 整除`，也没有看到 `else` 代码块中的 `数字不可被 4、3 或 2 整除` 的文本。这是因为 Rust 只会执行第一个 `true` 的条件的代码块，且他一旦找到一个，就不会再检查其余条件。
+在这个程序执行时，他会依次检查每个 `if` 表达式，并执行第一个求值为 `true` 的条件的主体。请注意，尽管 `6` 能被 `2` 整除，但我们没有看到输出 `数字可被 2 整除`，也没有看到 `else` 代码块中的 `数字不可被 4、3 或 2 整除` 文本。这是因为 Rust 只会执行第一个 `true` 条件的代码块，且他一旦找到一个，就不会检查其余条件。
 
-使用过多 `else if` 表达式，会使咱们的代码变得杂乱无章，因此如果咱们有着超过了一个的 `else if` 表达式，咱们可能就需要重构咱们的代码了。第 6 章介绍了一种名为 `match` 的，用于这类情形的强大的 Rust 分支结构。
+使用过多 `else if` 表达式会使咱们的代码变得杂乱无章，因此当咱们有着多于一个的 `else if` 表达式时，咱们可能需要重构咱们的代码。第 6 章介绍了一种针对这些情况的，[名为 `match` 的强大 Rust 分支结构](../enums_and_pattern_matching/match_control_flow.md)。
 
 
 ### 在 `let` 语句中使用 `if`
 
-**Using `if` in a `let` Statement**
+因为 `if` 属于表达式，所以我们可以在 `let` 语句的右侧使用他，将结果赋值给某个变量，如下清单 3-2 所示。
 
 
-因为 `if` 是个表达式，所以我们可以在 `let` 语句的右侧使用他，将结果赋值给某个变量，如下清单 3-2 所示。
-
-
+<a name="listing_3-2"></a>
 文件名：`src/main.rs`
 
 
@@ -181,22 +168,22 @@ fn main() {
 }
 ```
 
-*清单 3-2：将一个 `if` 表达式的结果赋值被某个变量*
+*清单 3-2：将 `if` 表达式的结果赋值给变量*
 
 
-其中的 `number` 变量，将根据那个 `if` 表达式的结果，被绑定到某个值。请运行这段代码，看看会发生什么：
+其中的 `number` 变量将根据 `if` 表达式的结果绑定到某个值。请运行这段代码，看看会发生什么：
 
 
 ```console
 $ cargo run
-   Compiling branches v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\branches)
-    Finished dev [unoptimized + debuginfo] target(s) in 1.02s
-     Running `target\debug\branches.exe`
+   Compiling branches v0.1.0 (/home/hector/rust-lang-zh_CN/projects/branches)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/debug/branches`
 number 的值为：5
 ```
 
 
-请记住，代码块会求值为其中的最后一个表达式，而数字本身也是表达式。在这种情况下，整个的 `if` 表达式的值，取决于哪个代码块会执行。这意味着有可能成为 `if` 的各个支臂结果的值，必定会是同一类型；在清单 3-2 中，`if` 支臂和 `else` 支臂的结果，就都是 `i32` 整数。而如同下面的示例中，在类型不匹配时，我们将得到一个报错：
+请记住，代码块会求值为其中的最后一个表达式，而数字本身也属于表达式。在这种情况下，整个的 `if` 表达式的值就取决于哪个代码块会执行。这意味着有可能成为 `if` 表达式各个支臂结果的值，必须属于同一类型；在清单 3-2 中，`if` 支臂和 `else` 支臂的结果都是 `i32` 的整数。当类型不匹配，如以下示例中那样，我们将得到一个报错：
 
 
 文件名：`src/main.rs`
@@ -211,14 +198,14 @@ fn main() {
 ```
 
 
-当我们尝试编译这段代码时，我们将得到一个报错。`if` 和 `else` 支臂，有着不兼容的值类型，而 Rust 则准确地指出了，在程序中何处找到的这个问题：
+当我们尝试编译这段代码时，我们将得到一个报错。`if` 和 `else` 支臂有着不兼容的值类型，Rust 准确地指出了在这个程序中何处发现这个问题：
 
 
 ```console
 $ cargo run
-   Compiling branches v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\branches)
+   Compiling branches v0.1.0 (/home/hector/rust-lang-zh_CN/projects/branches)
 error[E0308]: `if` and `else` have incompatible types
- --> src\main.rs:3:44
+ --> src/main.rs:3:44
   |
 3 |     let number = if condition { 5 } else { "six" };
   |                                 -          ^^^^^ expected integer, found `&str`
@@ -226,17 +213,14 @@ error[E0308]: `if` and `else` have incompatible types
   |                                 expected because of this
 
 For more information about this error, try `rustc --explain E0308`.
-error: could not compile `branches` (bin "branches") due to previous error
+error: could not compile `branches` (bin "branches") due to 1 previous error
 ```
 
 
-那个 `if` 代码块中的表达式，会求值为一个整数，而那个 `else` 代码块中的表达式，则会求值为一个字符串。这行不通，因为变量必定有着单个的类型，而 Rust 需要在编译时，明确知道 `number` 这个变量为何种类型。知道了 `number` 的类型，编译器就能在咱们使用 `number` 的任何地方，验证其类型是否有效。如果 `number` 的类型只有在运行时才确定，那么 Rust 就无法做到这一点；如果编译器必须跟踪任何变量的多种假设类型，那么编译器就会变得更加复杂，对代码的保证也会减少。
+其中 `if` 代码块中的表达式会求值为一个整数，而 `else` 代码块中的表达式会求值为一个字符串。这行不通，因为变量都必须有着单一类型，而 Rust 需要在编译时明确知道 `number` 这个变量为何种类型。了解 `number` 的类型，会让编译器在咱们使用 `number` 的任何地方，都检查该类型是否有效。当 `number` 的类型只有在运行时才确定出来时，那么 Rust 将不能够做到这点；当编译器必须跟踪任何变量的多种假设类型时，那么编译器就会变得更加复杂，并对代码的保证也会减少。
 
 
-## 使用循环的重复
-
-**Repetition with Loops**
-
+## 循环下的重复
 
 多次执行某个代码块，通常很有用。为此，Rust 提供了数种 *循环，loops*，他们会将循环体内的代码，执行到底，然后立即从头开始。为实验循环，咱们来创建一个名为 `loops` 的新项目。
 
