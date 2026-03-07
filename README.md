@@ -65,8 +65,8 @@ Rust 之旅始终伴随着协作、学习与迭代。这门语言及其生态系
 
 Rust还为系统编程领域带来了当代开发者工具：
 
-- Cargo，Rust 所包含的依赖管理器与构建工具，使添加、编译和管理依赖变得简单，并在整个Rust生态系统中保持一致，Cargo, the included dependency manager and build tool, makes adding, compiling, and managing dependecies painless and consistant across the Rust ecosystem；
-- Rustfmt格式化工具确保了不同的开发人员有一致的编码风格。
+- Cargo，Rust 所包含的依赖管理器与构建工具，使添加、编译和管理依赖变得简单，并在整个 Rust 生态系统中保持一致；
+- Rustfmt 格式化工具确保了不同的开发人员有一致的编码风格。
 - Rust 语言服务器支持集成开发环境(IDE)集成，以实现代码补全和内联错误信息。
 
 通过使用这些工具和Rust生态系统中的其他工具，开发人员可以在编写系统级代码时提高工作效率。
