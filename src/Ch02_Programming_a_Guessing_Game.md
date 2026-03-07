@@ -100,7 +100,7 @@ fn main() {
 }
 ```
 
-<a name="#list-2-1"></a>
+<a name="#listing_2-1"></a>
 *清单 2-1，从用户处获取一个猜数并将其打印出来的代码*
 
 这段代码包含了大量信息，所以我们来逐行查看。要获取用户输入，然后将结果作为输出打印，我们就需要将 `io` 这个输入/输出库，带入作用域。`io` 库来自标准库，称为 `std`：
@@ -360,7 +360,7 @@ remote: Total 1043606 (delta 693593), reused 848030 (delta 620187), pack-reused 
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 9m 51s
 ```
 
-<a name="#list-2-2"></a>
+<a name="#listing_2-2"></a>
 *清单 2-2：在添加 `rand` 代码箱作为依赖项添加后，运行 `cargo build` 的输出**
 
 > **译注**：这里译者使用了国内的 `ustc` Cargo 登记簿镜像。
@@ -455,7 +455,7 @@ fn main() {
 }
 ```
 
-<a name="#list-2-3"></a>
+<a name="#listing_2-3"></a>
 *清单 2-3：添加生成随机数的代码*
 
 
@@ -521,7 +521,7 @@ fn main() {
     }
 }
 ```
-<a name="#list-2-4"></a>
+<a name="#listing_2-4"></a>
 *清单 2-4：处理比较两个数字可能的返回值*
 
 
@@ -756,7 +756,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
         // --跳过--
 ```
 
-<a name="list-2-5"></a>
+<a name="listing_2-5"></a>
 *清单 2-5：忽略非数字的猜数并请求另一猜数，而不是让崩溃程序*
 
 
@@ -829,7 +829,7 @@ fn main() {
 }
 ```
 
-<a name="#list-2-6"></a>
+<a name="#listing_2-6"></a>
 *清单 2-6：完整的猜数游戏代码*
 
 
