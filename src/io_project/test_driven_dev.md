@@ -160,7 +160,7 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
 
 *清单 12-17：遍历 `contents` 中的各行*
 
-`lines` 方法会返回一个迭代器。我们将在 [第 13 章](../functional_features/iterators.md) 中，详细讨论迭代器，但请回想一下，咱们在 [清单 3-5](../programming_concepts/control_flow.md#listing-3-5)  中就已见过这种使用迭代器的方法，当时我们与迭代器一起使用了 `for` 循环，对集合中的各个元素执行一些代码。
+`lines` 方法会返回一个迭代器。我们将在 [第 13 章](../functional_features/iterators.md) 中，详细讨论迭代器，但请回想一下，咱们在 [清单 3-5](../programming_concepts/control_flow.md#listing_3-5)  中就已见过这种使用迭代器的方法，当时我们与迭代器一起使用了 `for` 循环，对集合中的各个元素执行一些代码。
 
 
 ### 在各行中检索查询字符串
