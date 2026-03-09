@@ -35,6 +35,7 @@ $ cd hello_cargo
 在咱们所选的文本编辑器中，打开 `Cargo.toml`。他应该类似于清单 1-2 中的代码。
 
 
+<a name="listing_1-2"></a>
 文件名：`Cargo.toml`
 
 ```toml
@@ -46,7 +47,7 @@ edition = "2024"
 [dependencies]
 ```
 
-*清单 1-2：由 `cargo new` 生成的 `Cargo.toml` 内容*
+**清单 1-2**：由 `cargo new` 生成的 `Cargo.toml` 内容
 
 
 这个文件属于 [TOML](https://toml.io/)（ *Tom's Obvious, Minimal Language* ）格式，是 Cargo 的配置格式。
@@ -92,8 +93,6 @@ $ cargo init
 
 ## 构建和运行 Cargo 项目
 
-**Building and Running a Cargo Project**
-
 现在，咱们来看看，使用 Cargo 构建和运行 "Hello, world!" 程序时，有哪些不同！请在 `hello_cargo` 目录下，输入以下命令来构建项目：
 
 ```console
@@ -113,6 +112,7 @@ Hello, world!
 如果一切顺利，`Hello, world!` 就会打印到终端。首次运行 `cargo build`，还会导致 Cargo 在目录顶层，创建出一个新文件：`Cargo.lock`。该文件会跟踪项目中依赖项的确切版本。这个项目没有依赖项，因此该文件有点稀疏。咱们永远都无需手动修改这个文件；Cargo 会帮咱们管理其内容。
 
 
+<a name="listing_1-3"></a>
 文件名：`Cargo.lock`
 
 ```toml
@@ -125,7 +125,7 @@ name = "hello_cargo"
 version = "0.1.0"
 ```
 
-*清单 1-3, `Cargo.lock`*
+**清单 1-3**, `Cargo.lock`
 
 
 咱们刚刚使用 `cargo build` 构建了个项目，并使用 `./target/debug/hello_cargo` 运行了他，但我们也可以使用 `cargo run`，在一条命令中，编译代码并随后运行得到的可执行文件：

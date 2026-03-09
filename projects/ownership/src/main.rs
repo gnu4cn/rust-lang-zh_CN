@@ -1,7 +1,13 @@
 fn main() {
-    let mut s = String::from("hello");
+    let s1 = String::from("hello");
 
-    s.push_str(", world!"); // push_str() 方法会追加一个字面值，到某个 String
+    let (s2, len) = calculate_length(s1);
 
-    println! ("{}", s); // 这将打印出 `hello, world!`
+    println! ("字符串 '{s2}' 的长度为 {len}。");
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len();
+
+    (s, length)
 }
