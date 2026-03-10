@@ -71,6 +71,7 @@ fn first_word(s: &String) -> usize {
 我们现在有一种办法，找出字符串中第一个单词末尾索引的方法，但有个问题。我们单独返回一个 `usize`，但他只在 `&String` 的上下文中才是个有意义的数字。换句话说，因为他是个独立于 `String` 的值，所以不能保证他在将来仍然有效。请看下面清单 4-8 中的程序，他使用清单 4-7 中的 `first_word` 函数。
 
 
+<a name="listing_4-8"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -86,7 +87,7 @@ fn main() {
 }
 ```
 
-*清单 4-8：存储调用 `first_word` 函数的结果，然后修改 `String` 的内容*
+**清单 4-8**：存储调用 `first_word` 函数的结果，然后修改 `String` 的内容
 
 这个程序可在没有任何报错下编译，并将在我们在调用 `s.clear()` 后使用 `word` 如此行事。因为 `word` 完全没有连接 `s` 的状态，所以 `word` 仍然包含值 `5`。我们本可将值 `5` 与变量 `s` 一起使用来提取出第一个单词，但这将是个 bug，因为自从我们在 `word` 中保存 `5` 以来，`s` 的内容已经发生了变化。
 
@@ -188,16 +189,16 @@ fn first_word(s: &String) -> &str {
 
 我们以与清单 4-7 中相同的方式获取单词结尾的索引，即查找第一次出现的空格。当我们找到一个空格时，我们使用该字符串的开头与空格的索引，作为开始和结束索引返回一个字符串切片。
 
-现在，当我们调用 `first_word` 时，我们会返回一个与所采用数据相关的值。该值由到切片起点的引用，和切片中元素的数量组成。
+现在，当我们调用 `first_word` 时，我们会返回与基础数据相关的单个值。该值由到切片起点的引用和切片中元素的数量组成。
 
-对于 `second_word` 函数来说，返回切片也是可行的：
+针对 `second_word` 函数，返回切片同样可行：
 
 
 ```rust
 fn second_word(s: &String) -> &str {
 ```
 
-现在，我们有了一个简单明了的 API，而且更难出错，因为编译器会确保对那个 `String` 的引用保持有效。还记得清单 4-8 中程序的错误吗？当时我们得到了第一个单词末尾的索引，但随后又清除了那个字符串，因此咱们索引就无效来了。那段代码在逻辑上是错误的，但并没有立即给出任何错误。如果我们继续尝试对某个清空的字符串，使用第一个单词的索引，那么该问题就会在稍后出现。而切片则不会出现这种错误，并能让我们更早地知道，咱们代码出现了问题。使用切片版本的 `first_word` 会抛出一个编译时报错：
+我们现在有个直观的 API，他更不容易搞砸，因为编译器将确保对 `String` 中的引用保持有效。还记得 [清单 4-8](#listing_4-8) 中程序的 bug 吗？当时我们得到了第一个单词末尾的索引，但随后清除了字符串，因此咱们索引就无效了。那段代码在逻辑上是不正确的，但并未给出任何直接报错。当我们继续尝试对清空的字符串使用第一个单词的索引，问题稍后就会出现。切片使这个 bug 不再可能，并让我们更早知道我们的代码有问题。使用切片版本的 `first_word` 将抛出一个编译时错误：
 
 
 文件名：`src/main.rs`
@@ -210,18 +211,18 @@ fn main() {
 
     s.clear(); // error!
 
-    println!("the first word is: {}", word);
+    println!("the first word is: {word}");
 }
 ```
 
 
-下面是那个编译器报错：
+下面是编译器报错：
 
 ```console
 $ cargo run
-   Compiling slices v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\slices)
+   Compiling slice_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/slice_demo)
 error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immutable
- --> src\main.rs:6:5
+ --> src/main.rs:6:5
   |
 4 |     let word = first_word(&s);
   |                           -- immutable borrow occurs here
@@ -229,22 +230,19 @@ error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immuta
 6 |     s.clear(); // error!
   |     ^^^^^^^^^ mutable borrow occurs here
 7 |
-8 |     println!("the first word is: {}", word);
-  |                                       ---- immutable borrow later used here
+8 |     println!("the first word is: {word}");
+  |                                   ---- immutable borrow later used here
 
 For more information about this error, try `rustc --explain E0502`.
-error: could not compile `slices` (bin "slices") due to previous error
+error: could not compile `slice_demo` (bin "slice_demo") due to 1 previous error
 ```
 
-回顾一下借用规则，如果我们有个不可变的引用，我们就不能同时取得一个可变的引用。因为 `clear` 需要截断这个 `String`，所以他需要得到一个可变引用。`clear` 调用后的那个 `println!`，使用了 `word` 中的引用，因此这个不可变引用，在此时必须仍然有效。Rust 不允许 `clear` 中的可变引用，和 `word` 中的不可变引用同时存在，因此编译会失败。Rust 不仅让我们的 API 更易于使用，还消除了编译时的一整类报错！
+回顾一下借用规则，当我们有着一个到某个值的不可变引用时，我们就不能同时取得一个可变引用。因为 `clear` 需要截断 `String`，所以他需要得到一个可变引用。`clear` 调用后的 `println!` 用到 `word` 中的引用，因此这个不可变引用此时必须仍然为活动的。Rust 不允许 `clear` 中的可变引用与 `word` 中的不可变引用同时存在，进而编译失败。Rust 不仅使我们的 API 更易于使用，而且还消除了编译时的一整类报错！
 
 
 ### 作为切片的字符串字面值
 
-**String Literals as Slices**
-
-
-回想一下，我们曾讲到过的存储在二进制文件中的字符串字面值。现在我们知道了分片，我们就能正确理解字符串字面值了：
+回想一下，我们讨论过的存储在二进制文件中的字符串字面值。现在我们了解了切片，我们就可以正确理解字符串字面值了：
 
 
 ```rust
@@ -252,15 +250,12 @@ let s = "Hello, world!";
 ```
 
 
-这里 `s` 的类型，就是 `&str`：他是一个指向二进制中特定点的切片。这也是字符串字面值不可变的原因；`&str` 是个不可变引用。
+这里 `s` 的类型就是 `&str`：他是个指向二进制文件中特定点位的切片。这也是字符串字面值不可变的原因；`&str` 是个不可变引用。
 
 
-### 作为参数的字符串切片
+### 字符串切片作为参数
 
-**String Slices as Parameters**
-
-
-明白咱们可以取字符串字面值和 `String` 值的切片后，我们就可以对 `first_word` 进行另一项改进，那就是他的签名：
+明白咱们可以取字符串字面值与 `String` 值的切片后，我们就可以对 `first_word` 进行进一步改进，那就是他的签名：
 
 
 ```rust
@@ -268,19 +263,19 @@ fn first_word(s: &String) -> &str {
 ```
 
 
-更有经验的 Rustacean，会写下下面清单 4-9 中的签名，因为他允许我们，对 `&String` 值和 `&str` 值，使用同一个函数。
+更有经验的 Rustacean 会写出下面清单 4-9 中所示的签名，因为他允许我们同时对 `&String` 值和 `&str` 值使用同一个函数。
 
-
+<a name="listing_4-9"></a>
 ```rust
 fn first_word(s: &str) -> &str {
 ```
 
-*清单 4-9：通过对 `s` 参数的类型使用字符串切片，改进这个 `first_word` 函数*
+**清单 4-9**：通过使用字符串切片作为 `s` 参数的类型，改进 `first_word` 函数
 
 
-如果我们有个字符串切片，我们可以直接传递他。如果我们有个 `String`，我们可以这个 `String` 切片，或到这个 `String` 的某个引用。这种灵活性，利用了我们将在第 15 章 [函数和方法中的隐式解引用强制转换](../smart_pointers/deref-t.md#函数与方法下的隐式解引用强制转换) 小节中,介绍的 *解引用强制转换* 特性。
+当我们有个字符串切片时，我们可以直接传递。当我们有个 `String` 时，我们可以传递 `String` 的切片或对 `String` 的引用。这种灵活性，利用了 *解引用强制转换*，一项我们将在第 15 章的 [在函数和方法中使用解引用强制转换](../smart_pointers/deref-t.md#在函数和方法中使用解引用强制转换) 小节中介绍的特性。
 
-定义一个取字符串切片，而非到某个 `String` 的引用的函数，使得我们的 API 更为通用和实用，而不会丢失任何功能：
+将函数定义为取字符串切片而不是到 `String` 的引用，使我们的 API 在不损失任何功能下，更加通用和有用：
 
 
 文件名：`src/main.rs`
@@ -289,39 +284,39 @@ fn first_word(s: &str) -> &str {
 fn main() {
     let s = String::from("The quick brown fox jumps over the lazy dog.");
 
-    // `first_word` 会在 String 的切片上工作，不管是部分还是整个 String
+    // `first_word` 工作于 String 的切片上，无论是部分还是整体
     let word = first_word(&s[0..6]);
     let word = first_word(&s[..]);
-
-    // `first_word` 还对 String 的引用有效，这与 String 的整个切片等价
+    println! ("{word}");
+    // `first_word` 还工作于 String 的引用，这等同于 String 的整个切片
     let word = first_word(&s);
+    println! ("{word}");
 
     let s_string_literal = "hello word";
 
-    // `first_word` 在字符串字面值上有效，不论部分还是整体
+    // `first_word` 工作于字符串字面值，不论部分还是整体
     let word = first_word(&s_string_literal[0..6]);
     let word = first_word(&s_string_literal[..]);
+    println! ("{word}");
 
     // 由于字符串字面值已经 *是* 字符串切片，
-    // 因此无需切片语法，这也会工作。
+    // 因此在无需切片语法下，这也会工作!
     let word = first_word(s_string_literal);
+    println! ("{word}");
 }
 ```
 
 
 ## 其他切片
 
-**Other Slices**
-
-
-如同咱们可能想象的那样，字符串切片是专门针对字符串的。但还有一种更通用的切片类型。请看这个数组：
+正如咱们所料，字符串切片特定于字符串。但还有一种更通用的切片类型。请看下面这个数组：
 
 
 ```rust
     let a = [1, 2, 3, 4, 5];
 ```
 
-正如我们可能要引用字符串的一部分，我们也可能想引用数组的一部分。我们可以这样做：
+正如我们可能打算引用字符串的一部分，我们也可能打算引用数组的一部分。我们会这样做：
 
 
 ```rust
@@ -332,16 +327,14 @@ fn main() {
     assert_eq! (slice, &[2, 3]);
 ```
 
-
-这个切片的类型为 `&[i32]`。其工作方式与字符串切片相同，都是存储了到第一个元素的引用和长度。在其他各种集合中，咱们都将用到这种切片。我们将在第 8 章讨论矢量时，详细讨论这些集合。
+这个切片有着类型 `&[i32]`。其工作方式与字符串切片相同，均通过存储到第一个元素的引用和长度。咱们将针对其他各种集合都使用这种切片。在第 8 章中 [我们讨论矢量时](../common_collections/vectors.md)，我们将详细讨论这些集合。
 
 
 # 本章小结
 
+所有权、借用及切片的概念在编译时确保了 Rust 程序的内存安全。Rust 赋予我们与其他系统编程语言同样方式，对咱们内存使用的掌控。但在数据的所有者超出作用域时，让数据的所有者自动清理数据，这意味着咱们不必编写和调试额外代码来获得这种控制。
 
-所有权、借用和切片的概念，确保了 Rust 程序在编译时的内存安全。Rust 给到了咱们，与其他系统编程语言同样方式的，对咱们内存使用的掌控，但在数据的所有者超出作用域时，会让数据的所有者，自动清理该数据，这意味着咱们不必编写和调试额外代码，来获得这种控制。
-
-所有权会影响 Rust 许多其他部分的工作方式，因此我们将在本书的其余部分，进一步讨论这些概念。我们来继续阅读第 5 章，看看如何在 `struct` 中，对数据块进行分组。
+所有权影响 Rust 许多其他部分的工作方式，因此我们将在本书的其余部分进一步讨论这些概念。让我们移步到 5 章，看看将一些数据片段编组在 `struct` 中。
 
 
 （End）
