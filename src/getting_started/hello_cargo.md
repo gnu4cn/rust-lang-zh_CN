@@ -198,7 +198,7 @@ $ cargo build
 更多有关 Cargo 的信息，请查看 [Cargo 文档](https://doc.rust-lang.org/cargo/)。
 
 
-## 本章小结
+# 本章小结
 
 
 咱们的 Rust 之旅，已经有了一个良好的开端！在本章中，咱们已经掌握了如何：
