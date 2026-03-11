@@ -1,13 +1,11 @@
-# 使用结构体的一个示例程序
+# 使用结构体的示例程序
 
-**An Example Program Using Structs**
+为立即何时我们可能打算使用结构体，我们来编写个计算矩形面积的程序。我们将以使用单个变量开始，然后重构程序，直到咱们转而使用结构体。
 
-
-为了搞明白什么情况下我们可能会打算使用结构体，我们来编写个计算矩形面积的程序。我们将首先使用单个变量，然后重构该程序，直到咱们使用结构体为止。
-
-我们来使用 Cargo，构造一个名为 `rectangles`，将以像素为单位，指定出矩形的宽和高，并计算该矩形面积的二进制项目。下面清单 5-8 给出了一个简短的程序，其在咱们项目的 `src/main.rs` 中，有着完成这一点的方法。
+我们来以 Cargo 构造一个名为 `rectangles` 的新二进制项目，其将取以像素为单位指定的矩形的宽和高，并计算矩形面积。下面清单 5-8 展示了个简短程序，有着在咱们项目的 `src/main.rs` 中完成这点的一种方式。
 
 
+<a name="listing_5-8"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -16,7 +14,7 @@ fn main() {
     let height1 = 50;
 
     println! (
-        "该矩形的面积为 {} 平方像素。",
+        "矩形的面积为 {} 平方像素。",
         area(width1, height1)
     );
 }
@@ -26,23 +24,23 @@ fn area(width: u32, height: u32) -> u32 {
 }
 ```
 
-*清单 5-8：计算由单独的宽度和高度变量指定的矩形面积*
+**清单 5-8**：计算由单独的宽度和高度变量指定的矩形面积
 
 
 现在，请使用 `cargo run` 运行这个程序：
 
 ```console
 $ cargo run
-   Compiling rectangles v0.1.0 (/home/peng/rust-lang/projects/rectangles)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.17s
-     Running `target/debug/rectangles`
-该矩形的面积为 1500 平方像素。
+   Compiling struct_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/struct_example)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running `target/debug/struct_example`
+矩形的面积为 1500 平方像素。
 ```
 
 
-这段代码通过以各个维度调用那个 `area` 函数，成功计算出了该矩形的面积，但我们还可以做得更多，使这段代码更加清晰易读。
+这段代码通过以两个边长调用 `area` 函数成功计算出了矩形面积，但我们还可以做更多事情使这段代码清晰易读。
 
-这段代码的问题，在 `area` 的签名中很明显：
+这段代码的问题在 `area` 的签名中很明显：
 
 
 ```rust
@@ -50,17 +48,15 @@ fn area(width: u32, height: u32) -> u32 {
 ```
 
 
-`area` 函数本应计算一个矩形的面积，但我们编写的函数却有两个参数，而且咱们的程序中，也没有明确说明这两个参数是相关的。如果将宽度和高度组合在一起，会更易于阅读和管理。在第 3 章 [元组类型](../programming_concepts/data_types.md#元组类型) 小节，我们已经讨论过一种，我们可以实现这一点的方法：使用元组。
+`area` 函数本应计算一个矩形的面积，但我们编写的函数有两个参数，并且咱们程序中的任何地方这两个参数是相关的都不明确。将宽度和高度分组在一起，将更易于阅读和管理。我们已在第 3 章 的 [元组类型](../programming_concepts/data_types.md#元组类型) 小节处，讨论过一种我们可能实现这点的方法：使用元组。
 
 
-## 使用元组重构
+## 以元组重构
 
-**Refactoring with Tuples**
-
-
-下面清单 5-9 给出了使用元组的咱们程序另一版本。
+下面清单 5-9 展示了咱们程序使用元组的另一版本。
 
 
+<a name="listing_5-9"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -68,7 +64,7 @@ fn main() {
     let rect1 = (30, 50);
 
     println! (
-        "该矩形的面积为 {} 平方像素。",
+        "矩形的面积为 {} 平方像素。",
         area(rect1)
     );
 }
@@ -78,22 +74,19 @@ fn area(dimensions: (u32, u32)) -> u32 {
 }
 ```
 
-*清单 5-9：使用一个元组指定矩形的宽度和高度*
+**清单 5-9**：以元组指定矩形的宽和高
+
+从某种意义上说，这个程序更好。元组让我们增加了一点结构，进而我们现在只传递一个参数。但从另一方面来说，这个版本更不清楚：元组没有命名其元素，因此我们不得不索引进到元组的各个部分，使我们的计算不那么直观。
+
+混淆宽度和高度对于面积计算并不重要，但当我们打算在屏幕上绘制矩形时，那就很重要了！我们将不得不记住 `width` 是元组的索引 `0`，`height` 是元组的索引 `1`。当其他人要使用我们的代码时，就更难搞清楚并记住这点。因为我们没有在咱们的代码中传达咱们数据的含义，所以现在更容易引入错误。
 
 
-从某种意义上说，这个程序更好。元组让我们增加了一点结构，同时我们现在只传递了一个参数。但从另一个角度看，这个版本就不那么清晰了：元组没有为其元素命名，因此我们必须索引到元组的各个部分，这使得我们的计算不那么直观。
+## 以结构体重构
 
-混淆宽度和高度对于面积计算并不重要，但如果我们要在屏幕上绘制矩形，就会有影响！我们必须记住，`width` 是该元组的索引 `0`，而 `height` 是该元组的索引 `1`。如果其他人使用我们的代码，就更难搞清楚并牢记这一点了。因为我们没有在咱们的代码中，传达咱们数据的含义，所以现在更容易引入错误。
-
-
-## 使用结构体重构：添加更多意义
-
-**Refactoring with Structs: Adding More Meaning**
+我们使用结构体通过标记数据来添加含义。我们可将我们正使用的元组，转换为一个有着整体名字以及各部分名字的结构体，如下清单 5-10 中所示。
 
 
-我们要使用结构体，通过标记数据来增加意义。如下清单 5-10 所示，我们可以将正使用的元组，转换为一个整体和各部分都有名字的结构体。
-
-
+<a name="listing_5-10"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -109,7 +102,7 @@ fn main() {
     };
 
     println! (
-        "该矩形的面积为 {} 平方像素。",
+        "矩形的面积为 {} 平方像素。",
         area(&rect1)
     );
 }
@@ -119,24 +112,22 @@ fn area(rectangle: &Rectangle) -> u32 {
 }
 ```
 
-*清单 5-10：定义出 `Rectangle` 结构体*
+**清单 5-10**：定义一个 `Rectangle` 结构体
 
 
-这里我们定义了一个结构体，并将其命名为 `Rectangle`。在花括号中，我们将字段定义为 `width` 和 `height`，两个字段的类型都是 `u32`。然后，在 `main` 中，我们创建了个有着宽度为 `30`，高度为 `50` 的 `Rectangle` 特定实例。
+这里，我们已定义了个结构体并将其命名为 `Rectangle`。在花括号内，我们将字段定义为 `width` 和 `height`，两个字段都有着类型 `u32`。然后，在 `main` 中，我们创建了个 `Rectangle` 的特定实例，有着 `30` 的宽度及 `50` 的高度。
 
-现在，我们的 `area` 函数定义了一个参数，我们将其命名为 `rectangle`，其类型是对 `Rectangle` 结构体实例的不可变借用。正如第 4 章所述，我们希望借用这个结构体，而不是要取得其所有权。这样，`main` 就可以保留其所有权，并继续使用 `rect1`，这也是我们在那个函数签名中，以及调用改函数时，使用 `&` 的原因。
+我们的 `area` 函数现在以一个参数定义，我们已将其命名为 `rectangle`，其类型是对 `Rectangle` 结构体实例的不可变借用。正如第 4 章中所提到的，我们打算借用结构体而不是取得其所有权。这样，`main` 会保留其所有权并可继续使用 `rect1`，这就是我们在函数签名中及调用该函数处使用 `&` 的原因。
 
-`area` 函数会访问 `Rectangle` 实例的 `width` 和 `height` 字段（注意，访问某个借用的结构体实例的字段，不会迁移字段值，这就是为什么我们经常会看到结构体的借用）。现在，我们的 `area` 函数签名，就准确表达了我们的意思：使用 `Rectangle` 的 `width` 和 `height` 字段，计算其面积。这表达了宽度和高度是相互关联的，并且为这些值提供了描述性的名称，而不是使用 `0` 和 `1` 的元组索引值。这是清晰度方面的胜利。
-
-
-## 使用派生特质添加有用功能
-
-**Adding Useful Functionality with Derived Traits**
+`area` 函数访问 `Rectangle` 实例的 `width` 和 `height` 字段（请注意，访问借用的结构体实例的字段不会迁移字段值，这就是为何咱们经常会看到结构体借用的原因）。我们的 `area` 函数签名现在准确地表达了我们的意思：使用 `Rectangle` 的 `width` 和 `height` 字段计算其面积。这传达了宽度和高度是相互关联的，并且其给到了这些值的描述性名字，而不是使用 `0` 和 `1` 的元组索引值。这属于清晰度方面的一种胜利。
 
 
-如果能在咱们调试咱们的程序期间，打印出 `Rectangle` 实例并查看其所有字段的值，那将会非常有用。下面清单 5-11 尝试使用 `println!` 宏，就像我们在前几章中使用的那样。但这行不通。
+## 以派生特质添加功能
+
+我们在调试咱们程序期间，能够打印 `Rectangle` 的实例进而看到其所有字段的值，那将很有用。下面清单 5-11 尝试使用 `println!` 这个宏，正如我们在前几章中曾使用的那样。但这行不通。
 
 
+<a name="listing_5-11"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -151,14 +142,14 @@ fn main() {
         height: 50,
     };
 
-    println! ("rect1 为：{}", rect1);
+    println! ("rect1 为：{rect1}");
 }
 ```
 
-*清单 5-11：尝试打印某个 `Rectangle` 实例*
+*清单 5-11：尝试打印 `Rectangle` 实例*
 
 
-当我们编译这段代码时，会得到一个带有下面这条核心信息的报错：
+当我们编译这段代码时，会得到带有下面这条核心消息的报错：
 
 
 ```console
@@ -166,20 +157,20 @@ error[E0277]: `Rectangle` doesn't implement `std::fmt::Display`
 ```
 
 
-`println!` 宏可以执行多种格式化，而默认情况下，其中的花括号会告诉 `println!`，使用被称为 `Display` 的格式：供最终用户直接使用的输出。我们目前看到的原生类型，默认都实现了 `Display`，因为只有一种咱们想要的方式，将 `1` 或其他原生类型展示给用户。但对于结构体，`println!` 应如何格式输出的方式，就不那么清晰了，因为有更多的显示可能性： 咱们要不要逗号？要不要打印花括号？是否所有字段都应被显示出来？由于这种模糊性，Rust 不会试图猜测我们想要什么，同时结构体没有提供某种 `Display` 实现，来与 `println!` 和 `{}` 占位符一起使用。
+`println!` 宏可执行多种格式化，默认情况下，花括号会告诉 `println!` 使用称为 `Display` 的格式化：意在供最终用户直接使用的输出。到目前为止我们已看到的那些原始类型默认都实现了 `Display`，因为只有一种咱们希望把 `1` 或任何其他原始类型展示给用户的方式。但对于结构体，`println!` 应格式化输出的方式就不那么清晰了，因为有更多的显示可能性： 咱们是否想要逗号？咱们要不要打印花括号？所有字段都应显示吗？由于这种模糊性，Rust 不会尝试猜测我们想要什么，进而结构体没有提供某种与 `println!` 和 `{}` 占位符一起使用的 `Display` 实现。
 
-如果我们继续阅读那些报错信息，就会发现这条有用的说明：
+若我们继续阅读报错，我们将发现下面这条帮助性说明：
 
 
 ```console
-   = help: the trait `std::fmt::Display` is not implemented for `Rectangle`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+12 |     println! ("rect1 为：{rect1:?}");
+   |                          ^^^^^^^ `Rectangle` cannot be formatted with the default formatter
+   |
 ```
 
+我们来试试吧！`println!` 宏调用现在将看起来像 `println! ("rect1 is {rect1:?}");`。将 `:?` 这个说明符放在花括号内，告诉 `println!` 我们打算使用一种名为 `Debug` 的输出格式。`Debug` 特质使我们可以一种对开发者有用的方式打印出咱们的结构体，以便我们在调试咱们代码时可以看到其值。
 
-我们来试试把！那个 `println!` 宏调用现在将看起来像 `println! ("rect1 is {:?}"，rect1);`。在大括号中加上 `:?` 说明符，就告诉 `println!`，我们打算使用一种名为 `Debug` 的输出格式。`Debug` 特质使我们能以一种，对开发人员有用的方式打印出咱们的结构体，这样我们在调试代码时，就能看到他的值。
-
-编译有着此项修改的代码。糟糕！我们仍然得到一个报错：
+在这一修改下编译代码。糟糕！我们仍得到一个报错：
 
 
 ```console
@@ -187,18 +178,19 @@ error[E0277]: `Rectangle` doesn't implement `Debug`
 ```
 
 
-但编译器再次给了我们一个有用的提示：
+不过编译器再次给了我们一条帮助性说明：
 
 
 ```console
-   = help: the trait `Debug` is not implemented for `Rectangle`
-   = note: add `#[derive(Debug)]` to `Rectangle` or manually `impl Debug for Rectangle`
+12 |     println! ("rect1 为：{rect1:?}");
+   |                          ^^^^^^^^^ `Rectangle` cannot be formatted using `{:?}` because it doesn't implement `Debug`
+   |
 ```
 
+Rust *确实* 包含了打印出调试信息的功能，但我们必须显式地选择使该功能针对我们的结构体可用。要实现这一目的，我们就要在结构体定义之前添加外层属性 `#[derive(Debug)]`，如下清单 5-12 中所示。
 
-Rust *确实* 包含了打印调试信息的功能，但我们必须显式地选择，将该功能用于我们的结构体。为此，我们要在结构体定义之前，添加外层属性 `#[derive(Debug)]`，如下清单 5-12 所示。
 
-
+<a name="listing_5-12"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -218,29 +210,57 @@ fn main() {
 }
 ```
 
-*清单 5-12：添加属性以派生 `Debug` 特质，并使用调试格式打印 `Rectangle` 实例*
+*清单 5-12：添加派生出 `Debug` 特质的属性，并使用调试格式打印 `Rectangle` 的实例*
 
 
-现在，当我们运行该程序时，我们不会收到任何报错，并且我们将看到以下输出：
+现在当我们运行程序时，我们将不会收到任何报错，并且我们将看到以下输出：
 
 
 ```console
 $ cargo run
-   Compiling rectangles v0.1.0 (/home/peng/rust-lang/projects/rectangles)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.20s
-     Running `target/debug/rectangles`
+   Compiling struct_n_derived_trait v0.1.0 (/home/hector/rust-lang-zh_CN/projects/struct_n_derived_trait)
+warning: fields `width` and `height` are never read
+ --> src/main.rs:3:5
+  |
+2 | struct Rectangle {
+  |        --------- fields in this struct
+3 |     width: u32,
+  |     ^^^^^
+4 |     height: u32,
+  |     ^^^^^^
+  |
+  = note: `Rectangle` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `struct_n_derived_trait` (bin "struct_n_derived_trait") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running `target/debug/struct_n_derived_trait`
 rect1 为：Rectangle { width: 30, height: 50 }
 ```
 
 
-不错！这不是最漂亮的输出，但他显示了该实例所有字段的值，这在调试期间绝对有帮助。当我们有更大的结构体时，让输出更容易阅读会很有用；在这些情况下，我们可以在 `println!` 字符串中，使用 `{:#?}` 代替 `{:?}`。在本例中，使用 `{:#?}` 样式，将输出如下内容：
+不错！他虽不是最漂亮的输出，但他显示了这一实例的所有字段的值，这在调试期间绝对会有帮助。当我们有一些更大的结构体时，有着更容易阅读的输出会很有用；在这些情况下，我们可在 `println!` 的（格式化）字符串中使用 `{:#?}` 而不是 `{:?}`。在这个示例中，使用 `{:#?}` 样式将输出如下内容：
 
 
 ```console
-cargo run
-   Compiling rectangles v0.1.0 (/home/peng/rust-lang/projects/rectangles)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.18s
-     Running `target/debug/rectangles`
+$ cargo run
+   Compiling struct_n_derived_trait v0.1.0 (/home/hector/rust-lang-zh_CN/projects/struct_n_derived_trait)
+warning: fields `width` and `height` are never read
+ --> src/main.rs:3:5
+  |
+2 | struct Rectangle {
+  |        --------- fields in this struct
+3 |     width: u32,
+  |     ^^^^^
+4 |     height: u32,
+  |     ^^^^^^
+  |
+  = note: `Rectangle` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `struct_n_derived_trait` (bin "struct_n_derived_trait") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running `target/debug/struct_n_derived_trait`
 rect1 为：Rectangle {
     width: 30,
     height: 50,
@@ -248,13 +268,14 @@ rect1 为：Rectangle {
 ```
 
 
-使用 `Debug` 格式打印出某个值的另一种方法，是使用 [`dbg!` 宏](https://doc.rust-lang.org/std/macro.dbg.html)，他会取得某个表达式的所有权（与取得引用的 `println!` 相反），打印咱们代码中，这个 `dbg!` 宏调用出现的文件与行号，以及表达式的结果值，并返回该值的所有权。
+使用 `Debug` 格式打印出某个值的另一种方法是使用 [`dbg!` 宏](https://doc.rust-lang.org/std/macro.dbg.html)，他会取得表达式的所有权（与 `println!` 相反，他会取得引用），打印 `dbg!` 宏出现于咱们代码中处的文件及行号，以及该表达式的结果值，并返回该值的所有权。
 
 
-> 注意：调用 `dbg!` 宏会打印到标准错误控制台流 (`stderr`)，这与打印到标准输出控制台流 (`stdout`) 的 `println!` 相反。关于 `stderr` 和 `stdout`，我们将在第 12 章 [将错误信息写入标准错误而不是标准输出](../io_project/std_err.md) 小节中详细讨论。
+> 注意：调用 `dbg!` 宏会打印到标准错误控制台流 (`stderr`)，与打印到标准输出控制台流 (`stdout`) 的 `println!` 相反。我们将在第 12 章的 [重定向错误到标准错误](../io_project/std_err.md) 小节中，进一步讨论 `stderr` 与 `stdout`。
 
 
-下面是个，其中我们对分配给 `width` 字段的值，以及 `rect1` 中的整个结构体的值感兴趣的实例：
+
+下面是个示例，其中我们对指派给 `width` 字段的值，以及 `rect1` 中整个结构体的值：
 
 
 ```rust
@@ -277,14 +298,14 @@ fn main() {
 ```
 
 
-我们可以将 `dbg!` 放在表达式 `30 * scale` 的周围，由于 `dbg!` 会返回该表达式值的所有权，因此那个 `width` 字段，将获得与该处没有调用 `dbg!` 时相同的值。我们不打算让 `dbg!` 取得 `rect1` 的所有权，因此在下一次调用中，使用了对 `rect1` 的引用。下面是这个示例的输出结果：
+我们之所以可将 `dbg!` 放在表达式 `30 * scale` 的周围，是因为 `dbg!` 会返回表达式值的所有权，因此 `width` 字段将得到同一个值，就像我们在那里没有 `dbg!` 调用一样。我们不希望 `dbg!` 取得 `rect1` 的所有权，因此我们在下一次调用中使用了对 `rect1` 的引用。下面是这个示例的输出看起来的样子：
 
 
 ```console
 $ cargo run
-   Compiling rectangles v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\rectangles)
+   Compiling struct_n_derived_trait v0.1.0 (/home/hector/rust-lang-zh_CN/projects/struct_n_derived_trait)
 warning: fields `width` and `height` are never read
- --> src\main.rs:3:5
+ --> src/main.rs:3:5
   |
 2 | struct Rectangle {
   |        --------- fields in this struct
@@ -294,13 +315,13 @@ warning: fields `width` and `height` are never read
   |     ^^^^^^
   |
   = note: `Rectangle` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
-  = note: `#[warn(dead_code)]` on by default
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
 
-warning: `rectangles` (bin "rectangles") generated 1 warning
-    Finished dev [unoptimized + debuginfo] target(s) in 0.68s
-     Running `target\debug\rectangles.exe`
-[src\main.rs:11] 30 * scale = 60
-[src\main.rs:15] &rect1 = Rectangle {
+warning: `struct_n_derived_trait` (bin "struct_n_derived_trait") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running `target/debug/struct_n_derived_trait`
+[src/main.rs:11:16] 30 * scale = 60
+[src/main.rs:15:5] &rect1 = Rectangle {
     width: 60,
     height: 50,
 }

@@ -1,7 +1,4 @@
-# 把错误消息写到标准错误而非标准输出
-
-**Writing Error Messages to Standard Error Instead of Standard Output**
-
+# 重定向错误到标准错误
 
 - 标准错误输出：standard error
 
