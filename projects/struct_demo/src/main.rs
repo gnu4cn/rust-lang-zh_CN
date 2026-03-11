@@ -1,14 +1,9 @@
+#[derive(Debug)]
 struct User {
     active: bool,
     username: String,
     email: String,
     sign_in_count: u64,
-}
-
-impl Rectangle {
-    fn area(&self) -> u32 {
-        self.width * self.height
-    }
 }
 
 fn main() {
@@ -19,11 +14,11 @@ fn main() {
         sign_in_count: 1,
     };
 
-
     let user2 = User {
-        email: String::from("another@example.com"),
+        email: String::from("hector.peng@rust-lang.xfoss.com"),
+        username: String::from("hector.peng"),
         ..user1
     };
 
-    println! ("{}", user2.email);
+    println! ("{:#?}", user1);
 }
