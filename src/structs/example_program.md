@@ -219,20 +219,6 @@ fn main() {
 ```console
 $ cargo run
    Compiling struct_n_derived_trait v0.1.0 (/home/hector/rust-lang-zh_CN/projects/struct_n_derived_trait)
-warning: fields `width` and `height` are never read
- --> src/main.rs:3:5
-  |
-2 | struct Rectangle {
-  |        --------- fields in this struct
-3 |     width: u32,
-  |     ^^^^^
-4 |     height: u32,
-  |     ^^^^^^
-  |
-  = note: `Rectangle` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
-  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
-
-warning: `struct_n_derived_trait` (bin "struct_n_derived_trait") generated 1 warning
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
      Running `target/debug/struct_n_derived_trait`
 rect1 为：Rectangle { width: 30, height: 50 }
@@ -245,20 +231,6 @@ rect1 为：Rectangle { width: 30, height: 50 }
 ```console
 $ cargo run
    Compiling struct_n_derived_trait v0.1.0 (/home/hector/rust-lang-zh_CN/projects/struct_n_derived_trait)
-warning: fields `width` and `height` are never read
- --> src/main.rs:3:5
-  |
-2 | struct Rectangle {
-  |        --------- fields in this struct
-3 |     width: u32,
-  |     ^^^^^
-4 |     height: u32,
-  |     ^^^^^^
-  |
-  = note: `Rectangle` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
-  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
-
-warning: `struct_n_derived_trait` (bin "struct_n_derived_trait") generated 1 warning
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running `target/debug/struct_n_derived_trait`
 rect1 为：Rectangle {
@@ -268,7 +240,11 @@ rect1 为：Rectangle {
 ```
 
 
-使用 `Debug` 格式打印出某个值的另一种方法是使用 [`dbg!` 宏](https://doc.rust-lang.org/std/macro.dbg.html)，他会取得表达式的所有权（与 `println!` 相反，他会取得引用），打印 `dbg!` 宏出现于咱们代码中处的文件及行号，以及该表达式的结果值，并返回该值的所有权。
+使用 `Debug` 格式打印出某个值的另一种方法是使用 [`dbg!` 宏](https://doc.rust-lang.org/std/macro.dbg.html)，他会：
+
+- 取得表达式的所有权（与 `println!` 相反，他会取得引用）；
+- 打印 `dbg!` 宏出现于咱们代码中处的文件及行号；
+- 以及该表达式的结果值，并返回该值的所有权。
 
 
 > 注意：调用 `dbg!` 宏会打印到标准错误控制台流 (`stderr`)，与打印到标准输出控制台流 (`stdout`) 的 `println!` 相反。我们将在第 12 章的 [重定向错误到标准错误](../io_project/std_err.md) 小节中，进一步讨论 `stderr` 与 `stdout`。
@@ -304,22 +280,6 @@ fn main() {
 ```console
 $ cargo run
    Compiling struct_n_derived_trait v0.1.0 (/home/hector/rust-lang-zh_CN/projects/struct_n_derived_trait)
-warning: fields `width` and `height` are never read
- --> src/main.rs:3:5
-  |
-2 | struct Rectangle {
-  |        --------- fields in this struct
-3 |     width: u32,
-  |     ^^^^^
-4 |     height: u32,
-  |     ^^^^^^
-  |
-  = note: `Rectangle` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
-  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
-
-warning: `struct_n_derived_trait` (bin "struct_n_derived_trait") generated 1 warning
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
-     Running `target/debug/struct_n_derived_trait`
 [src/main.rs:11:16] 30 * scale = 60
 [src/main.rs:15:5] &rect1 = Rectangle {
     width: 60,
@@ -328,11 +288,11 @@ warning: `struct_n_derived_trait` (bin "struct_n_derived_trait") generated 1 war
 ```
 
 
-我们可以看到，输出的第一部分来自 `src/main.rs` 第 11 行，其中我们调试了 `30 * scale` 这个表达式，而其结果值是 `60`（对整数实现的 `Debug` 格式，就是只打印其值）。`src/main.rs` 第 15 行的 `dbg!` 调用，会输出 `&rect1` 的值，这正是那个 `Rectangle` 结构体。该输出使用了 `Rectangle` 这个类型的良好 `Debug` 格式。当你试图弄清咱们的代码在做什么时，`dbg!` 这个宏确实很有帮助！
+我们可以看到输出的第一部分来自 `src/main.rs` 的第 11 行，我们正于该处调试表达式 `30 * scale`，而其结果值为 `60`（针对整数实现的 `Debug` 格式化是只打印他们的值）。`src/main.rs` 第 15 行的 `dbg!` 调用输出 `&rect1` 的值，这是 `Rectangle` 结构体。这一输出使用 `Rectangle` 类型的美化 `Debug` 格式化。`dgb!` 宏在咱们试图弄清楚咱们的代码在做什么时会很有帮助！
 
-除了这个 `Debug` 特质外，Rust 还为我们提供了许多与这个 `derive` 属性配合使用的特质，这些特质可以为我们的自定义类型，添加有用的行为。[附录 C](../appendix/derivable_traits.md) 列出了这些特质及其行为。我们将在第 10 章，介绍如何使用自定义行为实现这些特质，以及如何创建咱们自己的特质。除了 `derive` 之外，还有许多其他属性；有关详细信息，请参阅 [《Rust 参考》中的 "属性 "部分](https://doc.rust-lang.org/reference/attributes.html)。
+除了 `Debug` 特质外，Rust 还提供了数个特质供我们与 `derive` 属性一起使用，可添加添加有用行为到我们的自定义类型。这些特质及其行为列出在 [附录 C](../appendix/derivable_traits.md) 中。我们将在第 10 章中介绍如何以自定义行为实现这些特质以及如何创建咱们自己的特质。除了 `derive` 之外，还有许多属性；有关更多信息，请参阅 [“Rust 参考” 的 "属性" 部分](https://doc.rust-lang.org/reference/attributes.html)。
 
-我们的 `area` 函数，是非常专门的：他只会计算矩形的面积。如果能将这一行为，与咱们的 `Rectangle` 结构体更紧密地联系在一起，将会很有帮助，因为他无法与任何其他类型一起工作。我们来看看，咱们可以怎样通过将这个 `area` 函数，转化为定义在 `Rectangle` 类型上的 `area` 方法，来继续重构这段代码。
+我们的 `area` 函数非常具体（专门）：他只计算矩形的面积。将这一行为与咱们的 `Rectangle` 结构体更紧密地联系起来会很有帮助，因为他将不会与任何别的类型一起工作。我们来看看咱们可以怎样通过将 `area` 函数转换为定义在 `Rectangle` 类型上的 `area` 方法，继续重构这段代码。
 
 
 （End）
