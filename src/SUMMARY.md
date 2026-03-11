@@ -31,7 +31,7 @@
 - [使用结构体组织相关数据](Ch05_Using_Structs_to_Structure_Related_Data.md)
     - [定义与实例化结构体](structs/defining_and_instantiating.md)
     - [使用结构体的示例程序](structs/example_program.md)
-    - [方法语法](structs/method_syntax.md)
+    - [方法](structs/method_syntax.md)
 
 - [枚举与模式匹配](Ch06_Enums_and_Pattern_Matching.md)
     - [定义一个枚举](enums_and_pattern_matching/defining_an_enum.md)
