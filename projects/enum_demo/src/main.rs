@@ -1,7 +1,21 @@
+enum IpAddrKind {
+    V4,
+    V6,
+}
+
+struct IpAddr {
+    kind: IpAddrKind,
+    address: String,
+}
+
 fn main() {
-    let config_max: Option<u8> = Some(3u8);
-    
-    if let Option::Some(max) =  (config_max) {
-        println! ("极大值被设置为了 {}", max);
-    }
+    let home = IpAddr {
+        kind: IpAddrKind::V4,
+        address: String::from("127.0.0.1"),
+    };
+
+    let loopback = IpAddr {
+        kind: IpAddrKind::V6,
+        address: String::from("::1"),
+    };
 }

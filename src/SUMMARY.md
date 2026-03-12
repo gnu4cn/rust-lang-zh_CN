@@ -34,7 +34,7 @@
     - [方法](structs/method_syntax.md)
 
 - [枚举与模式匹配](Ch06_Enums_and_Pattern_Matching.md)
-    - [定义一个枚举](enums_and_pattern_matching/defining_an_enum.md)
+    - [定义枚举](enums_and_pattern_matching/defining_an_enum.md)
     - [`match` 控制流结构](enums_and_pattern_matching/match_control_flow.md)
     - [使用 `if let` 与 `let else` 的简明控制流](enums_and_pattern_matching/if-let_control_flow.md)
 
