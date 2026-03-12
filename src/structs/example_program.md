@@ -5,7 +5,6 @@
 我们来以 Cargo 构造一个名为 `rectangles` 的新二进制项目，其将取以像素为单位指定的矩形的宽和高，并计算矩形面积。下面清单 5-8 展示了个简短程序，有着在咱们项目的 `src/main.rs` 中完成这点的一种方式。
 
 
-<a name="listing_5-8"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -24,6 +23,7 @@ fn area(width: u32, height: u32) -> u32 {
 }
 ```
 
+<a name="listing_5-8"></a>
 **清单 5-8**：计算由单独的宽度和高度变量指定的矩形面积
 
 
@@ -56,7 +56,6 @@ fn area(width: u32, height: u32) -> u32 {
 下面清单 5-9 展示了咱们程序使用元组的另一版本。
 
 
-<a name="listing_5-9"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -74,6 +73,7 @@ fn area(dimensions: (u32, u32)) -> u32 {
 }
 ```
 
+<a name="listing_5-9"></a>
 **清单 5-9**：以元组指定矩形的宽和高
 
 从某种意义上说，这个程序更好。元组让我们增加了一点结构，进而我们现在只传递一个参数。但从另一方面来说，这个版本更不清楚：元组没有命名其元素，因此我们不得不索引进到元组的各个部分，使我们的计算不那么直观。
@@ -86,7 +86,6 @@ fn area(dimensions: (u32, u32)) -> u32 {
 我们使用结构体通过标记数据来添加含义。我们可将我们正使用的元组，转换为一个有着整体名字以及各部分名字的结构体，如下清单 5-10 中所示。
 
 
-<a name="listing_5-10"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -112,6 +111,7 @@ fn area(rectangle: &Rectangle) -> u32 {
 }
 ```
 
+<a name="listing_5-10"></a>
 **清单 5-10**：定义一个 `Rectangle` 结构体
 
 
@@ -127,7 +127,6 @@ fn area(rectangle: &Rectangle) -> u32 {
 我们在调试咱们程序期间，能够打印 `Rectangle` 的实例进而看到其所有字段的值，那将很有用。下面清单 5-11 尝试使用 `println!` 这个宏，正如我们在前几章中曾使用的那样。但这行不通。
 
 
-<a name="listing_5-11"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -146,6 +145,7 @@ fn main() {
 }
 ```
 
+<a name="listing_5-11"></a>
 *清单 5-11：尝试打印 `Rectangle` 实例*
 
 
@@ -190,7 +190,6 @@ error[E0277]: `Rectangle` doesn't implement `Debug`
 Rust *确实* 包含了打印出调试信息的功能，但我们必须显式地选择使该功能针对我们的结构体可用。要实现这一目的，我们就要在结构体定义之前添加外层属性 `#[derive(Debug)]`，如下清单 5-12 中所示。
 
 
-<a name="listing_5-12"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -210,6 +209,7 @@ fn main() {
 }
 ```
 
+<a name="listing_5-12"></a>
 **清单 5-12**：添加派生出 `Debug` 特质的属性，并使用调试格式打印 `Rectangle` 的实例
 
 
