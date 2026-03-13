@@ -223,22 +223,22 @@ enum Option<T> {
 
 `Option<T>` 枚举非常有用，以致于他甚至包含在前奏中；咱们不需要显式地将他带入作用域。他的变种也包含在前奏中：咱们可直接使用 `Some` 和 `None` 而无需 `Option::` 前缀。`Option<T>` 枚举仍然只是个常规枚举，而 `Some(T)` 和 `None` 仍然都是 `Option<T>` 类型的变种。
 
-`<T>` 语法是我们尚未讨论的一项 Rust 特性。他是个泛型参数，我们将在第 10 章中更深入介绍泛型。现在，咱们只需知道 `<T>` 表示 `Option` 枚举的 `Some` 变种，可以容纳任意类型的数据，而每个用来代替 `T` 的具体类型，都会使整个 `Option<T>` 类型，成为不同的类型。下面是一些使用 `Option` 值，保存数字类型和字符串类型的示例：
+`<T>` 语法是我们尚未讨论的一项 Rust 特性。他是个泛型参数，我们将在第 10 章中更深入介绍泛型。现在，咱们需要知道只是 `<T>` 表示 `Option` 枚举的 `Some` 变种可以保存任何类型的一条数据，并且用来代替 `T` 的每种具体类型都会使整个 `Option<T>` 类型成为不同的类型。下面是一些使用 `Option` 值保存数字类型与字符类型的示例：
 
 
 ```rust
-    let some_numer = Some(5);
+    let some_number = Some(5);
     let some_char = Some('e');
 
     let absent_number: Option<i32> = None;
 ```
 
 
-其中 `some_number` 的类型是 `Option<i32>`。`some_char` 的类型是 `Option<char>`，这是一种不同的类型。Rust 可以推断出这些类型，因为我们在 `Some` 变种中，指定了某个值。对于 `absent_number`，Rust 要求我们注解整个 `Option` 类型：编译器无法仅通过查看 `None` 值，来推断相应 `Some` 变种将持有的类型。在这里，我们告诉 Rust，我们的意思是 `absent_number` 属于 `Option<i32>` 类型。
+其中 `some_number` 的类型是 `Option<i32>`。`some_char` 的类型是 `Option<char>`，这属于一种不同类型。Rust 可以推断这些类型，因为我们已在 `Some` 变种中指定了一个值。对于 `absent_number`，Rust 要求我们注解整个 `Option` 类型：编译器无法仅通过查看 `None` 值来推断相应 `Some` 变种将持有的类型。在这里，我们告诉 Rust 我们指的是 `absent_number` 属于 `Option<i32>` 类型。
 
-当我们有某个 `Some` 值时，我们知道有个值存在，并且该值被保存在 `Some` 中。当我们有个 `None` 值时，从某种意义上说，他的含义与空值相同：我们没有一个有效值。那么，为什么 `Option<T>` 比空值更好呢？
+当我们有个 `Some` 值时，我们知道某个值存在，并且该值保存在 `Some` 中。当我们有个 `None` 值时，那么在某种意义上他表示与空值相同的事物：我们没有有效值。那么，为什么有着 `Option<T>` 比有着空值更好呢？
 
-简而言之，由于 `Option<T>` 和 `T`（`T` 可以是任何类型）属于不同的类型，编译器不会让我们，将某个 `Option<T>` 值用作其肯定是个有效值。例如，下面这段代码将不会编译，因为他试图将一个 `i8`，与一个 `Option<i8>` 相加：
+简而言之，因为 `Option<T>` 与 `T`（其中 `T` 可以是任何类型）属于不同类型，编译器将不允许我们将 `Option<T>` 值当作绝对是个有效值使用。例如下面这段代码将不编译，因为他试图将 `i8` 与 `Option<i8>` 相加：
 
 
 ```rust
@@ -249,39 +249,45 @@ enum Option<T> {
 ```
 
 
-如果我们运行这段代码，我们会收到如下报错：
+当我们运行这段代码时，我们会收到如同下面这样的报错消息：
 
 
 ```console
 $ cargo run
-   Compiling option_demo v0.1.0 (C:\tools\msys64\home\Lenny.Peng\rust-lang-zh_CN\projects\option_demo)
+   Compiling option_enum_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/option_enum_demo)
 error[E0277]: cannot add `Option<i8>` to `i8`
- --> src\main.rs:5:17
+ --> src/main.rs:5:17
   |
 5 |     let sum = x + y;
   |                 ^ no implementation for `i8 + Option<i8>`
   |
   = help: the trait `Add<Option<i8>>` is not implemented for `i8`
-  = help: the following other types implement trait `Add<Rhs>`:
-            <i8 as Add>
-            <i8 as Add<&i8>>
-            <&'a i8 as Add<i8>>
-            <&i8 as Add<&i8>>
+help: the following other types implement trait `Add<Rhs>`
+ --> /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/core/src/ops/arith.rs:114:1
+  |
+  = note: `&i8` implements `Add<i8>`
+  |
+  = note: `&i8` implements `Add`
+  |
+  = note: `i8` implements `Add<&i8>`
+  |
+  = note: `i8` implements `Add`
+  = note: this error originates in the macro `add_impl` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 For more information about this error, try `rustc --explain E0277`.
-error: could not compile `option_demo` (bin "option_demo") due to previous error
+error: could not compile `option_enum_demo` (bin "option_enum_demo") due to 1 previous error
 ```
 
 
-强悍如此！实际上，这条报错信息，表示 Rust 不理解如何将某个 `i8` 与某个 `Option<i8>` 相加，因为他们属于不同的类型。在 Rust 中，当我们有个 `i8` 类型的值时，编译器会确保我们，始终有个有效的值。在使用该值之前，我们无需检查是否为空值，就可以放心地继续。只有当我们有个 `Option<i8>`（或其他任何类型的值）时，我们才必须担心可能并没有值，编译器会确保我们，在使用该值前处理这种情况。
+相当尖刻！实际上，这条报错消息是指 Rust 不明白如何将 `i8` 与 `Option<i8>` 相加，因为他们属于不同类型。当我们在 Rust 中有个像 `i8` 这样类型的值时，编译器将确保我们始终有个有效的值。我们可以放心地继续操作，而不必在使用该值前检查是否为空值。只有当我们有个 `Option<i8>`（或我们正在使用的任何其他值类型）时，我们才必须担心可能并没有值，而编译器将确保我们在使用该值前会处理这种情况。
 
-换句话说，在对 `Option<T>` 执行 `T` 的运算之前，我们必须先将其转换为 `T`。一般来说，这有助于捕捉空值最常见的问题之一：假设了某个项目不是空值，而实际上他却是空值。
+换句话说，在咱们可对 `Option<T>` 执行 `T` 的运算前，我们必须将其转换为 `T`。一般来说，这有助于捕获空值下的最常见问题之一：在某物实际上是空值时，假设了其不是空值。
 
-消除错误地假定某个非空值的风险，可以让咱们对咱们代码更有信心。为了获得某个可能为空的值，咱们必须显式地选择，将该值的类型设为 `Option<T>`。然后，在使用该值时，咱们必须显式地处理，该值为空的情况。只要值的类型不是 `Option<T>`，咱们就可以放心地认为，该值不是空值。这是 Rust 为限制空值泛滥，和提高 Rust 代码的安全性，而特意做出的设计决定。
+消除错误地假设非空值的风险，会帮助咱们对咱们的代码更有信心。为了获得可能为空的值，咱们必须显式地选择将该值的类型构造为 `Option<T>`。然后，当咱们使用该值时，咱们就会被要求显式地处理该值为空的情况。只要值的类型不是 `Option<T>`，咱们就 *可以* 安全地假设该值不是空值。这属于一项 Rust 的有意设计决定，以限制空值泛滥进而提高 Rust 代码的安全性。
 
-那么，当咱们有着某个 `Option<T>` 类型的值时，该怎样从 `Some` 变种中获取到那个 `T` 值，以便使用该值呢？`Option<T>` 这个枚举，有着大量在不同场景下，都有用的方法；咱们可以在 [其文档](https://doc.rust-lang.org/std/option/enum.Option.html) 中，查看这些方法。熟悉 `Option<T>` 的方法，将对咱们的 Rust 之旅大有裨益。
+那么，当咱们有个类型 `Option<T>` 的值时，怎样从 `Some` 变种中获取 `T` 值以便咱们可以使用该值呢？`Option<T>` 枚举有着大量在不同情形下有用的方法；咱们可在 [其文档](https://doc.rust-lang.org/std/option/enum.Option.html) 中查看这些方法。熟悉 `Option<T>` 上的方法将对咱们的 Rust 之旅大有裨益。
 
-一般来说，为了使用某个 `Option<T>` 值，咱们需要编写处理每个变种的代码。咱们会想要一些，仅在咱们有个 `Some(T)` 值时才会运行的代码，而这些代码，就可以使用内部的 `T` 值；咱们会想要另一些，只有在咱们有个 `None` 值时才会运行的代码，而这些代码就没有可用的 `T` 值。与枚举一起使用的 `match` 表达式，便是一种正好完成这个目的的控制流结构：他会根据枚举有着哪一个变种，而运行不同的代码，而这些代码，就可以使用匹配值内部的数据。
+一般来说，为了使用 `Option<T>` 值，咱们会希望有着将处理各个变种的代码。咱们会想要一些将只在咱们有个 `Some(T)` 值时才运行的代码，而这些代码会被允许使用内层 `T`；咱们会希望一些别的只在咱们有个 `None` 值时运行的代码，而这些代码没有可用的 `T` 值。`match` 表达式属于一种控制流结构，在与枚举一起使用时恰好完成了这点：他将根据其有着枚举的哪个变种运行不同的代码，而这些代码可以使用匹配值内部的数据。
 
 
 （End）
