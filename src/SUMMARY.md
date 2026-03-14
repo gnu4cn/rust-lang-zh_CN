@@ -40,7 +40,7 @@
 
 - [包、代码箱与模组](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md)
     - [代码包与代码箱](packages_crates_and_modules/packages_and_crates.md)
-    - [定义用于控制作用域及隐私性的模组](packages_crates_and_modules/defining_modules.md)
+    - [在模组下控制作用域及隐私](packages_crates_and_modules/defining_modules.md)
     - [引用模组树中某个项目的路径](packages_crates_and_modules/paths.md)
     - [使用 `use` 关键字将路径带入作用域](packages_crates_and_modules/the_use_keyword.md)
     - [将模组分成不同文件](packages_crates_and_modules/separating_modules.md)
