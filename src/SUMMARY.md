@@ -38,7 +38,7 @@
     - [`match` 控制流结构](enums_and_pattern_matching/match_control_flow.md)
     - [`if let` 与 `let else` 下的简明控制流](enums_and_pattern_matching/if-let_control_flow.md)
 
-- [使用包、代码箱与模组对日趋增长的项目进行管理](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md)
+- [包、代码箱与模组](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md)
     - [代码包与代码箱](packages_crates_and_modules/packages_and_crates.md)
     - [定义用于控制作用域及隐私性的模组](packages_crates_and_modules/defining_modules.md)
     - [引用模组树中某个项目的路径](packages_crates_and_modules/paths.md)
