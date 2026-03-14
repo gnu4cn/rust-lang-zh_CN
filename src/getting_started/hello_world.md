@@ -7,9 +7,6 @@
 
 ## 创建项目的目录
 
-**Creating a Project Directory**
-
-
 首先，咱们将创建一个存储咱们 Rust 代码的目录。对于 Rust 来说，代码存放在哪里并不重要，但对于本书中的练习和项目，我们建议在咱们的主目录下，创建一个 `projects` 目录，并将咱们的所有项目，都放在那里。
 
 请打开某个终端，并输入以下命令，创建 `projects` 目录，并在 `projects` 目录下，创建出这个 "Hello, world!" 的项目目录。
@@ -32,7 +29,7 @@ $ cd hello_world
 > cd hello_world
 ```
 
-## 编写并运行一个 Rust 程序
+## Rust 程序基础
 
 
 接下来，请创建一个新的源文件，并将其命名为 `main.rs`。Rust 文件总是以 `.rs` 扩展名结尾。如果咱们在文件名中，使用了多个单词，惯例是要使用下划线，分隔这些单词。例如，请使用 `hello_world.rs`，而不是 `helloworld.rs`。
