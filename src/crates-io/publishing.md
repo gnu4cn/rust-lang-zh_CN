@@ -143,9 +143,7 @@ error: doctest failed, to rerun pass `--doc`
 程序项目里的文档注释，用于对描述代码箱及模组尤其有用。使用他们来解释容器，the container，的整体目标，有助于咱们的用户们理解代码箱的组织结构。
 
 
-## 使用 `pub use` 导出便利的公开 API
-
-**Exporting a Convinient Public API with `pub use`**
+## 导出便利的公开 API
 
 
 在咱们发布代码箱时，公开 API 的结构是主要的考量。相比与咱们，使用咱们代码箱的人们对代码箱结构的没有那么熟悉，并在咱们的代码箱有着大型模组层次结构时，难于找到他们打算使用的部分。

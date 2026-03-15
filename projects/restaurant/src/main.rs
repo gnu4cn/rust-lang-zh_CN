@@ -1,5 +1,5 @@
-use restaurant::*;
+use restaurant::customer;
 
 fn main() {
-    eat_at_restaurant();
+    customer::eat_at_restaurant();
 }
