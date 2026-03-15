@@ -42,8 +42,8 @@
     - [代码包与代码箱](packages_crates_and_modules/packages_and_crates.md)
     - [在模组下控制作用域及隐私](packages_crates_and_modules/defining_modules.md)
     - [引用模组树中项目的路径](packages_crates_and_modules/paths.md)
-    - [使用 `use` 关键字将路径带入作用域](packages_crates_and_modules/the_use_keyword.md)
-    - [将模组分成不同文件](packages_crates_and_modules/separating_modules.md)
+    - [以 `use` 关键字带入路径到作用域](packages_crates_and_modules/the_use_keyword.md)
+    - [拆分模组为不同文件](packages_crates_and_modules/separating_modules.md)
 
 - [常用集合数据结构](Ch08_Common_Collections.md)
     - [使用矢量值存储值的清单](common_collections/vectors.md)
