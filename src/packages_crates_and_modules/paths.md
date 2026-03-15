@@ -194,23 +194,20 @@ pub fn eat_at_restaurant() {
 当咱们计划共享咱们的库代码箱，以便其他项目可以使用咱们的代码时，我们的公共 API 就是咱们与咱们代码箱的用户的合约，决定了他们如何与咱们的代码交互。为了让人们更容易依赖咱们的代码箱，管理咱们 API 的变更方面需要考虑很多因素。这些考量超出了这本书的范围；若咱们对这个主题感兴趣，请参阅 [Rust API 指南](https://rust-lang.github.io/api-guidelines/)。
 
 
-> **有着二进制与库的包的最佳实践**
+> **带有二进制与库的包的最佳实践**
 >
-> 我们曾提到过，一个软件包可以同时包含一个 `src/main.rs` 的二进制代码箱根，和一个 `src/lib.rs` 库代码箱根，且默认情况下这两个代码箱都将有着这个软件包的名字。通常情况下，以这种同时包含一个库和一个二进制代码箱模式的软件包，都会在二进制代码箱中，加入启动一个会调用到库代码箱的可执行文件的足够少代码。这样，其他项目就能从这个软件包所提供的大部分功能中获益，因为库代码箱的代码可以共用。
+> 我们曾提到一个包可同时包含 `src/main.rs` 的二进制代码箱根及 `src/lib.rs` 的库代码箱根，且默认情况下两个代码箱都将有着包的名字。通常，有着这种同时包含库与二进制代码箱模式的包，在二进制代码箱中都只有启动可执行程序的代码，该可执行程序调用定义在库代码箱中的代码。这让其他项目可受益于这个包所提供的大部分功能，因为库代码箱的代码可以共享。
 >
-> 模组树应定义在 src/lib.rs 中。然后，二进制代码箱并可通过以软件包名字开头的路径，使用任何公共项目。二进制代码箱就成为库代码箱的一个用户，就像会用到库代码箱的一个纯粹外部代码箱一样：他只能使用公开 API。这可以帮助咱们设计出良好的应用程序接口；咱们不仅是作者，同时也是客户！
+> 模组树应定义在 src/lib.rs 中。然后，通过以包的名字开始的路径，任何公开项目都可在二进制代码箱中使用。二进制代码箱成为库代码箱的用户，就像完全外部的代码箱将使用库代码箱一样：他只能使用公开 API。这可以帮助咱们设计良好的 API；咱们不仅是作者，同时还是客户！
 >
-> 在 [第 12 章](../Ch12_An_IO_Project_Building_a_Command_Line_Program.md)，我们将以同时包含一个二进制代码箱，与一个库代码箱的命令行程序，演示这种代码组织实践。
+> 在 [第 12 章](../Ch12_An_IO_Project_Building_a_Command_Line_Program.md) 中，我们将以一个同时包含二进制代码箱与库代码箱的命令行程序演示这种组织实践。
 
 
 ## 以 `super` 关键字开始相对路径
 
-**Starting Relative Paths with `super`**
+我们可通过在路径开头使用 `super` 关键字，构造以父模组处为起点的相对路径，而不是以当前模组或代码箱根为起点。这就像以 `..` 语法开始文件系统路径，表示要前往到父目录。使用 `super` 允许我们引用我们已知位于父模组中的项目，当模组与父模组密切相关，而父模组可能会在某一天被迁移到模组树的其他地方时，这可以使重新排列模组树变得更容易。
 
-我们可以通过在路径开头，使用 `super` 关键字构建从父模组，而不是当前模组或代码箱根开始的相对路径。这就像用 `..` 语法，开始文件系统路径一样。当该模组与父模组关系密切，使用 `super` 就能让我们引用父模组中的项目，而父模组有可能在某一天，被移到模组树的其他地方时，使重新排列模组树变得更容易。
-
-
-请看以下清单 7-8 中的代码，该代码建模了厨师修改错误订单，并亲自将其送到顾客手中的情况。`back_of_house` 模组中定义的 `fix_incorrect_order` 函数，通过指定从 `super` 开始的 `deliver_order` 路径，调用了父模组中定义的 `deliver_order` 函数。
+请看下面清单 7-8 中的代码，这段代码建模了厨师修正错误菜单，并亲自将其送到顾客手中的情况。定义在 `back_of_house` 模组中的 `fix_incorrect_order` 函数，通过以 `super` 开头指定 `deliver_order` 路径，调用了定义在父模组中的 `deliver_order` 函数。
 
 
 文件名：`src/lib.rs`
@@ -228,17 +225,15 @@ mod back_of_house {
 }
 ```
 
-*清单 7-8：使用以 `super` 开头的相对路径调用某个函数*
+<a name="listing_7-8"></a>
+**清单 7-8**：使用以 `super` 开头的相对路径调用函数*
 
-`fix_incorrect_order` 函数位于 `back_of_house` 模组中，因此我们可以使用 `super` 进入 `back_of_house` 的父模组，在本例中就是根模组 `crate`。在那里，我们查找 `deliver_order`，并找到了他。成功！我们认为，如果我们决定重新组织该代码箱的模组树，`back_of_house` 模组和 `deliver_order` 函数基本会保持相同的关系，而会在重新组织时被一起移动。因此，我们使用了 `super`，这样将来如果这些代码被移动到不同模组，我们就可以减少更新代码的地方。
-
-
-## 将结构体与枚举构造为公开
-
-**Making Structs and Enums Public**
+`fix_incorrect_order` 函数位于 `back_of_house` 模组中，因此我们可使用 `super` 前往 `back_of_house` 的父模组，在本例中便是根模组 `crate`。从那里，我们查找 `deliver_order` 并找到了他。成功！我们认为，即是将来决定重新组织该代码箱的模组树，`back_of_house` 模组和 `deliver_order` 函数也会保持同一相互关系，并会一起迁移。因此，我们使用了 `super`，这样当这段代码被迁移到别的模组时，我们今后要更新代码的位置将更少。
 
 
-我们也可以使用 `pub` 关键字，将结构体和枚举指定为公开，但结构体和枚举的 `pub` 用法时，有一些额外细节。如果我们在结构体定义之前使用 `pub`，那么该结构体就会被公开，但结构体的字段仍然是私有的。我们可以根据具体情况，决定是否公开每个字段。在下面清单 7-9 中，我们定义了一个公开的 `back_of_house::Breakfast` 结构体，其中有个公开的 `toast` 字段，但却有个私有的 `seasonal_fruit` 字段。这就建模了某家餐厅的情况：顾客可以选择配餐的面包类型，但厨师会根据当季和库存情况，决定配餐的水果。可用的水果变化很快，因此顾客无法选择水果，甚至无法看到他们会吃到哪种水果。
+## 构造结构体与枚举为公开
+
+我们还可以使用 `pub` 关键字指定结构体和枚举为公开，但在结构体和枚举下的 `pub` 用法有一些额外细节。当我们在结构体定义前使用 `pub` 时，我们构造结构体为公开，但结构体的字段将仍是私有的。我们可根据具体情况构造每个字段为公开或不公开。在下面清单 7-9 中，我们定义了个公开的 `back_of_house::Breakfast` 结构体，有着一个公开的 `toast` 字段和一个私有的 `seasonal_fruit` 字段。这建模了餐厅中的情形，其中顾客可以选择餐食中搭配的面包类型，而厨师根据时令和库存决定搭配餐食的水果。可用的水果变化很快，因此顾客无法选择水果，甚至无法看到他们将得到哪种水果。
 
 文件名：`src/lib.rs`
 
@@ -260,40 +255,40 @@ mod back_of_house {
 }
 
 pub fn eat_at_restaurant() {
-    // 点一份带黑麦土司的夏日早餐, rye, US /raɪ/, UK /rai/, n.黑麦, 黑麦粒
+    // 点一份带黑麦土司的夏日早餐, rye, US /raɪ/, UK /rai/, n.黑麦, 黑麦粒。
     let mut meal = back_of_house::Breakfast::summer("Rye");
+    // 改变我们对想要什么面包的想法。
     meal.toast = String::from("Wheat");
     println! ("请给我一份 {} 土司", meal.toast);
 
-    // 若不把接下来这行注释掉，那么就不会编译；这里不允许查看或修改
-    // 这份餐搭配的应季水果
+    // 若我们取消注释下一行，其将不编译；
+    // 我们不允许查看或修改搭配餐食的应季水果。
     // meal.seasonal_fruit = String::from("blueberries");
 }
 ```
 
-*清单 7-9：带有一些公开字段与一些私有字段的结构体*
+<a name="listing_7-9"></a>
+**清单 7-9**：带有一些公开字段及一些私有字段的结构体
 
-
-由于 `back_of_house::Breakfast` 结构体中的 `toast` 字段是公开的，因此在 `eat_at_restaurant` 中，我们可以使用点符号（`.`）写入和读取这个 `toast` 字段。请注意，我们不能在 `eat_at_restaurant` 中，使用 `seasonal_fruit` 字段，因为 `seasonal_fruit` 是私有的。请尝试取消注释那个修改 `seasonal_fruit` 字段值的行，看看会出现什么错误！
+因为 `back_of_house::Breakfast` 结构体中的 `toast` 字段是公开的，因此在 `eat_at_restaurant` 中我们可以使用点表示法（`.`）写入和读取 `toast` 字段。请注意，我们不能在 `eat_at_restaurant` 中使用 `seasonal_fruit` 字段，因为 `seasonal_fruit` 是私有的。请尝试取消注释修改 `seasonal_fruit` 字段值的行，看看咱们得到什么错误！
 
 
 ```console
 $ cargo build
-   Compiling restaurant v0.1.0 (/home/peng/rust-lang/restaurant)
+   Compiling restaurant v0.1.0 (/home/hector/rust-lang-zh_CN/projects/restaurant)
 error[E0616]: field `seasonal_fruit` of struct `Breakfast` is private
-  --> src/lib.rs:25:10
+  --> src/lib.rs:32:10
    |
-25 |     meal.seasonal_fruit = String::from("blueberries");
+32 |     meal.seasonal_fruit = String::from("blueberries");
    |          ^^^^^^^^^^^^^^ private field
 
 For more information about this error, try `rustc --explain E0616`.
-error: could not compile `restaurant` due to previous error
+error: could not compile `restaurant` (lib) due to 1 previous error
 ```
 
-另外，请注意，由于 `back_of_house::Breakfast` 有个私有字段，因此该结构体就需要提供一个构造 `Breakfast` 实例的公开关联汉斯（我们在这里将其命名为 `summer`）。如果 `Breakfast` 结构体没有一个这样的函数，我们就无法在 `eat_at_restaurant` 中，创建出 `Breakfast` 结构体的实例，因为我们无法在 `eat_at_restaurant` 中设置那个私有 `seasonal_fruit` 字段值。
+另外，请注意，因为 `back_of_house::Breakfast` 有个私有字段，所以该结构体需要提供一个公开的关联函数构造 `Breakfast` 的实例（我们在这里将其命名为 `summer`）。当 `Breakfast` 没有这样一个函数时，我们就无法在 `eat_at_restaurant` 中创建 `Breakfast` 的实例，因为我们无法在 `eat_at_restaurant` 中设置私有的 `seasonal_fruit` 字段的值。
 
-
-相反，如果我们将某个枚举构造为公开，那么他的所有变种都会是公开的。我们只需要在 `enum` 关键字前，加上 `pub` 关键字，如下清单 7-10 所示。
+相反，当我们构造枚举为公开时，那么随后他的所有变种都是公开的。我们只需要在 `enum` 关键字前加上 `pub`，如下清单 7-10 中所示。
 
 文件名：`src/lib.rs`
 
@@ -313,11 +308,14 @@ pub fn eat_at_restaurant() {
 
 > appetizer, US/ˈæpəˌtaɪzər/, UK/ˈæpəˌtaɪzə(r)/ n.（餐前的）开胃品
 
-*清单 7-10：将某个枚举指定为公开，会使其所有变种公开*
+<a name="listing_7-10"></a>
+**清单 7-10**：指定枚举为公开会使其所有变种成为公开
 
-因为我们将这个 `Appetizer` 枚举构造为了公开，所以我们可以在 `eat_at_restaurant` 中，使用 `Soup` 和 `Salad` 两个变种。
+因为我们已构造 `Appetizer` 为公开，所以我们可以在 `eat_at_restaurant` 中使用 `Soup` 和 `Salad` 两个变种。
 
-除非枚举变种是公开的，否则枚举的用处就不大；如果每次都要给所有枚举变种注释上 `pub`，那就太烦人了，所以枚举变种默认是公开的。通常结构体在其字段不公开的情况下也很有用，因此结构体字段遵循了一般规则，即除非被注释为 `pub`，否则默认情况下所有字段，都是私有的。
+除非枚举的变种是公开的，否则枚举的用处就不大；在每种情况下都必须以 `pub` 注解所有枚举变种将很烦人了，因此枚举变种的默认设置是要成为公开。结构体在其字段不公开的情况下通常就很有用，因此结构体字段遵循默认情况下所有内容都是私有，除非以 `pub` 注释的一般规则。
+
+还有一种涉及 `pub` 的情形我们尚未介绍，那就时我们的最后一项模组系统特性：`use` 关键字。我们将首先介绍 `use` 本身，然后我们将展示如何结合 `pub` 和 `use`。
 
 
 （End）
