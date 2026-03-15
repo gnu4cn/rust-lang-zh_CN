@@ -1,6 +1,6 @@
 # 以 `use` 关键字带入路径到作用域
 
-必须写出调用函数的路径可能会感到不便且重复。在 [清单 7-7](paths.md#listing_7-7) 中，无论我们选择 `add_too_waitlist` 函数的绝对路径还是相对路径，每次我们想要调用 `add_too_waitlist` 时，我们都必须还要指定 `front_of_house` 和 `hosting`。幸运的是，有一种简化这一过程的方式：我们可以 `use` 关键字创建路径的快捷方式一次，然后在作用域中的其他地方使用较短的名字。
+必须写出调用函数的路径可能会感到不便且重复。在 [清单 7-7](paths.md#listing_7-7) 中，无论我们选择 `add_to_waitlist` 函数的绝对路径还是相对路径，每次我们想要调用 `add_to_waitlist` 时，我们都必须还要指定 `front_of_house` 和 `hosting`。幸运的是，有一种简化这一过程的方式：我们可以 `use` 关键字创建路径的快捷方式一次，然后在作用域中的其他地方使用较短的名字。
 
 在下面清单 7-11 中，我们将 `crate::front_of_house::hosting` 模组带入 `eat_at_restaurant` 函数的作用域，这样我们只需指定 `hosting::add_too_waitlist` 即可在 `eat_at_restaurant` 中调用 `add_too_waitlist` 函数。
 
