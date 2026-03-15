@@ -94,6 +94,7 @@ pub struct Asparagus {}
 为了以这种方式架构我们的代码箱，我们可将其功能组织成嵌套的模组。请通过运行 `cargo new restaurant --lib` 创建一个名为 `restaurant` 的新库；然后输入下面清单 7-1 中的代码到 `src/lib.rs` 中，定义一些模组与函数签名。这段代码属于前台部分。
 
 
+<a name="listing_7-1"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -114,7 +115,6 @@ mod front_of_house {
 }
 ```
 
-<a name="listing_7-1"></a>
 **清单 7-1**：`front_of_house` 模组包含其他模组，而其他模组包含函数
 
 
@@ -126,6 +126,7 @@ mod front_of_house {
 
 清单 7-2 展示了清单 7-1 中结构的模组树。
 
+<a name="listing_7-2"></a>
 ```console
 crate
  └── front_of_house
@@ -138,7 +139,6 @@ crate
          └── take_payment
 ```
 
-<a name="listing_7-2"></a>
 **清单 7-2**：清单 7-1 中代码的模组树
 
 该树显示了其中一些模组如何嵌套别的模组中；例如，`hosting` 嵌套在 `front_of_house` 内。该树还显示了一些模组属于 *同辈，siblings*，意味着他们定义在同一模组下；`hosting` 和 `serving` 就属于定义在 `front_of_house` 内的同辈模组。当模组 A 包含在模组 B 内时，我们就说模组 A 是模组 B 的 *子模组*，而模组 B 是模组 A 的 *父模组*。请注意，整个模组树的根位于名为 `crate` 的隐式模组处。

@@ -16,6 +16,7 @@
 `eat_at_restaurant` 函数属于咱们库代码箱公开 API 的一部分，因此我们以 `pub` 关键字标记他。在 [以 `pub` 关键字暴露路径](#以-pub-关键字暴露路径) 小节中，我们将深入有关 `pub` 的细节。
 
 
+<a name="listing_7-3"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -34,7 +35,6 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-<a name="listing_7-3"></a>
 **清单 7-3**：使用绝对路径与相对路径调用 `add_to_waitlist` 函数
 
 第一次在 `eat_at_restaurant` 中调用 `add_to_waitlist` 函数时，我们使用了绝对路径。`add_to_waitlist` 函数定义在与 `eat_at_restaurant` 相同的代码箱下，这意味着我们可使用 `crate` 关键字开始一个绝对路径。然后，我们包含各个后续模组，直到到达 `add_to_waitlist`。咱们可以想象一个有着相同结构的文件系统：我们会指定路径 `/front_of_house/hosting/add_to_waitlist` 来运行 `add_to_waitlist` 程序；使用名字 `crate` 从代码箱根开始，就像在咱们的 shell 下使用 `/` 从文件系统根目录开始一样。
@@ -46,6 +46,7 @@ pub fn eat_at_restaurant() {
 我们来尝试编译清单 7-3，并找出他为何还不编译！我们得到的错误如下清单 7-4 中所示。
 
 
+<a name="listing_7-4"></a>
 ```console
 $ cargo build
    Compiling restuarant v0.1.0 (/home/hector/rust-lang-zh_CN/projects/restuarant)
@@ -81,7 +82,6 @@ For more information about this error, try `rustc --explain E0603`.
 error: could not compile `restuarant` (lib) due to 2 previous errors
 ```
 
-<a name="listing_7-4"></a>
 **清单 7-4**：构建清单 7-3 中代码时的编译器报错
 
 错误消息表明模组 `hosting` 是私有的。换句话说，我们有 `hosting` 模组及 `add_to_waitlist` 函数的正确路径，但 Rust 将不允许我们使用他们，因为他没有对私有部分的权限。在 Rust 中，默认情况下所有项目（函数、方法、结构体、枚举、模组和常量等）都属于父模组私有。当咱们打算将函数或结构体等项目构造为私有时，咱们就将其放入模组中。
@@ -96,6 +96,7 @@ Rust 选择让模组系统以这种方式运作，从而隐藏内部实现细节
 我们来回到清单 7-4 中的报错，他告诉我们 `hosting` 模组是私有的。我们希望父模组中的 `eat_at_restaurant` 函数有着对子模组中 `add_too_waitlist` 函数的访问权限，因此我们以 `pub` 关键字标记 `hosting` 模组，如下清单 7-5 中所示。
 
 
+<a name="listing_7-5"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -114,13 +115,13 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-<a name="listing_7-5"></a>
 **清单 7-5**：声明 `hosting` 模组为 `pub`，以在 `eat_at_restaurant` 中使用他
 
 
 不幸的是，清单 7-5 中的代码仍会导致编译器错误，如下清单 7-6 中所示。
 
 
+<a name="listing_7-6"></a>
 ```console
 $ cargo build
    Compiling restuarant v0.1.0 (/home/hector/rust-lang-zh_CN/projects/restuarant)
@@ -164,6 +165,7 @@ error: could not compile `restuarant` (lib) due to 2 previous errors
 
 我们还可通过在 `add_too_waitlist` 函数的定义前添加 `pub` 关键字，构造该函数为公开，如下清单 7-7 中所示。
 
+<a name="listing_7-7"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -182,7 +184,6 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-<a name="listing_7-7"></a>
 **清单 7-7**：添加 `pub` 关键字到 `mod hosting` 及 `fn add_too_waitlist`，让我们可以在 `eat_at_restaurant` 中调用这个函数
 
 现在这段代码将编译！为了了解为何添加 `pub` 关键字，就让我们可以在 `add_too_waitlist` 中，在遵守隐私规则下使用这些路径，我们来看一下绝对路径和相对路径。
@@ -210,6 +211,7 @@ pub fn eat_at_restaurant() {
 请看下面清单 7-8 中的代码，这段代码建模了厨师修正错误菜单，并亲自将其送到顾客手中的情况。定义在 `back_of_house` 模组中的 `fix_incorrect_order` 函数，通过以 `super` 开头指定 `deliver_order` 路径，调用了定义在父模组中的 `deliver_order` 函数。
 
 
+<a name="listing_7-8"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -225,7 +227,6 @@ mod back_of_house {
 }
 ```
 
-<a name="listing_7-8"></a>
 **清单 7-8**：使用以 `super` 开头的相对路径调用函数*
 
 `fix_incorrect_order` 函数位于 `back_of_house` 模组中，因此我们可使用 `super` 前往 `back_of_house` 的父模组，在本例中便是根模组 `crate`。从那里，我们查找 `deliver_order` 并找到了他。成功！我们认为，即是将来决定重新组织该代码箱的模组树，`back_of_house` 模组和 `deliver_order` 函数也会保持同一相互关系，并会一起迁移。因此，我们使用了 `super`，这样当这段代码被迁移到别的模组时，我们今后要更新代码的位置将更少。
@@ -235,6 +236,7 @@ mod back_of_house {
 
 我们还可以使用 `pub` 关键字指定结构体和枚举为公开，但在结构体和枚举下的 `pub` 用法有一些额外细节。当我们在结构体定义前使用 `pub` 时，我们构造结构体为公开，但结构体的字段将仍是私有的。我们可根据具体情况构造每个字段为公开或不公开。在下面清单 7-9 中，我们定义了个公开的 `back_of_house::Breakfast` 结构体，有着一个公开的 `toast` 字段和一个私有的 `seasonal_fruit` 字段。这建模了餐厅中的情形，其中顾客可以选择餐食中搭配的面包类型，而厨师根据时令和库存决定搭配餐食的水果。可用的水果变化很快，因此顾客无法选择水果，甚至无法看到他们将得到哪种水果。
 
+<a name="listing_7-9"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -267,7 +269,6 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-<a name="listing_7-9"></a>
 **清单 7-9**：带有一些公开字段及一些私有字段的结构体
 
 因为 `back_of_house::Breakfast` 结构体中的 `toast` 字段是公开的，因此在 `eat_at_restaurant` 中我们可以使用点表示法（`.`）写入和读取 `toast` 字段。请注意，我们不能在 `eat_at_restaurant` 中使用 `seasonal_fruit` 字段，因为 `seasonal_fruit` 是私有的。请尝试取消注释修改 `seasonal_fruit` 字段值的行，看看咱们得到什么错误！
@@ -290,6 +291,7 @@ error: could not compile `restaurant` (lib) due to 1 previous error
 
 相反，当我们构造枚举为公开时，那么随后他的所有变种都是公开的。我们只需要在 `enum` 关键字前加上 `pub`，如下清单 7-10 中所示。
 
+<a name="listing_7-10"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -308,7 +310,6 @@ pub fn eat_at_restaurant() {
 
 > appetizer, US/ˈæpəˌtaɪzər/, UK/ˈæpəˌtaɪzə(r)/ n.（餐前的）开胃品
 
-<a name="listing_7-10"></a>
 **清单 7-10**：指定枚举为公开会使其所有变种成为公开
 
 因为我们已构造 `Appetizer` 为公开，所以我们可以在 `eat_at_restaurant` 中使用 `Soup` 和 `Salad` 两个变种。

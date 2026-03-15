@@ -8,6 +8,7 @@ Rust 有着一种成为 `match` 的非常强大的控制流结构，允许咱们
 
 说到硬币，我们就来将他们用作使用 `match` 的示例！我们可编写一个函数，该函数取一枚未知的美国硬币，并以与点数机类似的方式确定他是哪种硬币，并返回其以美分为单位价值，如下清单 6-3 中所示。
 
+<a name="listing_6-3"></a>
 ```rust
 enum Coin {
     Penny,
@@ -26,7 +27,6 @@ fn value_in_cents(coin: Coin) -> u8 {
 }
 ```
 
-<a name="listing_6-3"></a>
 **清单 6-3**：一个枚举和一个以该枚举的变种作为模式的 `match` 表达式
 
 我们来分解 `value_in_cents` 函数中的 `match` 表达式。首先，我们列出 `match` 关键字，后跟一个表达式，在本例中其为值 `coin`。这看起来与 `if` 下用到的条件表达式非常相似，但有个很大的区别：在 `if` 下，条件需要评估为布尔值，但在这里，他可以是任何类型。这个示例中 `coin` 的类型是我们在第一行上定义的 `Coin` 枚举。
@@ -62,6 +62,7 @@ fn value_in_cents(coin: Coin) -> u8 {
 举个例子，我们来将咱们的枚举变种之一，修改为于其中保存数据。从 1999 年到 2008 年，美国为 50 个州都铸造了一侧有着不同图案的 25 分硬币。其他硬币都没有州的图案，因此只有 25 美分的有这种额外的价值。通过修改 `Quarter` 变种为包含一个存储于其内部的 `UsState` 值，我们便可将这一信息添加到咱们的 `enum`，我们在清单 6-4 中完成了这点。
 
 
+<a name="listing_6-4"></a>
 ```rust
 #[derive(Debug)]    // 这样咱们就可以很快检查州份
 enum UsState {
@@ -78,7 +79,6 @@ enum Coin {
 }
 ```
 
-<a name="listing_6-4"></a>
 **清单 6-4**：其中 `Quarter` 变种还保存 `UsState` 值的枚举 `Coin`
 
 设想某位朋友正在尝试收集所有 50 个州的 25 美分硬币。当我们按硬币类型分类咱们的零钱时，我们还将报出与每个 25 美分硬币相关的州名，以便其是个我们朋友没有的时，他们可将其添加到他们的收藏中。
@@ -112,6 +112,7 @@ fn value_in_cents(coin: Coin) -> u8 {
 归功于 `match` 表达式，这个函数非常容易编写，并将看起来像下面清单 6-5 一样。
 
 
+<a name="listing_6-5"></a>
 ```rust
     fn plus_one(x: Option<i32>) -> Option<i32> {
         match x {
@@ -125,7 +126,6 @@ fn value_in_cents(coin: Coin) -> u8 {
     let none = plus_one(None);
 ```
 
-<a name="listing_6-5"></a>
 *清单 6-5：对 `Option<i32>` 使用 `match` 表达式的一个函数*
 
 

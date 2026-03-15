@@ -7,6 +7,7 @@
 
 我们来修改以 `Rectangle` 实例为参数的 `area` 函数，转而构造一个定义在 `Rectangle` 结构上的 `area` 方法，如下清单 5-13 中所示。
 
+<a name="listing_5-13"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -34,7 +35,6 @@ fn main() {
 }
 ```
 
-<a name="listing_5-13"></a>
 **清单 5-13**：定义 `Rectangle` 结构体上的 `area` 方法
 
 为了在 `Rectangle` 的上下文中定义函数，我们开始了个 `Rectangle` 的 `impl`（实现，implementation）代码块。这个 `impl` 代码块中的所有内容都将与 `Rectangle` 类型关联。然后，我们将 `area` 函数移入 `impl` 的花括号中，并把函数签名中的第一个（本示例中的唯一）参数修改为 `self`， 并修改函数体中的各处。在 `main` 中，在我们曾调用 `area` 函数并将 `rect1` 作为参数传递的地方，我们便可使用 *方法语法，method syntax*，调用咱们 `Rectangle` 实例上的 `area` 方法。方法语法位于实例之后：我们添加一个点，后跟方法名称、圆括号及任何的参数。
@@ -104,6 +104,7 @@ fn main() {
 我们来通过在 `Rectangle` 结构体上实现第二个方法练习使用方法。这次我们希望 `Rectangle` 实例取另一 `Rectangle` 实例，当第二个 `Rectangle` 可完全容纳在 `self`（第一个 `Rectangle`）内时返回 `true`；否则，他应返回 `false`。也就是说，一旦我们定义了 `can_hold` 方法，我们就希望能够编写出下面清单 5-14 中所示的程序。
 
 
+<a name="listing_5-14"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -128,7 +129,6 @@ fn main() {
 }
 ```
 
-<a name="listing_5-14"></a>
 **清单 5-14**：使用尚未编写的 `can_hold` 方法
 
 预期输出将如下，因为 `rect2` 两条边都小于 `rect1` 的两条边，而 `rect3` 宽于 `rect1`：
@@ -142,6 +142,7 @@ rect1 可以容纳 rect3 吗？false
 我们知道咱们是要定义一个方法，因此他将位于 `impl Rectangle` 代码块内。方法的名字将是 `can_hold`，同时他将取另一 `Rectangle` 的不可变借用作为参数。通过查看调用该方法的代码我们可以区分这一参数的类型：`rect1.can_hold(&rect2)` 传入 `&rect2`，这是个对 `Rectangle` 实例 `rect2` 的不可变借用。这是有道理的，因为我们只需要读取 `rect2`（而不是写入，那将意味着我们需要可变借用），并且我们希望 `main` 保留对 `rect2` 的所有权，以便我们就可以在调用 `can_hold` 方法后再次使用他。`can_hold` 的返回值将是个布尔值，并其实现将分别检查 `self` 宽度和高度是否大于另一 `Rectangle` 的宽度和高度。咱们来添加这个新的 `can_hold` 方法到清单 5-13 中的 `impl` 代码块，如下清单 5-15 中所示。
 
 
+<a name="listing_5-15"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -156,7 +157,6 @@ impl Rectangle {
     }
 }
 ```
-<a name="listing_5-15"></a>
 **清单 5-15**：在 `Rectangle` 上实现 `can_hold` 方法，他会取另一 `Rectangle` 实例作为参数
 
 当我们以清单 5-14 中的 `main` 函数运行这段代码时，我们将得到我们想要的输出。方法可以取我们于 `self` 参数后添加到签名的多个参数，而这些参数会与函数中的参数一样生效。
@@ -203,6 +203,7 @@ impl Rectangle {
 每个结构体都允许有多个 `impl` 代码块。例如，[清单 5-15](#listing_5-15) 相当于下面清单 5-16 中的代码，其有着都在自己 `impl` 块中的各个方法。
 
 
+<a name="listing_5-16"></a>
 ```rust
 impl Rectangle {
     fn area(&self) -> u32 {
@@ -218,7 +219,6 @@ impl Rectangle {
 }
 ```
 
-<a name="listing_5-16"></a>
 **清单 5-16**：使用多个 `impl` 代码块重写清单 5-15
 
 

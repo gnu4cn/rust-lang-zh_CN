@@ -49,6 +49,7 @@ fn route(ip_kind: IpAddrKind) {}
 使用枚举还有更多优势。进一步思考我们的 IP 地址类型，目前我们没有存储具体 IP 地址 *数据* 的方法；我们只知道其为什么 *类别，kind*。鉴于咱们刚在第 5 章中了解了结构体，咱们可能会想以结构体来解决这个问题，如下清单 6-1 中所示。
 
 
+<a name="listing_6-1"></a>
 ```rust
 enum IpAddrKind {
     V4,
@@ -73,7 +74,6 @@ fn main() {
 }
 ```
 
-<a name="listing_6-1"></a>
 **清单 6-1**：使用一个 `struct` 存储 IP 地址的数据及 `IpAddrKind` 变种*
 
 在这里，我们定义了个结构体 `IpAddr`，他有两个字段：一个 `IpAddrKind` 类型的 `kind` 字段（我们之前定义的枚举）和一个 `String` 类型的 `address` 字段。咱们有这一结构体的两个实例。第一个是 `home`，他以值 `IpAddrKind::V4` 作为其 `kind` 字段，与 `127.0.0.1` 的关联地址数据。第二个实例是 `loopback`。他以 `IpAddrKind` 的另一变种 `V6` 作为其 `kind` 值，并以地址 `::1` 于其关联。我们已使用了个结构体将 `kind` 和 `address` 两个值捆绑在一起，因此现在变种就与值关联了。
@@ -135,6 +135,7 @@ enum IpAddr {
 我们来看看下面清单 6-2 中枚举的另一示例：这个枚举在其变种中嵌入了多种类型。
 
 
+<a name="listing_6-2"></a>
 ```rust
 enum Message {
     Quit,
@@ -144,7 +145,6 @@ enum Message {
 }
 ```
 
-<a name="listing_6-2"></a>
 **清单 6-2**：一个 `Message` 枚举，其变种各自都存储不同数量和类型的值
 
 

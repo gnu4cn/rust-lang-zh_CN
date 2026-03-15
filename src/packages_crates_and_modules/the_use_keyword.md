@@ -4,6 +4,7 @@
 
 在下面清单 7-11 中，我们将 `crate::front_of_house::hosting` 模组带入 `eat_at_restaurant` 函数的作用域，这样我们只需指定 `hosting::add_too_waitlist` 即可在 `eat_at_restaurant` 中调用 `add_too_waitlist` 函数。
 
+<a name="listing_7-11"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -20,7 +21,6 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-<a name="listing_7-11"></a>
 **清单 7-11**：以 `use` 关键字带入模组到作用域
 
 在作用域中添加 `use` 与路径，类似于在文件系统中创建符号链接。通过在代码箱根处添加 `use crate::front_of_house::hosting`，`hosting` 现在便是该作用域中的有效名字，就像 `hosting` 模组已在代码箱根处定义一样。与任何其他路径一样，以 `use` 关键字带入作用域的路径也会检查隐私。
@@ -28,6 +28,7 @@ pub fn eat_at_restaurant() {
 请注意，`use` 只会针对 `use` 发生之处的作用域创建快捷方式。下面清单 7-12 迁移 `eat_at_restaurant` 函数到一个名为 `customer` 的新子模组中，该子模组是个与 `use` 语句不同的作用域，因此该函数体将不编译。
 
 
+<a name="listing_7-12"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -46,7 +47,6 @@ mod customer {
 }
 ```
 
-<a name="listing_7-12"></a>
 **清单 7-12**：`use` 语句仅应用于其所在的作用域
 
 编译器错误表明该快捷方式在 `customer` 模组内不再适用：
@@ -87,6 +87,7 @@ error: could not compile `restaurant` (lib) due to 1 previous error; 1 warning e
 在 [清单 7-11](#listing_7-11) 中，咱们可能想知道为什么我们指定了 `use crate::front_of_house::hosting`，然后在 `eat_at_restaurant` 中调用 `hosting::add_to_waitlist`，而不是指定 `add_too_waitlist` 函数的完整 `use` 路径，如下面清单 7-13 中那样。
 
 
+<a name="listing_7-13"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -103,13 +104,13 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-<a name="listing_7-13"></a>
 **清单 7-13**：以 `use` 带入 `add_to_waitlist` 到作用域，这属于非惯用的
 
 尽管清单 7-11 和清单 7-13 都完成了同一任务，但清单 7-11 是以 `use` 带入函数到作用域的惯用方式。以 `use` 带入函数的父模到作用域意味着我们在调用函数时必须指定父模组。在调用函数时指定父模组可以清楚地表明该函数不属于本地定义的，同时仍然最大限度地减少完整路径的重复。清单 7-13 中的代码在 `add_too_waitlist` 于何处定义方面不清楚。
 
 另一方面，在以 `use` 关键字引入结构体、枚举及其他项目时，指定完整路径是惯用的。下面清单 7-14 展示了带入标准库的 `HashMap` 结构体到二进制代码箱的作用域的惯用方式。
 
+<a name="listing_7-14"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -121,13 +122,13 @@ fn main() {
 }
 ```
 
-<a name="listing_7-14"></a>
 **清单 7-14**：以惯用方式带入 `HashMap` 到作用域
 
 这个习惯用法背后没有什么强有力的理由：他只是已经出现的约定，人们已经习惯了以这种方式阅读和编写 Rust 代码。
 
 这种习惯用法的例外，是当我们以 `use` 语句带入两个同名的项目到作用域时，因为 Rust 不允许这样做。下面清单 7-15 展示了如何带入两种有着同一名字但不同父模组的 `Result` 类型到作用域，以及如何引用他们。
 
+<a name="listing_7-15"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -143,7 +144,6 @@ fn function2() -> io::Result {
 }
 ```
 
-<a name="listing_7-15"></a>
 **清单 7-15**：带入两个有着相同名字的类型到同一作用域必须用到他们的父模组
 
 正如咱们所见，使用父模组区分了两种 `Result` 类型。相反，若我们指定了 `use std::fmt::Result` 和 `use std::io::Result`，我们就会在同一作用域中有两个 `Result` 类型，并且当我们使用 `Result` 时，Rust 将不清楚我们指的是哪个。
@@ -153,6 +153,7 @@ fn function2() -> io::Result {
 
 对于以 `use` 带入两种同名类型到同一作用域的问题，还有另一种解决方案：在路径后，我们可以为类型指定 `as` 及一个新的本地名字，或 *别名，alias*。下面清单 7-16 展示了编写清单 7-15 中代码的另一种方式，通过使用 `as` 重命名两种 `Result` 类型中之一。
 
+<a name="listing_7-16"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -168,7 +169,6 @@ fn function2() -> IoResult {
 }
 ```
 
-<a name="listing_7-16"></a>
 **清单 7-16**：当带入类型到作用域时以 `as` 关键字重命名类型
 
 在第二个 `use` 语句中，针对 `std::io::Result` 类型我们选择了新的名字 `IoResult`，这不会与我们同样带入作用域的 `std::fmt` 中的 `Result` 冲突。清单 7-15 和清单 7-16 均被视为惯用的，因此选择取决于咱们！
@@ -180,6 +180,7 @@ fn function2() -> IoResult {
 
 下面清单 7-17 展示 [清单 7-11](#listing_7-11) 中的代码，其中根模组中的 `use` 已改为 `pub use`。
 
+<a name="listing_7-17"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -196,7 +197,6 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-<a name="listing_7-17"></a>
 **清单 7-17**：以 `pub use` 在新的作用域中构造项目为可供任何代码使用
 
 在这一修改前，外部代码将必须通过使用路径 `restaurant::front_of_house::hosting::add_too_waitlist()` 路径调用 `add_to_waitlist` 函数，这还需要 `front_of_house` 模组标记为 `pub`。现在，这个 `pub use` 已重导出了根模组中的 `hosting` 模组，外部代码便可使用路径 `restaurant::hosting::add_to_waitlist()`。
@@ -252,6 +252,7 @@ use std::io;
 
 相反，我们可以使用嵌套路径于一行中带入同样的项目到作用域。通过指定路径的共同部分，后跟两个冒号，然后用花括号括起一个路径不同部分的列表，如下清单 7-18 中所示。
 
+<a name="listing_7-18"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -260,7 +261,6 @@ use std::{cmp::Ordering, io};
 // --跳过--
 ```
 
-<a name="listing_7-18"></a>
 **清单 7-18**：指定嵌套路径以带入有着同一前缀的多个项目到作用域
 
 在较大的程序中，使用嵌套路径带入同一代码箱或同一模组中的许多项目到作用域，可大大减少所需的单独 `use` 语句数量！
@@ -268,6 +268,7 @@ use std::{cmp::Ordering, io};
 我们可在路径的任何级别使用嵌套路径，这在组合两条共用子路径的 `use` 语句时非常有用。例如，下面清单 7-19 显示了两条 `use` 语句：一个带入 `std::io` 到作用域，另一个带入 `std::io::Write` 到作用域。
 
 
+<a name="listing_7-19"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -275,19 +276,18 @@ use std::io;
 use std::io::Write;
 ```
 
-<a name="listing_7-19"></a>
 **清单 7-19**：两条 `use` 语句，其中一条是另一条的子路径
 
 这两条路径的共同部分是 `std::io`，而这正是完整的第一条路径。要将这两条路径合并为一条 `use` 语句，我们可在嵌套路径中使用 `self`，如下清单 7-20 中所示。
 
 
+<a name="listing_7-20"></a>
 文件名：`src/main.rs`
 
 ```rust
 use std::io::{self, Write};
 ```
 
-<a name="listing_7-20"></a>
 **清单 7-20**：合并清单 7-19 中的路径为一条 `use` 语句
 
 这一行会带入 `std::io` 与 `std::io::Write` 到作用域。

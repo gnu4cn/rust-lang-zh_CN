@@ -3,6 +3,7 @@
 `if let` 语法允许咱们将 `if` 和 `let` 结合为一种不太冗长的方式来处理匹配一种模式匹配的值，同时忽略其余值。考虑下面清单 6-6 中的程序，其匹配 `config_max` 变量中的 `Option<u8>` 值，但只打算在该值为 `Some` 变体时执行代码。
 
 
+<a name="listing_6-6"></a>
 ```rust
     let config_max = Some(3u8);
 
@@ -12,7 +13,6 @@
     }
 ```
 
-<a name="listing_6-6"></a>
 **清单 6-6**：只关心在值为 `Some` 时执行代码的 `match` 表达式
 
 
@@ -92,6 +92,7 @@ impl UsState {
 
 然后，我们可以使用 `if let` 来匹配硬币的类型，在条件的主体中引入一个 `state` 变量，如下面清单 6-7 中所示。
 
+<a name="listing_6-7"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -108,12 +109,12 @@ fn describe_state_quarter(coin: Coin) -> Option<String> {
 }
 ```
 
-<a name="listing_6-7"></a>
 **清单 6-7**：使用嵌套在 `if let` 中的条件，检查某个州在 1900 时是否存在
 
 这样就完成了工作，但他已将工作推入了 `if let` 语句的主体中，当要完成的工作更复杂时，就可能很难准确理解顶级分支之间的关系。我们还可以利用表达式会产生值这一事实，要么从 `if let` 产生 `state` 要么提前返回，如清单 6-8 中所示。(在 `match` 下咱们也可实现类似效果。）
 
 
+<a name="listing_6-8"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -132,7 +133,6 @@ fn describe_state_quarter(coin: Coin) -> Option<String> {
 }
 ```
 
-<a name="listing_6-8"></a>
 **清单 6-8**：使用 `if let` 产生值，或提前返回*
 
 
@@ -142,6 +142,7 @@ fn describe_state_quarter(coin: Coin) -> Option<String> {
 
 在下面清单 6-9 中，咱们会看到在 `if let` 处使用 `let...else` 时清单 6-8 的样子。
 
+<a name="listing_6-9"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -158,7 +159,6 @@ fn describe_state_quarter(coin: Coin) -> Option<String> {
 }
 ```
 
-<a name="listing_6-9"></a>
 **清单 6-9**：使用 `let...else` 来明确函数的流程
 
 请注意，流程以这种方式保持在函数主体中的 “快乐路径” 上，而没有 `if let` 所做的那样，针对两个分支有着明显不同的控制流。
