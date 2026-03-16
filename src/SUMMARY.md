@@ -46,7 +46,7 @@
     - [拆分模组为不同文件](packages_crates_and_modules/separating_modules.md)
 
 - [常见集合](Ch08_Common_Collections.md)
-    - [使用矢量值存储值的清单](common_collections/vectors.md)
+    - [以矢量值存储值列表](common_collections/vectors.md)
     - [以字符串存储 UTF-8 编码的文本](common_collections/strings.md)
     - [在哈希图中存储带有关联值的键](common_collections/hash_maps.md)
 
