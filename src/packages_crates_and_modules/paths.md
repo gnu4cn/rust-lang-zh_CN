@@ -93,7 +93,7 @@ Rust 选择让模组系统以这种方式运作，从而隐藏内部实现细节
 
 ##  以 `pub` 关键字暴露路径
 
-我们来回到清单 7-4 中的报错，他告诉我们 `hosting` 模组是私有的。我们希望父模组中的 `eat_at_restaurant` 函数有着对子模组中 `add_too_waitlist` 函数的访问权限，因此我们以 `pub` 关键字标记 `hosting` 模组，如下清单 7-5 中所示。
+我们来回到清单 7-4 中的报错，他告诉我们 `hosting` 模组是私有的。我们希望父模组中的 `eat_at_restaurant` 函数有着对子模组中 `add_to_waitlist` 函数的访问权限，因此我们以 `pub` 关键字标记 `hosting` 模组，如下清单 7-5 中所示。
 
 
 <a name="listing_7-5"></a>
@@ -163,7 +163,7 @@ error: could not compile `restuarant` (lib) due to 2 previous errors
 
 清单 7-6 中的报错表明 `add_to_waitlist` 函数是私有的。隐私规则适用于结构体、枚举、函数和方法以及模组等。
 
-我们还可通过在 `add_too_waitlist` 函数的定义前添加 `pub` 关键字，构造该函数为公开，如下清单 7-7 中所示。
+我们还可通过在 `add_to_waitlist` 函数的定义前添加 `pub` 关键字，构造该函数为公开，如下清单 7-7 中所示。
 
 <a name="listing_7-7"></a>
 文件名：`src/lib.rs`
@@ -184,9 +184,9 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-**清单 7-7**：添加 `pub` 关键字到 `mod hosting` 及 `fn add_too_waitlist`，让我们可以在 `eat_at_restaurant` 中调用这个函数
+**清单 7-7**：添加 `pub` 关键字到 `mod hosting` 及 `fn add_to_waitlist`，让我们可以在 `eat_at_restaurant` 中调用这个函数
 
-现在这段代码将编译！为了了解为何添加 `pub` 关键字，就让我们可以在 `add_too_waitlist` 中，在遵守隐私规则下使用这些路径，我们来看一下绝对路径和相对路径。
+现在这段代码将编译！为了了解为何添加 `pub` 关键字，就让我们可以在 `add_to_waitlist` 中，在遵守隐私规则下使用这些路径，我们来看一下绝对路径和相对路径。
 
 在绝对路径中，我们以 `crate` 开头，他是咱们代码箱的模组树的根。`front_of_house` 模组定义在代码箱根处。虽然 `front_of_house` 不是公开的，但由于 `eat_at_restaurant` 函数定义在与 `front_of_house` 模组的同一个模组中（即 `eat_at_restaurant` 和 `front_of_house` 属于同辈），我们可在 `eat_at_restaurant` 中引用 `front_of_house`。接下来是以 `pub` 标注的 `hosting` 模组。我们可以访问 `hosting` 的父模组，因此我们可以访问 `hosting`。最后，`add_to_waitlist` 函数以 `pub` 标注了，并且我们可以访问他的父模组，因此这个函数调用有效！
 

@@ -2,7 +2,7 @@
 
 必须写出调用函数的路径可能会感到不便且重复。在 [清单 7-7](paths.md#listing_7-7) 中，无论我们选择 `add_to_waitlist` 函数的绝对路径还是相对路径，每次我们想要调用 `add_to_waitlist` 时，我们都必须还要指定 `front_of_house` 和 `hosting`。幸运的是，有一种简化这一过程的方式：我们可以 `use` 关键字创建路径的快捷方式一次，然后在作用域中的其他地方使用较短的名字。
 
-在下面清单 7-11 中，我们将 `crate::front_of_house::hosting` 模组带入 `eat_at_restaurant` 函数的作用域，这样我们只需指定 `hosting::add_too_waitlist` 即可在 `eat_at_restaurant` 中调用 `add_too_waitlist` 函数。
+在下面清单 7-11 中，我们将 `crate::front_of_house::hosting` 模组带入 `eat_at_restaurant` 函数的作用域，这样我们只需指定 `hosting::add_to_waitlist` 即可在 `eat_at_restaurant` 中调用 `add_to_waitlist` 函数。
 
 <a name="listing_7-11"></a>
 文件名：`src/lib.rs`
@@ -84,7 +84,7 @@ error: could not compile `restaurant` (lib) due to 1 previous error; 1 warning e
 
 ## 创建惯用的 `use` 路径
 
-在 [清单 7-11](#listing_7-11) 中，咱们可能想知道为什么我们指定了 `use crate::front_of_house::hosting`，然后在 `eat_at_restaurant` 中调用 `hosting::add_to_waitlist`，而不是指定 `add_too_waitlist` 函数的完整 `use` 路径，如下面清单 7-13 中那样。
+在 [清单 7-11](#listing_7-11) 中，咱们可能想知道为什么我们指定了 `use crate::front_of_house::hosting`，然后在 `eat_at_restaurant` 中调用 `hosting::add_to_waitlist`，而不是指定 `add_to_waitlist` 函数的完整 `use` 路径，如下面清单 7-13 中那样。
 
 
 <a name="listing_7-13"></a>
@@ -106,7 +106,7 @@ pub fn eat_at_restaurant() {
 
 **清单 7-13**：以 `use` 带入 `add_to_waitlist` 到作用域，这属于非惯用的
 
-尽管清单 7-11 和清单 7-13 都完成了同一任务，但清单 7-11 是以 `use` 带入函数到作用域的惯用方式。以 `use` 带入函数的父模到作用域意味着我们在调用函数时必须指定父模组。在调用函数时指定父模组可以清楚地表明该函数不属于本地定义的，同时仍然最大限度地减少完整路径的重复。清单 7-13 中的代码在 `add_too_waitlist` 于何处定义方面不清楚。
+尽管清单 7-11 和清单 7-13 都完成了同一任务，但清单 7-11 是以 `use` 带入函数到作用域的惯用方式。以 `use` 带入函数的父模到作用域意味着我们在调用函数时必须指定父模组。在调用函数时指定父模组可以清楚地表明该函数不属于本地定义的，同时仍然最大限度地减少完整路径的重复。清单 7-13 中的代码在 `add_to_waitlist` 于何处定义方面不清楚。
 
 另一方面，在以 `use` 关键字引入结构体、枚举及其他项目时，指定完整路径是惯用的。下面清单 7-14 展示了带入标准库的 `HashMap` 结构体到二进制代码箱的作用域的惯用方式。
 
@@ -126,7 +126,7 @@ fn main() {
 
 这个习惯用法背后没有什么强有力的理由：他只是已经出现的约定，人们已经习惯了以这种方式阅读和编写 Rust 代码。
 
-这种习惯用法的例外，是当我们以 `use` 语句带入两个同名的项目到作用域时，因为 Rust 不允许这样做。下面清单 7-15 展示了如何带入两种有着同一名字但不同父模组的 `Result` 类型到作用域，以及如何引用他们。
+这种习惯用法的例外是，当我们以 `use` 语句带入两个同名的项目到作用域时，因为 Rust 不允许这样做。下面清单 7-15 展示了如何带入两种有着同一名字但不同父模组的 `Result` 类型到作用域，以及如何引用他们。
 
 <a name="listing_7-15"></a>
 文件名：`src/lib.rs`
@@ -199,7 +199,7 @@ pub fn eat_at_restaurant() {
 
 **清单 7-17**：以 `pub use` 在新的作用域中构造项目为可供任何代码使用
 
-在这一修改前，外部代码将必须通过使用路径 `restaurant::front_of_house::hosting::add_too_waitlist()` 路径调用 `add_to_waitlist` 函数，这还需要 `front_of_house` 模组标记为 `pub`。现在，这个 `pub use` 已重导出了根模组中的 `hosting` 模组，外部代码便可使用路径 `restaurant::hosting::add_to_waitlist()`。
+在这一修改前，外部代码将必须通过使用路径 `restaurant::front_of_house::hosting::add_to_waitlist()` 路径调用 `add_to_waitlist` 函数，这还需要 `front_of_house` 模组标记为 `pub`。现在，这个 `pub use` 已重导出了根模组中的 `hosting` 模组，外部代码便可使用路径 `restaurant::hosting::add_to_waitlist()`。
 
 当咱们代码的内部结构不同于与调用咱们代码的程序员，对这一领域的理解方式时，重导出非常有用。例如，在这个餐厅比喻中，经营餐厅的人考虑的是 “前厅” 和 “后厨”。但光顾餐厅的顾客可能不会从这些方面考虑餐厅的各个部分。在 `pub use` 下，我们可以一种结构编写咱们的代码，而暴露另一种结构。这样做使我们的库对在这个库上工作及调用库的程序员，都能保持组织良好。我们将在第 14 章中的 [“导出便利的公开 API”](../crates-io/publishing.md##导出便利的公开-api) 小节中，探讨 `pub use` 的另一个示例，以及他如何影响咱们的代码箱文档。
 
