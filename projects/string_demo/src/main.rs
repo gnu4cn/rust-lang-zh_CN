@@ -1,11 +1,10 @@
 fn main() {
-    let s = "नमस्ते";
+    let data = "初始内容";
 
-    for c in s.chars() {
-        println! ("{}", c);
-    }
+    let s = data.to_string();
 
-    for b in s.bytes() {
-        println! ("{}", b);
-    }
+    // 该方法直接在字面值之上也工作
+    let s = "初始内容".to_string();
+
+    println! ("{s}");
 }
