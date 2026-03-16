@@ -1,12 +1,16 @@
 fn main() {
-    let v = vec! [1, 2, 3, 4];
-
-    let third: &i32 = &v[2];
-    println! ("第三个元素为 {third}");
-
-    let third: Option<&i32> = v.get(2);
-    match third {
-        Some(third) => println! ("第三个元素为 {third}"),
-        None => println! ("没有第三个元素。"),
+    #[derive(Debug)]
+    enum SpreadsheetCell {
+        Int(i32),
+        Float(f64),
+        Text(String),
     }
+
+    let row = vec! [
+        SpreadsheetCell::Int(3),
+        SpreadsheetCell::Text(String::from("blue")),
+        SpreadsheetCell::Float(10.12),
+    ];
+
+    println! ("{row:?}");
 }
