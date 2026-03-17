@@ -1,7 +1,4 @@
-# 使用迭代器处理条目系列
-
-**Processing a Series of Items with Iterators**
-
+# 在迭代器下处理一系列项目
 
 迭代器模式，the iterator pattern, 实现了在条目序列上，依次执行某个任务。迭代器负责对各个条目遍历，及判断序列何时结束的逻辑。咱们运用了迭代器后，就不必自己再实现那个逻辑。
 

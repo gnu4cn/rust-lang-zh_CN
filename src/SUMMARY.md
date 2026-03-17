@@ -48,7 +48,7 @@
 - [常见集合](Ch08_Common_Collections.md)
     - [以矢量值存储值列表](common_collections/vectors.md)
     - [以字符串存储 UTF-8 编码的文本](common_collections/strings.md)
-    - [在哈希图中存储带有关联值的键](common_collections/hash_maps.md)
+    - [在哈希图中存储键与关联值](common_collections/hash_maps.md)
 
 - [错误处理](Ch09_Error_Handling.md)
     - [`panic!` 下的不可恢复错误](error_handling/panic.md)
@@ -62,7 +62,7 @@
 - [泛型、特质与生命周期](Ch10_Generic_Types_Traits_and_Lifetimes.md)
     - [通用数据类型](generic_types_traits_and_lifetimes/generics.md)
     - [特质：定义共用行为](generic_types_traits_and_lifetimes/traits.md)
-    - [使用生命周期验证引用](generic_types_traits_and_lifetimes/lifetimes.md)
+    - [以生命周期验证引用](generic_types_traits_and_lifetimes/lifetimes.md)
 
 
 - [编写自动化测试](Ch11_Writing_Automated_Tests.md)
@@ -90,7 +90,7 @@
 
 - [函数式语言特性：迭代器与闭包](Ch13_Functional_Language_Features_Iterators_and_Closures.md)
     - [闭包：会捕获其环境的匿名函数](functional_features/closures.md)
-    - [使用迭代器处理条目序列](functional_features/iterators.md)
+    - [在迭代器下处理一序列项目](functional_features/iterators.md)
     - [改进咱们的 I/O 项目](functional_features/improving_io_project.md)
     - [性能比较：循环与迭代器](functional_features/performance.md)
 

@@ -186,7 +186,7 @@ fn add(self, s: &str) -> String
 在许多别的编程语言中，通过按照索引来引用字符串中的单个字符访问他们，属于有效且常见的操作。然而，当咱们尝试使用 Rust 中的索引语法访问 `String` 的部分时，咱们将得到报错。请考虑下面列表 8-19 中的无效代码。
 
 
-<a name="listing_8-18"></a>
+<a name="listing_8-19"></a>
 ```rust
     let s1 = String::from("hello");
     let h = s1[0];

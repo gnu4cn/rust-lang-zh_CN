@@ -1,7 +1,4 @@
-# 使用生命周期验证引用
-
-**Validating References with Lifetimes**
-
+# 以生命周期验证引用
 
 生命周期是另一种咱们前面已经用到的泛型。与确保类型有着期望行为的特质不同，生命周期确保的是引用在咱们需要他们有效期间，保持有效，lifetimes ensure that references are valid as long as we need them to be。
 

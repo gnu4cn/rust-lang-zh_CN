@@ -1,16 +1,11 @@
-use std::collections::HashMap;
-
 fn main() {
-    let text = "hello world wonderful world";
+    use std::collections::HashMap;
 
-    let mut map = HashMap::new();
+    let mut scores = HashMap::new();
+    scores.insert(String::from("Blue"), 10);
 
-    for word in text.split_whitespace() {
-        let count = map.entry(word).or_insert(0);
-        *count += 1;
-    }
+    scores.entry(String::from("Yellow")).or_insert(50);
+    scores.entry(String::from("Blue")).or_insert(50);
 
-    println! ("{:?}", map);
-
-
+    println! ("{scores:?}");
 }
