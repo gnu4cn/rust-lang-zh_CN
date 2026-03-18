@@ -1,12 +1,8 @@
 # `Result` 下的可恢复错误
 
-**Recoverable Errors with `Result`**
+大多数错误都不会严重到需要程序完全停止。有时，当某个函数失败时，是出于某种咱们容易解释并做出响应的原因。例如，当咱们试图打开某个文件，而该操作因该文件不存在而失败时，咱们可能想要创建这个文件而不是终止进程。
 
-
-大多数错误都不会严重到要求程序完全停止。有时，当某个函数失败时，其会是咱们容易解释并做出响应的某个原因。例如，当咱们试图打开某个文件，但因为该文件不存在而操作失败，咱们可能就会想要创建这个文件，而不是终止进程。
-
-
-回顾第二章中 [使用 `Result` 处理潜在失效](../Ch02_Programming_a_Guessing_Game.md#使用-result-处理潜在失效) 小节，其中的 `Result` 枚举被定义为有两个变种，`Ok` 与 `Err`，如下所示：
+回顾第二章中的 [以 `Result` 处理潜在失效](../Ch02_Programming_a_Guessing_Game.md#以-result-处理潜在失效) 小节，`Result` 枚举被定义为有两个变种，`Ok` 与 `Err`，如下所示：
 
 ```rust
 enum Result<T, E> {
@@ -15,10 +11,11 @@ enum Result<T, E> {
 }
 ```
 
-其中的 `T` 和 `E` 均为泛型参数，generic type parameters：我们将在第 10 章详细讨论泛型。咱们现在需要知道的是，`T` 表示 `Ok` 这个变种中，成功情况下将返回的值类型，`E` 表示 `Err` 变种中，失败情况下将返回的错误类型。由于 `Result` 有着这两个泛型参数，我们就可以在我们打算返回的成功值和错误值可能会有所不同的许多不同情况下，使用这个 `Result` 类型及其上定义的函数。
+其中 `T` 和 `E` 均为泛型参数，generic type parameter：我们将在第 10 章中更详细地讨论泛型。咱们现在需要知道的是，`T` 表示将在成功情况下于 `Ok` 变种内返回的值类型，`E` 表示将在失败情况下于 `Err` 变种中返回的错误类型。由于 `Result` 有这两个泛型参数，因此我们可在许多不同情形下使用 `Result` 类型及定义在其上的函数，其中我们希望返回的成功值和错误值可能不同。
 
-我们来调用一个会返回 `Result` 值的函数，因为该函数可能会失败。在下面清单 9-3 中，我们尝试打开某个文件。
+我们来调用一个返回 `Result` 值的函数，因为该函数可能会失败。在下面清单 9-3 中，我们尝试打开某个文件。
 
+<a name="listing_9-3"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -29,16 +26,15 @@ fn main() {
 }
 ```
 
-*清单 9-3：打开某个文件*
+**清单 9-3**：打开文件
 
-`File::open` 的返回类型为 `Result<T，E>`。其中泛型参数 `T` 已由 `File::open` 的实现，以文件句柄的成功值类型 `std::fs::File` 填入。错误值中用到的类型 `E` 为 `std::io::Error`。这种返回类型意味着，到 `File::open` 的调用可能会成功，而返回一个我们可以读取或写入的文件句柄。该函数调用也可能失败：例如，该文件可能不存在，或者我们可能没有访问文件的权限。`File::open` 函数需要有一种告诉我们他成功了或失败了的方式，同时给到我们文件句柄或错误信息。这些信息正是 `Result` 这个枚举所要传达的。
+`File::open` 的返回类型是个 `Result<T，E>`。其中泛型参数 `T` 已由 `File::open` 的实现以成功值的类型 `std::fs::File` 填入，其为文件句柄。用于错误值中的类型 `E` 为 `std::io::Error`。这一返回类型意味着对 `File::open` 的调用可能成功并返回一个我们可以读取或写入的文件句柄。这个函数调用也可能失败：例如，文件可能不存在，或者我们可能没有访问文件的权限。`File::open` 函数需要有一种方式来告诉我们他是成功还是失败，并同时给到我们文件句柄或错误信息。这些信息正是 `Result` 枚举传达的内容。
 
+在 `File::open` 成功的情况下，变量 `greeting_file_result` 中的值将是个包含着文件句柄的 `Ok` 的实例。而在其失败的情况下，`greeting_file_result` 变量中的值将是个 `Err` 的实例，包含有关发生的错误的类别的更多信息。
 
-在 `File::open` 成功的情况下，变量 `greeting_file_result` 中的值将是个包含着文件句柄的 `Ok` 实例。而在其失败的情况下，`greeting_file_result` 变量中的值将是个其中包含了所发生错误类型更多信息的 `Err` 实例。
+我们需要添加到清单 9-3 中的代码，以根据 `File::open` 返回的值采取不同的操作。下面清单 9-4 展示了使用一项基本工具来处理 `Result`的一种方式，即我们在第 6 章中讨论的 [`match` 表达式](../enums_and_pattern_matching/match_control_flow.md)。
 
-
-我们需要在清单 9-3 中添加代码，根据 `File::open` 返回的值采取不同的操作。下面清单 9-4 展示了使用一项基本工具，即我们在第 6 章中讨论过的 `match` 表达式的一种方法。
-
+<a name="listing_9-4"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -49,42 +45,40 @@ fn main() {
 
     let greeting_file = match greeting_file_result {
         Ok(file) => file,
-        Err(e) => panic! ("打开文件出现问题：{:?}", e),
+        Err(error) => panic! ("打开文件出现问题：{error:?}"),
     };
 }
 ```
 
-*清单 9-4：使用 `match` 表达式处理可能返回的 `Result` 变种*
+**清单 9-4**：使用 `match` 表达式处理可能返回的 `Result` 变种
 
+请注意，与 `Option` 枚举一样，`Result` 枚举及其变种均已由前奏，the prelude，带入到作用域中，因此我们无需在 `match` 支臂中的 `Ok` 和 `Err` 变种前指定 `Result::`。
 
-请注意，与 `Option` 枚举一样，`Result` 枚举及其变种，也已被 Rust 的前奏，the prelude，纳入到了作用域，因此我们无需在 `match` 支臂中的 `Ok` 和 `Err` 变种前指明 `Result::`。
+当结果为 `OK` 时，该代码将从 `OK` 变种返回内层的 `file` 值，然后我们指派该文件句柄值给变量 `greeting_file`。在 `match` 后，我们便可使用该文件句柄进行读取或写入。
 
-在返回结果为 `OK` 时，该代码将返回 `OK` 变种内部的 `file` 值，然后我们将该文件句柄值，赋值给变量 `greeting_file`。在这个 `match` 表达式后，我们就可以将该文件句柄用于读写操作。
-
-`match` 表达式的另一支臂，处理了咱们从 `File::open` 得到一个 `Err` 值的情况。在本例中，我们选择调用 `panic!` 宏。若当前目录下没有名为 `hello.txt` 的文件，我们就会运行这段代码，我们将看到 `panic!` 宏的以下输出：
+`match` 表达式的另一支臂处理咱们从 `File::open` 得到 `Err` 值的情况。在这个示例中，我们选择了调用 `panic!` 宏。若我们的当前目录下没有名为 `hello.txt` 的文件并且我们运行这段代码时，我们将看到来自 `panic!` 宏的以下输出：
 
 
 ```console
 $ cargo run
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+   Compiling result_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/result_demo)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running `target/debug/result_demo`
 
-thread 'main' panicked at src/main.rs:8:19:
+thread 'main' (523922) panicked at src/main.rs:8:23:
 打开文件出现问题：Os { code: 2, kind: NotFound, message: "No such file or directory" }
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-像往常一样，此输出会准确地告诉我们出了什么问题。
+像往常一样，这一输出告诉我们究竟出了什么问题。
 
 
-## 不同错误的匹配
+## 匹配不同的错误
 
-**Matching on Different Errors**
-
-
-无论 `File::open` 为何失败，上面清单 9-4 中的代码都会死机。但是，我们希望因应不同失败原因，采取不同操作。在 `File::open` 因文件不存在而失败时，我们打算创建处该文件，并返回这个新文件的句柄。在 `File::open` 因其他原因失败 -- 比如，因为我们没有打开文件的权限时 -- 我们仍想要代码以与清单 9-4 相同的方式 `panic!`。为此，我们添加了个内层的 `match` 表达式，如下清单 9-5 所示。
+无论 `File::open` 因何种原因失败，清单 9-4 中的代码都将 `panic!`。然而，我们希望针对不同的失败原因采取不同的操作。当 `File::open` 因文件不存在失败时，我们打算创建处该文件并返回到新文件的句柄。当 `File::open` 因任何其他原因失败 -- 比如，因为我们没有打开该文件的权限时 -- 我们仍希望代码 `panic!`，以其在清单 9-4 所做的同一方式。为此，我们添加一个内层的 `match` 表达式，如下清单 9-5 中所示。
 
 
+<a name="listing_9-5"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -96,28 +90,30 @@ fn main() {
 
     let greeting_file = match greeting_file_result {
         Ok(file) => file,
-        Err(e) => match e.kind() {
+        Err(error) => match error.kind() {
             ErrorKind::NotFound => match File::create("hello.txt") {
                 Ok(fc) => fc,
-                Err(error) => panic! ("创建该文件时出现问题：{:?}", error),
+                Err(e) => panic! ("创建该文件时出现问题：{e:?}"),
             },
-            other_error => panic! ("打开文件出现问题：{:?}", other_error),
+            _ => {
+                panic! ("打开文件出现问题：{error:?}");
+            }
         },
     };
 }
 ```
 
-*清单 9-5：以不同方式处理不同类别错误*
+**清单 9-5**：以不同方式处理不同类别的错误
 
 
-`File::open` 在 `Err` 变种中返回的值类型为 `io::Error`，这是由标准库提供的一个结构体。这个结构体有个方法 `kind`，我们可以调用他获取到一个 `io::ErrorKind` 值。枚举 `io::ErrorKind` 由标准库提供，其变种表示了 `io` 操作可能得到的不同类别错误。我们打算使用的变种是 `ErrorKind::NotFound`，表示我们试图打开的文件还不存在。因此，我们对 `greeting_file_result` 进行匹配，但同时也对 `error.kind()` 有个内层的匹配。
+`File::open` 在 `Err` 变种内返回的值类型为 `io::Error`，这是由标准库提供的一个结构体（译注：类型为 `Os`）。这个结构体有个方法 `kind`，我们可调用他来得到一个 `io::ErrorKind` 值。枚举 `io::ErrorKind` 由标准库提供，并有着表示一次 `io` 操作可能得到的不同错误类别的变种。我们打算使用的变种是 `ErrorKind::NotFound`，表示我们尝试打开的文件还不存在。因此，我们对 `greeting_file_result` 进行匹配，但我们还有个对 `error.kind()` 的内层匹配。
 
-我们在内层的匹配中打算检查的条件，是由 `error.kind()` 返回的值，是否为 `ErrorKind` 枚举的 `NotFound` 变种。在是时，我们就尝试以 `File::create` 创建出该文件。不过，由于 `File::create` 也可能失败，因此我们需要在这个内层的 `match` 表达式中，添加第二支臂。当该文件无法创建时，就会打印不同错误消息。外层的 `match` 表达式的第二支臂保持不变，因此除了文件找不到错误外，这个程序会在出现任何错误时都会死机。
+我们在内层匹配中希望检查的条件，是由 `error.kind()` 返回的值是否是 `ErrorKind` 枚举的 `NotFound` 变种。当是时，我们尝试以 `File::create` 创建该文件。不过，由于 `File::create` 也会失败，因此我们需要一个内层 `match` 表达式中的第二支臂。当文件无法创建时，一条不同的错误消息得以打印。外层 `match` 表达式的第二支臂保持不变，因此该程序会因除文件找不到的错误外的任何错误而终止运行。
 
 
-> **`Result<T, E>` 下使用 `match` 表达式的替代方案**
+> **对 `Result<T, E>` 使用 `match` 的替代方案**
 >
-> 这里的 `match` 表达式太多了！`match` 表达式非常有用，但也非常原始。在第 13 章中，咱们将了解与许多定义在 `Result<T, E>` 上方法一起使用的闭包。在与咱们的代码中处理 `Result<T, E>` 值时，这些方法比使用 `match` 更为简洁。
+> 这可真是不少的 `match`！`match` 表达式非常有用，但也非常原始。在第 13 章中，咱们将了解与许多定义在 `Result<T, E>` 上方法一起使用的闭包。在与咱们的代码中处理 `Result<T, E>` 值时，这些方法比使用 `match` 更为简洁。
 >
 > 例如，下面是编写与清单 9-5 中所示同一逻辑的另一种方法，这次使用了闭包及 `unwrap_or_else` 这个方法：
 
