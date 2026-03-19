@@ -302,78 +302,79 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 ### 哪些地方要使用 `?` 操作符？
 
-`?` 操作符只能用在那些返回类型与 `?` 所用在值兼容的那些函数中。这是因为 `?` 操作符被定义为以与我们在清单 9-6 中定义的 `match` 表达式相同方式，执行一次从函数提前返回某个值。在清单 9-6 中，`match` 表达式使用了个 `Result` 值，并提前返回那个返回了个 `Err(e)` 值的支臂。该函数的返回类型，必须是个 `Result`，这样才能与这个 `return` 语句兼容。
+`?` 操作符只能对那些返回类型与 `?` 于其上使用的值兼容的函数使用。这是因为 `?` 操作符被定义为执行一次从函数提前返回值，以与我们在 [清单 9-6](#listing_9-6)  中定义的 `match` 表达式的同一方式。在清单 9-6 中，`match` 使用的是 `Result` 值，而提前返回支臂返回的是 `Err(e)` 值。函数的返回类型必须是个 `Result` 值，以便与这个 `return` 兼容。
 
-在下面的清单 9-10 中，我们来看看若咱们在某个 `main` 函数中，与某个跟咱们在其上使用 `?` 的值不兼容返回类型，一起使用 `?` 操作符时，会得到一个什么样的报错。
+在下面清单 9-10 中，我们来看一下当咱们在 `main` 函数中对一个与咱们在其上使用 `?` 的值不兼容的返回类型，使用 `?` 操作符时将得到的报错。
 
-文件名：`src/mian.rs`
+<a name="listing_9-10"></a>
+文件名：`src/main.rs`
 
 ```rust
 use std::fs::File;
 
 fn main() {
-    let greeting_file = File::open("hello.txt");
+    let greeting_file = File::open("hello.txt")?;
 }
 ```
 
-*清单 9-10：尝试在返回 `()` 的 `main` 函数中使用 `?` 将不编译*
+**清单 9-10**：尝试在返回 `()` 的 `main` 函数中使用 `?` 将不编译
 
 
-这段代码打开某个文件，但这可能会失败。操作符 `?` 跟在由 `File::open` 返回的一个 `Result` 值后，但这个 `main` 函数有着返回类型 `()`，而非 `Result`。当我们编译这段代码时，我们会得到以下错误消息：
+这段代码会打开一个文件，这可能会失败。操作符 `?` 跟在由 `File::open` 返回的 `Result` 值后，但这个 `main` 函数有着 `()` 的返回类型，而非 `Result`。当我们编译这段代码时，我们会得到以下错误消息：
 
 ```console
 $ cargo run
-  Compiling result_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/result_demo)
+   Compiling question_mark_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/question_mark_demo)
 error[E0277]: the `?` operator can only be used in a function that returns `Result` or `Option` (or another type that implements `FromResidual`)
  --> src/main.rs:4:48
   |
-3 | fn main () {
-  | ---------- this function should return `Result` or `Option` to accept `?`
+3 | fn main() {
+  | --------- this function should return `Result` or `Option` to accept `?`
 4 |     let greeting_file = File::open("hello.txt")?;
   |                                                ^ cannot use the `?` operator in a function that returns `()`
   |
 help: consider adding return type
   |
-3 ~ fn main () -> Result<(), Box<dyn std::error::Error>> {
+3 ~ fn main() -> Result<(), Box<dyn std::error::Error>> {
 4 |     let greeting_file = File::open("hello.txt")?;
 5 +     Ok(())
   |
 
 For more information about this error, try `rustc --explain E0277`.
-error: could not compile `result_demo` (bin "result_demo") due to 1 previous error
+error: could not compile `question_mark_demo` (bin "question_mark_demo") due to 1 previous error
 ```
 
-这个错误指出，我们只被允许在返回 `Result`、`Option` 或其他实现了 `FromResidual` 的类型函数中，使用 `?` 操作符。
+这一错误指出，我们只允许在返回 `Result`、`Option` 或实现 `FromResidual` 的其他类型的函数中使用 `?` 操作符。
 
-要修复这个错误，咱们有两个选择：
+要修复该错误，咱们有两个选择。
 
-- 一种选择是将咱们函数的返回类型，修改为与咱们在其上使用 `?` 操作符的值兼容，只要咱们没有阻止这样做的限制；
-- 另一选择是使用 `match` 表达式，或 `Result<T, E>` 的方法之一，以任何适当的方式处理这个 `Result<T,E>`。
+- 一种选择是修改咱们的函数的返回类型为与咱们正于其上使用 `?` 操作符的值兼容，但要咱们没有阻止这样做的限制条件下；
+- 另一选择是使用 `match` 表达式或 `Result<T, E>` 的方法之一，以适当方式处理 `Result<T, E>`。
+
+报错消息还提到，`?` 也可对 `Option<T>` 值使用。与在 `Result` 上使用 `?` 一样，咱们只能在返回 `Option` 的函数中对 `Option` 使用 `?`。在 `Option<T>` 上调用 `?` 操作符时的行为，与其在 `Result<T, E>` 上调用时的行为类似：当值为 `None` 时，`None` 将在该处提前从函数返回。当值为 `Some` 时，`Some` 内的值即为表达式的结果值，并且函数会继续。下面清单 9-11 有个函数示例，其会找到给定文本中第一行的最后一个字符。
 
 
-报错消息还提到，`?` 也可与 `Option<T>` 的值一起使用。与对 `Result` 使用 `?` 操作符一样，咱们只能在返回 `Option` 的函数中，于 `Option` 上使用 `?` 操作符。在某个 `Option<T>` 上调用 `?` 操作符的行为，与在某个 `Result<T, E>` 上调用 `?` 操作符的行为类似：在值为 `None` 时，这个 `None` 就将在此时从该函数提前返回。在值为 `Some`，`Some` 中的值就是该表达式的结果值，同时该函数会继续执行。下面清单 9-11 有着一个查找给定文本中第一行最后一个字符的函数示例。
-
-
+<a name="listing_9-11"></a>
 ```rust
 fn last_char_of_first_line(text: &str) -> Option<char> {
     text.lines().next()?.chars().last()
 }
 ```
 
-*清单 9-11：在某个 `Option<T>` 值上使用 `?` 操作符*
+**清单 9-11**：对 `Option<T>` 值使用 `?` 操作符
+
+这个函数返回 `Option<char>`，因为该处可能有个字符，但也可能没有。这段代码取 `text` 字符串切片参数并调用其上的 `lines` 方法，其返回对该字符串中行的迭代器。由于这个函数打算检查第一行，因此他调用该迭代器上的 `next` 来获取迭代器中的第一个值。当 `text` 为空字符串时，则到 `next` 的调用将返回 `None`，这种情况下我们使用 `?` 停止执行并从 `last_char_of_first_line` 返回 `None`。当 `text` 不是空字符串时，`next` 将返回包含 `text` 中的第一行的字符串切片的 `Some` 值。
+
+`?` 会提取该字符串切片，进而我们可对该字符串切片调用 `chars`，以获取其字符的迭代器。我们对这第一行中的最后一个字符感兴趣，因此我们调用 `last` 以返回该迭代器中的最后一个项目。这是个 `Option`，因为第一行是个空字符串是可能的；比如，当 `text` 以空行开始，但其他行上有字符，如 `"\nhi"` 时。但是，当第一行上有最后一个字符时，他将在 `Some` 变种中返回。中间的操作符 `?` 给予我们一种简明的方式来表达这一逻辑，允许我们在一行中实现该函数。若我们不能对 `Option` 使用 `?` 操作符，我们就必须使用更多方法调用或 `match` 表达式实现这一逻辑。
+
+请注意，咱们可在返回 `Result` 的函数中对 `Result` 使用 `?` 操作符，并且咱们可在返回 `Option` 的函数中对 `Option` 使用 `?` 操作符，但不能混合搭配。`?` 操作符将不会自动转换 `Result` 为 `Option`，反之亦然；在这些情况下，咱们可使用像是 `Result` 上的 `ok` 方法，或 `Option` 的 `ok_or` 等方法，来显式地执行转换。
+
+到目前为止，我们已使用的所有 `main` 函数都返回 `()`。`main` 函数很特殊，因为他是可执行程序的入口点及出口点，并且为了程序如预期那样行事，其返回类型方面存在限制。
+
+幸运的是，`main` 也可以返回 `Result<(), E>`。下面清单 9-12 有着 [清单 9-10](#listing_9-10) 中的代码，但我们已修改 `main` 的返回类型为 `Result<(), Box<dyn Error>>`，并添加了一个返回值 `Ok(())` 到末尾。这段代码现在将编译。
 
 
-这个函数会返回 `Option<char>`，因为该处可能存在某个字符，但也可能不存在。这段代码取 `text` 这个字符串片段参数，并在其上调用返回该字符串中各行迭代器的 `lines`。由于这个函数要检查第一行，因此他会调用迭代器上的 `next`，获取迭代器中的首个值。在 `text` 是空字符串时，则这个到 `next` 的调用将返回 `None`，在这种情况下，我们使用 `?` 停止执行，并从 `last_char_of_first_line` 返回 `None`。在 `text` 不是空字符串时，`next` 将返回一个包含着 `text` 中第一行字符串切片的 `Some` 值。
-
-`?` 会提取字符串切片，而我们在该字符串切片上调用 `chars`，获取其字符的一个迭代器。我们感兴趣的是第一行中的最后一个字符，因此我们调用了 `last`，返回该迭代器中的最后一项。这是个 `Option`，因为第一行可能是个空字符串；比如，在文本以空行开始，但其他行有字符，如 `"\nhi"` 时。但在第一行有个最后字符时，他将在 `Some` 变种中返回。中间的操作符 `?` 给了我们表达这一逻辑的简洁方式，允许我们以一行代码实现这个函数。若我们不能在 `Option` 上使用 `?` 操作符，我们就必须使用更多方法调用，或一个 `match` 表达式实现这一逻辑。
-
-请注意，咱们可在返回 `Result` 的函数中对 `Result` 使用 `?` 操作符，也可在返回 `Option` 的函数中对 `Option` 使用 `?` 操作符，但咱们不能混用及匹配。`?` 操作符不会自动将一个 `Result` 转换为一个 `Option`，反之亦然；在这种情况下，咱们可使用 `Result` 的 `ok` 方法，或 `Option` 的 `ok_or` 方法，显式地执行该转换。
-
-到目前为止，我们曾用到的所有 `main` 函数，都会返回 `()`。`main` 函数比较特殊，因为他 **是可执行程序的入口点及出口点**，为了使程序的运行符合预期，其返回类型是有限制的。
-
-幸运的是，`main` 也可以返回 `Result<(), E>`。下面清单 9-12 有着清单 9-10 中的代码，但我们已将 `main` 的返回类型，改为了 `Result<(), Box<dyn Error>>`，并将一个返回值 `Ok(())` 添加到末尾。这段代码现在将会编译。
-
-
+<a name="listing_9-10"></a>
 ```rust
 use std::error::Error;
 use std::fs::File;
@@ -385,17 +386,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 ```
 
-*清单 9-12：将 `main` 修改为返回 `Result<(), E>`，就允许在 `Result` 值上 `?` 操作符的使用*
+**清单 9-12**：修改 `main` 为返回 `Result<(), E>` 允许对 `Result` 值使用 `?` 操作符
+
+`Box<dyn Error>` 类型是个特质对象，我们将在第 18 章中的 [“使用特质对象抽象共有行为”](../oop/trait_objects.md) 小节中讨论他。现在，咱们可将 `Box<dyn Error>` 理解为 “任何类型的错误”。在带有错误类型 `Box<dyn Error>` 的 `main` 函数中对 `Result` 值使用 `?` 是允许的，因为他允许任何 `Err` 值都可以提前返回。尽管这个 `main` 函数的主体将只返回 `std::io::Error` 类型的错误，但通过指定 `Box<dyn Error>`，即使更多返回其他错误的代码添加到 `main` 的主体，这个函数签名也将继续正确。
+
+在 `main` 函数返回 `Result<(), E>` 时，若 `main` 返回 `Ok(())`，则可执行文件将以 `0` 的值退出；而若 `main` 返回 `Err` 值，那么可执行文件将以非 0 值退出。以 C 编写的可执行文件在退出时返回整数：成功退出的程序返回整数 `0`，而出错的程序返回 `0` 以外的某个整数。Rust 也会从可执行文件返回整数以与这一约定兼容。
 
 
-`Box<dyn Error>` 类型是个 *特质对象，trait object*，我们将在第 18 章 [“使用允许不同类型值的特质对象”](../oop/trait_objects.md) 中讨论他。现在，咱们可将 `Box<dyn Error>` 理解为 “任何类型的错误”。在有着错误类型 `Box<dyn Error>` 的某个 `main` 函数中，对某个 `Result` 值使用 `?` 是允许的，因为他任何 `Err` 值都得以提前返回。尽管这个 `main` 函数的主体，将都只返回 `std::io::Error` 类型的错误，但通过指定 `Box<dyn Error>`，即使往 `main` 的主体中添加了返回其他错误的更多代码，这个函数签名仍将保持正确。
+`main` 函数可以返回任何实现了 [`std::process::Termination` 特质](https://doc.rust-lang.org/std/process/trait.Termination.html) 的类型，该特质包含返回 `ExitCode` 的函数 `report`。有关如何为咱们自己的类型实现 `Termination` 特质的更多信息，请查阅标准库文档。
 
-在某个 `main` 函数返回一个 `Result<(), E>` 时，那么若 `main` 返回了 `Ok(())`，那么该可执行文件将以值 `0` 退出，同时在 `main` 返回一个 `Err` 值时，那么该可执行文件将以非 0 值退出。以 C 编写的可执行文件，在他们退出时会返回整数：成功退出的程序会返回整数 `0`，出错的程序会返回 `0` 以外的某个整数。Rust 同样会从可执行文件返回整数，以符合这一约定。
-
-
-`main` 函数可以返回任何实现了 [`std::process::Termination` 特质](https://doc.rust-lang.org/std/process/trait.Termination.html) 的类型，该特质包含返回 `ExitCode` 的函数 `report`。有关为咱们自己类型实现 `Termination` 特质的更多信息，请查阅标准库文档。
-
-既然我们已经讨论了调用 `panic!` 或是返回 `Result` 的细节，那么我们再来讨论，如何决定在哪些情况下，使用哪一个合适。
+既然我们已经讨论了调用 `panic!` 或返回 `Result` 的细节，我们来回到如何决定在哪种情况下，哪种方式适合使用的话题。
 
 （End）
 
