@@ -1,23 +1,20 @@
-# 特质：定义共用行为
+# 以特质定义共用行为
 
-*特质，a trait*，定义了特定类型所具有，并可与其他类型共用的功能。咱们可使用特质，来以抽象方式定义出共用行为。而运用 *特质边界，trait bounds*，咱们便可以指明带有特定行为的任意类型的泛型，we can use *trait bounds* to specify that a generic type can be any type that has certain behavior。
+所谓 *特质，a trait*，定义了特定类型具有的功能，并可与其他类型共用。咱们可以使用特质以抽象的方式定义共用行为。我们可以使用 *特质边界，trait bounds*，指定某一泛型类型可以是有着特定行为的任意类型。
 
-
-> 注意：特质与其他语言中名为 *接口，interfaces* 的特性类似，虽然有一些差别。
+> **注意**：特质类似于其他语言中通常称为 *接口，interfaces* 的特性，但也有一些区别。
 
 
 ## 定义特质
 
-**Defining a Trait**
+类型的行为由我们可以在该类型上调用的方法构成。当咱们可以在不同类型上调用相同的方法时，那么这些不同类型就共用了同样的行为。所谓特质定义，属于分组方法签名在一起，以定义实现某一目的所需的一组行为的方法。
+
+例如，假设我们有着多个结构体，保存不同类别与数量的文本：`NewsArticle` 结构体保存特定地方的新闻报道，和 `SocialPost` 结构体，最多可以有 280 个字符，以及表明其是新帖子、转发还是对另一帖子的回复的元数据。
+
+我们打算构造出一个名为 `aggregator` 的媒体聚合库代码箱，可以显示可能存储在 `NewsArticle` 或 `SocialPost` 实例中的数据的摘要。为此，咱们需要每种类型的摘要，并且我们将通过调用实例上的 `summarize` 方法请求这一摘要。下面清单 10-12 显示了表达这一行为的公开 `Summary` 特质的定义。
 
 
-类型的行为，是由可在该类型上调用的方法，所组成的。若咱们能于不同类型上调用同样方法时，那么这些不同类型就共用了同样行为。特质定义，是为定义出完成某种目的一套必要行为，而把方法签名编组在一起的一种方式，trait definitions are a way to group method signatures together to define a set of behaviors necessary to accomplish some purpose。
-
-比如说，咱们有着保存了几种类别与数量文本的多个结构体：保存着特定地方新闻报道的 `NewsArticle` 结构体，与最多有 280 个字符、带有表明其是否为一条新推文、retweet 或另一推文回复的 `Tweet` 结构体。
-
-而咱们则打算构造出一个，可以把可能存储于某个 `NewsArticle` 或 `Tweet` 实例中的数据的摘要信息显式出来的，名为 `aggregator` 的媒体聚合器库代码箱。要实现这个目的，咱们就需要每个类型的摘要，而咱们将通过调用实例上的 `summarize` 方法，请求摘要信息。下面清单 10-12 便给出了表达此行为的一个公开 `Summary` 特质定义。
-
-
+<a name="listing_10-12"></a>
 文件名：`src/lib.rs`
 
 
@@ -27,22 +24,20 @@ pub trait Summary {
 }
 ```
 
-*清单 10-12：由 `summarize` 方法提供行为，组成的一个 `Summary` 特质*
+**清单 10-12**：一个由 `summarize` 方法提供的行为组成的 `Summary` 特质
 
-这里咱们使用 `trait` 关键字，与随后的特质名字，即此示例中的 `Summary`，而声明出了一个特质。咱们还把该特质声明为了 `pub`，从而依赖于此代码箱的代码箱，也可利用上这个特质，如同咱们将在下面几个示例中所看到的那样。而在花括号里面，咱们要声明出，对实现了这个特质的那些类型行为加以描述的方法签名，在此示例中便是 `fn summarize(&self) -> String`。
+在这里，我们使用 `trait` 关键字声明一个特质，然后是该特质的名字，在这一情形下为 `Summary`。咱们还声明该特质为 `pub`，以别依赖于这个代码箱的代码箱也可以使用这个特质，正如我们将在下面的几个示例中看到的那样。在花括号内，咱们声明了实现这个特质的类型的行为的方法签名，在这一情形下为 `fn summarize(&self) -> String`。
 
-在方法签名之后，咱们没有提供位于花括号里的方法实现，而是使用了一个分号。实现此特质的每种类型，必须为该方法的方法体，提供其自己的定制行为。编译器会强制要求，任何有着 `Summary` 特质的类型，都将要有与此签名完全一致的 `summarize` 方法定义好。
+在方法签名之后，咱们没有提供花括号内的实现，而是使用分号。实现这个特质的每种类型都必须为方法的主体提供自己的定制行为。编译器将强制任何有着 `Summary` 特质的类型，都将有着完全以这个签名定义的 `summarize` 方法。
 
-其代码体中，特质可有多个方法：一行一个地列出方法签名，同时每行都以分号结束。
-
-
-## 在类型上实现某个特质
-
-**Implementing a Trait on a Type**
+特质在其主体可以有多个方法：方法签名一行一个地列出，每行都以分号结束。
 
 
-既然咱们已定义出 `Summary` 特质方法所需的签名，咱们便可以在咱们的媒体聚合器中的那些类型上实现他了。下面清单 10-13 给出了在 `NewsArticle` 结构体上，使用标题、作者以及处所字段，来创建出 `summaryize` 方法返回值的一个 `Summary` 实现。而对于 `Tweet` 结构体，咱们则把 `summarize`，定义为假定推文已被限制为 280 字符时，返回用户名加上推文的全部文字。
+## 在类型上实现特质
 
+现在咱们已经定义了 `Summary` 特质方法的所需签名，咱们可以在咱们的媒体聚合器中的类型上实现他了。下面清单 10-13 显示了 `NewsArticle` 结构体上 `Summary` 特质的实现，使用标题、作者及地点字段来创建 `summaryize` 的返回值。对于 `SocialPost` 结构体，咱们定义 `summarize` 为用户名后跟帖子全文，假设帖子内容已限制为 280 字符。
+
+<a name="listing_10-13"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -59,46 +54,56 @@ impl Summary for NewsArticle {
     }
 }
 
-pub struct Tweet {
+pub struct SocialPost {
     pub username: String,
     pub content: String,
     pub reply: bool,
     pub retweet: bool,
 }
 
-impl Summary for Tweet {
+impl Summary for SocialPost {
     fn summarize(&self) -> String {
         format! ("{}: {}", self.username, self.content)
     }
 }
 ```
 
-*清单 10-13：在 `NewsArticle` 与 `Tweet` 两个类型上实现 `Summary` 特质*
+**清单 10-13**：在 `NewsArticle` 和 `SocialPost` 类型上实现 `Summary` 特质
 
+在类型上实现特质与实现常规方法类似。区别在于，在 `impl` 之后，我们放置我们打算实现的特质名字，然后使用 `for` 关键字，然后指定我们打算对其实现特质的类型名字。在 `impl` 代码块内，咱们放置特质定义所定义的方法签名。我们不是在每个签名后添加分号，而是使用花括号并以咱们希望针对这一特定类型，特质方法要有的特定行为来填充方法体。
 
-在类型上实现特质类似于实现常规方法。区别在于，在 `impl` 之后，咱们放置的是咱们打算实现特质的名字，之后要使用 `for` 关键字，后面要指定咱们打算为其实现特质的类型名字。在 `impl` 代码块内，咱们要放入特质定义所定义的方法签名。咱们不再于各个签名之后添加分号，而是要使用花括号，并将咱们想要这个特质对于特定类型而所具有的方法，填充到方法体中。
-
-既然库已在 `NewsArticle` 与 `Tweet` 上实现了 `Summary` 特质，那么库代码箱的用户，就可以如同调用常规方法的那样，调用 `NewsArticle` 与 `Tweet` 实例上的这些特质方法了。唯一区别就是，用户必须将该特质，以及那些类型，同时带入到作用域中。下面就是某个二进制代码箱，怎样能用到咱们的 `aggregator` 库代码箱的示例：
+现在，这个库已对 `NewsArticle` 与 `SocialPost` 实现了 `Summary` 特质，该代码箱的用户可以如同我们调用常规方法一样，在 `NewsArticle` 与 `SocialPost` 实例上调用特质方法。唯一区别是用户必须带入特质以及类型到作用域。下面是二进制代码箱可以怎样使用我们的 `aggregator` 库代码箱的示例：
 
 
 ```rust
-use aggregator::{Summary, Tweet};
+use aggregator::{SocialPost, Summary};
 
 fn main() {
-    let tweet = Tweet {
+    let post = SocialPost {
         username: String::from("horse_ebooks"),
         content: String::from(
-            "当然，跟大家已经清楚的一样了，朋友们",
+            "当然，跟大家已经知道的一样，朋友们",
         ),
         reply: false,
         retweet: false,
     };
 
-    println!("1 条新推文: {}", tweet.summarize());
+    println!("1 个新帖子: {}", post.summarize());
 }
 ```
 
-此代码会打印 `1 条推文：horse_ebooks: 当然，跟大家已经清楚的一样了，朋友们`。
+这段代码会打印 `1 个新帖子: horse_ebooks: 当然，跟大家已经知道的一样，朋友们`。
+
+> **译注**：项目的 `Cargo.toml` 如下。
+>
+> ```toml
+> [package]
+> name = "aggregator"
+> version = "0.1.0"
+> edition = "2024"
+>
+> [dependencies]
+> ```
 
 依赖于 `aggregator` 代码箱的其他代码箱，同样可以将 `Summary` 特质带入其作用域，以在他们自己的类型上实现 `Summary`。有个限制条件要注意，即只有在特质或类型二者至少有一个属于代码箱本地的时，咱们才能在类型上实现特质。比如，由于定制类型 `Tweet` 对于咱们的代码箱 `aggregator` 是本地的，因此咱们可以将比如 `Display` 这样的标准库特质，像 `aggregator` 代码箱功能的一部分那样，实现在 `Tweet` 上。由而于那个特质 `Summary` 属于 `aggregator` 代码箱本地，咱们便还可在咱们的 `aggregator` 代码箱中，将其实现在 `Vec<T>` 上。
 

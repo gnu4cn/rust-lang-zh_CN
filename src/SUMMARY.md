@@ -60,8 +60,8 @@
 # 深入掌握
 
 - [泛型、特质与生命周期](Ch10_Generic_Types_Traits_and_Lifetimes.md)
-    - [通用数据类型](generic_types_traits_and_lifetimes/generics.md)
-    - [特质：定义共用行为](generic_types_traits_and_lifetimes/traits.md)
+    - [泛型数据类型](generic_types_traits_and_lifetimes/generics.md)
+    - [以特质定义共用行为](generic_types_traits_and_lifetimes/traits.md)
     - [以生命周期验证引用](generic_types_traits_and_lifetimes/lifetimes.md)
 
 
