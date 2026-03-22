@@ -195,7 +195,7 @@ impl Summary for SocialPost {
 
 ## 将特质用作参数
 
-既然清楚了怎样定义和实现特质，那么咱们就可以探讨一下，怎样运用特质来定义出接收不同类型参数的函数。咱们将使用之前清单 10-13 中，在 `NewsArticle` 与 `Tweet` 上曾实现过的 `Summary` 特质，来定义一个会调用其 `item` 参数上 `summarize` 方法的 `notify` 函数，而该参数便是实现了 `Summary` 特质类型的。要完成这个目的，咱们就要使用 `impl Trait` 语法，如下所示：
+既然咱们知道了怎样定义和实现特质，我们就可以探讨怎样使用特质，定义接受许多不同类型的函数。我们将使用在 [清单 10-13](#listing_10-13) 中定义在 `NewsArticle` 和 `SocialPost` 的 `Summary` 特质，来定义一个 `notify` 函数，其会调用 `item` 参数上的 `summarize` 方法，该参数是实现 `Summary` 特质的某种类型。为此，我们要使用 `impl Trait` 语法，像下面这样：
 
 ```rust
 pub fn notify(item: &impl Summary) {
@@ -203,15 +203,12 @@ pub fn notify(item: &impl Summary) {
 }
 ```
 
-咱们给那个 `item` 参数指定了 `impl` 关键字和特质名字，而不是具体类型。这个参数会接受实现了指定特质的任何类型。在 `notify` 的函数体中，咱们就可以在 `item` 上，调用来自 `Summary` 特质的任何方法了，比如 `summarize`。咱们可以调用 `notify`，并传入 `NewsArticle` 或 `Tweet` 的任意实例。而以任意其他类型，比如 `String` 或 `i32`，调用该函数的代码，由于那些类型没有实现 `Summary`，就不会编译。
+对于 `item` 参数，咱们指定 `impl` 关键字和特质名字，而不是具体类型。这个参数接受实现指定特质的任何类型。在 `notify` 的函数体中，咱们可以调用 `item` 上 `Summary` 特质中的任何方法，比如 `summarize`。我们可以调用 `notify` 并传入 `NewsArticle` 或 `SocialPost` 的任何实例。以任何其他类型，比如 `String` 或 `i32` 等调用该函数的代码都将不编译，因为这些类型未实现 `Summary`。
 
 
 ### 特质边界语法
 
-**Trait Bound Syntax**
-
-
-这种在简单情形下工作的 `impl Trait` 语法，实际上是被称作 *特质边界，trait bound* 的较长形式的语法糖，syntax sugar；其看起来像下面这样：
+`impl Trait` 语法适用于简单情况，但实际上是一种称为 *特质边界，trait bound* 的较长形式的语法糖，syntax sugar；特质绑定看起来像下面这样：
 
 
 ```rust
@@ -220,56 +217,50 @@ pub fn notify<T: Summary>(item: &T) {
 }
 ```
 
-这种较长形式与上一小节中的示例是等价的，但要更冗长一些。咱们把特质边界（`Summary`），在冒号之后，与泛型参数声明放在一起，并在一对尖括号里面。
+这种较长形式等同于上一小节中的示例，但更冗长。咱们把特质边界与冒号之后的泛型类型参数声明放在一起，并放在尖括号内。
 
-在简单情形下，`impl Trait` 这种语法是方便的，且令到代码更为简洁，而在别的情形下，较完整的特质边界语法，则能表达出更高复杂度。比如，咱们可以有两个实现 `Summary` 的参数。以 `impl Trait` 语法实现这种情况，看起来就会像下面这样：
+`impl Trait` 语法很方便，在简单情形下使代码更简洁，而更完整的特质边界语法可以在其他情况下表达更高的复杂度。例如，我们可能有两个实现 `Summary` 的参数。以 `impl Trait` 语法实现这种情况看起来像下面这样：
 
 ```rust
 pub fn notify(item1: &impl Summary, item2: &impl Summary) {
 ```
 
-当咱们是要此函数允许 `item1` 与 `item2` 有着不同类型时（只要两个类型都实现了 `Summary` ），那么使用 `impl Trait` 语法便是恰当的。而当要的是强制这两个参数有着同一类型时，咱们就必须使用特质边界，像下面这样：
+当我们希望这个函数允许 `item1` 与 `item2` 有着不同类型时（只要两种类型都实现 `Summary` ）时，那么使用 `impl Trait` 是合适的。但当我们打算强制两个参数都要有同一类型时，我们就必须使用特质边界，像下面这样：
 
 ```rust
 pub fn notify<T: Summary>(item1: &T, item2: &T) {
 ```
 
-其中被指定为 `item1` 与 `item2` 两个参数类型的泛型 `T`，会对该函数加以约束，进而作为 `item1` 与 `item2` 的实参所传递值的具体类型必须相同。
+指定为 `item1` 与 `item2` 参数类型的泛型类型 `T` 会约束该函数，从而作为 `item1` 和 `item2` 的实参传递的值的具体类型必须相同。
 
 
-### 使用 `+` 语法，指定多个特质边界
+### `+` 语法下的多个特质边界
 
-**Specifying Multiple Trait Bounds with the `+` Syntax**
-
-
-咱们还可以指明多个特质边界。比方说咱们想要 `notify` 使用 `item` 上的 `summarize` 的同时，还要使用显示格式：咱们就要在 `notify` 定义中，指明 `item` 必须实现了 `Disply` 与 `Summary` 两个特质。使用 `+` 语法，咱们便可达到这个目的：
+咱们还可以指定多个特质边界。假设咱们希望 `notify` 对 `item` 既使用显示格式化，又使用 `summarize`：咱们就要在 `notify` 定义中指定 `item` 必须同时实现 `Disply` 与 `Summary`。我们可以使用 `+` 语法做到这点：
 
 ```rust
-pub fn notify(item &(impl Summary + Display)) {
+pub fn notify(item: &(impl Summary + Display)) {
 ```
 
-`+` 语法同样对泛型上的特质边界有效：
+`+` 语法同样对泛型类型上的特质边界有效：
 
 
 ```rust
 pub fn notify<T: Summary + Display>(item: &T) {
 ```
 
-有了指定的这两个特质，那么 `notify` 的函数体，便可调用 `summarize` 函数，及使用 `{}` 来格式化 `item` 了。
+指定这两个特质后，`notify` 的函数体就可以 `summarize` 并使用 `{}` 来格式化 `item`。
 
 
-#### 使用 `where` 子句，获得更清楚的特质边界
+### `where` 子句下更清楚的特质边界
 
-**Clearer Trait Bounds with `where` Clauses**
-
-
-使用过多的特质边界，有着其一些缺点。每个泛型都有自己的特质边界，那么有着多个泛型参数的函数，在其名字与其参数列表之间，就好包含很多特质边界信息，从而令到该函数签名难于阅读。出于这个原因，Rust 有着在函数签名之后的 `where` 子句里，指明特质边界的这种替代语法。从而与其写出下面这个签名：
+使用过多的特质边界有其弊端。每个泛型都有自己的特质边界，因此有着多个泛型参数的函数就会在函数名字与参数列表之间，包含大量特质边界信息，从而使函数签名难以阅读。出于这个原因，Rust 有一种替代语法，用于在函数签名后的 `where` 子句内指定特质边界。所以，与其这样写：
 
 ```rust
 fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 {
 ```
 
-咱们便可像下面这样，使用 `where` 子句：
+我们可以使用 `where` 子句，像下面这样：
 
 ```rust
 fn some_function<T, U>(t: &T, u: &U) -> i32
@@ -278,23 +269,20 @@ fn some_function<T, U>(t: &T, u: &U) -> i32
 {
 ```
 
-这个函数的签名，就不那么杂乱无章了：函数名、参数清单与返回值类型紧挨在一起，类似于与不带有很多特质边界的函数。
+这个函数的签名就不那么杂乱无章了：函数名字、参数清单和返回值类型紧挨在一起，类似于没有大量特质边界的函数。
 
 
-## 实现了特质的返回值类型
+## 返回实现特质的类型
 
-**Returning Types that Implement Traits**
-
-
-咱们还也可以在返回值处，使用 `impl Trait` 语法来返回某种实现某个特质类型的值，如下所示：
+我们还可以在返回位置处使用 `impl Trait` 语法，返回一个实现特质的某种类型的值，如下所示：
 
 
 ```rust
 fn return_summarizable() -> impl Summary {
-    Tweet {
+    SocialPost {
         username: String::from("horse_ebooks"),
         content: String::from(
-            "当然，如同你或许已经知道的一样，朋友们"
+            "当然，正如咱们或许已经知道的一样，朋友们"
         ),
         reply: false,
         retweet: false,
