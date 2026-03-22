@@ -105,36 +105,33 @@ fn main() {
 > [dependencies]
 > ```
 
-依赖于 `aggregator` 代码箱的其他代码箱，同样可以将 `Summary` 特质带入其作用域，以在他们自己的类型上实现 `Summary`。有个限制条件要注意，即只有在特质或类型二者至少有一个属于代码箱本地的时，咱们才能在类型上实现特质。比如，由于定制类型 `Tweet` 对于咱们的代码箱 `aggregator` 是本地的，因此咱们可以将比如 `Display` 这样的标准库特质，像 `aggregator` 代码箱功能的一部分那样，实现在 `Tweet` 上。由而于那个特质 `Summary` 属于 `aggregator` 代码箱本地，咱们便还可在咱们的 `aggregator` 代码箱中，将其实现在 `Vec<T>` 上。
+依赖于 `aggregator` 代码箱的其他代码箱也可以带入 `Summary` 特质到作用域，以在他们自己的类型上实现 `Summary`。要注意的一个限制是，只有在特质或类型，或二者同时属于我们代码箱本地时，我们才能在类型上实现特质。例如，我们可以对像 `SocialPost` 这样，作为我们的 `aggregator` 代码箱功能一部分的自定义类型，实现像 `Disply` 这样的标准库特质，因为类型 `SocialPost` 属于咱们 `aggregator` 代码箱的本地类型。咱们还可以对我们 `aggregator` 代码箱中的 `Vec<T>` 实现 `Summary`，因为特质 `Summary` 属于我们 `aggregator` 代码箱的本地特质。
+
+但我们不能对外部类型实现外部特质。例如，我们不能在我们的 `aggregator` 代码箱内，对 `Vec<T>` 实现 `Display` 特质，因为 `Display` 和 `Vec<T>` 均被定义在标准库中，而不属于咱们 `aggregator` 代码箱本地。这种限制属于名为 *内聚，coherence* 的属性的一部分，更具体地说是 *孤儿规则，the orphan rule*，如此命名是因为父类型不存在。这条规则确保其他人的代码无法破坏咱们的代码，反之亦然。若没有这条规则，两个代码箱可能为同一类型实现相同的特质，而 Rust 将不知道要使用哪个实现。
 
 
-不过咱们是无法将外部特质，实现在外部类型上的。比如，由于 `Display` 特质与 `Vec<T>` 类型，都是定义在标准库中，而均不属于咱们的 `aggregator` 代码箱，咱们就不能在 `aggregator` 代码箱里头，将 `Display` 特质实现在 `Vec<T>` 上。这种限制属于名为 *内聚，coherrnce* 的属性的一部分，更具体地说，便是 *孤儿规则，the orphan rule*，之所以这样叫法，是由于父类型缺席了，this restriction is part of a property called *coherence*, and more specifically the *orphan rule*, so named because the parent type is not present。这条规则确保了其他人的代码无法破坏咱们代码，反之亦然。若没有这条规则，两个代码箱就会对同样类型实现同一特质，那么 Rust 就不清楚要使用那个实现了。
+## 使用默认实现
 
+有时，为特质中部分或全部方法提供默认行为很有用，而非要求所有类型上的全部方法实现。然后，当咱们对特定类型实现特质时，咱们可以保留或覆盖，override，每个方法的默认行为。
 
-## 默认实现
+在下面清单 10-14 中，我们为 `Summary` 特质的 `summarize` 方法指定了个默认字符串，而非像在 [清单 10-12](#listing_10-12) 中那样只定义方法签名。
 
-**Default Implementions**
-
-
-给特质中某个或全部方法以默认行为，而非在所有类型上都要求实现全部方法，有的时候会是有用的做法。这样做之后，当咱们在某个特定类型上实现特质时，咱们就可以保留或重写，override，各个方法的默认行为。
-
-下面清单 10-14 就给 `Summary` 特质的 `summarize` 方法，指定了一个默认字符串，而非如同在清单 10-12 中咱们曾做的，只定义出方法签名。
-
+<a name="listing_10-14"></a>
 文件名：`src/lib.rs`
 
 ```rust
 pub trait Summary {
     fn summarize(&self) -> String {
-        String::from("了解更多......")
+        String::from("阅读更多......")
     }
 }
 ```
 
-*清单 10-14：定义有着 `summarize` 方法默认实现的 `Summary` 特质*
+**清单 10-14**：以 `summarize` 方法的默认实现定义 `Summary` 特质
 
-而要使用默认实现来对 `NewsArticle` 的实例进行摘要，咱们就要以 `impl Summary for NewsArticle {}`，指明一个空的 `impl` 代码块。
+而要使用默认实现来汇总 `NewsArticle` 的实例，咱们要以 `impl Summary for NewsArticle {}` 指定一个空的 `impl` 代码块。
 
-尽管不再直接在 `NewsArticle` 类型上定义，那个 `summarize` 方法，但咱们是提供了一个默认实现的，并已指明 `NewsArticle` 类型实现了 `Summary` 特质。由此，咱们就可以在某个 `NewsArticle` 实例上，调用这个 `summarize` 方法，如同下面这样：
+尽管我们不再直接对 `NewsArticle` 类型定义 `summarize` 方法，但咱们已经提供了默认实现并指定了 `NewsArticle` 实现 `Summary` 特质。因此，我们仍然可以在 `NewsArticle` 实例上调用 `summarize` 方法，如下面这样：
 
 ```rust
     let article = NewsArticle {
@@ -150,56 +147,53 @@ pub trait Summary {
     println! ("有新文章可读！{}", article.summarize());
 ```
 
-此代码会打印出 `有新文章可读！了解更多......`。
+这段代码会打印 `有新文章可读！阅读更多......`。
 
-创建默认实现，不要求咱们对清单 10-13 中，在 `Tweet` 上 `Summary` 的实现，做任何修改。原因是对某个默认实现进行重写的语法，与实现不具有默认实现的特质方法语法相同。
+创建默认实现不要求我们修改 [清单 10-13](#listing_10-13) 中 `SocialPost` 上 `Summary` 的实现的任何内容。原因是覆盖默认实现的语法，与实现没有默认实现的特质方法的语法相同。
 
-默认实现可调用同一特质中的其他方法，即使那些别的方法没有默认实现。以这种方式，特质就可以提供到很多有用功能，且只要求特质实现者类型，指明其的一小部分方法。比如，咱们就可以将 `Summary` 特质，定义为有着一个要求予以实现的 `summarize_author` 方法，并在随后定义了有着调用了 `summarize_author` 方法默认实现的 `summarize` 方法：
+默认实现可以调用同一特质中的其他方法，即使这些别的方法没有默认实现。通过这种方式，特质就可以提供很多有用的功能，并只要求实现者指定其中一小部分。例如，我们可以定义 `Summary` 特质为有个需要实现的 `summarize_author` 方法，然后定义一个有默认实现的 `summarize` 方法，该默认实现会调用 `summarize_author` 方法：
 
 ```rust
 pub trait Summary {
     fn summarize_author(&self) -> String;
 
     fn summarize(&self) -> String {
-        format! ("（了解更多来自 {} ......）", self.summarize_author())
+        format! ("（阅读更多来自 {} ......）", self.summarize_author())
     }
 }
 ```
 
-而要使用此版本的 `Summary`，咱们只需在某个类型上实现该特质时，定义出 `summarize_author` 方法：
+要使用这一版本的 `Summary`，我们只需在类型上实现该特质时定义 `summarize_author` 方法即可：
 
 ```rust
-impl Summary for Tweet {
+impl Summary for SocialPost {
     fn summarize_author(&self) -> String {
         format! ("@{}", self.username)
     }
 }
 ```
 
-定义出 `summarize_author` 后，咱们就可以在 `Tweet` 结构体的实例上，调用 `summarize` 方法了，而 `summarize` 的默认实现，将调用咱们所提供的 `summarize_author` 的定义。由于咱们已实现了 `summarize_author`，在不要求咱们编写任何更多代码下，`Summary` 特质就已给到 `summarize` 方法的行为。
+定义 `summarize_author` 后，咱们就可以调用 `SocialPost` 结构体实例上的 `summarize` 方法，而 `summarize` 的默认实现将调用我们提供的 `summarize_author` 的定义。因为咱们已经实现了 `summarize_author`，所以 `Summary` 特质已经给予我们 `summarize` 方法的行为，而无需我们编写更多代码。下面是其看起来的样子：
 
 ```rust
-    let tweet = Tweet {
+    let post = SocialPost {
         username: String::from("horse_ebooks"),
         content: String::from(
-            "当然，跟大家已经清楚的一样了，朋友们",
+            "当然，跟大家已经知道的一样，朋友们",
         ),
         reply: false,
         retweet: false,
     };
 
-    println!("1 条新推文: {}", tweet.summarize());
+    println! ("1 个新帖子：{}", post.summarize());
 ```
 
-此代码会打印 `1 条新推文: （了解更多来自 @horse_ebooks ......）`。
+这段代码会打印 `1 个新帖子：（阅读更多来自 @horse_ebooks ......）`。
 
-请注意从方法的重写实现，调用同一方法的默认实现是不可行的。
+请注意，从方法的重写实现调用同一方法的默认实现是不可行的。
 
 
-## 作为参数的特质
-
-**Traits as Parameters**
-
+## 将特质用作参数
 
 既然清楚了怎样定义和实现特质，那么咱们就可以探讨一下，怎样运用特质来定义出接收不同类型参数的函数。咱们将使用之前清单 10-13 中，在 `NewsArticle` 与 `Tweet` 上曾实现过的 `Summary` 特质，来定义一个会调用其 `item` 参数上 `summarize` 方法的 `notify` 函数，而该参数便是实现了 `Summary` 特质类型的。要完成这个目的，咱们就要使用 `impl Trait` 语法，如下所示：
 
