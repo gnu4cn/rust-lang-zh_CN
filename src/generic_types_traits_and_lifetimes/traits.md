@@ -290,9 +290,9 @@ fn return_summarizable() -> impl Summary {
 }
 ```
 
-通过对返回值类型使用 `impl Summary`，而没有命名具体类型下，咱们便指明了 `returns_summarizable` 函数，会返回实现了 `Summary` 特质的类型。在此示例中，`returns_summarizable` 函数返回的是个 `Tweet`，而调用此函数的代码，则无需知会这一点。
+通过将 `impl Summary` 用于返回类型，咱们指定 `returns_summarizable` 函数某种实现 `Summary` 特质的类型，而无需命名具体类型。在这一情形下，`returns_summarizable` 返回一个 `SocialPost`，但调用这个函数的代码不需要知道这点。
 
-仅以其实现了的特质，便指明了返回值类型这种能力，在闭包与迭代器语境下尤为有用，咱们在第 13 章就会讲到他们。闭包与迭代器会创建出只有编译器清楚的类型，或指定起来极长的类型。`impl Trait` 语法，就允许咱们简明地、在无需编写出极长类型下指定出，返回实现了 `Iterator` 特质的某种类型的函数。
+仅通过其实现的特质，指定返回类型的能力在闭包与迭代器的上下文中特别有用，我们会在第 13 章中讨论他们。闭包和迭代器都会创建只有编译器知道的类型，或极长而难于指定的类型。`impl Trait` 语法让咱们可以简洁地指定某种实现 `Iterator` 特质的类型，而无需写出非常长的类型。
 
 然而，只有在返回单个类型时，咱们才能使用 `impl Trait`。比如下面这段在将返回值类型值指定为了 `impl Summary` 下，而要返回 `NewsArticle` 或 `Tweet` 的代码，就不会工作：
 
