@@ -1,20 +1,18 @@
 # 以生命周期验证引用
 
-生命周期是另一种咱们前面已经用到的泛型。与确保类型有着期望行为的特质不同，生命周期确保的是引用在咱们需要他们有效期间，保持有效，lifetimes ensure that references are valid as long as we need them to be。
+生命周期属于另一种我们已在使用的泛型。与确保类型有着我们所期望的行为不同，生命周期确保引用在咱们需要他们的整个期间内都有效。
 
-在第 4 章中 [引用与借用](Ch04_Understanding_Ownership.md#引用与借用references-and-borrowing) 小节，咱们未曾讨论的一个细节，即 Rust 中的每个引用，都有着 *生命周期，lifetime*，其便是引用有效的作用范围。多数时候，声明周期是隐式而被推导出来的，这正与多数时候类型是被推导出来的一样。咱们只须在可能有多个类型时注解类型。与此类似，在一些引用的生命周期，可能以几种方式存在关联时，咱们就必须注解出生命周期。为确保在运行时用到的具体类型显著有效，Rust 就会要求咱们使用泛型生命周期参数，注解出这些关系，in a similar way, we must annotate lifetimes when the lifetimes of references could be related in a few different ways. Rust requires us to annotate the relationships using generic lifetime parameters to ensure the actual references used at runtime will definitely be valid。
+我们在第 4 章中的 [引用与借用](../ownership/references_and_borrowing.md) 小节中未曾讨论的一个细节是，Rust 中的每个引用都有一个生命周期，即该引用有效的作用域。大多数时候，生命周期都是隐式的和推导出的，就像大多数时候类型是推导出的一样。只有当存在多种可能的类型时，我们才需要注解类型。以类似方式，当引用的生命周期可以数种方式关联时，我们必须注解生命周期。Rust 要求我们使用泛型声明周期参数注解关系，以确保运行时使用的实际引用将肯定有效。
 
-绝大多数别的编程语言，甚至都没有注解周期，annotating lifetimes, 这个概念，因此这会让人感到陌生。尽管在这一章中咱们不会涵盖生命周期的全部，咱们仍将讨论咱们可能遇到生命周期语法的一些常见方式，如此咱们就能适应这个概念。
-
-
-## 使用生命周期，防止悬空引用
-
-**Preventing Dangling References with Lifetimes**
+注解生命周期甚至都不是绝大多数其他编程语言所有的概念，因此这会让人感到陌生。尽管我们在这一章中不会介绍生命周期的全部，但咱们将讨论咱们可能会遇到生命周期语法的常见方式，以便咱们可以适应这个概念。
 
 
-生命周期的主要目的是防止 *悬空引用，dangling references*，其会导致程序引用并非其打算引用的数据。设想下面清单 10-16 中的程序，其有着一个外层作用范围与一个内层作用范围。
+## 悬空引用
+
+生命周期的主要目的是防止悬空引用，dangling references，若允许他们存在，将导致程序引用与其预期不同的数据。请考虑下面清单 10-16 中的程序，他有一个外层作用域和一个内层作用域。
 
 
+<a name="listing_10-16"></a>
 ```rust
 fn main() {
     let r;
@@ -24,94 +22,93 @@ fn main() {
         r = &x;
     }
 
-    println! {"r: {}", r};
+    println! {"r: {r}"};
 }
 ```
 
-*清单 10-16：使用了其值已超出作用域引用的尝试*
+**清单 10-16**：尝试使用其值已超出作用域的引用
 
-> 注意：清单 10-16、10-17 及 10-23 中的示例，均在不带变量初始值下，声明出了一些变量，而变量名存在于外层作用域中。乍一看，这样做似乎与 Rust 的无空值，Rust's having no `null` values，特性相抵触。不过，当咱们尝试于赋予变量值之前，使用某个变量，就会得到一个编译器时报错，这就表示 Rust 实际上是不允许空值的。
+> **注意**：清单 10-16、10-17 及 10-23 中的示例均在没有赋予变量初始值下声明了变量，因此变量名字存在于外层作用域中。乍一看，这似乎与 Rust 没有空值相冲突。然而，当我们在赋值前尝试使用变量，我们将得到一个编译器时错误，这表示 Rust 确实不允许空值。
 
-
-那个外层作用域声明了个名为 `r`、不带初始值的变量，而其中的内层作用域声明了个名为 `x`，带有初始值 `5` 的变量。在内层作用域里，咱们尝试将 `r` 的值，设置为到 `x` 的引用。随后那个内层作用域便结束了，同时咱们尝试打印 `r` 中的值。由于其中 `r` 所指向的值，在咱们尝试使用前已超出作用域，因此此代码不会编译。下面是错误消息：
+外层作用域声明了个名为 `r` 的变量，没有初始值，内层作用域声明了个名为 `x` 的变量，有着初始值 `5`。在内层作用域内，咱们尝试将 `r` 的值设置为到 `x` 的引用。然后，内层作用域结束，我们尝试打印 `r` 中的值。这段代码将不编译，因为在我们尝试使用 `r` 所引用的值前，他已超出了作用域。下面是错误消息：
 
 ```console
-$ cargo run                                            lennyp@vm-manjaro
-   Compiling lifetimes_demo v0.1.0 (/home/lennyp/rust-lang/lifetimes_demo)
+$ cargo run
+   Compiling dangling_ref_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/dangling_ref_demo)
 error[E0597]: `x` does not live long enough
  --> src/main.rs:6:13
   |
+5 |         let x = 5;
+  |             - binding `x` declared here
 6 |         r = &x;
   |             ^^ borrowed value does not live long enough
 7 |     }
   |     - `x` dropped here while still borrowed
 8 |
-9 |     println! {"r: {}", r};
-  |                        - borrow later used here
+9 |     println! {"r: {r}"};
+  |                    - borrow later used here
 
 For more information about this error, try `rustc --explain E0597`.
-error: could not compile `lifetimes_demo` due to previous error
+error: could not compile `dangling_ref_demo` (bin "dangling_ref_demo") due to 1 previous error
 ```
 
-变量 `x` 未 “存活足够长时间。” 原因是当内层作用域在第 7 行结束时，变量 `x` 将超出作用域。然而变量 `r` 对外层作用域仍有效；由于其作用域更大，咱们就说变量其 “存活得更长”。若 Rust 允许此代码工作，变量 `r` 就会引用变量 `x` 超出作用域时，已被解除分配的内存，且咱们尝试对变量 `x` 的任何操作，都将不会正确工作。那么 Rust 是怎样确定出此代码无效的呢？他使用了借用检查器，a borrow checker。
+错误消息指出，变量 `x` “does not live long enough. （未存活足够长时间）” 原因是 `x` 将在第 7 行处内层作用域结束时超出作用域。但 `r` 对于外层作用域仍有效；由于其作用域更大，我们说他 “存活时间更长”。若 Rust 允许这段代码工作，`r` 将引用 `x` 超出作用域时解除分配的内存，而尝试对 `x` 执行的任何操作都将不会正确地工作。那么，Rust 是怎样判断这段代码无效的呢？他使用借用检查器。
+
+
+> **译注**：Rust 使作用域成为可定量计算、可参数化。
 
 
 ## 借用检查器
 
-**The Borrow Checker**
+Rust 编译器有个 *借用检查器，borrow checker*，会比较作用域以确定所有借用是否有效。下面清单 10-17 显示了与清单 10-16 相同的代码，但带有展示变量生命周期的注解。
 
-
-Rust 编译器有着对作用域加以比较，而确定出全部借用是否有效的 *借用检查器，a borrow checker*。下面清单 10-17 给出了与清单 10-16 相同，而带有展示变量生命周期注解的代码。
-
+<a name="listing_10-17"></a>
 ```rust
 fn main() {
-    let r;                // ---------+-- 'a
-                          //          |
-    {                     //          |
-        let x = 5;        // -+-- 'b  |
-        r = &x;           //  |       |
-    }                     // -+       |
-                          //          |
-    println!("r: {}", r); //          |
-}                         // ---------+
+    let r;              // ---------+-- 'a
+                        //          |
+    {                   //          |
+        let x = 5;      // -+-- 'b  |
+        r = &x;         //  |       |
+    }                   // -+       |
+                        //          |
+    println!("r: {r}"); //          |
+}                       // ---------+
 ```
 
-*清单 10-17：变量 `r` 与 `x` 生命周期的注解，各自取名为 `'a` 与 `'b`*
+**清单 10-17**：`r` 与 `x` 的生命周期注解，分别命名为 `'a` 和 `'b`
 
-这里，咱们以 `'a` 注解出了 `r` 的声明周期，与 `'b` 注解出 `x` 的生命周期。正如咱们所能看到的，相比外层 `'a` 声明周期代码块，那个内层 `'b` 代码块要小得多。在编译时，Rust 会比较这两个生命周期的大小，而发现变量 `r` 有着 `'a` 的生命周期，但他却指向了个 `'b` 的生命周期。由于生命周期 `'b` 比 `'a` 要短，于是该程序就被拒绝：引用物，the subject of the reference，没有存活到引用那么长时间。
+在这里，咱们以 `'a` 注解了 `r` 的声明周期，以 `'b` 注解了 `x` 的生命周期。正如咱们所见，相比外层的 `'a` 声明周期块，内层的 `'b` 块小得多。在编译时，Rust 会比较这两个生命周期的大小，发现 `r` 有着 `'a` 的生命周期，但他引用了有着 `'b` 生命周期的内存。这个程序被拒绝，因为 `'b` 短于 `'a`：引用主体存活时间短于引用。
 
-下面清单 10-18 修复了该代码，从而其就没有了悬空引用，并会不带任何错误地编译。
+下面清单 10-18 修复了该代码，使其没有悬空引用进而其会在没有任何错误下编译。
 
 
+<a name="listing_10-18"></a>
 ```rust
 fn main() {
-    let x = 5;            // ----------+-- 'b
-                          //           |
-    let r = &x;           // --+-- 'a  |
-                          //   |       |
-    println!("r: {}", r); //   |       |
-                          // --+       |
-}                         // ----------+
+    let x = 5;          // ----------+-- 'b
+                        //           |
+    let r = &x;         // --+-- 'a  |
+                        //   |       |
+    println!("r: {r}"); //   |       |
+                        // --+       |
+}                       // ----------+
 ```
 
-*清单 10-18：由于被数据有着长于引用的生命周期，因此这是一个有效的引用*
+**清单 10-18**：有效引用，因为数据有着比引用更长的生命周期
 
+这里，`x` 有着生命周期 `'b`，在这一情形下大于 `'a`。这意味着 `r` 可以应用 `x`，因为 Rust 知道当 `x` 有效时，`r` 中的引用将始终有效。
 
-这里，`x` 有着生命周期 `'b`，在此示例中其是大于 `'a` 的。由于 Rust 清楚在变量 `r` 中的引用，在变量 `x` 有效期间将始终有效，这就意味着 `r` 可引用 `x`。
-
-既然咱们清楚了引用的生命周期在何处，以及 Rust 怎样为确保引用始终有效，而分析生命周期，那么下面咱们就要探讨函数上下文中，参数与返回值的泛型生命周期了，generic lifetimes of parameters and return values in the context of functions。
+现在咱们知道引用的生命周期在何处以及 Rust 怎样分析生命周期以确保引用将始终有效，下面我们来探讨函数参数与返回值中的泛型生命周期。
 
 
 ### 函数中的泛型生命周期
 
-**Generic Lifetimes in Functions**
+我们将编写一个函数，返回两个字符串切片中较长的那个。这个函数将取两个字符串切片，并返回单个字符串切片。在我们实现 `longest` 函数后，下面清单 10-19 中的代码应打印 `最长的字符串为 abcd`。
 
 
-咱们将编写一个返回两个字符串切片中较长者的函数。该函数将取两个字符串切片，并返回单个字符串切片。当咱们实现了 `longest` 函数后，下面清单 10-19 中的代码应打印 `最长的字符串为 abcd`。
-
-
+<a name="listing_10-19"></a>
 文件名：`src/main.rs`
-
 
 ```rust
 fn main() {
@@ -119,156 +116,133 @@ fn main() {
     let string2 = "xyz";
 
     let result = longest(string1.as_str(), string2);
-    println! ("最长的字符串为 {}", result);
+    println! ("最长的字符串为 {result}");
 }
 ```
 
-*清单 10-19：调用 `longest` 函数来找出两个字符串切片中较长那个的 `main` 函数*
+**清单 10-19**：调用 `longest` 函数来找出两个字符串切片中较长的那个的 `main` 函数
+
+请注意，我们希望这个函数取字符串切片，他们属于引用而不是字符串，因为我们不希望 `longest` 函数取得其参数的所有权。请参阅第 4 章中的 [字符串切片作为参数](../ownership/the_slice_type.md#字符串切片作为参数) 小节，了解更多有关为何我们在清单 10-19 中使用的参数，正是我们想要的讨论。
+
+当咱们尝试实现如下面清单 10-20 中所示的 `longest` 函数时，其将不编译。
 
 
-请注意由于咱们不想要这个 `longest` 函数，取得其参数的所有权，因此咱们是要该函数取两个均为引用的字符串切片，而非字符串。请参考第 4 章中 [作为函数参数的字符串切片](Ch04_Understanding_Ownership.md#字符串切片作为函数参数) 小节，了解更多为何咱们在清单 10-19 中用到的参数，即为咱们所想要参数的讨论。
-
-当咱们如下面清单 10-20 中所示的那样，尝试实现 `longest` 函数时，其不会编译。
-
-
+<a name="listing_10-20"></a>
 文件名：`src/main.rs`
 
 ```rust
 fn longest(x: &str, y: &str) -> &str {
-    if x.len() > y.len() {
-        x
-    } else { y }
+    if x.len() > y.len() { x } else { y }
 }
 ```
 
-*清单 10-20：返回两个字符串切片中较长者 `longest` 函数实现，但上不会编译*
+**清单 10-20**：一种 `longest` 函数的实现，返回两个字符串切片中较长的那个，但尚不会编译
 
 
-咱们而是会得到以下谈及生命周期的错误：
+相反，咱们会得到以下提到生命周期的报错：
 
 
 ```console
-$ cargo run                                                                                  lennyp@vm-manjaro
-   Compiling lifetimes_demo v0.1.0 (/home/lennyp/rust-lang/lifetimes_demo)
+$ cargo run
+   Compiling generic_lifetimes_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/generic_lifetimes_demo)
 error[E0106]: missing lifetime specifier
- --> src/main.rs:1:33
+ --> src/main.rs:9:33
   |
-1 | fn longest(x: &str, y: &str) -> &str {
+9 | fn longest(x: &str, y: &str) -> &str {
   |               ----     ----     ^ expected named lifetime parameter
   |
   = help: this function's return type contains a borrowed value, but the signature does not say whether it is borrowed from `x` or `y`
 help: consider introducing a named lifetime parameter
   |
-1 | fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+9 | fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
   |           ++++     ++          ++          ++
 
 For more information about this error, try `rustc --explain E0106`.
-error: could not compile `lifetimes_demo` due to previous error
+error: could not compile `generic_lifetimes_demo` (bin "generic_lifetimes_demo") due to 1 previous error
 ```
 
-帮助文本揭示了由于 Rust 无法区分出正返回的引用，是指向 `x` 还是 `y`，因此返回值类型就需要其上的一个泛型生命周期参数，a generic lifetime parameter。事实上，由于在该函数的函数体中，`if` 代码块返回的是到参数 `x` 的引用，而 `else` 代码块返回的则是到 `y` 的引用，所以就连咱们也不清楚！
+帮助文本揭示，返回类型需要其上的泛型生命周期，因为 Rust 无法区分返回的引用指向 `x` 还是 `y`。实际上，我们也不知道，因为这个函数主体中的`if` 代码块返回一个到参数 `x` 的引用，而 `else` 代码块返回一个到 `y` 的引用！
 
-在咱们定义这个函数时，是不清楚将传入到该函数的那些具体值的，因此就不清楚究竟是`if` 情形，还是 `else` 情形会被执行。咱们也不清楚将传入引用的具体生命周期，进而就无法查看如清单 10-17 及 10-18 中所看到的作用域，以确定出返回的引用是否始终有效。由于借用检查器不清楚 `x` 与 `y` 的生命周期，与返回值的生命周期有怎样的关联，因此借用检查器也无法确定出这一点。要修复这个错误，咱们将添加定义出这些引用变量之间关系的泛型生命周期参数，进而借用检查器就可以完成他的分析。
+当咱们定义这个函数时，我们不知道将传入这个函数的具体值，因此我们不知道`if` 情况将执行，还是 `else` 情况将执行。我们也不知道将传入的引用的具体生命周期，因此我们无法像我们在 [清单 10-17](#listing_10-17) 与 [清单 10-18](#listing_10-18) 中那样，查看作用域来确定我们返回的引用将是否始终有效。借用检查器也无法确定这点，因为他不知道 `x` 与 `y` 的生命周期如何与返回值的生命周期关联。为了修复这个错误，我们将添加定义引用之间关系的泛型生命周期参数，以便借用检查器可以执行其分析。
 
 
 ## 生命周期注解语法
 
-**Lifetime Annotation Syntax**
+生命周期注解不会改变任何引用的存活时间。相反，他们在不影响生命周期下，描述了多个引用的生命周期相互之间的关系。正如在签名指定了泛型参数后函数可以接受任何类型一样，函数可以通过指定泛型生命周期参数接受带有任何生命周期的引用。
 
-生命周期注解，不会改变任何引用的存活时长。而是，他们在不影响生命周期下，对多个引用变量的生命周期关系加以描述。正如函数签名指定了泛型参数时，函数便可接受任意类型一样，通过指定出泛型生命周期参数，函数就可以接受带有任意生命周期的引用了，just as functions can accept any type when the signatures specifies a generic type parameter, functions can accept with any lifetime by specifying a generic lifetime parameter。
+生命周期注解有着些许不同寻常的语法：生命周期参数的名字必须以撇号（单引号，`'`）开头，通常都是小写，并且像泛型一样非常短。大多数人使用名字 `'a` 作为第一个生命周期注解。我们将生命周期注解放在引用的 `&` 之后，使用空格将这种注解与引用的类型分开。
 
-生命周期注解有着些许不寻常的语法：生命周期参数名字，必须以撇号（单引号，`'`）开头，通常为全部小写字母，且像泛型一样非常短。多数人会用 `'a` 作为首个生命周期注解。咱们会将生命周期注解，放在引用的 `&` 之后，使用一个空格来将这种注解与该引用的类型分隔开。
-
-下面是一些示例：到某个 `i32` 的不带生命周期参数的引用、到某个 `i32` 的有着名为 `'a` 的生命周期参数，以及到某个 `i32` 的同样有着生命周期 `'a` 的可变引用。
+下面是一些示例 -- 到没有生命周期参数的 `i32` 的引用、到有着名为 `'a` 的生命周期参数的 `i32` 的引用，以及到同样有着生命周期 `'a` 的 `i32` 的可变引用。
 
 ```rust
-&i32        // 某个引用
-&'a i32     // 某个带有显式生命周期的引用
-&'a mut i32 // 某个有着显式生命周期的可变引用
+&i32        // 引用
+&'a i32     // 带有显式生命周期的引用
+&'a mut i32 // 带有显式生命周期的可变引用
 ```
 
-由于注解的目的是告诉 Rust （编译器），多个引用的泛型生命周期参数相互之间如何相互关联，因此生命周期本身并没有什么意义。接下来咱们就要在那个 `largest` 函数上下文中，检视一下生命周期注解如何关联。
+一个生命周期租借本身没有太大意义，因为注解的目的是告诉 Rust，多个引用的泛型生命周期参数相互之间是如何关联的。咱们来在 `largest` 函数的上下文中，检查生命周期注解相互之间的关联方式。
 
 
-### 函数签名中的生命周期注解
+## 函数签名方面
 
-**Lifetime Annotations in Function Signatures**
+要在函数签名中使用生命周期注解，我们需要在函数名字与参数列表之间的尖括号内声明泛型生命周期参数，就像我们对泛型类型参数所做的那样。
 
+我们希望签名表达以下约束：返回的引用将在两个参数都有效期间有效。这就是参数的生命周期与返回值的之间的关系。咱们将命名生命周期为 `'a`，然后添加他到每个引用，如下清单 10-21 中所示。
 
-如同之前对通用 *类型，type* 参数所做的那样，要在函数签名中使用生命周期注解，咱们需在函数名字与参数清单间，于一对尖括号里，声明出通用 *生命周期，lifetime* 参数。
-
-咱们是要那个函数签名表达出以下约束：返回的引用将与两个参数保持同样长的有效时间。这便是参数与返回值生命周期之间的关系。咱们将把这个生命周期命名为 `'a`，并在随后将其添加到各个引用，如下清单 10-21 中所示。
-
+<a name="listing_10-21"></a>
 文件名：`src/main.rs`
 
 ```rust
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
-    if x.len() > y.len() {
-        x
-    } else {
-        y
-    }
+    if x.len() > y.len() { x } else { y }
 }
 ```
 
-*清单 10-21：指明签名中全部引用，都必须有着同一生命周期 `'a` 的 `longest` 函数定义*
+**清单 10-21**：`longest` 函数的定义，指定签名中的所有引用都必须有着同一生命周期 `'a`
 
 
-此代码应会编译，并在清单 10-19 的 `main` 函数中使用他时，产生出咱们想要的结果。
+当我们与清单 10-19 的 `main` 函数一起使用这段代码时，他应编译并产生我们想要的结果。
 
-这个函数签名现在告诉 Rust，针对某个生命周期 `'a`，该函数会取两个参数，他们都是存活时间至少为 `'a` 的字符串切片。该函数签名还告诉 Rust，从该函数返回的字符串切片，将存活至少生命周期 `'a` 那样长时间。实际上，这表示 `longest` 函数所返回引用的生命周期，与该函数参数引用值生命周期中较小的一致。这些关系，就是咱们想要 Rust 在分析此代码时，要用到的关系。
+函数签名现在告诉 Rust，针对某一生命周期 `'a`，该函数取两个参数，他们都是字符串切片，存活时间至少与生命周期 `'a` 一样长。这个函数签名还告诉 Rust，从该函数返回的字符串切片将存活至少与生命周期 `'a` 一样长。实际上，这意味着由 `longest` 函数返回的引用的生命周期，与由函数参数引用的值的生命周期中较小的相同。这些关系是我们希望 Rust 在分析这段代码时要使用的。
 
-请记住，当咱们在这个函数签名中，指明那些生命周期进行时，咱们并未改变任何传入或返回值的生命周期。相反，咱们指明的是借用检查器应拒绝没有遵守这些约束的所有值。请注意 `longest` 函数不需要确切地掌握，`x` 与 `y` 将存活多久，而只要有可替代 `'a` 的某个作用域将满足此签名，note that the `longest` function doesn't need to know exactly how long `x` and `y` will live, only that some scope can be substituted for `'a` that will satisfy this signature。
+请记住，当咱们在这个函数签名中指定生命周期参数时，咱们没有改变任何传入值或返回值的生命周期。相反，咱们是在指定借用检查器应该拒绝任何未遵守这些约束的值。请注意，`longest` 函数不需要确切地知道 `x` 与 `y` 将存活多长时间，只要有某一作用域可替代 `'a` 即将满足这一签名。
 
-当于函数中注解生命周期时，这些注解是在函数签名中，而非函数体中。生命周期注解，成为了该函数合约的一部分，这就很像是签名中的类型。令函数签名包含生命周期合约，the lifetime contract，就意味着 Rust 编译器执行的分析，会更简单。若函数被注解方式或被调用方式存在问题，那么编译器报错，就可以更精准地指向所编写代码或约束的某个部分。相反，若没有这些生命周期注解，那么相比于 Rust 编译器会作出更多有关咱们所预期的生命周期关系推断，编译器或许就只能够指出，在问题原因处许多步之外，咱们代码的某个使用，if, instead, the Rust compiler made more inferences about what we intended the relationships of the lifetimes to be, the compiler might only be able to point to a use of our code many steps away from the cause of the problem。
+> **译注**：这里原文难以理解：
+>
+> "Remember, when we specify the lifetime parameters in this function signature, we’re not changing the lifetimes of any values passed in or returned. Rather, we’re specifying that the borrow checker should reject any values that don’t adhere to these constraints. Note that the longest function doesn’t need to know exactly how long x and y will live, only that some scope can be substituted for 'a that will satisfy this signature."
 
-在咱们把具体引用传递给 `longest` 时，取代 `'a` 的具体生命周期的，便是 `x` 的作用域中，与 `y` 的作用域重叠的部分。也就是说，泛型生命周期 `'a` 将获得，与 `x` 与 `y` 的生命周期中较小者相等的具体生命周期。由于咱们已使用同一生命周期参数 `'a`，注解了返回的引用，因此返回的引用，就会在 `x` 与 `y` 的生命周期中，较小者的存活时长期间有效。
+在函数中注解生命周期时，注解位于函数签名中，而非函数主体中。生命周期注解成为函数合约的一部分，就像是签名中的类型一样。让函数签名包含生命周期合约，意味着 Rust 编译器执行的分析会更简单。当函数注解的方式或调用的方式存在问题时，编译器报错可以更精准地指向我们的代码部分和约束。相反，当 Rust 编译器对我们想要的生命周期关系做出更多推断时，那么编译器或许只能够指出在问题原因处许多步之外的咱们代码的某一用法。
 
-下面咱们来通过传入具有不同具体生命周期的引用，看一下生命周期注解，如何限制 `longest` 函数。下面清单 10-22 就是一个直观的示例。
+当咱们传递具体引用给 `longest` 时，替换 `'a` 的具体生命周期的即为 `x` 的作用域与 `y` 的作用域重叠的部分。换句话说，泛型生命周期 `'a` 将获得与 `x` 与 `y` 的生命周期中较小者相等的具体生命周期。因为我们已通过同一生命周期参数 `'a` 注解了返回的引用，所以返回的引用也将在 `x` 与 `y` 的生命周期中较小者的长度内有效。
 
+我们来看看生命周期注解怎样通过传入有着不同具体生命周期的引用限制 `longest` 函数。下面清单 10-22 是个直观的示例。
 
+<a name="listing_10-22"></a>
 文件名：`src/main.rs`
 
 ```rust
-fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
-    if x.len() > y.len() {
-        x
-    } else {
-        y
-    }
-}
-
 fn main() {
     let string1 = String::from("长字符串就是长");
 
     {
         let string2 = String::from("xyz");
         let result = longest(string1.as_str(), string2.as_str());
-        println! ("最长的字符串为 {}", result);
+        println! ("最长字符串为 {result}");
     }
 }
 ```
 
-*清单 10-22：以到具有不同具体生命周期的 `String` 类型值的一些引用，使用 `longest` 函数*
+**清单 10-22**：以到具有不同具体生命周期的 `String` 类型值的一些引用，使用 `longest` 函数
+
+在这个示例中，`string1` 在外层作用域结束之前有效，`string2` 在内层作用域结束之前有效，而 `result` 引用在内层作用域结束之前有效的内容。运行这段代码，咱们将看到借用检查器批准；他将编译并打印 `最长字符串为 长字符串就是长`。
+
+接下来，我们来尝试一个实例，展示 `result` 中的引用的生命周期必须是两个参数中较小的生命周期。我们将把 `result` 变量的声明移出内层作用域，而把对 `result` 变量的赋值留在有着 `string2` 变量的作用域内。然后，我们将把使用 `result` 的 `println!` 语句移出内层作用域，在内层作用域结束之后。下面清单 10-23 中的代码将不编译。
 
 
-在此示例中，`string1` 到外层作用域结束之前都有效，`string2` 到内层作用域结束之前有效，而 `result` 引用了在内层作用域结束之前有效的某个东西。运行此代码，咱们就会看到借用检查器予以了证实；此代码将编译并打印 `最长的字符串为 长字符串就是长`。
-
-接下来，就要尝试一个展示 `result` 中引用的生命周期，必须为这两个参数生命周期中较小的那个的示例。这里将把那个 `result` 变量的声明，移到内层作用域外面而将到该 `result` 变量的赋值，仍然留在有着 `string2` 变量的作用域里头。随后将把那个用到 `result` 变量的 `println!` 语句，移出到内层作用域外面，在内层作用域结束之后。下面清单 10-23 中的代码将不会编译。
-
-
+<a name="listing_10-23"></a>
 文件名：`src/main.rs`
 
-
 ```rust
-fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
-    if x.len() > y.len() {
-        x
-    } else {
-        y
-    }
-}
-
 fn main() {
     let string1 = String::from("长字符串就是长");
     let result;
@@ -277,47 +251,45 @@ fn main() {
         let string2 = String::from("xyz");
         result = longest(string1.as_str(), string2.as_str());
     }
-    println! ("最长的字符串为 {}", result);
+    println! ("最长字符串为 {result}");
 }
 ```
 
-*清单 10-23：尝试在 `string2` 已超出作用域后使用 `result`*
+**清单 10-23**：在 `string2` 已超出作用域后尝试使用 `result`
 
 
-在尝试编译此代码时，咱们会得到以下报错：
+当我们尝试编译这段代码时，我们会得到下面这个报错：
 
 
 ```console
-$ cargo run                                                                        lennyp@vm-manjaro
-   Compiling lifetimes_demo v0.1.0 (/home/lennyp/rust-lang/lifetimes_demo)
+$ cargo run
+   Compiling generic_lifetimes_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/generic_lifetimes_demo)
 error[E0597]: `string2` does not live long enough
-  --> src/main.rs:15:44
-   |
-15 |         result = longest(string1.as_str(), string2.as_str());
-   |                                            ^^^^^^^^^^^^^^^^ borrowed value does not live long enough
-16 |     }
-   |     - `string2` dropped here while still borrowed
-17 |     println! ("最长的字符串为 {}", result);
-   |                                    ------ borrow later used here
+ --> src/main.rs:7:44
+  |
+6 |         let string2 = String::from("xyz");
+  |             ------- binding `string2` declared here
+7 |         result = longest(string1.as_str(), string2.as_str());
+  |                                            ^^^^^^^ borrowed value does not live long enough
+8 |     }
+  |     - `string2` dropped here while still borrowed
+9 |     println! ("最长字符串为 {result}");
+  |                              ------ borrow later used here
 
 For more information about this error, try `rustc --explain E0597`.
-error: could not compile `lifetimes_demo` due to previous error
+error: could not compile `generic_lifetimes_demo` (bin "generic_lifetimes_demo") due to 1 previous error
 ```
 
-报错显示，要让 `result` 对那个 `println!` 语句有效，`string2` 将需要在外层作用域结束前一直有效。Rust （编译器）之所以清楚这点，是因为咱们使用同一生命周期参数 `'a`，注解了该函数的参数与返回值。
+这一报错表明，要让 `result` 对 `println!` 语句有效，`string2` 将需要在外层作用域结束前有效。Rust 之所以知道这点，是因为我们使用同一生命周期参数 `'a` 注解了该函数的参数和返回值。
 
-而咱们而作为人类，则可以看一下这段代码，并发现 `string1` 要长于 `string2`，而由此 `result` 将包含到 `string1` 的引用。由于 `string1` 尚未超出作用域，那么到 `string1` 的某个引用，对于 `println!` 语句仍将有效。然而编译器在此情形下，却无法看出该引用是有效的。咱们已告知 Rust，由 `longest` 函数所返回引用的生命周期，与所传入参数声的明周期中较小者相同。因此，借用检查器就会因代码中可能有着无效的引用，而不容许清单 10-23 中代码。
+作为人类，我们可以查看这段代码，发现 `string1` 长于 `string2`，因此 `result` 将包含到 `string1` 的引用。因为 `string1` 尚未超出作用域，所以到 `string1` 的引用对于 `println!` 语句仍将有效。但是，编译器无法看出看出这一情形下该引用是有效的。我们已经告诉 Rust，由 `longest` 函数返回的引用的生命周期与传入的引用的生命周期中较小的那个相同。因此，借用检查器未放行清单 10-23 中的代码，因为可能有无效引用。
 
-
-请尝试设计更多在传入 `longest` 函数的值与引用生命周期，及返回引用使用方式上各不相同的试验。在咱们编译前，要就这些试验是否会通过借用检查器的检查，做出一些假定；随后检查发现，咱们所做出的假定是否正确！
-
-
-### 从生命周期角度思考
-
-**Thinking in Terms of Lifetimes**
+请尝试设计更多实验，让传入 `longest` 函数的引用的值和生命周期，以及返回的引用的使用方式上各不相同。在咱们编译前，要就咱们的试验是否会通过借用检查器提出假设；然后，检查一下咱们是否正确！
 
 
-咱们需要以何种方式，来指明生命周期参数，取决于咱们的函数正在做什么。比如若咱们把 `longest` 函数实现，修改为始终返回第一个参数，而非最长的字符串切片，咱们就不需要在参数 `y` 上指定生命周期。以下代码将会编译：
+## 关于关系
+
+我们需要以何种方式指定生命周期参数，取决于咱们的函数正在做什么。例如，当我们修改 `longest` 函数的实现为始终返回第一个参数，而非最长的字符串切片，那么我们将不需要在参数 `y` 上指定生命周期。以下代码将编译：
 
 文件名：`src/main.rs`
 
@@ -327,10 +299,9 @@ fn longest<'a>(x: &'a str, y: &str) -> &'a str {
 }
 ```
 
+咱们已对参数 `x` 与返回类型指定了生命周期参数 `'a`，而未对参数 `y` 指定，因为 `y` 的生命周期与 `x` 或返回值的生命周期没有任何关系。
 
-咱们已为参数 `x` 与返回值类型，指定了生命周期参数 `'a`，而由于参数 `y` 的生命周期，与 `x` 或返回值的生命周期并无任何关系，故咱们并未将 `'a` 指定给参数 `y`。
-
-当从函数返回引用时，返回值类型的生命周期参数，就需要匹配某个参数的生命周期参数。而当返回的引用 *不* 指向某个参数时，其就必定会指向函数内部创建出的某个值。然而，由于该值在函数结束处将超出作用域，因此这就会是个悬空引用。请设想下面这个不会编译的 `longest` 函数尝试实现：
+在从函数返回引用时，返回类型的生命周期参数需要与参数之一的生命周期参数一致。当返回的引用 *未* 指向参数之一时，其必定会指向这个函数内部创建的某个值。但是，这将是个悬空引用，因为该值将在函数结束处超出作用域。请考虑下面这个将不编译的 `longest` 函数的尝试实现：
 
 文件名：`src/main.rs`
 
@@ -341,34 +312,34 @@ fn longest<'a>(x: &str, y: &str) -> &'a str {
 }
 ```
 
-这里，尽管咱们已为返回类型指定了生命周期参数 `'a`，但由于返回值生命周期与参数的生命周期毫无关系，故这个实现将编译失败。下面是咱们会得到的报错：
+在这里，尽管咱们已对返回类型指定了生命周期参数 `'a`，这一实现仍将无法编译，因为返回值的生命周期与参数的生命周期完全无关。下面是我们得到的错误消息：
 
 ```console
-$ cargo run                                                              lennyp@vm-manjaro
-   Compiling lifetimes_demo v0.1.0 (/home/lennyp/rust-lang/lifetimes_demo)
-error[E0515]: cannot return reference to local variable `result`
-  --> src/main.rs:11:5
+$ cargo run
+   Compiling generic_lifetimes_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/generic_lifetimes_demo)
+error[E0515]: cannot return value referencing local variable `result`
+  --> src/main.rs:14:5
    |
-11 |     result.as_str()
-   |     ^^^^^^^^^^^^^^^ returns a reference to data owned by the current function
+14 |     result.as_str()
+   |     ------^^^^^^^^^
+   |     |
+   |     returns a value referencing data owned by the current function
+   |     `result` is borrowed here
 
 For more information about this error, try `rustc --explain E0515`.
-warning: `lifetimes_demo` (bin "lifetimes_demo") generated 2 warnings
-error: could not compile `lifetimes_demo` due to previous error; 2 warnings emitted
+error: could not compile `generic_lifetimes_demo` (bin "generic_lifetimes_demo") due to 1 previous error
 ```
 
-问题在于，那个 `result` 会在 `longest` 函数结束处超出作用域而被清理掉。而咱们还在尝试返回到该函数中 `result` 的引用。咱们没有办法指定出会纠正这个悬空引用的生命周期参数，而 Rust 也不会容许咱们创建出悬空引用。在这种情况下，最佳修复将是返回有着所有权的数据类型，而非某个引用（注：这样看来引用是没有所有权的），从而随后由调用函数，the calling function，负责清理该值。
+问题在于 `result` 会在 `longest` 函数结束处超出作用域而被清理掉。我们还试图从该函数返回到 `result` 的引用。咱们无法指定任何能改变悬空引用的生命周期参数，而 Rust 将不会让我们创建悬空引用。在这种情况下，最佳的修复方案将是返回一个自有的数据类型而非引用（译注：这样看来引用是没有所有权的），以便调用函数随后负责清理该值。
 
-最终，生命周期语法是关于把函数的不同参数与返回值的生命周期联系起来的。一旦他们联系起来，那么 Rust 就有了足够信息，来实现涉及内存安全的操作，并拦下会创建出悬空指针或危及内存安全的操作。
-
-
-### 结构体定义中的生命周期注解
-
-**Lifetime Annotations in Struct Definitions**
+最终，生命周期语法是关于连接函数的不同参数与返回值的生命周期。一旦他们联系起来，Rust 就有足够信息来实现内存安全的操作，并禁止会创建悬空指针或以其他方式违反内存安全的操作。
 
 
-到目前为止，咱们曾定义的结构体，都保存着一些自有类型。咱们可定义出保存引用的结构体，但那样的话，咱们将需要在结构体定义中的每个引用上，添加生命周期注解。下面清单 10-24 有个名为 `ImportedExcerpt`，保存着一个字符串切片的结构体。
+### 结构体定义方面
 
+到目前为止，我们已定义的结构体都存储的是自有类型。我们可以定义结构体为存储引用，但在这种情况下，我们就需要在结构体定义中的每个引用上添加生命周期注解。下面清单 10-24 有个名为 `ImportedExcerpt` 的结构体，存储了一个字符串切片。
+
+<a name="listing_10-24"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -377,15 +348,15 @@ struct ImportantExcerpt<'a> {
 }
 
 fn main() {
-    let novel = String::from("请叫我伊萨梅尔。多年以前.....");
-    let first_sentence = novel.split('。').next().expect("找不到一个 '。'");
+    let novel = String::from("请叫我 Ishmael。数年前.....");
+    let first_sentence = novel.split('。').next().unwrap();
     let i = ImportantExcerpt {
         part: first_sentence,
     };
 }
 ```
 
-*清单 10-24：保存着一个引用的结构体，因此就需要生命周期注解*
+**清单 10-24**：存储引用的结构体，需要生命周期注解
 
 此结构体拥有保存着是个引用的字符串切片的单一字段 `part`。与通用数据类型（泛型），generic data types，下一样，咱们在结构他名字后的尖括号里，声明了通用声明周期参数，进而就可以在结构体定义代码体中，使用那个生命周期参数。这个注解表示，`ImportantExcerpt` 的实例，无法存活超过其在 `part` 字段中所保存的那个引用，this annotation means an instance of `ImportedExcerpt` can't outlive the reference it holds in its `part` field。
 
