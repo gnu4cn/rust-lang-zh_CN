@@ -290,11 +290,11 @@ fn return_summarizable() -> impl Summary {
 }
 ```
 
-通过将 `impl Summary` 用于返回类型，咱们指定 `returns_summarizable` 函数某种实现 `Summary` 特质的类型，而无需命名具体类型。在这一情形下，`returns_summarizable` 返回一个 `SocialPost`，但调用这个函数的代码不需要知道这点。
+通过对返回类型使用 `impl Summary`，我们指定 `returns_summarizable` 函数返回某种实现 `Summary` 特质的类型，而无需命名具体类型。在这一情形下，`returns_summarizable` 返回一个 `SocialPost`，但调用这个函数的代码不需要知道这点。
 
-仅通过其实现的特质，指定返回类型的能力在闭包与迭代器的上下文中特别有用，我们会在第 13 章中讨论他们。闭包和迭代器都会创建只有编译器知道的类型，或极长而难于指定的类型。`impl Trait` 语法让咱们可以简洁地指定某种实现 `Iterator` 特质的类型，而无需写出非常长的类型。
+仅通过其实现的特质指定返回类型的能力，在闭包与迭代器的上下文中特别有用，我们会在第 13 章中讨论他们。闭包和迭代器都会创建只有编译器知道的类型，或极长而难于指定的类型。`impl Trait` 语法让咱们可以简洁地指定某种实现 `Iterator` 特质的类型，而无需写出非常长的类型。
 
-然而，只有在返回单个类型时，咱们才能使用 `impl Trait`。比如下面这段在将返回值类型值指定为了 `impl Summary` 下，而要返回 `NewsArticle` 或 `Tweet` 的代码，就不会工作：
+不过，只有当咱们返回单一类型时，咱们才能使用 `impl Trait`。例如，下面这段返回类型值被指定为 `impl Summary`，返回一个 `NewsArticle` 或 `SocialPost` 的代码将不工作：
 
 ```rust
 fn returns_summarizable(switch: bool) -> impl Summary {
@@ -305,14 +305,14 @@ fn returns_summarizable(switch: bool) -> impl Summary {
             author: String::from("Iceburgh"),
             content: String::from(
                 "匹兹堡企鹅队再度成为美国曲棍球联盟 \
-            NHL 中的最佳球队。"
+                NHL 中的最佳球队。"
             ),
         }
     } else {
-        Tweet {
+        SocialPost {
             username: String::from("horse_ebooks"),
             content: String::from(
-                "当然，跟大家已经清楚的一样了，朋友们",
+                "当然，跟大家已经知道的一样，朋友们",
             ),
             reply: false,
             retweet: false,
@@ -321,17 +321,15 @@ fn returns_summarizable(switch: bool) -> impl Summary {
 }
 ```
 
-由于编译器中实现 `impl Trait` 语法方式方面的限制，返回 `NewsArticle` 或 `Tweet` 便是不允许的。在第 17 章的 [运用允许不同类型值的特质对象](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节，咱们就会降到如何编写有着这种行为的函数。
+由于编译器中 `impl Trait` 语法实现方式方面的限制，返回 `NewsArticle` 或 `SocialPost` 是不允许的。我们将在第 18 章中的 [使用特质对象抽象共用行为](../oop/trait_objects.md) 小节中，介绍怎样编写有着这种行为的函数。
 
 
-## 运用特质边界，有条件地实现方法
+## 使用特质边界有条件地实现方法
 
-**Using Trait Bounds to Conditionally Implement Methods**
-
-
-使用带有用到泛型参数 `impl` 代码块的特质边界，咱们便可根据实现了指定特质的类型，而有条件地实现方法，by using a trait bound with an `impl` block that uses generic type parameters, we can implement methods conditionally for types that implement the specified traits。比如下面清单 10-15 中的类型 `Pair<T>`，就会一直将那个 `new` 函数，实现为返回 `Pair<T>` 的新实例（回顾第 5 章的 [定义方法](Ch05_Using_Structs_to_Structure_Related_Data.md#方法的定义) 小节就知道，`Self` 就是那个 `impl` 代码块的类型别名，此示例中即 `Pair<T>`）。但在接下来的 `impl` 代码块中，若 `Pair<T>` 只在其内部类型 `T` 里，实现启用比较的 `PartialOrd` 特质，*与* 启用打印的 `Display` 特质，那么 `Pair<T>` 就只会实现 `cmp_display` 方法。
+通过在使用泛型类型参数的 `impl` 代码块下使用特质边界，我们可以针对实现指定特质的类型，有条件地实现方法。例如，下面清单 10-15 中的类型 `Pair<T>`，会始终实现 `new` 函数为返回一个 `Pair<T>` 的新实例（回顾第 5 章中的 [方法语法](../structs/method_syntax.md#方法语法) 小节，`Self` 是 `impl` 代码块的类型别名，在这一情形下即为 `Pair<T>`）。但在下一个 `impl` 代码块中，`Pair<T>` 就只会在其内部类型 `T` 实现支持比较的 `PartialOrd` 特质，*与* 支持打印的 `Display` 特质时，才实现 `cmp_display` 方法。
 
 
+<a name="listing_10-15"></a>
 ```rust
 use std::fmt::Display;
 
@@ -349,19 +347,19 @@ impl<T> Pair<T> {
 impl<T: Display + PartialOrd> Pair<T> {
     fn cmp_display(&self) {
         if self.x >= self.y {
-            println! ("极大数为 x = {}", self.x);
+            println! ("最大数为 x = {}", self.x);
         } else {
-            println! ("极大数为 y = {}", self.y);
+            println! ("最大数为 y = {}", self.y);
         }
     }
 }
 ```
 
-*清单 10-15：根据特质边界，在泛型上有条件地实现方法，conditionally implementing methods on a generic type depending on trait bounds*
+**清单 10-15**：根据特质边界有条件地在泛型类型上实现方法
 
-> **注意**：这里的 `new` 是个关联函数，而非方法！只能以 `Pair::new` 形式使用。要作为方法使用，函数就必须要有一个 `self` 参数。
+> **译注**：这里的 `new` 是个关联函数而非方法！只能以 `Pair::new` 形式使用。要作为方法使用，函数就必须要有一个 `self` 参数。
 
-咱们还可对实现了另一特质的任意类型，有条件地实现某个特质。在满足这些特质边界的类型上的特质实现，被称作 *一揽子实现，blanket implementations*，在 Rust 标准库中广泛使用了一揽子实现。比如，标准库就在实现了 `Display` 特质的全部类型上，实现了 `ToString` 特质。标准库中这个 `impl` 代码块，看起来与下面的类似：
+咱们还可以有条件地针对任何实现另一特质的类型实现某个特质。在满足特质边界的任何类型上的特质实现，称为 *一揽子实现，blanket implementations*，并在 Rust 标准库中广泛使用。例如，标准库在任何实现 `Display` 特质的类型上实现了 `ToString` 特质。标准库中的这个 `impl` 代码块看起来类似于下面这段代码：
 
 ```rust
 impl<T: Display> ToString for T {
@@ -369,16 +367,16 @@ impl<T: Display> ToString for T {
 }
 ```
 
-由于标准库有着这个一揽子实现，咱们便可在实现了 `Display` 特质的全部类型上，调用由 `ToString` 特质所定义的 `to_string` 方法。比如，由于整数类型实现了 `Display` 特质，那么咱们就可以像下面这样，把整数转换为他们对应的 `String`：
+由于标准库有这个一揽子实现，我们可在任何实现 `Display` 特质的类型上，调用这个由 `ToString` 特质定义的 `to_string` 方法。例如，我们可以像下面这样将整数转换为他们对应的 `String` 值，因为整数实现了 `Display`：
 
 ```rust
 let s = 3.to_string();
 ```
 
-一揽子实现，会出现在特质文档的 “相关实现器，Implementors” 部分。
+一揽子实现会出现在特质的文档的 “Implementors” 小节。
 
 
-特质与特质边界这两个特性，允许咱们编写出运用泛型参数来减少代码重复的代码，并还向编译器指出了咱们希望该泛型有着特定行为。随后编译器就能使用特质边界信息，来检查代码用到的全部具体类型，是否提供到正确行为。在一般的动态类型语言，dynamically typed languages，中，若调用某个类型上尚未定义的方法，咱们将在运行时收到报错。但 Rust 将这些错误移到了编译时，这样在代码还不能运行的时候，咱们就被强制要求修复这些问题。此外，由于已在编译时被检查过，因此咱们就不必编写检查运行时行为的代码。这样做在提升了性能的同时，不必放弃泛型灵活性。
+特质与特质边界让我们可以编写使用泛型类型参数的代码来减少代码重复，同时也向编译器指定我们希望泛型类型有着特定的行为。然后，编译器可以使用特质边界信息，来检查对我们的代码使用的所有具体类型是否提供正确的行为。在动态类型语言中，in dynamically typed languages，若我们在未定义某个方法的类型上调用方法，我们将在运行时得到一个报错。但 Rust 将这些错误移到了编译时，这样我们就被迫在代码甚至能够运行前就修复这些问题。此外，我们不必编写检查运行时行为的代码，因为我们已经在编译时检查过。这样做提高了性能，而不必放弃泛型的灵活性。
 
 
 （End）

@@ -1,4 +1,4 @@
-# 使用特质对象抽象共有行为
+# 使用特质对象抽象共用行为
 
 > **注**：这类似于 Java 语言中，解决死亡钻石问题（DDD）的 [接口](https://java.xfoss.com/Ch08_Interfaces_and_Abstract_Classes.html#%E4%BD%BF%E7%94%A8%E6%8E%A5%E5%8F%A3%E6%9D%A5%E6%8B%AF%E6%95%91)。
 
