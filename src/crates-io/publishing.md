@@ -56,9 +56,6 @@ pub fn add_one(x: i32) -> i32 {
 
 ### 作为测试的文档注释
 
-**Documentation Comments as Tests**
-
-
 在文档注释中添加一些示例代码块，可以帮助演示怎样使用咱们的库，且这样做有着附带的好处，an additional bonus：运行 `cargo test` 将把文档中示例代码作为测试运行！带有示例的文档属实很好。而在文档编写好后，由于代码已被修改而造成示例不工作，也是极为糟糕的。当咱们以清单 14-1 中 `add_one` 函数的文档，运行 `cargo test`，就将在测试结果中看到这样一个小节：
 
 ```console

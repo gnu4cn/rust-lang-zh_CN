@@ -1,9 +1,5 @@
-pub fn add_two(a: i32) -> i32 {
-    internal_add(a, 2)
-}
-
-fn internal_add(a: i32, b: i32) -> i32 {
-    a + b
+pub fn add(left: u64, right: u64) -> u64 {
+    left + right
 }
 
 #[cfg(test)]
@@ -11,7 +7,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn internal() {
-        assert_eq! (4, internal_add(2, 2));
+    fn exploration() {
+        let result = add(2, 2);
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn another() {
+        panic! ("使这个测试失败");
     }
 }

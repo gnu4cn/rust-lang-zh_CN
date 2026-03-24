@@ -1,67 +1,71 @@
 # 怎样编写测试
 
-所谓测试，是指一些验证非测试代码（the non-test code）以预期方式发挥作用的函数（tests are Rust functions that verify that the non-test code is functioning in the expected manner）。测试函数的函数体，通常执行以下三种操作：
+所谓 *测试*，属于一些 Rust 函数，验证非测试代码是否以预期方式运行。测试函数的主体通常执行以下三种操作：
 
-1. 建立起全部所需的数据或状态；
+- 任何需要的数据或状态；
+- 运行咱们打算测试的代码；
+- 断言结果是咱们所期望的。
 
-2. 运行打算测试的代码；
-
-3. 就运行结果是所期望的结果进行断言（assert the results are what you expect）。
-
-下面就来看看，Rust 专为编写进行这些操作的测试，而提供到一些特性，包括 `test` 属性（the `test` attribute）、几个宏，以及 `should_panic` 属性（the `should_panic` attribute）。
+我们来看看，Rust 专门为编写执行这些操作的测试而提供的特性，包括 `test` 属性、数个宏以及 `should_panic` 属性。
 
 
-## 测试函数剖析
+## 组织测试函数
 
-**The Anatomy of a Test Function**
+最简单来说，Rust 中的测试，就是一个以 `test` 属性注解的函数。所谓属性，是指有关 Rust 代码片段的元数据；一个示例是我们在第 5 章中 [与结构体一起使用的 `derive` 属性](../structs/example_program.md#以派生特质添加功能)。要改变函数为测试函数，就要在 `fn` 之前的行上添加 `#[test]`。当咱们以 `cargo test` 命令运行测试时，Rust 会构建一个测试运行程序的二进制文件，运行这些注解过的函数并报告每个测试函数通过或失败。
 
-Rust 最简单形态的测试，就是以 `test` 属性注解的一个函数。所谓属性，是指有关 Rust 代码片段的元数据（attributes are metadata about pieces of Rust code）；在第 5 章中，[用在结构体上的 `derive` 属性](Ch05_Using_Structs_to_Structure_Related_Data.md#使用派生特质加入有用功能)，就是一个属性的例子。要将某个函数修改为测试函数，就要把 `#[test]` 添加在 `fn` 之前的行上。在以 `cargo test` 命令运行编写的测试时，Rust 就会构建一个运行这些注解过的函数，并就各个测试函数是否通过或失败进行汇报的测试运行器二进制文件（a test runner binary）。
+每当我们以 Cargo 构造一个新的库项目时，就会自动为我们生成一个包含测试函数的测试模组。这个模组给予我们一个用于编写测试的模板，这样咱们就不必在每次开始新项目时都去查找确切的测试结构和语法。咱们可以根据需要添加任意数量的额外测试函数与测试模组！
 
-每当用 Cargo 构造了一个新的库项目时，就会自动生成有着一个测试函数的测试模组。该模组给到了编写测试的模板，如此以来，就不必在每次开始新项目时，去找寻确切的测试结构及语法了。而至于要添加多少个额外测试函数与测试模组，则取决于咱们自己！
+在实际测试任何代码之前，我们将通过试验模板测试来探讨测试工作原理的一些方面。然后，我们将编写一些真实世界的测试，调用我们已编写的一些代码并断言其行为是正确的。
 
-在对代码进行具体测试之前，这里将通过进行模板测试（the template test）下的试验，来探索测试工作原理的一些方面。随后就会编写一些对之前曾编写的代码进行调用，并就这些代码有着正确行为进行断言的、真实世界中的测试。
-
-先来创建一个名为 `adder`、把两个数字相加的新库项目：
+我们来创建一个名为 `adder` 的新库项目，将把两个数字相加：
 
 ```console
-$ cargo new adder --lib                                                                                 lennyp@vm-manjaro
-     Created library `adder` package
+$ cargo new adder --lib
+    Creating library `adder` package
+note: see more `Cargo.toml` keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 $ cd adder
 ```
 
 
-在 `adder` 库中 `src/lib.rs` 文件的内容，应看起来如清单 11-1 所示。
+咱们 `adder` 库中 `src/lib.rs` 文件内容，应看起来如下清单 11-1 那样。
 
 
+<a name="listing_11-1"></a>
 文件名：`src/lib.rs`
 
 ```rust
+pub fn add(left: u64, right: u64) -> u64 {
+    left + right
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
 
     #[test]
     fn it_works() {
         let result = add(2, 2);
         assert_eq!(result, 4);
     }
-
 }
 ```
 
-*清单 11-1：由 `cargo new` 自动生成的测试模组与函数*
+**清单 11-1**：由 `cargo new` 自动生成的代码
 
+该文件以示例的 `add` 函数开头，以便我们有要测试的内容。
 
-至于现在，就要忽略顶部的两行，并着重于那个函数。请注意那个 `#[test]` 注解：此属性表示这是个测试函数，由此测试运行器就知道将这个函数，当作一个测试对待。在那个 `tests` 模组中，可能也会有一些非测试函数，来帮助建立一些常见场景或执行一些常见操作，因此就需要表明哪些函数是测试。
+现在，我们仅关注 `it_works` 函数。请注意 `#[test]` 注解：这个属性表明这是个测试函数，因此测试运行程序知道，要将这个函数视为测试。我们也可能在 `tests` 模组中有非测试函数，来帮助建立常见场景或执行常见操作，因此我们始终需要表明哪些函数属于测试。
 
-这个示例函数的函数体，使用了 `assert_eq!` 宏，来对包含了 `2` 加 `2` 的结果 `result` 等于 `4` 进行断言。该断言是作为一个典型测试的格式示例，而提供的。下面就来运行他，来看到该测试会通过。
+示例函数体使用 `assert_eq!` 宏来断言 `result` 等于 4，其包含以 2 和 2 调用 `add` 的结果。这个断言充当典型测试的格式示例。我们来运行他，看看这个测试是否通过。
 
-`cargo test` 命令会运行此项目中的全部测试，如下清单 11-2 所示。
+`cargo test` 命令会运行项目中的所有测试，如下清单 11-2 中所示。
 
+<a name="listing_11-2"></a>
 ```console
-$ cargo test                                                                                  1m 48s lennyp@vm-manjaro
-   Compiling adder v0.1.0 (/home/lennyp/rust-lang/adder)
-    Finished test [unoptimized + debuginfo] target(s) in 0.58s
-     Running unittests src/lib.rs (target/debug/deps/adder-3985394b39347736)
+$ cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running unittests src/lib.rs (target/debug/deps/adder-54be618fc528890c)
 
 running 1 test
 test tests::it_works ... ok
@@ -76,43 +80,47 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-*清单 11-2：运作这个自动生成测试的输出*
+**清单 11-2**：运行自动生成的测试的输出
 
+Cargo 编译并运行了该测试。我们看到行 `running 1 test`。下一行显示生成的测试函数的名字，称为 `it_works`，并且运行该测试的结果为 `ok`。总体总结 `test result: ok.` 表示所有测试都通过了，而读 `1 passed; 0 failed` 的部分则统计了通过与失败的测试数据。
 
-Cargo 编译并运行了这个测试。这里看到那行 `running 1 test`。接下来的行就给出了那个自动生成测试函数的名字，名为 `it_works`，以及运行那个测试的结果为 `ok`。整体结论 `test result: ok.` 就表示全部测试都通过了，而后面的 `1 passed; 0 failed` 的部分，则对通过与未通过的测试数据，做了合计。
+可以标记测试为忽略，这样他就不会在特定实例中运行；我们将在本章后面的 [除非特别要求否则忽略测试](./how_tests_are_run.md#除非特别要求否则忽略一些测试) 小节中介绍这点。因为我们在这里尚未这样做，所以总结显示 `0 ignored`。我们还可以传递参数给 `cargo test` 命令，以仅运行名字与某个字符串匹配的测试；这称为 *过滤，filtering*，我们将在 [根据名字运行测试子集](./how_tests_are_run.md#根据名字运行测试子集) 小节中介绍他。在这里，我们未曾过滤运行的测试，因此总结的末尾显示 `0 filtered out`。
 
-将某个测试标记为忽略，进而其在特定实例中不运行，是可能的；在本章后面的 ["忽视某些在特别要求下才运行的测试（Ignoring Some Tests Unless Specifically Requested）"](#在未作特别要求时忽略某些测试) 小节，就会讲到这个问题。由于这里尚未完成这个问题，因此这里的测试总结，就给出了 `0 ignored`。这里还可以把一个参数，传递给这个 `cargo test` 命令，来只测试那些名字与某个字符串匹配的测试；此特性叫做 *过滤（filtering）*，在 [“通过指定测试名字运行测试子集（Running a Subset of Tests）”](#依据测试名称来运行测试的某个子集) 小节，就会讲到这个问题。而这里也没有对所运行的测试加以过滤，因此在该测试小结的最后，显示了 `0 filtered out`。
+`0 measured` 的统计数据，针对测量性能的基准测试。截至本文撰写时，基准测试仅在每日构建版的 Rust 中可用。请参阅 [关于基准测试的文档](https://doc.rust-lang.org/unstable-book/library-features/test.html) 了解更多信息。
 
-其中属于基准测试的 `0 measured` 统计值，对性能进行了测量。所谓基准测试（benchmark tests），就跟其字面意思一样，只在每日构建版的 Rust 中可用。请参阅 [基准测试相关文档](https://doc.rust-lang.org/unstable-book/library-features/test.html) 了解更多信息。
+从 `Doc-tests adder` 处开始的测试输出的下一部分，属于文档测试的结果。我们还没有任何文档测试，但 Rust 可以编译出现于 API 文档中的任何代码示例。这一特性有助于保持咱们的文档与代码同步！我们将在第 14 章的 [作为测试的文档注释](../crates-io/publishing.md#作为测试的文档注释) 小节中讨论怎样编写文档测试。现在，我们将忽略 `Doc-tests` 的输出。
 
-测试输出接下来的部分，是以 `Doc-tests adder` 开始的，在有文档测试时，这便是文档测试的输出。虽然目前尚无文档测试，当 Rust 是可以编译在 API 文档中的全部代码示例的。此特性有助于将文档与代码保持同步！在第 14 章的 [“作为测试的文档注释（Documentation Comments as Tests）”](Ch14_More_about_Cargo_and_Crates_io.md#作为测试的文档注释) 小节，就会讨论怎样编写文档测试。至于现在，就会这个 `Doc-tests` 的输出加以忽略。
-
-
-接下来开始将该测试，定制为咱们自己所需的样子。首先将其中的 `it_works` 函数的名字，修改到某个别的名字，比如 `exploration`，像下面这样：
+我们来开始根据需求定制测试。首先，修改 `it_works` 函数的名字为别的名字，比如 `exploration`，像下面这样：
 
 
 文件名：`src/lib.rs`
 
 
 ```rust
+pub fn add(left: u64, right: u64) -> u64 {
+    left + right
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
 
     #[test]
     fn exploration() {
-        assert_eq! (2 + 2, 4);
+        let result = add(2, 2);
+        assert_eq!(result, 4);
     }
 }
 ```
 
-随后再度运行 `cargo test`。其输出此时就给出了 `exploration` 而非 `it_works`：
+然后，再次运行 `cargo test`。输出现在显示 `exploration`，而不是 `it_works`：
 
 
 ```console
-$ cargo test                                                                                                         lennyp@vm-manjaro
-   Compiling adder v0.1.0 (/home/lennyp/rust-lang/adder)
-    Finished test [unoptimized + debuginfo] target(s) in 1.64s
-     Running unittests src/lib.rs (target/debug/deps/adder-3985394b39347736)
+$ cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (target/debug/deps/adder-54be618fc528890c)
 
 running 1 test
 test tests::exploration ... ok
@@ -127,26 +135,36 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-现在就要添加另一测试，但这次将构造一个会失败的测试！测试是在测试函数中的某个东西发生终止运行时，才失败的。每个测试都是运行在一个新线程中，并在主线程发现某个测试线程死去时，该测试就被标记为失败了。在第 9 章中，就讲到引发代码终止运行的最简单方式，即为调用 `panic!` 这个宏。请敲入一个名为 `another` 函数的新测试，那么这个 `src/lib.rs` 看起来就如同下面清单 11-3 这样。
+现在我们将添加另一个测试，但这次我们将构造一个会失败的测试！当测试函数中某处代码终止运行时，测试就会失败。每个测试都在一个新的线程中运行，当主线程发现某个测试线程已死亡时，该测试会被标记为失败。在第 9 章中，我们讨论过终止运行的最简单方式是调用 `panic!` 宏。请将新的测试作为名为 `another` 的函数输入，这样咱们的 `src/lib.rs` 看起来就像下面的清单 11-3 那样。
 
 
+<a name="listing_11-3"></a>
 文件名：`src/lib.rs`
 
 ```rust
+pub fn add(left: u64, right: u64) -> u64 {
+    left + right
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
 
     #[test]
     fn exploration() {
-        assert_eq! (2 + 2, 4);
+        let result = add(2, 2);
+        assert_eq!(result, 4);
     }
 
     #[test]
     fn another() {
-        panic! ("令该测试失败");
+        panic! ("使这个测试失败");
     }
 }
+
 ```
+
+**清单 11-3**：添加第二个测试，由于我们调用了 `panic!` 宏，该测试将失败
 
 使用 `cargo test` 再度运行这些测试。其输出看起来应如同清单 11-4 那样，显示这里的 `exploration` 测试通过而 `another` 失败了。
 
