@@ -1,0 +1,6 @@
+[package]
+name = "generic_type_n_trait_bound_n_lifetime"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
