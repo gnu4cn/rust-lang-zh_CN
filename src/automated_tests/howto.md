@@ -166,13 +166,14 @@ mod tests {
 
 **清单 11-3**：添加第二个测试，由于我们调用了 `panic!` 宏，该测试将失败
 
-使用 `cargo test` 再度运行这些测试。其输出看起来应如同清单 11-4 那样，显示这里的 `exploration` 测试通过而 `another` 失败了。
+使用 `cargo test` 再次运行测试。输出应如同清单 11-4 那样，表明我们 `exploration` 测试通过了，而 `another` 失败了。
 
+<a name="listing_11-4"></a>
 ```console
-$ cargo test                                                                                                         lennyp@vm-manjaro
-   Compiling adder v0.1.0 (/home/lennyp/rust-lang/adder)
-    Finished test [unoptimized + debuginfo] target(s) in 0.42s
-     Running unittests src/lib.rs (target/debug/deps/adder-3985394b39347736)
+$ cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (target/debug/deps/adder-54be618fc528890c)
 
 running 2 tests
 test tests::exploration ... ok
@@ -181,7 +182,9 @@ test tests::another ... FAILED
 failures:
 
 ---- tests::another stdout ----
-thread 'tests::another' panicked at '令该测试失败', src/lib.rs:15:9
+
+thread 'tests::another' (116643) panicked at src/lib.rs:17:9:
+使这个测试失败
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
@@ -190,28 +193,25 @@ failures:
 
 test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
-*清单 11-4：在一项测试通过而一项测试失败时的测试输出*
+**清单 11-4**：一项测试通过与一项测试失败时的测试结果
 
-这里不再是 `ok` 了，`test tests::another` 那行给出了 `FAILED`。在这单独结果与测试小结直接，出现了两个新的部分：第一部分显示各个测试失败的具体原因。在此示例中，就得到 `another` 失败详情，是由于该测试函数在 `src/lib.rs` 文件第 15 行处 `panicked at '令该测试失败'`。接下来的部分，则列出了仅所有失败测试的名字，这在有很多测试，进而有很多详细失败测试输出时，是有用的。随后就可以使用某个失败测试的名字，来只运行该项测试而更容易地对其加以调试；在 [“对测试运行方式进行控制（Controlling How Tests Are Run）”](#控制测试以何种方式运行) 小节，将对运行测试方式，进行深入讲解。
+`test tests::another` 行显示 `FAILED`，而不是 `ok`。在单个结果与摘要之间出现两个新的小节：第一个小节显示每个测试失败的详细原因。在这一情形下，我们得到 `tests::another` 失败的详细信息，因为他在 `src/lib.rs` 文件中的第 17 行，以 `使该测试失败` 消息终止了运行。下一个小节仅列出所有失败测试的名字，这在存在大量测试和大量详细失败测试输出时非常有用。我们可以使用失败测试的名字来运行该项测试，以便更容易地调试他；我们将在 [控制测试运行方式](./how_tests_are_run.md) 小节进一步讨论运行测试的方式。
 
+摘要行显示在最后：总体上看，我们的测试结果为 `FAILED`。我们有一项测试通过，一项测试失败。
 
-显示在最后的测试小节行：总体上看，这个测试的结果为 `FAILED`。这里有一个测试通过，以及一个测试失败了。
-
-既然现在已经见识了不同场景下测试结果的样子，那么就来看看在测试中，除 `panic!` 之外其他一些有用的宏。
-
-
-## 使用 `assert!` 宏，检查测试结果
-
-**Checing Results with the `assert!` Macro**
+现在我们已经了解了不同场景下的测试结果，我们来看看除了 `panic!` 外，还有哪些在测试中很有用的宏。
 
 
-这个由标准库提供的 `assert!` 宏，在想要确保测试中某些情形求值为 `true` 时，是有用的。要给到这个 `assert!` 宏，一个求值为布尔值的参数。在求得的值为 `true` 时，就什么也不会发生，同时该测试通过。而在求得的值为 `false` 时，那么这个 `assert!` 宏就会调用 `panic!` 来造成该测试失败。使用这个 `assert!` 宏，有助于检查所编写代码，是以所计划方式运作。
+## 以 `assert!` 检查结果
 
-在第 5 章的清单 5-15 中，用到了一个 `Rectangle` 结构体，以及一个 `can_hold` 方法，下面清单 11-5 中重复了那段代码。下面就将这段代码放在 `src/lib.rs` 文件，随后就要使用 `assert!` 宏为其编写一些测试。
+在我们想要确保测试中某一条件求值为 `true` 时，标准库提供的 `assert!` 宏非常有用。我们给予 `assert!` 宏一个求值为布尔值的参数。当值为 `true` 时，就什么也不会发生，测试通过。当值为 `false` 时，则 `assert!` 宏调用 `panic!` 导致测试失败。使用 `assert!` 宏会帮助我们检查代码是否以我们预期的方式运作。
 
+在第 5 章 [清单 5-15](../structs/method_syntax.md#listing_5-15) 中，我们使用了 `Rectangle` 结构体和 `can_hold` 方法，其在下面清单 11-5 中得以复现。我们来放置这段代码于 `src/lib.rs` 文件中，然后使用 `assert!` 宏为其编写一些测试。
+
+<a name="listing_11-5"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -223,15 +223,18 @@ struct Rectangle {
 
 impl Rectangle {
     fn can_hold(&self, other: &Rectangle) -> bool {
-        (self.width > other.width && self.height > other.height) || (self.width > other.height && self.height > other.width)
+        (self.width > other.width && self.height > other.height)
+        || (self.width > other.height && self.height > other.width)
     }
 }
 ```
 
-*清单 11-5：使用第 5 章的 `Rectangle` 结构体及其 `can_hold` 方法*
+**清单 11-5**：第 5 章中的 `Rectangle` 结构体及其 `can_hold` 方法
 
-这个 `can_hold` 方法返回的是个布尔值，这就表示他是个 `assert!` 宏的绝佳用例。在下面清单 11-6 中，这里经由创建一个有着宽为 `8` 高为 `7` 的 `Rectangle` 实例，并断言其可装下另一个宽为 `5` 高为 `1` 的 `Rectangle` 实例，而编写了一个对该 `can_hold` 方法进行检查的测试。
+`can_hold` 方法返回一个布尔值，这意味着他是 `assert!` 宏的绝佳用例。在下面清单 11-6 中，我们编写了个测试，通过创建一个宽度为 8 ，高度为 7 的 `Rectangle` 实例，并断言他可以容纳另一个宽度为 5，高度为 1 的 `Rectangle` 实例来验证 `can_hold` 方法。
 
+
+<a name="listing_11-6"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -255,24 +258,25 @@ mod tests {
 }
 ```
 
-*清单 11-6：`can_hold` 的一个检查较大矩形是否能够真正包含较小矩形的测试*
+**清单 11-6**：对 `can_hold` 的测试，检查较大的矩形是否确实可以容纳较小的矩形
 
-请注意这里在 `tests` 模组里头添加了个新行：`use super::*;`。这个 `tests` 模组是个遵循第 7 章中，[“用于指向模组树中某个项目的路径”](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#用于引用目录树中项目的路径)小节中曾讲到一般可见性规则的常规模组。由于这个 `tests` 模组是个内部模组，因此这里就需要将外层模组中的受测试代码，带入到这个 `tests` 内部模组的作用域。而由于这里使用了一个全局通配符（a glob, `*`），因此所有在外层模组中定义的内容，就对这个 `tests` 模组可用了。
+请注意 `tests` 模组内部的 `use super::*;` 这一行。`tests` 模组是个常规模组，遵循我们在第 7 章中 [引用模组树中项目的路径](../packages_crates_and_modules/paths.md) 小节中介绍的常见可见性规则。因为 `tests` 模组是个内层模组，所以我们需要带入外层模组中的受测试代码到这个内层模组的作用域。我们在这里使用了通配符，a glob, `*`，因此我们在外层模组中定义的任何内容都对这个 `tests` 模组可用。
 
-这里已将这个测试命名为了 `larger_can_hold_smaller`，并创建除了所需的两个 `Rectanble` 实例。随后就调用了 `assert!` 宏，并将调用 `larger.can_hold(&smaller)` 的结果传递给了他。这个表达式应返回 `true`，因此这个测试将通过。那么就来试试看吧！
+我们已命名测试为 `larger_can_hold_smaller`，并创建了我们需要的两个 `Rectanble` 实例。然后，我们调用了 `assert!` 宏并传递了 `larger.can_hold(&smaller)` 的结果给他。这个表达式应返回 `true`，因此我们的测试应该通过。我们来看看吧！
+
 
 ```console
-$ cargo test                                                                                                            lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.37s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test
+   Compiling rectangle v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangle)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/rectangle-a5e83cc30155b35c)
 
 running 1 test
 test tests::larger_can_hold_smaller ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Doc-tests assert_demo
+   Doc-tests rectangle
 
 running 0 tests
 
@@ -280,7 +284,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-这个测试真的通过了！接下来添加另一个测试，这次就断言某个较小矩形，无法装下一个较大矩形：
+确实通过了！我们来添加另一个测试，这次断言较小的矩形无法容纳较大的矩形：
 
 文件名：`src/lib.rs`
 
@@ -311,21 +315,21 @@ mod tests {
 }
 ```
 
-由于此情形下的 `can_hold` 正确结果为 `false`，因此就需要在将该结果传递给 `assert!` 宏之前，对其取反。而作为测试结果，在 `can_hold` 返回 `false` 时，这个测试就会通过：
+由于在此情形下 `can_hold` 函数的正确结果为 `false`，因此我们需要在传递结果给 `assert!` 宏之前对该结果取反。因此，当`can_hold` 返回 `false` 时，我们的测试将通过：
 
 ```console
-$ cargo test                                                                                                            lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.37s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test
+   Compiling rectangle v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangle)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (target/debug/deps/rectangle-a5e83cc30155b35c)
 
 running 2 tests
-test tests::smaller_cannot_hold_larger ... ok
 test tests::larger_can_hold_smaller ... ok
+test tests::smaller_cannot_hold_larger ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Doc-tests assert_demo
+   Doc-tests rectangle
 
 running 0 tests
 
@@ -333,34 +337,36 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-两个测试均通过了！现在来看看在将一个代码错误（a bug）引入这里的代码时，这里的测试结果将发生什么。这里会通过在比较两个矩形宽时，将大于符号替换为小于符号，而对 `can_hold` 方法的实现加以修改：
+两个测试都通过了！现在我们来看看，当我们在代码中引入一个 bug 后，测试结果会发生什么。我们将修改 `can_hold` 方法的实现，替换其比较宽度时的大于号为小于号：
 
 ```rust
 // --跳过代码--
 impl Rectangle {
     fn can_hold(&self, other: &Rectangle) -> bool {
-        (self.width < other.width && self.height > other.height) ||
-            (self.width < other.height && self.height > other.width)
+        (self.width < other.width && self.height > other.height)
+            || (self.width < other.height && self.height > other.width)
     }
 }
 ```
 
-现在运行这些测试，就会生成下面的输出：
+现在运行测试会产生以下输出：
 
 ```console
-$ cargo test                                                                           lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.37s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test
+   Compiling rectangle v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangle)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (target/debug/deps/rectangle-a5e83cc30155b35c)
 
 running 2 tests
-test tests::larger_can_hold_smaller ... FAILED
 test tests::smaller_cannot_hold_larger ... ok
+test tests::larger_can_hold_smaller ... FAILED
 
 failures:
 
 ---- tests::larger_can_hold_smaller stdout ----
-thread 'tests::larger_can_hold_smaller' panicked at 'assertion failed: larger.can_hold(&smaller)', src/lib.rs:29:9
+
+thread 'tests::larger_can_hold_smaller' (141951) panicked at src/lib.rs:29:9:
+assertion failed: larger.can_hold(&smaller)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
@@ -369,10 +375,10 @@ failures:
 
 test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
-这些测试就捕获到了代码错误（the bug）！由于 `larger.width` 为 `8` 而 `smaller.width` 为 `5`，那么在 `can_hold` 方法中宽的比较现在就会返回 `false`: `8` 不比 `5` 小。
+我们的测试就捕获到了这个 bug！由于 `larger.width` 为 `8` 而 `smaller.width` 为 `5`，因此 `can_hold` 中的宽度比较现在返回 `false`: `8` 不小于 `5`。
 
 
 ## 使用 `assert_eq!` 与 `assert_ne!` 两个宏，测试相等性
