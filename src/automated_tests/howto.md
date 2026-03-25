@@ -381,15 +381,13 @@ error: test failed, to rerun pass `--lib`
 我们的测试就捕获到了这个 bug！由于 `larger.width` 为 `8` 而 `smaller.width` 为 `5`，因此 `can_hold` 中的宽度比较现在返回 `false`: `8` 不小于 `5`。
 
 
-## 使用 `assert_eq!` 与 `assert_ne!` 两个宏，测试相等性
+## 以 `assert_eq!` 与 `assert_ne!` 测试相等性
 
-**Testing Equality with the `assert_eq!` and `assert_ne!` Macros**
+验证功能的一种常见方式是，测试被测代码的结果与咱们期望代码返回的值之间是否相等。咱们可以使用 `assert!`， 并传递一个使用 `==` 运算符的表达式给他来实现这点。然而，由于这种测试如此常见，标准库提供了一对宏 -- `assert_eq!` 与 `assert_ne!` -- 以便更方便地进行此类测试。这两个宏分别比较两个参数的相等或不相等。当断言失败时，他们还会打印两个值，这让发现测试 *为何* 失败更容易；反之，`assert!` 宏则只会表明他得到了 `==` 表达式的 `false` 值，而不打印导致 `false` 值的值。
 
+在下面清单 11-7 中，我们编写了个名为 `add_two` 的函数，加 2 到其参数，然后我们使用 `assert_eq!` 宏测试这个函数。
 
-对功能进行验证的一种常见方式，便是对测试之前代码的输出结果，与所期望的代码返回值之间是否相等进行测试。使用 `assert!` 宏并将一个使用了 `==` 运算符的表达式传递给他，就可完成这样的测试。然而由于这是一个如此常见的测试，以致标准库提供了一对宏 -- `assert_eq!` 与 `assert_ne!` -- 来更方便地执行这样的测试。这两个宏分别比较两个参数的相等与不相等。在断言失败时，他们还会打印出那两个值，这就令到发现 *为何* 测试失败，更为容易了；与之相反，`assert!` 宏则只表明他收到了那个 `==` 表达式的 `false` 值，而没有将导致那个 `false` 值的两个值打印出来的功能。
-
-在下面清单 11-7 中，就编写了一个名为 `add_two`、将 `2` 加到其参数的函数，随后使用 `asset_eq!` 宏对这个函数进行了测试。
-
+<a name="listing_11-7"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -408,24 +406,24 @@ mod tests {
 }
 ```
 
-*清单 11-7：使用 `assert_eq!` 宏对函数 `add_two` 进行测试*
+**清单 11-7**：使用 `assert_eq!` 宏测试函数 `add_two`
 
 
-下面就来看看，他通过了测试！
+我们来检查一下他是否通过！
 
 
 ```console
-$ cargo test                                                        lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.56s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 1 test
 test tests::it_adds_two ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Doc-tests assert_demo
+   Doc-tests adder
 
 running 0 tests
 
@@ -433,9 +431,9 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-这里将 `4` 作为参数传递给了 `assert_eq!`，这与调用 `add_two(2)` 的结果相等。该测试的那一行就是 `tests::it_adds_two ... ok`，而文本 `ok` 就表明这个测试通过了！
+我们创建了个名为 `result` 的变量，保存调用 `add_two(2)` 的结果。然后，我们将 `result` 和 `4` 作为参数传递给 `assert_eq!` 宏。这个测试的输出行是 `tests::it_adds_two ... ok`，文本 `ok` 表明我们的测试通过了！
 
-接下来将一个 bug 引入到这里的代码，看看在 `assert_eq!` 失败时，会是什么样子。将这个 `add_two` 函数的实现修改为加 `3`：
+我们来引入一个 bug 到我们的代码，看看 `assert_eq!` 在失败时会是什么样子。修改 `add_two` 函数的实现为加 `3`：
 
 ```rust
 pub fn add_two(a: i32) -> i32 {
@@ -443,13 +441,13 @@ pub fn add_two(a: i32) -> i32 {
 }
 ```
 
-在此运行这些测试（the tests）：
+再次运行测试：
 
 ```console
-$ cargo test                                                           lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.54s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 1 test
 test tests::it_adds_two ... FAILED
@@ -457,9 +455,11 @@ test tests::it_adds_two ... FAILED
 failures:
 
 ---- tests::it_adds_two stdout ----
-thread 'tests::it_adds_two' panicked at 'assertion failed: `(left == right)`
-  left: `4`,
- right: `5`', src/lib.rs:11:9
+
+thread 'tests::it_adds_two' (148898) panicked at src/lib.rs:12:9:
+assertion `left == right` failed
+  left: 5
+ right: 4
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
@@ -468,10 +468,10 @@ failures:
 
 test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
-这里的测试捕获到了那个 bug！其中的 `it_adds_two` 测试就失败了，同时这些消息讲到，失败的断言为 ``assert failed: `(left == right)` ``，以及其中 `left` 与 `right` 的值分别为何。该消息有助于发起调试：那个 `left` 参数为 `4`，而那个 `right` 参数，即放上 `add_two(2)` 的那个，为 `5`。那么这里就可以联想到，当有很多测试在进行时，这一点就会尤其有帮助了。
+我们的测试捕获到了 bug！`test::it_adds_two` 这个测试失败，消息告诉我们失败的断言是 `left == right` 以及 `left` 与 `right` 值是什么。这条消息帮助我们开始调试：其中我们保存调用 `add_two(2)` 的 `left` 参数为 `5`，而 `right` 参数为 `5`。咱们可以想象，当我们正在进行大量测试时，这将特别有用。
 
 请注意在某些语言与测试框架中，相等断言函数的那两个参数，分别叫做 `expected` 与 `actual`，且指定这两个参数的顺序是至关重要的。不过在 Rust 中，他们则分别叫做 `left` 与 `right`，且在指定所期望值与代码产生值的顺序，并不重要。这里可将该断言写作 `assert_eq! (add_two(2), 4)`，这仍会导致这个显示出 ``assertion failed: `(left == right)` `` 的同样失败消息。
 
