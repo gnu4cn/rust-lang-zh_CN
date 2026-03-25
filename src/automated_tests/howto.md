@@ -62,7 +62,7 @@ mod tests {
 
 <a name="listing_11-2"></a>
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
      Running unittests src/lib.rs (target/debug/deps/adder-54be618fc528890c)
@@ -79,6 +79,8 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 ```
+
+> **译注**：这里以 `RUSTFLAGS="-A warnings" cargo test` 命令，在设置环境变量 `RUSTFLAGS` 后，可以抑制编译器的告警消息。
 
 **清单 11-2**：运行自动生成的测试的输出
 
@@ -117,7 +119,7 @@ mod tests {
 
 
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running unittests src/lib.rs (target/debug/deps/adder-54be618fc528890c)
@@ -170,7 +172,7 @@ mod tests {
 
 <a name="listing_11-4"></a>
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running unittests src/lib.rs (target/debug/deps/adder-54be618fc528890c)
@@ -266,7 +268,7 @@ mod tests {
 
 
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling rectangle v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangle)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running unittests src/lib.rs (target/debug/deps/rectangle-a5e83cc30155b35c)
@@ -318,7 +320,7 @@ mod tests {
 由于在此情形下 `can_hold` 函数的正确结果为 `false`，因此我们需要在传递结果给 `assert!` 宏之前对该结果取反。因此，当`can_hold` 返回 `false` 时，我们的测试将通过：
 
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling rectangle v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangle)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running unittests src/lib.rs (target/debug/deps/rectangle-a5e83cc30155b35c)
@@ -352,7 +354,7 @@ impl Rectangle {
 现在运行测试会产生以下输出：
 
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling rectangle v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangle)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running unittests src/lib.rs (target/debug/deps/rectangle-a5e83cc30155b35c)
@@ -413,7 +415,7 @@ mod tests {
 
 
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
      Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
@@ -444,7 +446,7 @@ pub fn add_two(a: i32) -> i32 {
 再次运行测试：
 
 ```console
-$ cargo test
+$ RUSTFLAGS="-A warnings" cargo test
    Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
      Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
@@ -471,29 +473,26 @@ test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 error: test failed, to rerun pass `--lib`
 ```
 
-我们的测试捕获到了 bug！`test::it_adds_two` 这个测试失败，消息告诉我们失败的断言是 `left == right` 以及 `left` 与 `right` 值是什么。这条消息帮助我们开始调试：其中我们保存调用 `add_two(2)` 的 `left` 参数为 `5`，而 `right` 参数为 `5`。咱们可以想象，当我们正在进行大量测试时，这将特别有用。
+我们的测试捕获到了这个 bug！`test::it_adds_two` 这个测试失败，消息告诉我们失败的断言是 `left == right` 以及 `left` 与 `right` 值是什么。这条消息帮助我们开始调试：其中我们保存调用 `add_two(2)` 的 `left` 参数为 `5`，而 `right` 参数为 `5`。咱们可以想象，当我们正在进行大量测试时，这将特别有用。
 
-请注意在某些语言与测试框架中，相等断言函数的那两个参数，分别叫做 `expected` 与 `actual`，且指定这两个参数的顺序是至关重要的。不过在 Rust 中，他们则分别叫做 `left` 与 `right`，且在指定所期望值与代码产生值的顺序，并不重要。这里可将该断言写作 `assert_eq! (add_two(2), 4)`，这仍会导致这个显示出 ``assertion failed: `(left == right)` `` 的同样失败消息。
+请注意，在某些语言和测试框架中，相等性断言函数的参数称为 `expected` 与 `actual`，并且我们指定参数的顺序很重要。但在 Rust 中，他们称为 `left` 和 `right`，我们指定期望值与代码生成值的顺序并不重要。我们可以将这个测试中的断言写作 `assert_eq! (4, result)`，这将导致显示 ``assertion failed: `(left == right)` `` 的相同失败消息。
 
-而 `assert_ne!` 宏则将在给到其两个不相等值时通过测试，在两个值相等时测试失败。对于在不确定某个值是什么，但却清楚该值明显不会为何时的各种情形，这个宏就是最有用的。比如，在对某个确切会以某种方式修改其输入的函数进行测试，而修改方式会根据具体每周的哪一天运行该测试发生改变时，那么加以断言的最佳事物，就会是该函数的输出，与其输入不相等。
+当我们给他的两个值不相等时，`assert_ne!` 宏将通过，并在二者相等时失败。在我们不确定某个值 *将* 为何，但我们知道该值绝对 *不应* 为何的情形下，这个宏最有用。例如，当我们正在测试一个肯定会以某种方式改变其输入的函数，而输入修改的方式取决于我们在周几运行测试时，那么要断言的最佳内容可能就是函数的输出不等于与输入。
 
-表象之下，`assert_eq!` 与 `assert_ne!` 两个宏，分别使用了运算符 `==` 与 `!=`。在他们的断言失败时，这两个宏就会使用调试格式化（debug formatting），将他们的参数打印出来，这就意味着正被比较的两个值，必须实现了 `PartialEq` 与 `Debug` 特质。全部原生值与绝大多数的标准库类型，都实现了这两个特质。而对于咱们自己定义的结构体与枚举，就需要实现 `PartialEq` 来对这些类型的相等与否进行断言。同样还需要实现 `Debug`，来在断言失败时打印比较的两个值。由于这两个特质都正如第 5 章清单 5-12 中所提到的派生特质（derivable traits），这样就跟将 `#[derive(PartialEq, Debug)]` 注解，添加到所编写的结构体或枚举定义一样直接了。请参阅附录 C，[“可派生特质（derivable traits）”](Ch21_Appdendix.md#附录-c派生特质) 了解更多有关这两个及其他派生特质的详细信息。
-
-
-## 添加定制的失败消息
-
-**Adding Custom Failure Message**
+表象之下，`assert_eq!` 与 `assert_ne!` 两个宏分别使用运算符 `==` 与 `!=`。在断言失败时，这两个宏使用调试格式打印其参数，这意味着被比较的值必须实现 `PartialEq` 与 `Debug` 特质。所有原始类型和大多数标准库类型都实现了这两个特质。对于咱们自己定义的结构体与枚举，咱们将需要实现 `PartialEq` 来断言这些类型的像等性。咱们还需要实现 `Debug` 以在断言失败时打印值。因为这两个特质都是可派生特质，正如第 5 章中 [清单 5-12](../structs/example_program.md#listing_5-12) 中提到的，所以这通常就跟添加 `#[derive(PartialEq, Debug)]` 注解到咱们的结构体或枚举定义一样简单。有关这两个可派生特质及其他可派生特质的更多详细信息，请参阅 [附录 C，派生特质](../appendix/derivable_traits.md)。
 
 
-还可将与失败消息一同打印的定制消息，作为 `assert!`、`assert_eq!` 及 `assert_ne!` 宏的可选参数加入进来。在必须的两个参数之后指定的全部参数，都被传递给他们中的 `format!` 宏（第 8 章中 [“以 `+` 操作符或 `format!` 宏的字符串连接（Concatenation with the `+` Operator or the `format!` macro）”](Ch08_Common_Collections.md#使用--运算符或-format-宏的字符串连接)） 小节曾讲到），因此就可以传递一个包含了 `{}` 占位符的格式化字符串，以及进到这些占位符的值。对于给某个断言表示什么的文档编制，这些定制消息就是有用的；在某个测试失败时，就会有着该代码下那个问题的较好理解。
+## 添加定制失败消息
 
-比如说，这里有个按照名字来打招呼的函数，并打算就传入到该函数的名字有出现在输出中进行测试：
+咱们还可以添加与失败消息一起打印的定制消息，作为 `assert!`、`assert_eq!` 及 `assert_ne!` 宏的可选参数。在必需参数之后指定的所有参数，都会传递到 `format!` 宏（在第 8 章中的 [以 `+` 或 `format!` 连接字符串](../common_collections/strings.md#以--或-format-连接字符串)  中讨论过），因此咱们可以传递一个包含 `{}` 占位符的格式化字符串及要放入这些占位符的值的格式字符串。定制消息对于记录断言的含义很有用；当测试失败时，咱们将更好地了解代码的问题所在。
+
+例如，假设我们有个根据名字向人们打招呼的函数，我们打算测试传入该函数的名字是否出现在输出中：
 
 文件名：`src/lib.rs`
 
 ```rust
 pub fn greeting(name: &str) -> String {
-    format! ("你好，{}", name)
+    format! ("你好，{}！", name)
 }
 
 #[cfg(test)]
@@ -502,15 +501,15 @@ mod tests {
 
     #[test]
     fn greeting_contains_name() {
-        let result = greeting("Lenny");
-        assert! (result.contains("Lenny"));
+        let result = greeting("Hector");
+        assert! (result.contains("Hector"));
     }
 }
 ```
 
-该程序的各项要求尚未达成一致，同时这里十分肯定问候开始处的 `你好` 文字将会改变。这里已经确定不打算在各项要求改变时，必定要对这个测试加以更新，因此这里将只就输出包含输出参数的文本进行断言，而非对自 `greeting` 函数返回的值，进行精确的相等检查。
+这个程序的需求尚未达成一致，我们相当确定问候语开头的 `你好` 文本将变化。我们决定，不希望在需求改变时必须更新测试，因此我们将仅断言输出包含输入参数的文本，而不是检查与 `greeting` 函数返回的值是否完全相等。
 
-下面就来通过把 `greeting` 修改未排除 `name`，而将一个 bug 引入到这段代码，来看看这个默认测试失败的样子：
+现在，我们来通过修改 `greeting` 为排除 `name` 来引入一个 bug 到这段代码，看看默认的测试失败会是什么样子：
 
 ```rust
 pub fn greeting(name: &str) -> String {
@@ -518,13 +517,13 @@ pub fn greeting(name: &str) -> String {
 }
 ```
 
-运行这个测试，就会产生以下输出：
+运行这个测试会产生以下输出：
 
 ```console
-$ cargo test                                                                      lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.48s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ RUSTFLAGS="-A warnings" cargo test
+   Compiling greeter v0.1.0 (/home/hector/rust-lang-zh_CN/projects/greeter)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (target/debug/deps/greeter-a93a22c38250d6d8)
 
 running 1 test
 test tests::greeting_contains_name ... FAILED
@@ -532,7 +531,9 @@ test tests::greeting_contains_name ... FAILED
 failures:
 
 ---- tests::greeting_contains_name stdout ----
-thread 'tests::greeting_contains_name' panicked at 'assertion failed: result.contains(\"Lenny\")', src/lib.rs:12:9
+
+thread 'tests::greeting_contains_name' (164061) panicked at src/lib.rs:12:9:
+assertion failed: result.contains("Hector")
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
@@ -541,30 +542,29 @@ failures:
 
 test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
-这样的结果，正好表明了该断言失败了，以及这个失败断言所在的行。而更有用的失败消息，应会打印出那个 `greeting` 函数的值来。下面就来添加一个，由带有以获取自 `greeting` 函数的具体值所填充的占位符的格式字符串，所构成的定制失败消息：
+这一结果仅表明断言失败以及断言所在的行。更有用的失败消息将打印来自 `greeting` 函数的值。我们来添加一个由格式字符串组成的定制失败消息，其中占位符以我们从 `greeting` 函数获得的实际值填充：
 
 ```rust
     #[test]
     fn greeting_contains_name() {
-        let result = greeting("Lenny");
+        let result = greeting("Hector");
         assert! (
-            result.contains("Lenny"),
-            "问候语未包含名字，问候语的值为 `{}`",
-            result
+            result.contains("Hector"),
+            "问候语未包含名字，值为 `{result}`",
         );
     }
 ```
 
-现在运行这个测试，就会得到内容更为的错误消息：
+现在，当我们运行测试时，我们将得到一条信息更丰富的错误消息：
 
 ```console
-$ cargo test                                                                      lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.42s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ RUSTFLAGS="-A warnings" cargo test
+   Compiling greeter v0.1.0 (/home/hector/rust-lang-zh_CN/projects/greeter)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (target/debug/deps/greeter-a93a22c38250d6d8)
 
 running 1 test
 test tests::greeting_contains_name ... FAILED
@@ -572,7 +572,9 @@ test tests::greeting_contains_name ... FAILED
 failures:
 
 ---- tests::greeting_contains_name stdout ----
-thread 'tests::greeting_contains_name' panicked at '问候语未包含名字，问候语的值为 `你好！`', src/lib.rs:12:9
+
+thread 'tests::greeting_contains_name' (166138) panicked at src/lib.rs:12:9:
+问候语未包含名字，值为 `你好！`
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
@@ -581,16 +583,13 @@ failures:
 
 test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
-现在就可以在测试输出中，看到具体得到的值了，这将有助于对发生的事情，而非期望发生的事情进行调试，有所帮助（we can see the value we actually got in the test output, which would help us debug what happened instead of what we were expecting to happen）。
+我们可以在测试输出中看到实际得到的值，这将帮助我们调试发生的情况，而不是我们原本期望发生的情况。
 
 
-## 使用 `should_panic`，检查中止运行
-
-**Checking for Panics with `should_panic`**
-
+## 以 `should_panic` 检查终止运行
 
 除了检查返回值外，重要的是检查所编写代码有如预期那样，对各种错误情形进行处理。比如，请考虑在第 9 章清单 9-13 中所创建的那个 `Guess` 类型。使用了 `Guess` 的其他代码，就仰赖于 `Guess` 实例，将包含仅在 `1` 与 `100` 之间的值这一保证。这里就可以编写一个，确保在尝试创建带有那个范围之外值的 `Guess` 实例时，会中止运行的测试。
 
@@ -633,7 +632,7 @@ mod tests {
 
 
 ```console
-$ cargo test                                                                       lennyp@vm-manjaro
+$ RUSTFLAGS="-A warnings" cargo test                                                                       lennyp@vm-manjaro
    Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
     Finished test [unoptimized + debuginfo] target(s) in 0.64s
      Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
@@ -669,7 +668,7 @@ impl Guess {
 此时在运行清单 11-8 中的测试，他就会失败了：
 
 ```console
-$ cargo test                                                                       lennyp@vm-manjaro
+$ RUSTFLAGS="-A warnings" cargo test                                                                       lennyp@vm-manjaro
    Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
     Finished test [unoptimized + debuginfo] target(s) in 0.42s
      Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
@@ -756,7 +755,7 @@ mod tests {
 这次在运行这个 `should_panic` 测试时，便会失败了：
 
 ```console
-$ cargo test                                                                       lennyp@vm-manjaro
+$ RUSTFLAGS="-A warnings" cargo test                                                                       lennyp@vm-manjaro
    Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
     Finished test [unoptimized + debuginfo] target(s) in 0.41s
      Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
@@ -813,7 +812,7 @@ mod tests {
 在那些用到 `Result<T, E>` 的测试上，是不可以使用 `#[should_panic]` 注解的。而要断言某个操作返回的是一个`Result<T, E>` 枚举的 `Err` 变种，就不要在返回的 `Result<T, E>` 值上，使用问号操作符。相反，要使用 `assert!(value.is_err())` 这种方式。
 
 
-既然咱们已经了解了编写测试的几种方式，那么就来看一下，在运行这些编写的测试时会发生什么，并探索一下可与 `cargo test` 一起使用的不同选项。
+既然咱们已经了解了编写测试的几种方式，那么就来看一下，在运行这些编写的测试时会发生什么，并探索一下可与 `RUSTFLAGS="-A warnings" cargo test` 一起使用的不同选项。
 
 
 （End）
