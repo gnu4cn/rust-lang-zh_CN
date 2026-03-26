@@ -591,13 +591,15 @@ error: test failed, to rerun pass `--lib`
 
 ## 以 `should_panic` 检查终止运行
 
-除了检查返回值外，重要的是检查所编写代码有如预期那样，对各种错误情形进行处理。比如，请考虑在第 9 章清单 9-13 中所创建的那个 `Guess` 类型。使用了 `Guess` 的其他代码，就仰赖于 `Guess` 实例，将包含仅在 `1` 与 `100` 之间的值这一保证。这里就可以编写一个，确保在尝试创建带有那个范围之外值的 `Guess` 实例时，会中止运行的测试。
+除了检查返回值外，检查我们的代码是否如我们预期那样处理错误情形也很重要。例如，请考虑在我们在第 9 章 [清单 9-13](../error_handling/panic_or_not.md#listing_9-13) 中创建的 `Guess` 类型。使用 `Guess` 的其他代码仰赖于 `Guess` 实例将仅包含 1 和 100 之间的值的保证。我们可以编写一个测试，确保尝试创建有着该范围之外的值的 `Guess` 实例会终止运行。
 
-这里是通过将属性 `should_panic` 添加到此处的测试函数，来完成这一点的。在函数内部代码中止运行时，该测试便会通过；若函数中代码没有中止运行，那么该测试就会失败。
+我们通过添加属性 `should_panic` 到我们的测试函数做到这点。当函数内的代码终止运行时测试通过；当函数内的代码没有终止运行时，则测试失败。
 
-下面清单 11-8，就给出了一个在预期 `Guess::new` 的各种错误情形发生时，对这些错误情形进行检查的测试。
+下面清单 11-8 展示了个测试，检查 `Guess::new` 的错误条件是否会在我们期望的时间发生。
 
-文件名：`src/lib/rs`
+
+<a name="listing_11-8"></a>
+文件名：`src/guessing_game.rs`
 
 ```rust
 pub struct Guess {
@@ -607,10 +609,14 @@ pub struct Guess {
 impl Guess {
     pub fn new(value: i32) -> Guess {
         if value < 1 || value > 100 {
-            panic! ("Guess 值必须在 1 与 100 之间，得到的是 {}。", value);
+            panic!("猜数值必须在 1 和 100 之间，得到了 {value}。");
         }
 
         Guess { value }
+    }
+
+    pub fn value(&self) -> i32 {
+        self.value
     }
 }
 
@@ -626,23 +632,29 @@ mod tests {
 }
 ```
 
-*清单 11：就某个将引发 `panic!` 的情形进行测试*
+**清单 11-8**：测试某一情形是否将导致 `panic!`
 
-这里将那个 `#[should_panic]` 属性，放在了 `#[test]` 属性之后，且在其应用到的函数之前。下面来看看在该测试通过时的样子：
+我们放置 `#[should_panic]` 属性于 `#[test]` 属性之后、在其应用到的函数之前。我们来看看这个测试通过时的结果：
 
 
 ```console
-$ RUSTFLAGS="-A warnings" cargo test                                                                       lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.64s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ RUSTFLAGS="-A warnings" cargo test
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.86s
+     Running unittests src/lib.rs (target/debug/deps/guessing_game-05c9c0f5018ae320)
 
 running 1 test
-test tests::greater_than_100 - should panic ... ok
+test guessing_game::tests::greater_than_100 - should panic ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Doc-tests assert_demo
+     Running unittests src/main.rs (target/debug/deps/guessing_game-32b26094974d6f68)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests guessing_game
 
 running 0 tests
 
@@ -650,50 +662,54 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-看起来不错！现在就来通过移出当其中的值大于 `100` 时，这个 `new` 函数将中止运行的条件，而将一个 bug 引入到这里的代码：
+看起来不错！现在，我们来通过移出当值大于 100 时 `new` 函数将终止运行的条件，在代码中引入一个 bug：
 
 ```rust
 // --跳过代码--
 impl Guess {
     pub fn new(value: i32) -> Guess {
         if value < 1 {
-            panic! ("Guess 值必须在 1 与 100 之间，得到的是 {}。", value);
+            panic!("猜数值必须在 1 和 100 之间，得到了 {value}。");
         }
 
         Guess { value }
     }
+
+    pub fn value(&self) -> i32 {
+        self.value
+    }
 }
 ```
 
-此时在运行清单 11-8 中的测试，他就会失败了：
+当我们运行清单 11-8 中的测试时，他将失败：
 
 ```console
-$ RUSTFLAGS="-A warnings" cargo test                                                                       lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.42s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ RUSTFLAGS="-A warnings" cargo test
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/guessing_game-05c9c0f5018ae320)
 
 running 1 test
-test tests::greater_than_100 - should panic ... FAILED
+test guessing_game::tests::greater_than_100 - should panic ... FAILED
 
 failures:
 
----- tests::greater_than_100 stdout ----
-note: test did not panic as expected
+---- guessing_game::tests::greater_than_100 stdout ----
+note: test did not panic as expected at src/guessing_game.rs:25:8
 
 failures:
-    tests::greater_than_100
+    guessing_game::tests::greater_than_100
 
 test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
-
+error: test failed, to rerun pass `--lib`
 ```
 
-在这个示例中，并未获得非常有用的消息，不过在查看那个测试函数时，就会看到其被 `#[should_panic]` 给注解过。这里收到了失败，就表示在这个测试函数中的代码，并未引发运行中止。
+在这种情形中，我们没有得到非常有用的消息，但在查看测试函数时，我们看到他被标注了 `#[should_panic]`。我们得到的失败意味着这个测试函数中的代码未引发终止运行。
 
-用到 `should_panic` 的测试，可并不那么精确。即便在该测试由于某个不同于咱们所预期的原因而中止运行了，这个 `should_panic` 测试仍会通过。要令到 `should_panic` 测试更加精确，则可以将某个可选的 `expected` 参数，传递给那个 `should_panic` 属性。这种测试工具，将确保失败消息包含了所提供的文本（the test harneess will make sure that the failure message contains the provided text）。比如，请考虑下面清单 11-9 中修改过的 `Guess` 代码，其中 `new` 函数会根据该值是否过小或过大，而以不同消息中止运行。
+使用 `should_panic` 的测试可能不够精确。即使测试出于某种不同于我们所预期的原因终止运行，`should_panic` 测试仍将通过。为了使 `should_panic` 测试更加精确，我们可以添加一个可选的 `expected` 参数到 `should_panic` 属性。测试工具将确保失败消息包含了所提供的文本。例如，请考虑下面清单 11-9 中 `Guess` 修改后的代码，其中 `new` 函数会根据该值是太小还是太大，而以不同消息终止运行。
 
+<a name="listing_11-9"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -705,16 +721,13 @@ impl Guess {
     pub fn new(value: i32) -> Guess {
         if value < 1 {
             panic! (
-                "Guess 值必须大于或等于 1, 得到的是 {}。",
-                value
+                "Guess 值必须大于或等于 1, 得到 {value}。"
             );
         } else if value > 100 {
             panic! (
-                "Guess 值必须小于或等于 100, 得到的是 {}。",
-                value
+                "Guess 值必须小于或等于 100, 得到 {value}。"
             );
         }
-
 
         Guess { value }
     }
@@ -732,63 +745,60 @@ mod tests {
 }
 ```
 
-*清单 11-9：对有着包含指定 _子字符串_ 的中止运行消息，的某个 `panic!` 进行测试*
+**清单 11-9**：以包含指定子字符串的终止运行消息，测试 `panic!`
 
-由于这里放在那个 `should_panic` 属性的 `expected` 参数中的值，正是其中 `Guess::new` 函数中止运行消息的一个子字符串，因此这个测试将通过。这里本可将所预期的整个中止运行消息给指定出来，在此示例中即为 `Guess 值必须小于或等于 100，得到的是 200。` 选择指明什么，是根据中止运行消息，具有何种程度的独特性或动态变化，以及打算要整个测试具有何种级别的准确度。在此示例中，那个中止运行消息的某个子字符串，就足够用于确保该测试函数中代码，执行了 `else if value > 100` 的条件。
+这个测试将通过，因为我们放在 `should_panic` 属性中的 `expected` 参数中的值，是 `Guess::new` 函数以其终止运行的消息的子字符串。我们本可以指定预期的整个终止消息，在这一情形下将是 `Guess 值必须小于或等于 100，得到 200。`。咱们选择指定的内容取决于终止运行消息中有多少是唯一的或动态的，以及咱们希望测试要有多精确。在这种情况下，终止运行消息的子字符串足以确保测试函数中的代码执行了 `else if value > 100` 的情形。
 
-为看到在某个 `should_panic` 以一个 `expected` 消息失败时，会发生什么，下面就来通过调换 `if value < 1` 与 `else if value > 100` 代码块的代码体，而引入一个 bug 到这里的代码中：
+为了看看当带有 `expected` 消息的 `should_panic` 失败时会发生什么，我们来通过交换 `if value < 1` 与 `else if value > 100` 代码块的主体，引入一个 bug 到我们的代码：
 
 ```rust
         if value < 1 {
             panic! (
-                "Guess 值必须小于或等于 100, 得到的是 {}。",
-                value
+                "Guess 值必须小于或等于 100, 得到 {value}。"
             );
         } else if value > 100 {
             panic! (
-                "Guess 值必须大于或等于 1, 得到的是 {}。",
-                value
+                "Guess 值必须大于或等于 1, 得到 {value}。"
             );
         }
 ```
 
-这次在运行这个 `should_panic` 测试时，便会失败了：
+这次当我们运行 `should_panic` 测试时，他将失败：
 
 ```console
-$ RUSTFLAGS="-A warnings" cargo test                                                                       lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.41s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ RUSTFLAGS="-A warnings" cargo test
+   Compiling guessing_game v0.1.0 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/guessing_game-05c9c0f5018ae320)
 
 running 1 test
-test tests::greater_than_100 - should panic ... FAILED
+test guessing_game::tests::greater_than_100 - should panic ... FAILED
 
 failures:
 
----- tests::greater_than_100 stdout ----
-thread 'tests::greater_than_100' panicked at 'Guess 值必须大于或等于 1, 得到的是 200。', src/lib.rs:13:13
+---- guessing_game::tests::greater_than_100 stdout ----
+
+thread 'guessing_game::tests::greater_than_100' (183031) panicked at src/guessing_game.rs:12:13:
+Guess 值必须大于或等于 1, 得到 200。
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 note: panic did not contain expected string
-      panic message: `"Guess 值必须大于或等于 1, 得到的是 200。"`,
- expected substring: `"小于或等于 100"`
+      panic message: "Guess 值必须大于或等于 1, 得到 200。"
+ expected substring: "小于或等于 100"
 
 failures:
-    tests::greater_than_100
+    guessing_game::tests::greater_than_100
 
 test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
-这样的失败消息就表示，这个测试确实如预期那样中止运行了，但中止运行消息并未包含预期的字符串 `小于或等于 100`。在此示例中，真正得到中止运行消息，为 `Guess 值必须大于或等于 1, 得到的是 200。` 现在就可以开始找出，这里的 bug 在哪了！
+失败消息表明，这个测试确实如我们预期的那样终止运行了，但终止运行消息并未包含预期的字符串 `小于或等于 100`。在这种情况下，我们真正得到终止运行消息是 `Guess 值必须大于或等于 1, 得到 200。` 。现在我们可以开始找出我们的 bug 在哪里了！
 
 
 ## 在测试中使用 `Result<T, E>`
 
-**Using `Result<T, E>` in Tests**
-
-
-到目前为止，这里全部的测试在失败时，都会中止运行。这里通用可以编写用到 `Result<T, E>` 的测试！下面就是清单 11-1 的那个测试，只是被重写为了使用 `Result<T, E>`，并返回一个 `Err` 而非中止运行：
+到目前为止，我们所有的测试都会在失败时终止运行。我们也可以编写使用 `Result<T, E>` 的测试！下面是 [清单 11-1](#listing_11-1) 中的测试，已重写为使用 `Result<T, E>` 并返回 `Err` 而不是终止运行：
 
 ```rust
 #[cfg(test)]
@@ -804,15 +814,13 @@ mod tests {
 }
 ```
 
-这个 `it_works` 函数现在有了 `Result<T, E>` 的返回值类型。而在该函数的函数体中，此时在那个 `if` 测试通过时，返回了 `Ok(())`，在测试失败时返回一个带有 `String` 的 `Err`，而不再调用那个 `assert_eq!` 宏了。
+`it_works` 函数现在有了 `Result<T, E>` 的返回类型。在函数体中，我们不再调用 `assert_eq!` 宏，而是在测试通过返回 `Ok(())`，在测试失败时返回内部有着一个 `String` 的 `Err`。
 
+编写返回 `Return<T, E>` 的测试，使咱们可以在测试的主体中使用问号运算符，这会是一种编写测试的便捷方式，当测试中的任何操作返回 `Err` 变种，这些测试都会失败。
 
-编写这样的返回某个 `Return<T, E>` 的测试，就令到在各个测试的函数体中，使用问号运算符（the question mark operator, `?`）可行了，而在测试函数体中使用 `?`，则可以是编写那些，在其内部返回某个 `Err` 变种时将会失败测试的便利方式。
+咱们不能在哪些使用 `Result<T, E>` 的测试上使用 `#[should_panic]` 注解。为了断言某个操作会返回 `Err` 变种，*请勿* 在 `Result<T, E>` 值上使用问号操作符。相反，要使用 `assert!(value.is_err())`。
 
-在那些用到 `Result<T, E>` 的测试上，是不可以使用 `#[should_panic]` 注解的。而要断言某个操作返回的是一个`Result<T, E>` 枚举的 `Err` 变种，就不要在返回的 `Result<T, E>` 值上，使用问号操作符。相反，要使用 `assert!(value.is_err())` 这种方式。
-
-
-既然咱们已经了解了编写测试的几种方式，那么就来看一下，在运行这些编写的测试时会发生什么，并探索一下可与 `RUSTFLAGS="-A warnings" cargo test` 一起使用的不同选项。
+现在咱们已经了解编写测试的几种方式，我们来看一下运行测试时会发生什么，并探讨可与 `cargo test` 一起使用的不同选项。
 
 
 （End）

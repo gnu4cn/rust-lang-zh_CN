@@ -4,11 +4,12 @@ pub fn add_two(a: u64) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
-    fn it_adds_two() {
-        let result = add_two(2);
-        assert_eq!(result, 4);
+    fn it_works() -> Result<(), String> {
+        if 2 + 2 == 4 {
+            Ok(())
+        } else {
+            Err(String::from("二加二不等于四"))
+        }
     }
 }
