@@ -12,41 +12,46 @@
 
 ### `tests` 模组与 `#[cfg(test)]`
 
-在测试模组上的那个 `#[cfg(test)]` 注解，告诉 Rust 仅在运行 `cargo test`，而非运行 `cargo build`时，才编译和运行测试代码。在只打算构建该库时，这样就节省了编译时间，并由于在得到的已编译工件中不会包含测试，而在其中节省了空间。后面就会看到，由于集成测试会进到不同目录，他们就不需要这个 `#[cfg(test)]` 注解。不过由于单元测试是在与代码同样的文件中，因此就会使用 `#[cfg(test)]`，来指明他们不应被包含在编译结果中。
+`tests` 模组上的 `#[cfg(test)]` 注解告诉 Rust，仅在咱们运行 `cargo test` 时编译并运行测试代码，而非运行 `cargo build` 时。在咱们只打算构建库时，这会节省编译时间，并节省生成的编译产物的空间，因为测试不会被包含。咱们将看到，由于集成测试位于不同的目录中，因此他们不需要 `#[cfg(test)]` 注解。但是，有于单元测试位于代码的同一文件中，咱们将使用 `#[cfg(test)]` 来指定他们不应被包含在编译结果中。
 
-回顾在本章第一小节中，当那里生成那个新的 `adder` 项目时，Cargo 就为咱们生成了下面的代码：
+回顾一下，当我们在本章第一小节中生成新的 `adder` 项目时，Cargo 为咱们生成了下面这段代码：
 
+文件：`src/lib.rs`
 
 ```console
+pub fn add(left: u64, right: u64) -> u64 {
+    left + right
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn it_works() {
-        let result = 2 + 2;
+        let result = add(2, 2);
         assert_eq!(result, 4);
     }
 }
 ```
 
-这段代码就是自动生成的测试模组。其中的属性 `cfg` 是指 *配置（configuration）*，而告诉 Rust 接下来的项目只应在给定的某个配置选项下才被包含。在此示例中，那个配置选项便是 `test`，Rust 提供的这个配置选项，用于测试的编译及运行。通过使用这个 `cfg` 属性，Cargo 就会只在咱们以 `cargo test`，明确表示要运行这些测试时，才对这里的测试代码进行编译。而这些测试代码，包含了可能位于此模组内部的全部辅助函数，以及使用 `#[test]` 注解过的那些函数。
+在自动生成的 `tests` 模组上，属性 `cfg` 代表 *configuration*，并告诉 Rust 只应在给定特定配置选项的情况下，接下来的项目才应包含。在这一情形下，配置选项为 `test`，这是 Rust 针对编译及运行测试而提供的。通过使用 `cfg` 属性，只有当我们主动以 `cargo test` 运行测试时，Cargo 才会编译我们的测试代码。除了以 `#[test]` 注解的函数外，这还包括这一模组内可能的任何辅助函数。
 
 
-### 测试私有函数
+### 私有函数测试
 
-**Testing Private Functions**
+测试社区内部存在关于私有函数是否应被直接测试的争论，而其他语言使得测试私有函数变得困难或不可能。不论咱们遵循何种测试理念，Rust 的隐私规则确实允许咱们测试私有函数。请考虑下面清单 11-12 中有着私有函数 `internal_adder` 的代码。
 
-
-在测试社区，有着私有函数是否应被直接测试的争论，而别的语言让对私有函数的测试，成为困难或不可行的事情。不论所才行的是何种测试理念，Rust 的私有规则，真的实现了对私有函数的测试。请考虑下面清单中，有着私有函数 `internal_adder` 的代码。
-
+<a name="listing_11-12"></a>
 文件名：`src/lib.rs`
 
 ```rust
-pub fn add_two(a: i32) -> i32 {
+pub fn add_two(a: u64) -> u64 {
     internal_add(a, 2)
 }
 
-fn internal_add(a: i32, b: i32) -> i32 {
-    a + b
+fn internal_add(left: u64, right: u64) -> u64 {
+    left + right
 }
 
 #[cfg(test)]
@@ -55,33 +60,28 @@ mod tests {
 
     #[test]
     fn internal() {
-        assert_eq! (4, internal_add(2, 2));
+        let result = internal_adder(2, 2);
+        assert_eq! (4, result);
     }
 }
 ```
 
-*清单 11-12：对私有函数进行测试*
+**清单 11-12**：测试私有函数
 
 
-请注意这个 `internal_adder` 函数，未被标记为 `pub`。其中的那些测试，都只是些 Rust 代码，同时那个 `tests` 模组，只是另一个模组。如同在前面的 [“用于对模组树中某个项目进行引用的路径”](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#用于引用目录树中项目的路径) 小节中所讨论的，子模组中的那些项目，可以使用其祖辈模组中的项目。在这个测试中，就以 `use super::*` 语句，将那个 `tests` 模组父辈的那些项目，带入到了作用域，进而该测试随后就可以调用 `internal_adder` 了。而在不认为私有函数应被测试时，那么 Rust 就没有什么可以迫使你对他们进行测试了（if you don't think private functions should be tested, there's nothing in Rust that will compel you to do so）。
+请注意，`internal_adder` 函数未标记为 `pub`。测试都只是些 Rust 代码，`tests` 模组也只是另一个模组。正如我们在 [引用模组树中项目的路径](../packages_crates_and_modules/paths.md) 中讨论过的，子模组中的项目可以使用其祖辈模组中的项目。在这个测试中，我们以 `use super::*` 带入所有属于 `tests` 模组父模组的项目到作用域，然后测试便可调用 `internal_adder`。当咱们不认为私有函数应被测试时，Rust 中也没有任何强制要求咱们这样做的规定。
 
 
 ## 集成测试
 
-**Integration Tests**
-
-
-在 Rust 中，集成测试整个都是属于所编写库外部的。他们会以与其他代码同样方式，对咱们编写的库加以使用，这就意味着集成测试只能调用属于库公开 API 一部分的那些函数。集成测试的目的，是要就所编写库的多个部分，是否有正确地一起运作进行测试。这些各自正常工作的代码单元，在被集成在一起时，就可能有问题，因此集成后代码的测试面，也是重要的。要创建集成测试，首先就需要一个 `tests` 目录。
+在 Rust 中，集成测试完全在咱们的库的外部。他们以与任何其他代码相同的方式使用咱们的库，这意味着他们只能调用属于咱们的库的公开 API 一部分的函数。他们的目的是测试咱们的库的许多部分一起是否正常工作。那些单独正常工作的代码单元，在集成后可能出现问题，因此集成代码的测试率也很重要。要创建集成测试，咱们首先需要一个 `tests` 目录。
 
 
 ### `tests` 目录
 
-**The `tests` Directory**
+我们在项目目录的顶层、`src` 旁边创建一个 `tests` 目录。Cargo 知道要在这个目录下查找集成测试文件。然后我们可以根据需要构造任意数量的测试文件，Cargo 将把每个这些文件作为单独的代码箱编译。
 
-
-这里时在项目目录的顶层，挨着那个 `src` 目录，创建一个 `tests` 目录的。Cargo 就明白要在整个目录下，查找那些集成测试的文件。至于可以构造多少个测试文件，则是想要多少都可以，Cargo 将把这些各个文件，编译为单独的代码箱。
-
-下面就来创建一个集成测试。使用清单 11-12 中仍在 `src/lib.rs` 文件中的代码，构造一个 `tests` 目录，并创建一个名为 `tests/integration_test.rs` 的文件。那么现在的目录结构，应像下面这样：
+我们来创建一个集成测试。以清单 11-12 中的代码仍在 `src/lib.rs` 文件中，构造一个 `tests` 目录，并创建一个名为 `tests/integration_test.rs` 的文件。咱们的目录结构应看起来如下：
 
 ```console
 adder
@@ -93,37 +93,40 @@ adder
     └── integration_test.rs
 ```
 
-请将下面清单 11-13 中的代码，输入到那个 `tests/integration_test.rs` 文件中：
+输入下面清单 11-13 中的代码到 `tests/integration_test.rs` 文件中：
 
+
+<a name="listing_11-13"></a>
 文件名：`tests/integration_test.rs`
 
 ```rust
-use adder;
+use adder::add_two;
 
 #[test]
 fn it_adds_two() {
-    assert_eq! (4, adder::add_two(2));
+    let result = add_two(2);
+    assert_eq!(result, 4);
 }
 ```
 
-*清单 11-13：一个 `adder` 代码箱中函数的集成测试*
+**清单 11-13**：`adder` 代码箱中函数的集成测试
 
-在 `tests` 目录中的每个文件，都是个单独代码箱，因此这里就需要将所编写的库，带入到各个测试代码箱的作用域。由于这个原因，这里就要在该代码的顶部，添加 `use adder` 语句，这在之前的单元测试中就不需要。
+`tests` 目录中的每个文件都是个单独的代码箱，因此我们需要带入我们的的库到每个测试代码箱的作用域。出于这个原因，我们在代码的顶部添加 `use adder::add_two;`，在单元测试中我们不需要这点。
 
-这里不需要以 `#[cfg(test)]` 对 `tests/integration_test.rs` 中的任何代码进行注解。Cargo 会特别对待 `tests` 目录，而只在运行 `cargo test` 时，才编译此目录中的文件。现在运行 `cargo test`：
+我们不需要以 `#[cfg(test)]` 注解 `tests/integration_test.rs` 中的任何代码。Cargo 会特别对待 `tests` 目录，仅在我们运行 `cargo test` 时才会编译这个目录中的文件。现在运行 `cargo test`：
 
 ```console
-$ cargo test                                                                                         lennyp@vm-manjaro
-   Compiling adder v0.1.0 (/home/lennyp/rust-lang/adder)
-    Finished test [unoptimized + debuginfo] target(s) in 0.52s
-     Running unittests src/lib.rs (target/debug/deps/adder-7763e46d5dd299a3)
+$ RUSTFLAGS="-A warnings" cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 1 test
 test tests::internal ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/integration_test.rs (target/debug/deps/integration_test-d0d0eaf0bad2a59f)
+     Running tests/integration_test.rs (target/debug/deps/integration_test-cb65c98c270b37f9)
 
 running 1 test
 test it_adds_two ... ok
@@ -138,7 +141,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-输出的三个部分，包含了单元测试、集成测试与文档测试。请留意在某个部分的任何测试失败时，接下来的部分就不会运行了。比如，在某个单元测试失败时，由于集成测试与文档测试只会在全部单元测试通过时才运行，因此就不再会有集成与文档测试的任何输出了。
+输出的三个小节包括单元测试、集成测试和文档测试。请注意，当某个小节中的任何测试失败时，后面的小节都将不会运行。例如，当某个单元测试失败时，就不会有集成与文档测试的任何输出，因为只有在所有的单元测试都通过时这些测试才会运行。
 
 其中单元测试的第一部分，与之前曾见到过的一样：每个单元测试一行（那行就是在清单 11-12 中所添加的名为 `internal` 的测试），并随后有个这些单元测试的小结。
 
