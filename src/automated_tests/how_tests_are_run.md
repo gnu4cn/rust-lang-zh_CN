@@ -1,42 +1,37 @@
-# 控制测试以何种方式运行
+# 控制测试运行方式
 
-就跟 `cargo run` 会编译代码并于随后运行得出的二进制程序一样，`cargo test` 也会以测试模式编译所编写的代码，并会运行得到的测试二进制程序。而由 `cargo test` 产生出的二进制程序默认行为，即是以并行方式运行全部测试，并在测试运行期间捕获输出，阻止输出被显示出来以及令到与测试结果相关的输出，更加易于阅读（the default behavior of the binary produced by `cargo test` is to run all the tests in parallel and capture output generated during test runs, preventing the output from being displayed and making it easier to read the output related to the test results）。不过，这里是可以指定一些命令行选项，来改变这种默认行为的。
+正如 `cargo run` 会编译咱们的代码并随后运行产生的二进制文件一样，`cargo test` 会在测试模式下编译咱们的代码并运行产生的测试二进制文件。由 `cargo test` 生成的二进制文件的默认行为是并行运行所有测试并捕获测试运行期间生成的输出，从而防止输出显示出来并使阅读与测试结果相关的输出更容易。但是，咱们可以执行命令行选项来改变这种默认行为。
 
-一些命令行选项是介入到 `cargo test`，而一些则是介入所得到的测试二进制程序。在介入到 `cargo test` 的命令行参数之后，跟上分隔符 `--`，随后才是那些进到测试二进制程序的参数，以这样的方式把这两种类型的命令行参数区分开。运行 `cargo test --help`，就会显示出可在 `cargo test` 下使用的选项，而运行 `cargo test -- --help` 则会显示出可在分隔符之后使用的那些选项。
-
-
-## 并行抑或连续地运行测试
-
-**Running Tests in Parallel or Consecutively**
+一些命令行选项作用于 `cargo test`，一些则作用于生成的测试二进制文件。为了区分这两种类型的参数，咱们要列出作用于 `cargo test` 的参数，后跟分隔符 `--`，然后列出作用于测试二进制文件的参数。运行 `cargo test --help` 显示咱们可对 `cargo test` 使用的选项，运行 `cargo test -- --help` 显示咱们可在分隔符之后使用的选项。
 
 
-在运行多个测试时，这些测试默认使用线程以并行方式运行，意味着他们会运行得更快，而咱们也会迅速地得到反馈。由于这些测试是在同时运行的，因此就必须确保所编写的测试不会各自依赖，并依赖于任何共用的状态，包括某种共用环境，诸如当前工作目录或环境变量。
+## 并行或顺序运行测试
 
-比如说，所编写的每个测试，都会运行一些在磁盘上创建名为 `test-output.txt` 的文件，并将某些数据写到那个文件的代码。随后各个测试就会读取那个文件中的数据，并就那个包含了某个特定值进行断言，这个断言的特定值在各个测试中是不同的。由于这些测试是在同一时间运行，某个测试就可能会在另一测试写入与读取这个文件期间，对该文件进行覆写。那么第二个测试随后就将并非由于代码不正确，而因为这些测试在并行运行期间，相互之间造成了影响而失败。一种解决办法，是确保各个测试写入到不同文件；另一种办法，就是以一次运行一个的方式，运行这些测试。
+当咱们运行多个测试时，默认情况下他们会使用线程并行运行，这意味着他们会更快地完成运行，咱们也会更快地获得反馈。由于测试是同时运行的，咱们必须确保测试不会相互依赖，也不依赖任何共用状态，包括共用环境，比如当前工作目录或环境变量。
 
-在不打算并行运行这些测试，或要对所用到线程数有更细粒度掌控时，就可以将 `--test-threads` 这个命令行标志，与打算使用的线程数目，发送给那个测试二进制程序。请看看下面这个示例：
+例如，假设咱们的每个测试都运行了一些代码，他们都会在磁盘上创建一个名为 `test-output.txt` 的文件，并将一些数据写到该文件。然后，每个测试都读取该文件中的数据并断言该文件包含特定值，这个值在每个测试都不同。由于测试同时运行，一个测试可能会在另一测试写入和读取该文件之间的时间内覆盖该文件。第二个测试随后将失败，并非因为代码不正确，而是因为测试在并行运行时相互干扰了。一种解决方案是确保每个测试写入不同的文件；另一种解决防范是一次运行一个测试。
+
+当咱们不希望并行运行测试，或者希望对所使用的线程数进行更细粒的控制时，咱们可以发送 `--test-threads` 命令行开关和咱们想要使用的线程数到测试二进制文件。请看以下示例：
 
 ```console
 $ cargo test -- --test-threads=1
 ```
 
-这里把测试线程数设置为了 `1`，这就告诉了该程序不要使用任何并行机制。使用一个线程运行这些测试，相比以并行方式运行他们，将耗费更长时间，但在这些测试共用了状态时，他们之间不会相互影响。
+我们设置测试线程数为 `1`，告诉程序不要使用任何并行机制。使用一个线程运行测试将比并行运行他们需要更长的时间，但当测试共用状态时，他们不会相互影响。
 
 
-## 展示函数的输出
+## 显示函数输出
 
-**Showing Function Output**
+默认情况下，当测试通过时，Rust 的测试库会捕获打印到标准输出的任何内容。例如，当我们在测试中调用 `println!` 且该测试通过时，我们将不会在终端中看到 `println!` 输出；我们只会看到表明测试已通过的行。当测试失败时，我们将看到与失败消息的其余部分一起打印到标准输出的内容。
 
+举个例子，下面清单 11-10 有个简单的函数，打印其参数的值并返回 10，以及一个会通过的测试与一个会失败的测试。
 
-默认情况下，在某个测试通过时，Rust 的测试库会对任何打印到标准输出的内容加以捕获。比如，当在某个测试中调用 `println!` 且该测试通过时，就不会在终端中看到那个 `println!` 的输出；而只将看到表示该测试通过的那行。而在某个测试失败时，则会与失败消息的其余部分一起，看到任何打印到标准输出的内容，。
-
-作为一个示例，下面清单 11-10 有着一个打印其参数值并返回 `10` 的弱智函数，以及一个会通过的测试与一个会失败的测试。
-
+<a name="listing_11-10"></a>
 文件名：`src/lib.rs`
 
 ```rust
 fn prints_and_returns_10(a: i32) -> i32 {
-    println! ("我得到了一个值 {}", a);
+    println! ("我得到了值 {a}");
     10
 }
 
@@ -58,27 +53,29 @@ mod tests {
 }
 ```
 
-*清单 11-10：对一个调用了 `println!` 宏的函数的两个测试*
+**清单 11-10**：调用 `println!` 的函数的测试
 
-在以 `cargo test` 运行这两个测试时，就会看到以下的输出：
+当我们以 `cargo test` 运行这两个测试时，我们将看到以下输出：
 
 ```console
-$ cargo test                                                                     lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.38s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test
+   Compiling silly-function v0.1.0 (/home/hector/rust-lang-zh_CN/projects/silly-function)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (target/debug/deps/silly_function-9b19ab024839ea05)
 
 running 2 tests
-test tests::this_test_will_pass ... ok
 test tests::this_test_will_fail ... FAILED
+test tests::this_test_will_pass ... ok
 
 failures:
 
 ---- tests::this_test_will_fail stdout ----
-我得到了一个值 8
-thread 'tests::this_test_will_fail' panicked at 'assertion failed: `(left == right)`
-  left: `5`,
- right: `10`', src/lib.rs:19:9
+我得到了值 8
+
+thread 'tests::this_test_will_fail' (199369) panicked at src/lib.rs:19:9:
+assertion `left == right` failed
+  left: 5
+ right: 10
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
@@ -87,34 +84,33 @@ failures:
 
 test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
-请留意此输出中没有在哪里看到 `我得到了一个值 4`，这正是在通过的那个测试运行时所打印出的内容。那个输出就已被捕获了。而来自失败了的那个测试的输出，`我得到了一个值 8`，出现在了该测试的总结输出小节中，这个测试总结输出小节，还给出了该测试失败的原因。
+请注意，在这一输出中我们没有看到 `我得到了值 4`，而这个字符串会在通过的测试运行时打印。该输出已被捕获。失败的测试的输出，`我得到了值 8` 则出现在测试摘要输出的小节中，这个小节还显示了测试失败的原因。
 
-在想要同样看到已通过测试的那些打印值时，就可以使用 `--show-output` 命令行开关，告诉 Rust 还要显示成功测试的输出。
+当我们希望也看到通过的测试的打印值时，我们可以 `--show-output` 命令行开关告诉 Rust 同时显示成功测试的输出。
 
 
 ```console
 $ cargo test -- --show-output
 ```
 
-在使用 `--show-output` 命令行开关再次运行清单 11-10 中的那些测试时，就会看到下面的输出：
+当我们以 `--show-output` 命令行开关再次运行清单 11-10 中的测试时，我们会看到以下输出：
 
 ```console
-$ cargo test -- --show-output                                                       lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.41s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test -- --show-output
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/silly_function-9b19ab024839ea05)
 
 running 2 tests
-test tests::this_test_will_fail ... FAILED
 test tests::this_test_will_pass ... ok
+test tests::this_test_will_fail ... FAILED
 
 successes:
 
 ---- tests::this_test_will_pass stdout ----
-我得到了一个值 4
+我得到了值 4
 
 
 successes:
@@ -123,10 +119,12 @@ successes:
 failures:
 
 ---- tests::this_test_will_fail stdout ----
-我得到了一个值 8
-thread 'tests::this_test_will_fail' panicked at 'assertion failed: `(left == right)`
-  left: `5`,
- right: `10`', src/lib.rs:19:9
+我得到了值 8
+
+thread 'tests::this_test_will_fail' (200537) panicked at src/lib.rs:19:9:
+assertion `left == right` failed
+  left: 5
+ right: 10
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
@@ -135,20 +133,22 @@ failures:
 
 test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-error: test failed, to rerun pass '--lib'
+error: test failed, to rerun pass `--lib`
 ```
 
 
 ## 根据名字运行测试子集
 
-在有的时候，运行一整个的测试套件可能要用很长时间。而当在某个特定方面编写代码时，就会想要只运行与正在编写代码有关的那些测试。通过将想要运行的某个或某些测试的名字，作为参数传递给 `cargo test`，就可以对想要运行哪些测试加以选择。
+运行完整的测试套件有时可能需要很长时间。当咱们正在处理某个特定方面的代码时，咱们可能只打算运行与该代码相关的测试。咱们可以通过作为参数，传递给 `cargo test` 咱们打算运行的测试的名字，选择要运行的测试。
 
-为了演示怎样运行测试子集，这里将首先为所编写的 `add_two` 函数，创建三个测试，如下清单 11-11 中所示，并会选择要运行哪些测试。
+为了演示怎样运行测试子集，我们将首先为 `add_two` 函数创建三个测试，如下清单 11-11 中所示，然后选择要运行的测试。
 
+
+<a name="listing_11-11"></a>
 文件名：`src/lib.rs`
 
 ```rust
-pub fn add_two(a: i32) -> i32 {
+pub fn add_two(a: u64) -> u64 {
     a + 2
 }
 
@@ -158,30 +158,33 @@ mod tests {
 
     #[test]
     fn add_two_and_two() {
-        assert_eq! (4, add_two(2));
+        let result = add_two(2);
+        assert_eq! (4, result);
     }
 
     #[test]
     fn add_three_and_two() {
-        assert_eq! (5, add_two(3));
+        let result = add_two(3);
+        assert_eq! (5, result);
     }
 
     #[test]
     fn one_hundred() {
-        assert_eq! (102, add_two(100));
+        let result = add_two(100);
+        assert_eq! (102, result);
     }
 }
 ```
 
-*清单 11-11：有着不同名字的三个测试*
+**清单 11-11**：有着不同名字的三个测试
 
-如同早先所看到的那样，在不带传递任何参数运行这些测试时，全部这些测试将以并行方式运行：
+正如我们之前所见，当我们在未传递任何参数下运行测试时，所有测试都将并行运行：
 
 ```console
-$ cargo test                                                                     lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.43s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 3 tests
 test tests::add_three_and_two ... ok
@@ -190,7 +193,7 @@ test tests::one_hundred ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Doc-tests assert_demo
+   Doc-tests adder
 
 running 0 tests
 
@@ -201,17 +204,12 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ### 运行单个测试
 
-**Running Single Tests**
-
-
-可将任何测试函数的名字，传递给 `cargo test` 来只运行那个测试：
-
+我们可以传递任何测试函数的名字给 `cargo test`，来只运行该测试：
 
 ```console
-$ cargo test one_hundred                                                         lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.37s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-504fa58455de23e3)
+$ cargo test one_hundred
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 1 test
 test tests::one_hundred ... ok
@@ -220,38 +218,34 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; fini
 
 ```
 
-上面就只有那个名字为 `one_hundred` 的测试运行了；其他两个测试并不与那个指定的名字匹配。而这个测试输出，通过末尾出显示出的 `2 filtered out`，而让咱们获悉有更多测试并未运行。
+只运行了名字为 `one_hundred` 的测试；其他两个测试与该名字不匹配。测试输出通过在末尾处显示 `2 filtered out`，让我们知道还有更多未运行的测试。
 
-以这种方式是没法指定多个测试的名字的；只有给到 `cargo test` 的第一个值，才会被用到。不过是有方法来运行多个测试的。
-
-
-### 使用过滤来运行多个测试
-
-**Filtering to Run Multiple Tests**
+我们不能以这种方式指定多个测试的名字；只有给予 `cargo test` 的第一个值将被使用。但有一种运行多个测试的方式。
 
 
-这里可指定某个测试函数名字的一部分，那么名字与所指定值匹配的全部测试，就都会被运行。比如，由于上面的那些测试中有两个测试的名字包含了 `add`，因此这里就可以通过运行 `cargo test add`，运行这两个测试：
+### 通过过滤运行多个测试
+
+我们可以指定测试名字的一部分，而任何名字与值匹配的测试都将运行。例如，因为我们的测试中有两个都包含 `add`，所以我们可以通过运行 `cargo test add` 运行这两个测试：
 
 ```console
-$ cargo test add                                                                    lennyp@vm-manjaro
-    Finished test [unoptimized + debuginfo] target(s) in 0.00s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-9c28057969510af5)
+$ cargo test add
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 2 tests
-test tests::add_three_and_two ... ok
 test tests::add_two_and_two ... ok
+test tests::add_three_and_two ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
 
 ```
 
-此命令运行了名字中有 `add` 字样的全部测试，并将那个名为 `one_hundred` 的测试给过滤掉了。还要留意到，测试所出现在的模组，成为了该测试名字的一部分，因此就可通过以模组名字来过滤，而运行某个模组中的全部测试。
+这条命令运行了所有名字中有 `add` 的测试，并过滤掉了名为 `one_hundred` 的测试。另外请注意，测试所在的模组将成为测试名字的一部分，因此我们可以通过按模组名字进行过滤，而运行某个模组中的所有测试。
 
 
-## 除非特别要求，否则忽略一些测试
+## 除非特别要求，否则忽略测试
 
-
-有的时候少数几个特定测试，执行起来可能非常耗费时间，那么就会打算在绝大多数 `cargo test` 运行期间，将这些测试排除掉。与将全部想要运行的测试列为参数不同，这里是可以将那些耗费时间的测试，使用 `ignore` 属性进行注解，而将他们排除，如下所示：
+有时，少数特定测试执行起来可能非常耗时，因此咱们可能希望在大多数的 `cargo test` 运行期间排除他们。咱们可以使用 `ignore` 属性注解这些耗时的测试以排除他们，而不是作为参数列出咱们打算运行的所有测试，如下所示：
 
 文件名：`src/lib.rs`
 
@@ -261,7 +255,6 @@ pub fn add_two(a: i32) -> i32 {
 }
 
 pub fn nth_fibonacci(n: u64) -> u64 {
-
     if n == 0 || n == 1 {
         return n;
     } else {
@@ -274,23 +267,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn add_two_and_two() {
-        assert_eq! (4, add_two(2));
-    }
-
-    #[test]
-    fn add_three_and_two() {
-        assert_eq! (5, add_two(3));
-    }
-
-    #[test]
-    fn one_hundred() {
-        assert_eq! (102, add_two(100));
-    }
-
-    #[test]
     fn it_works() {
-        assert_eq! (2 + 2, 4);
+        let result = add_two(2);
+        assert_eq! (4, result);
     }
 
     #[test]
@@ -301,24 +280,21 @@ mod tests {
 }
 ```
 
-这里在 `#[test]` 之后，把那行 `#[ignore]` 添加到了打算排除的那个测试之上。此时再运行这些测试时，原来的三个测试会运行，但 `expensive_test` 就不会运行：
+在 `#[test]` 之后，我们添加了 `#[ignore]` 行到打算排除的测试。现在，当我们运行测试时，`it_works` 会运行，而 `expensive_test` 不会：
 
 ```console
-$ cargo test                                                                                 lennyp@vm-manjaro
-   Compiling assert_demo v0.1.0 (/home/lennyp/rust-lang/assert_demo)
-    Finished test [unoptimized + debuginfo] target(s) in 0.46s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-9c28057969510af5)
+$ cargo test
+  Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
-running 5 tests
+running 2 tests
 test tests::expensive_test ... ignored
-test tests::add_two_and_two ... ok
-test tests::one_hundred ... ok
 test tests::it_works ... ok
-test tests::add_three_and_two ... ok
 
-test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Doc-tests assert_demo
+   Doc-tests adder
 
 running 0 tests
 
@@ -326,20 +302,20 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-那个 `expensive_test` 函数就被列为了 `ignored`。而再打算只运行那些忽略的测试时，则可以使用 `cargo test -- --ignored`：
+`expensive_test` 函数被列为 `ignored`。当我们打算只运行被忽略的测试时，我们可以使用 `cargo test -- --ignored`：
 
 ```console
-$ cargo test -- --ignored                                                            lennyp@vm-manjaro
-    Finished test [unoptimized + debuginfo] target(s) in 0.00s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-9c28057969510af5)
+$ cargo test -- --ignored
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 1 test
 test tests::expensive_test has been running for over 60 seconds
 test tests::expensive_test ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 124.65s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 76.97s
 
-   Doc-tests assert_demo
+   Doc-tests adder
 
 running 0 tests
 
@@ -347,25 +323,21 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-经由控制哪些测试运行，就可以确保 `cargo test` 快速得出结果。在对那些 `ignored` 测试结果进行检查是有意义的，且有时间等待他们的结果出来时，那么就可以运行 `cargo test -- --ignored`。在打算运行全部测试，而不管他们有没有被注解为 `ignored`，那么就可以运行 `cargo test -- --include-ignored`。
-
+通过控制哪些测试会运行，咱们可以确保 `cargo test` 的结果将得以快速返回。当咱们需要查看 `ignored` 测试的结果，并且咱们有时间等待结果时，咱们可以运行 `cargo test -- --ignored`。当咱们打算运行所有测试，无论他们是否被忽略时，咱们可以运行 `cargo test -- --include-ignored`。
 
 ```console
-$ cargo test -- --include-ignored                                                    lennyp@vm-manjaro
-    Finished test [unoptimized + debuginfo] target(s) in 0.00s
-     Running unittests src/lib.rs (target/debug/deps/assert_demo-9c28057969510af5)
+$ RUSTFLAGS="-A warnings" cargo test -- --include-ignored
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
-running 5 tests
-test tests::add_two_and_two ... ok
-test tests::add_three_and_two ... ok
+running 2 tests
 test tests::it_works ... ok
-test tests::one_hundred ... ok
-test tests::expensive_test has been running for over 60 seconds
 test tests::expensive_test ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 130.68s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.54s
 
-   Doc-tests assert_demo
+   Doc-tests adder
 
 running 0 tests
 
@@ -373,7 +345,5 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-
 （End）
-
 
