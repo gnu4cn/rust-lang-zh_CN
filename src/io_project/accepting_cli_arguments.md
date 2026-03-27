@@ -1,28 +1,29 @@
 # 接收命令行参数
 
-现在来与往常一样，使用 `cargo new` 创建一个新的项目。这里将把这个项目，叫做 `minigrep` 来将其区别于或许已在现有系统上有的那个 `grep` 工具。
+我们来像往常一样，以 `cargo new` 创建一个新项目。我们称我们的项目为 `minigrep`，以将其与咱们系统上可能已有的 `grep` 工具区分开：
 
 ```console
 $ cargo new minigrep
-     Created binary (application) `minigrep` project
+    Creating binary (application) `minigrep` package
+note: see more `Cargo.toml` keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 $ cd minigrep
 ```
 
-首个任务，即要让 `minigrep` 接收他的两个命令行参数：文件路径与要检索的字符串。那就是，这里打算能够以 `cargo run`，与两个短横线（`--`）来表明接下来的参数，是这个程序的参数，这样的方式，而非 `cargo` 与一个要检索的字符串，及要在其中检索的文件路径的方式来运行这个程序，如下所示：
-
+第一个任务是要让 `minigrep` 接收他的两个命令行参数：文件路径和要检索的字符串。也就是说，我们希望能够以 `cargo run`，及两个短横线（`--`）来表明接下来的参数是针对我们的程序的参数而不是 `cargo`，与一个要检索的字符串，以及一个要检索的文件的路径来运行我们的程序，如下所示：
 
 ```console
 $ cargo run -- searchstring example-filename.txt
 ```
 
-而现在，由 `cargo new` 命令生成的程序，是无法处理给他的参数的。[crates.io](https://crates.io/) 上的一些既有库，可以帮助编写除接收命令行参数的程序，而由于咱们才开始了解这个概念，因此就要咱们自己来实现这项功能。
+目前，由 `cargo new` 生成的程序无法处理我们给他的参数。[crates.io](https://crates.io/) 上的一些现有库可以帮助编写接受命令行参数的程序，但因为咱们恰好正在学习这个概念，所以我们来自己实现这一能力。
 
 ## 读取参数值
 
-为开启 `minigrep` 对传给他的命令行参数值的读取，这里将需要在 Rust 标准库中所提供的 `std::env::args` 函数。该函数返回的是那些传递给 `minigrep` 命令行参数的一个迭代器。后面的 [第 13 章](Ch13_Functional_Language_Features_Iterators_and_Closures.md) 就会讲到迭代器。而现在，就只需要知道迭代器的两个细节：迭代器会产生出一些列值，而在某个迭代器上调用 `collect` 方法，就可以将其转换成比如矢量这这样的一个、包含着迭代器产生的全部元素的集合。
+为了使 `minigrep` 能够读取我们传递给他的命令行参数的值，我们将需要 Rust 标准库中提供的 `std::env::args` 函数。这个函数返回传递给 `minigrep` 的命令行参数的迭代器。我们将在 [第 13 章](../Ch13_Functional_Language_Features_Iterators_and_Closures.md) 中全面介绍迭代器。现在，咱们只需要知道有关迭代器的两个细节：迭代器产生一系列值，我们可以调用迭代器的 `collect` 方法将其转换为比如矢量值的集合，其会包含迭代器产生的所有元素。
 
-下面清单 12-1 中的代码，实现了`minigrep` 程序读取全部传递给他的命令行参数，并于随后将这些值收集到一个矢量中。
+下面清单 12-1 中的代码允许咱们的 `minigrep` 程序读取传递给他的任何命令行参数，然后收集这些值到一个矢量值中。
 
+<a name="listing_12-1"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -34,50 +35,50 @@ fn main() {
 }
 ```
 
-*清单 12-1：将命令行参数，收集到一个矢量中并把他们打印出来*
+**清单 12-1**：收集命令行参数到一个矢量值中并打印他们
 
 
-这里首先使用了一个 `use` 语句，将那个 `std::env` 模组带入到了作用域，如此就可以使用他的 `args` 函数了。请注意这个 `std::env::args` 函数，是嵌套在两个层级的模组中的。如同在 [第 7 章](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#创建惯用-use-路径) 处所讨论过的，在那些所需函数是嵌套于多个模组中的情形下，那里就选择将其中的父模组带入到作用域，而非该函数本身。经由这样做，就可以轻易地使用到 `std::env` 中的其他函数了。同时相比于添加 `use std::env::args` 并在随后只使用 `args` 调用这个函数，这样做也不那么含糊其辞，这是由于 `args` 这个名字，可能稍不留意就会被误用为定义在当前模组中的某个函数。
+首先，我们以一个 `use` 语句带入 `std::env` 模组到作用域，以便我们可以使用他的 `args` 函数。请注意，`std::env::args` 函数嵌套在两层模组中。正如我们在 [第 7 章](../packages_crates_and_modules/the_use_keyword.md#创建惯用的-use-路径) 中讨论的，在所需函数嵌套于多个模组中的情形下，我们选择带入父模组而不是该函数到作用域。通过这样做，我们就可以轻易地使用 `std::env` 中的其他函数。相比于添加 `use std::env::args` 然后仅以 `args` 调用该函数，这种做法也更明确，因为 `args` 会很容易被误认为是某个定义在当前模组中的函数。
 
-> **`args` 函数与无效 Unicode 字符**
+> **`args` 函数与无效的 Unicode**
 >
-> 请注意 `std::env::args` 在由任何参数包含了无效 Unicode 字符时，将会中止运行。在程序需要接收包含了无效 Unicode 字符的参数时，就要使用 `std::env::args_os`。那个函数返回的是一个产生出 `OsString` 值，而非 `String` 值的迭代器。由于各个平台上的 `OsString` 值有所区别，且相比使用 `String` 值，`OsString` 使用起来要更为复杂，因此为简化起见，这里使用的是 `std::env::args`。
+> 请注意，当任何参数包含无效的 Unicode 时，`std::env::args` 将终止运行。当咱们的程序需要接受包含无效 Unicode 字符的参数时，请改用 `std::env::args_os`。该函数返回一个生成 `OsString` 值，而不是 `String` 值的迭代器。出于简单起见，我们在这里选择使用 `std::env::args`，因为 `OsString` 因平台而异，并且比 `String` 值使用起来更复杂。
 
-在 `main` 函数的第一行，这里调用了 `env::args`，并立即使用 `collect` 来将其所返回的那个迭代器，转换为一个包含由该迭代器所产生全部值的矢量值。由于使用这个 `collect` 函数，即可创建出许多类别的集合来，因此这里就显示地对 `args` 变量的类型进行了注解，来指明这里要的是一个字符串的矢量。尽管在 Rust 中，极少需要对类型加以注解，不过这个 `collect` 函数就是一个通常需要注解的函数，这是由于 Rust 无法推断出，代码编写者想要的集合类别来。
+在 `main` 函数的第一行，我们调用了 `env::args`，并立即使用 `collect` 将迭代器转换为包含由该迭代器产生的所有值的矢量值。我们可以使用 `collect` 函数创建多种类别的集合，因此我们显式地注解了 `args` 的类型，以指定我们想要一个字符串矢量值。尽管咱们很少需要在 Rust 中注解类型，但 `collect` 属于咱们经常要注解的函数之一，因为 Rust 无法推断咱们想要的集合类别。
 
-最后，这里使用了调试宏（`dbg!`），打印出那个矢量。下面就来尝试先不带参数运行该代码，尔后再带上两个参数：
+最后，我们使用调试宏（`dbg!`）打印出该矢量值。我们来尝试先不带参数运行这段代码，然后以两个参数运行：
 
 ```console
-$ cargo run                                                                                 lennyp@vm-manjaro
-   Compiling minigrep v0.1.0 (/home/lennyp/rust-lang/minigrep)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.39s
+$ cargo run
+   Compiling minigrep v0.1.0 (/home/hector/rust-lang-zh_CN/projects/minigrep)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
      Running `target/debug/minigrep`
-[src/main.rs:6] args = [
+[src/main.rs:5:5] args = [
     "target/debug/minigrep",
 ]
 ```
 
 
 ```console
-$ cargo run -- 检索字符串😀 demo.txt                                                        lennyp@vm-manjaro
-    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
-     Running `target/debug/minigrep '检索字符串😀' demo.txt`
-[src/main.rs:6] args = [
+$ cargo run -- needle haystack
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running `target/debug/minigrep needle haystack`
+[src/main.rs:5:5] args = [
     "target/debug/minigrep",
-    "检索字符串😀",
-    "demo.txt",
+    "needle",
+    "haystack",
 ]
 ```
 
 
-请注意这个矢量中的首个值，即 `"target/debug/minigrep"`，就是这里二进制程序文件的名字。这一点符合了 C 语言中参数清单的行为，让程序运用到其被触发执行的那个名字（this matches the behavior of the arguments list in C, letting programms use the name by which they were invoked in their execution）。在要于消息中打印出程序名字，或根据用于触发该程序运行的何种命令行别名，而对程序行为加以改变这样的情形下，有着对程序名字的访问，通常就比较便利。而对于本章的目的，这里就会忽略这首个参数，而只保存这里所需的那两个参数。
+请注意，矢量值中的第一个值是  `"target/debug/minigrep"`，这是我们的二进制文件的名字。这与 C 中的参数列表的行为一致，允许程序在执行时使用其被调用的名字。当咱们打算在消息中打印程序的名字，或根据用于调用程序的命令行别名改变程序的行为的情形下，能够访问程序名字通常会很方便。但就这一章的目的而言，我们将忽略他而只保存我们需要的两个参数。
 
 
-## 将参数值保存在变量中
+## 保存参数值于变量中
 
+这个程序目前能够访问指定为命令行参数的值。现在，我们需要保存两个参数的值于变量中，以便我们可以在程序的其余部分使用这些值。我们在下面清单 12-2 中实现了这点。
 
-这个程序此刻就可以访问到被指定为命令行参数的那些值了。现在这里需要将这两个参数的值，保存在变量中，如此就可以在这个程序的整个其余部分，使用到这些值了。在下面清单 12-2 中就要完成这个事情。
-
+<a name="listing_12-2"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -89,25 +90,31 @@ fn main() {
     let query = &args[1];
     let file_path = &args[2];
 
-    println! ("在文件 {} 中检索：{}", file_path, query);
+    println! ("
+        在文件 {filename} 中
+        检索 {query}
+    ");
 }
 ```
 
-*清单 12-2：创建两个变量来保存查询参数与文件路径参数*
+**清单 12-2**：创建变量来保存查询参数和文件路径参数
 
-与在打印这个矢量时所看到的一样，该程序的名字，占据了那个矢量中 `args[0]` 处的首个值，因此这里是于索引 `1` 处开始参数的。`minigrep` 取的第一个参数，即为这里正检索的字符串，因此这里把到这首个参数的索引，放在了变量 `query` 中。第二个参数将是那个文件路径，因此这里把到那第二个参数的索引，放在了变量 `file_path` 中。
+正如我们在打印矢量值时所看到的，程序的名字占据 `args[0]` 处的矢量值的第一个值，因此我们于索引 `1` 处开始参数。`minigrep` 取的第一个参数是我们要检索的字符串，因此我们放置到第一个参数的引用在变量 `query` 中。第二个参数将是文件路径，因此我们放置到第二个参数的引用在变量 `file_path` 中。
 
-这里临时性地将这两个变量的值打印出来，以证实该代码是如打算那样运行。下面就来以参数 `test` 和 `sample.txt`，再次运行这个程序：
+我们暂时打印这两个变量的值，以证明代码是按我们的预期运行。我们来以参数 `test` 和 `sample.txt` 再次运行这个程序：
 
 ```console
-$ cargo run -- test sample.txt                                                              lennyp@vm-manjaro
-   Compiling minigrep v0.1.0 (/home/lennyp/rust-lang/minigrep)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.35s
+$ cargo run -- test sample.txt
+   Compiling minigrep v0.1.0 (/home/hector/rust-lang-zh_CN/projects/minigrep)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
      Running `target/debug/minigrep test sample.txt`
-在文件 sample.txt 中检索：test
+
+        在文件 sample.txt 中
+        检索 test
+
 ```
 
-很好，这个程序工作了！所需参数的那些值正被保存到恰当的变量中。后面就要添加一些错误处理，来处理某些潜在的错误情形，诸如在用户未提供参数这样的情况；现在，这里将忽略那样的情况，而是会编写添加文件读取能力的代码。
+太好了，程序运行正常！我们需要的参数值被保存到正确的变量中。稍后我们将添加一些错误处理，来处理某些潜在的错误情形，比如当用户未提供参数时；现在，我们将忽略这种情况，转而着手添加文件读取能力。
 
 
 （End）
