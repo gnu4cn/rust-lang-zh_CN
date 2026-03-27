@@ -75,7 +75,7 @@
 
 # 上篇总结 - 实操
 
-- [一个文件系统 I/O 项目：构建一个命令行程序](Ch12_An_IO_Project_Building_a_Command_Line_Program.md)
+- [I/O 项目：构建命令行程序](Ch12_An_IO_Project_Building_a_Command_Line_Program.md)
     - [接收命令行参数](io_project/accepting_cli_arguments.md)
     - [读取文件](io_project/reading_a_file.md)
     - [重构以改进模块化和错误处理](io_project/refactoring.md)
