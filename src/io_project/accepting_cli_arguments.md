@@ -1,4 +1,4 @@
-# 接收命令行参数
+# 接受命令行参数
 
 我们来像往常一样，以 `cargo new` 创建一个新项目。我们称我们的项目为 `minigrep`，以将其与咱们系统上可能已有的 `grep` 工具区分开：
 
@@ -9,7 +9,7 @@ note: see more `Cargo.toml` keys and their definitions at https://doc.rust-lang.
 $ cd minigrep
 ```
 
-第一个任务是要让 `minigrep` 接收他的两个命令行参数：文件路径和要检索的字符串。也就是说，我们希望能够以 `cargo run`，及两个短横线（`--`）来表明接下来的参数是针对我们的程序的参数而不是 `cargo`，与一个要检索的字符串，以及一个要检索的文件的路径来运行我们的程序，如下所示：
+第一个任务是要让 `minigrep` 接受他的两个命令行参数：文件路径和要检索的字符串。也就是说，我们希望能够以 `cargo run`，及两个短横线（`--`）来表明接下来的参数是针对我们的程序的参数而不是 `cargo`，与一个要检索的字符串，以及一个要检索的文件的路径来运行我们的程序，如下所示：
 
 ```console
 $ cargo run -- searchstring example-filename.txt
