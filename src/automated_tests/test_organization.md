@@ -47,10 +47,10 @@ mod tests {
 
 ```rust
 pub fn add_two(a: u64) -> u64 {
-    internal_add(a, 2)
+    internal_adder(a, 2)
 }
 
-fn internal_add(left: u64, right: u64) -> u64 {
+fn internal_adder(left: u64, right: u64) -> u64 {
     left + right
 }
 
@@ -143,19 +143,19 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 输出的三个小节包括单元测试、集成测试和文档测试。请注意，当某个小节中的任何测试失败时，后面的小节都将不会运行。例如，当某个单元测试失败时，就不会有集成与文档测试的任何输出，因为只有在所有的单元测试都通过时这些测试才会运行。
 
-其中单元测试的第一部分，与之前曾见到过的一样：每个单元测试一行（那行就是在清单 11-12 中所添加的名为 `internal` 的测试），并随后有个这些单元测试的小结。
+单元测试的第一个小节与我们已见到的相同：每个单元测试一行（我们在 [清单 11-12](#listing_11-12) 中添加的名为 `internal` 的行），然后是单元测试的摘要行。
 
-集成测试部分是以那行 `Running tests/integration_test.rs` 开始的。接下来，集成测试中的每个测试函数都有一行，且在紧接着 `Doc-tests adder` 部分开始之前，就是集成测试的那些结果的一个小结。
+集成测试小节以 `Running tests/integration_test.rs` 行开始。接下来，该集成测试中的每个测试函数都有一行，并且在 `Doc-tests adder` 小节开始之前有一个集成测试结果的摘要行。
 
-每个集成测试都有其自己的部分，那么在把更多文件添加到那个 `tests` 目录中时，就会有更多的集成测试部分了。
+每个集成测试都有自己的小节，因此当我们在 `tests` 目录下添加更多文件时，就将有更多的集成测试小节。
 
-通过将测试函数的名字，指明为 `cargo test` 的命令行参数，这里仍可运行某个特定集成测试函数。而要运行某个特定集成测试文件中的全部测试，则要使用跟上了该文件名字的 `cargo test` 的 `--test` 参数：
+我们仍然可以通过指定测试函数的名字为 `cargo test` 的命令行参数，运行特定的集成测试函数。要运行某个特定集成测试文件中的所有测试，就要使用 `cargo test` 的 `--test` 参数，后跟该文件的名字：
 
 ```console
-$ cargo test --test integration_test                                                                 lennyp@vm-manjaro
-   Compiling adder v0.1.0 (/home/lennyp/rust-lang/adder)
-    Finished test [unoptimized + debuginfo] target(s) in 0.23s
-     Running tests/integration_test.rs (target/debug/deps/integration_test-d0d0eaf0bad2a59f)
+$ cargo test --test integration_test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/integration_test.rs (target/debug/deps/integration_test-cb65c98c270b37f9)
 
 running 1 test
 test it_adds_two ... ok
@@ -164,46 +164,43 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-此命令只运行在 `test/integration_test.rs` 文件中的那些测试。
+这条命令仅运行 `test/integration_test.rs` 文件中的测试。
 
 
 ### 集成测试中的子模组
 
-**Submodules in Integration Tests**
+当咱们添加更多集成测试时，咱们可能希望在 `tests` 目录下构造更多文件以帮助组织他们；例如，咱们可以根据他们测试的功能来分组测试函数。正如早先曾提到的，`tests` 目录下的每个文件都作为自己单独的代码箱编译，这对于创建单独的作用域，来更接近地模仿最终用户使用咱们的代码箱的方式非常有用。然而，这将意味着 `tests` 目录下的文件不会像 `src` 中的文件那样共用同一行为，正如咱们在第 7 章中了解的有关如何分离代码为模组与文件。
 
-
-随着更多集成测试的添加，就会想要在那个 `tests` 目录下，构造更多文件，来帮助组织这些文件；比如就可以将那些测试函数，按照他们所测试的功能而进行分组。如同早先所提到的，在 `tests` 目录下的各个文件，都作为其自己单独的代码箱而被编译，这一点对于创建独立作用域，来对最终用户将要使用所编写代码箱的方式，进行更紧密模拟是有用的。不过，这将意味着在 `tests` 目录中的那些文件，不会如同在第 7 章中，有关 [如何将代码分离为模组与文件](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#将模组拆分为不同文件) 部分，所掌握的 `src` 中的那些文件那样，共用同样的行为。
-
-在有着一套在多个集成测试文件中使用的辅助函数，并尝试遵循第 7 章 [将模组分离为不同文件](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#将模组拆分为不同文件) 中的步骤，把这些辅助函数提取到某个通用模组中时，`tests` 目录的那些文件的不同行为就最为明显了。比如说，在创建出 `tests/common.rs` 并将一个名为 `setup` 的函数放在其中时，就可以将一些要在多个测试文件的多个测试函数调用的代码，添加到 `setup`。
+当咱们有一组要在多个集成测试文件中使用的辅助函数时，`tests` 目录文件的不同行为最为明显，咱们就要按照第 7 章的 [拆分模组为不同文件](../packages_crates_and_modules/separating_modules.md) 小节中的步骤，提取辅助函数到公共模组中。例如，当我们创建 `tests/common.rs` 并放置一个名为 `setup` 的函数在其中时，我们可以往 `setup` 添加一些我们打算从多个测试文件中的多个测试函数调用的代码：
 
 文件名：`tests/common.rs`
 
 ```rust
 pub fn setup() {
-    // 特定于库测试的一些设置代码，将放在这里
+    // 特定于咱们的库的测试的设置代码，将放在这里
 }
 ```
 
-当再度运行这些测试时，即使这个 `common.rs` 文件未包含任何测试函数，也没有从任何地方调用这个 `setup` 函数，仍会在测试输出中，发现这个 `common.rs` 文件的一个新部分：
+当我们再次运行测试时，我们将在测试输出中看到 `common.rs` 文件的一个新的小节，即使该文件未包含任何测试函数，我们也没有在任何地方调用`setup` 函数：
 
 ```console
-$ cargo test                                                                                         lennyp@vm-manjaro
-   Compiling adder v0.1.0 (/home/lennyp/rust-lang/adder)
-    Finished test [unoptimized + debuginfo] target(s) in 0.47s
-     Running unittests src/lib.rs (target/debug/deps/adder-7763e46d5dd299a3)
+$ cargo test
+   Compiling adder v0.1.0 (/home/hector/rust-lang-zh_CN/projects/adder)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (target/debug/deps/adder-9c63fdd4b3155cad)
 
 running 1 test
 test tests::internal ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/common.rs (target/debug/deps/common-82aa4aac16d81562)
+     Running tests/common.rs (target/debug/deps/common-2b36a9e6692b2f41)
 
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/integration_test.rs (target/debug/deps/integration_test-d0d0eaf0bad2a59f)
+     Running tests/integration_test.rs (target/debug/deps/integration_test-cb65c98c270b37f9)
 
 running 1 test
 test it_adds_two ... ok
@@ -218,9 +215,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-以显示出他的 `running 0 tests` 方式，让 `common` 出现在测试结果中，并非咱们想要的。这里只是打算在其他集成测试文字之下，共用一些代码。
-
-要避开让 `common` 出现在测试输出中，就要创建出 `tests/common/mod.rs`，而非创建出 `tests/common.rs`。该项目目录现在看起来像下面这样：
+让 `common` 出现在测试结果中并以 `running 0 tests` 对其显示并不是我们想要的。我们只希望与其他集成测试文字共用一些代码。为了避开让 `common` 出现于测试输出中，我们将创建 `tests/common/mod.rs`，而不是 `tests/common.rs`。项目目录现在看起来像下面这样：
 
 ```console
 adder
@@ -234,10 +229,9 @@ adder
     └── integration_test.rs
 ```
 
-这是曾在第 7 章 ["替代文件路径"](Ch07_Managing_Growing_Projects_with_Packages_Crates_and_Modules.md#备用文件路径) 小节所提到的，Rust 同样明白的较早命名约定。以这种方式命名该文件，就告诉 Rust 不要将那个 `common` 模组，作为一个集成测试文件对待。在将这个 `setup` 函数移入到 `tests/common/mod.rs` 里头，并删除了那个 `tests/common.rs` 文件时，在测试输出中的该部分就不再出现了。`tests` 目录子目录中的那些文件，不会作为单独代码箱而被编译，也不会在测试输出中拥有自己的部分。
+这属于我们在第 7 章中 [备用文件路径](../packages_crates_and_modules/separating_modules.md#alt_file_path) 处曾提到的，Rust 也能理解的早期的命名约定。以这种方式命名文件告诉 Rust，不要将 `common` 模组视为集成测试文件。在我们迁移 `setup` 函数代码到 `tests/common/mod.rs` 中并删除 `tests/common.rs` 文件后，测试输出中的这一小节将不再出现。`tests` 目录的子目录下的文件，不会作为单独的代码箱编译，也不会有测试输出中的小节。
 
-
-在创建出 `tests/common/mod.rs` 之后，就可以从任意的集成测试文件，将其作为模组而加以使用。下面就是一个从 `tests/integration_test.rs` 中的 `it_adds_two` 测试，对这个 `setup` 函数进行调用的示例：
+创建 `tests/common/mod.rs` 后，我们可以在任何集成测试文件中作为模组使用他。下面是从 `tests/integration_test.rs` 中的 `it_adds_two` 测试调用 `setup` 函数的示例：
 
 文件名：`tests/integration_test.rs`
 
@@ -249,29 +243,28 @@ mod common;
 #[test]
 fn it_adds_two() {
     common::setup();
-    assert_eq! (6, adder::add_two(4));
+
+    let result = add_two(2);
+    assert_eq!(result, 4);
 }
 ```
 
-请留意其中的 `mod common;` 声明，与曾在清单 7-21 中演示过的模组声明相同。随后在那个测试函数中，这里既可以调用那个 `common::setup()` 函数了。
+请注意，`mod common;` 声明与我们在 [清单 7-21](../packages_crates_and_modules/separating_modules.md#listing_7-21) 中演示的模组声明相同。然后，在测试函数中，我们就可以调用 `common::setup()` 函数了。
 
 
 ### 二进制代码箱的集成测试
 
-**Integration Tests for Binary Crates**
+当我们的项目是个只包含 `src/main.rs` 而未包含 `src/lib.rs` 的二进制代码箱时，我们就不能在 `tests` 目录下创建集成测试，及以 `use` 语句带入定义在 `src/main.rs` 中的函数到作用域。只有库代码箱才会暴露其他代码箱可以使用的函数；二进制代码箱应该独立运行。
 
-
-在所编写详细是个仅包含 `src/main.rs` 文件的二进制代码箱，而没有 `src/lib.rs` 文件时，就无法在 `tests` 目录中创建集成测试，以及使用 `use` 语句，将定义在 `src/main.rs` 中的函数带入到作用域。唯有库代码箱将其他代码箱可以使用的函数，给暴露出来；二进制代码箱本来就是由他们自己来运行的（binary crates are meant to be run on their own）。
-
-这是那些提供到二进制程序的 Rust 项目，有着一个直接了当的、对存在于 `src/lib.rs` 逻辑进行调用的 `src/main.rs` 文件的原因之一。运用那样的结构，集成测试就 *可以* 使用 `use` 对库代码箱进行测试，从而令到重要功能可用。当重要功能运作时，那么在那个 `src/main.rs` 文件中的少量代码，也将同样工作，同时那少量代码就不需要被测试了。
+这是提供二进制文件的 Rust 项目，只有个简单的 `src/main.rs` 文件的原因之一，该文件会调用位于 `src/lib.rs` 中的逻辑。使用这种结构，集成测试 *可以* 测试库代码箱，通过 `use` 使重要功能可用。当重要功能可以工作时，`src/main.rs` 文件中的少量代码也将工作，进而那些少量代码就无需测试。
 
 
 # 本章小结
 
 
-Rust 的这些测试特性，提供到一种指明代码应如何生效，从而确保即使在进行了修改时，其仍继续如预期那样工作的方式。单元测试对库的各个部分进行单独检查，而可对一些私有实现细节进行测试。集成测试则对库的多个部分一起正确运作进行检查，同时他们会使用库的公开 API，以与外部代码使用库的同样方式，对代码进行测试。即使 Rust 的类型系统与所有权规则有助于防止某些种类的代码错误，对于消除与所编写代码预期表现方式有关的逻辑错误，测试仍是必不可少的。
+Rust 的测试特性提供了一种指定代码应如何运作的方式，以确保即使在咱们进行修改时，代码也会继续如咱们预期那样工作。单元测试会分别验证库的不同部分，并可测试私有实现细节。集成测试检查库的许多部分是否正确地一起工作，他们会以外部代码使用库的同样方式，使用库的公开 API 测试代码。尽管 Rust 的类型系统和所有权规则有助于防止某些种类的 bug，但测试对于减少与咱们的代码的预期的行为相关的逻辑 bug 仍然很重要。
 
-下面就来将本章以及前面那些章中所掌握的知识结合起来，在一个项目上练手一下了！
+我们来结合咱们在这一章和前面那些章中学到的知识，着手完成一个项目！
 
 
 （End）
