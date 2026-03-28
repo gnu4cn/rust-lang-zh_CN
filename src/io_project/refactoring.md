@@ -336,32 +336,37 @@ fn run(config: Config) -> Result<(), Box<dyn Error>>{
 
 **清单 12-12**：修改 `run` 函数为返回 `Result`
 
-这里做出了三处显著修改。首先，这里把这个 `run` 函数的返回值类型，修改为了 `Result<(), Box<dyn Error>>`。此函数先前返回的是单元类型（the unit type），`()`，而这里则将其保留作了 `Ok` 情形中返回的值。
+我们在这里做出了三处显著修改。首先，我们修改 `run` 函数的返回类型为 `Result<(), Box<dyn Error>>`。这个函数之前返回单元值类型，`()`，我们保留其为 `Ok` 情形下返回的值。
 
-而对于错误类型，这里使用了那个特质对象（the `trait object`） `Box<dyn Error>` （且这里已在代码顶部，使用一条 `use` 语句，而已将 `std::error::Error` 带入到了作用域）。这里将在 [第 17 章](Ch17_Object_Oriented_Programming_Features_of_Rust.md) 讲到特质对象。至于现在，则只要了解那个 `Box<(), Error>` 表示该函数将返回一个实现了 `Error` 特质的类型，而这里不必指明该返回值将是何种特定类型。这就给到了在不同错误情形下，返回值可能为不同类型的灵活性。这个 `dyn` 关键字，是 “动态（dynamic）” 的缩写。
+对于错误类型，我们使用了特质对象 `Box<dyn Error>` （并且我们以顶部的 `use` 语句带入了 `std::error::Error` 到作用域）。我们将在 [第 18 章](../Ch17_Object_Oriented_Programming_Features_of_Rust.md) 中介绍特质对象。目前，只需知道 `Box<(), Error>` 表示该函数将返回一个实现 `Error` 特质的类型，但我们不必指定返回值将是何特定类型。这赋予了我们在不同的错误情形下，返回可能为不同类型的错误值的灵活性。`dyn` 关键字是 *dynamic* 的缩写。
 
-其次，这里通过使用那个 `?` 运算符，而已将到 `expect` 的调用移除，正如在 [第 9 章](Ch09_Error_Handling.md#传递错误的快捷方式-操作符) 中曾讲到过的那样。与在某个错误上 `panic!` 不同，`?` 将返回把当前函数中的错误值，返回给调用者来加以处理。
+其次，正如我们在 [第 9 章](../error_handling/result.md#-操作符快捷方式) 中讨论的那样，我们移除了对 `expect` 的调用，转而使用 `?` 运算符。与错误上的 `panic!` 不同，`?` 将返回当前函数中的错误值供调用者处理。
 
-第三，这个 `run` 函数现在会在成功情形下返回一个 `Ok` 值。在函数签名中，这里已将该 `run` 函数的成功类型定义为 `()`，这就意味着需要将那个单元值，封装在 `Ok` 值中。乍一看这个 `Ok(())` 语法或许有点陌生，不过像这样使用 `()`，则正是一种表明这里调用 `run` 只是为了其副作用的方式；他不会返回一个这里所需要的值。
+第三，`run` 函数现在会在成功情形下返回 `Ok` 值。我们在签名中已声明 `run` 函数的成功类型为 `()`，这意味着我们需要将单元值封装在 `Ok` 值中。这种 `Ok(())` 语法乍一看可能有点奇怪。但像这样使用 `()` 属于惯用的方式，表明我们只是为了他的副作用而调用 `run`； 他不会返回我们需要的值。
 
-在运行此代码时，此代码将编译，不过将显示出一条告警：
+当咱们运行这段代码时，他将编译但会显示一条告警：
 
 ```console
-$ cargo run the poem.txt                                                                                                                                                  lennyp@vm-manjaro
-   Compiling minigrep v0.1.0 (/home/lennyp/rust-lang/minigrep)
+$ cargo run the poem.txt
 warning: unused `Result` that must be used
-  --> src/main.rs:16:5
+  --> src/main.rs:15:5
    |
-16 |     run(config);
-   |     ^^^^^^^^^^^^
+15 |     run(config);
+   |     ^^^^^^^^^^^
    |
-   = note: `#[warn(unused_must_use)]` on by default
    = note: this `Result` may be an `Err` variant, which should be handled
+   = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+   |
+15 |     let _ = run(config);
+   |     +++++++
 
 warning: `minigrep` (bin "minigrep") generated 1 warning
-    Finished dev [unoptimized + debuginfo] target(s) in 1.94s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.00s
      Running `target/debug/minigrep the poem.txt`
-在文件 poem.txt 中检索：the
+
+        在文件 poem.txt 中
+        检索 the
 有着文本：
 I'm nobody! Who are you?
 Are you nobody, too?

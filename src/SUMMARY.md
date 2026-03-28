@@ -78,7 +78,7 @@
 - [I/O 项目：构建命令行程序](Ch12_An_IO_Project_Building_a_Command_Line_Program.md)
     - [接受命令行参数](io_project/accepting_cli_arguments.md)
     - [读取文件](io_project/reading_a_file.md)
-    - [重构以改进模块化和错误处理](io_project/refactoring.md)
+    - [重构以改进模组化和错误处理](io_project/refactoring.md)
     - [以测试驱动方法，开发这个库的功能](io_project/test_driven_dev.md)
     - [使用环境变量](io_project/env_variables.md)
     - [重定向错误到标准错误](io_project/std_err.md)
