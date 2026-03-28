@@ -8,41 +8,36 @@
 
 第四，我们使用 `expect` 来处理错误，当用户在未指定足够参数的情况下运行我们的程序时，他们将得到 Rust 的一个 `index out of bounds` 报错，而这个报错并不能清楚地解释问题。若所有错误处理代码都在一处就最好，以便今后的维护人员在错误处理逻辑需要修改时，就只需在一个地方查阅代码。将所有的错误处理代码放在一处，还将确保我们打印的是对最终用户有意义的消息。
 
-我们来通过重构我们的项目，来解决这四个问题。
+我们来通过重构我们的项目解决这四个问题。
 
 
 ## 二进制项目中的关注点分离
 
-将多重任务分配给那个 `main` 函数方面的组织性问题，常见于许多二进制项目。由此 Rust 社区业已开发了在 `main` 开始变得大型起来时，将二进制程序单个关注点进行剥离的守则。这个剥离单独关注点的过程，有着以下几个步骤：
+指派多个任务的责任给 `main` 函数的组织问题，常见于许多二进制项目。因此，许多 Rust 程序员发现，当 `main` 函数开始变大时，拆分二进制程序的各个关注点很有用。这一过程有着以下步骤：
 
-- 将程序剥离为一个 `main.rs` 与一个 `lib.rs`，并将程序逻辑迁移到 `lib.rs`；
-- 由于命令行解析逻辑不大，因此他仍然留在 `main.rs` 中；
-- 而在命令行解析逻辑开始变得复杂的时候，就要将其从 `main.rs` 提取出来，并将其迁移到 `lib.rs`。
+- 拆分程序为 `main.rs` 文件和与 `lib.rs` 文件，并迁移咱们程序的逻辑到 `lib.rs`；
+- 只要咱们的命令行解析逻辑很小，他就可以保留在 `main` 函数中；
+- 当命令行解析逻辑开始变得复杂时，就要从 `main` 函数提取到其他函数或类型中。
 
+在经历这一过程后，保留在 `main` 函数中的职责，应仅限于以下这些：
 
-那么在经历了剥离单独关注点这个过程后，留在这个 `main` 函数中的任务就应局限于下面这些了：
+- 以参数值调用命令行解析逻辑；
+- 建立任何其他配置；
+- 调用 `lib.rs` 中的 `run` 函数；
+- 当 `run` 返回错误时处理错误。
 
-- 以那些参数值，对命令行解析逻辑进行调用；
-- 建立起全部其他配置；
-- 调用 `lib.rs` 中的某个 `run` 函数；
-- 在 `run` 返回了某个错误时，对该错误加以处理。
-
-
-这种模式，是有关关注点分离的：`main.rs` 对运行程序加以处理，而 `lib.rs` 处理的则是手头任务的全部逻辑。由于无法对 `main` 函数直接进行测试，因此这种结构通过将全部程序逻辑移入到 `lib.rs` 种的函数，而允许对他们进行测试了。保留在 `main.rs` 种的代码，将足够小到通过过目一下，就可以验证其正确性。下面就来依照这些步骤，重制这个程序。
+这种模式是为实现关注点分离：`main.rs` 负责程序运行，而 `lib.rs` 处理当前任务的所有逻辑。因为咱们无法直接测试 `main` 函数，这种结构通过把程序的所有逻辑迁出 `main` 函数，让咱们可以测试程序的所有逻辑。保留在 `main` 函数中的代码将足够小，以至通过阅读他即可验证其正确性。我们来按照这一过程重写我们的程序。
 
 
-### 提取命令行参数解析器
+### 提取参数解析器
 
-**Extracting the Argument Parser**
+我们将提取解析参数的功能到一个 `main` 会调用的函数中。下面清单 12-5 展示了 `main` 函数的新开头，其调用了一个新函数 `parse_config` ，我们将在 `src/main.rs` 中定义他。
 
-
-这里将把解析参数的功能，提取到一个 `main` 会调用到的函数种，从而把命令行解析逻辑（the command line parsing logic），迁移到 `src/lib.rs`。下面清单 12-5 就给出了调用了一个新函数 `parse_config` 的 `main` 新开头，此刻这里将把这个新函数 `parse_config` 定义在 `src/main.rs` 中。
-
+<a name="listing_12-5"></a>
 文件名：`src/main.rs`
 
 ```rust
-use std::env;
-use std::fs;
+use std::{env, fs};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -59,39 +54,38 @@ fn parse_config(args: &[String]) -> (&str, &str) {
 }
 ```
 
-*清单 12-5：自 `main` 中提取一个 `parse_config` 函数*
+**清单 12-5**：自 `main` 函数中提取 `parse_config` 函数
 
-这里仍是将那些命令行参数，收集到一个矢量中，而与在 `main` 函数中，将索引 `1` 处的参数值指派给变量 `query`，及将索引 `2` 处的参数值指派给变量 `file_path` 不同，这里将那整个矢量，传递给了 `parse_config` 函数。这个 `parse_config` 函数随后就持有了确定哪个参数进到哪个变量，及将这些值传回到 `main` 的逻辑。在 `main` 中，这里仍创建了 `query` 与 `file_path` 两个变量，但 `main` 不再具有确定命令行参数与变量如何对应起来的义务了。
+我们仍收集命令行参数到一个矢量中，但不再指派索引 1 处的参数值给变量 `query`，及索引 2 处的参数值给变量 `file_path`，我们传递整个矢量值给 `parse_config` 函数。然后 `parse_config` 函数保有确定哪个放入哪个变量的逻辑，并传回值给 `main` 函数。我们仍在 `main` 中创建 `query` 和 `file_path` 变量，但 `main` 不再负责确定命令行参数与变量如何对应。
 
-对于这里的小型程序，这项重制可能看起来矫枉过正了，但这里是正在以小的、渐进式的步骤进行重构。在做出这项修改后，就要再次运行这个程序来验证参数解析仍会运作。频繁检查所取得的进展，从而在有问题发生时，帮助识别出问题的原因，总是不错的做法。
-
-
-### 对配置值进行分组
-
-**Grouping Configuration Values**
+对于我们这个小程序来说，这一重写似乎有些小题大作，但我们正在以小步渐进的方式进行重构。在进行这一改动后，再次运行程序以验证参数解析是否仍能正常工作。经常检查咱们的进展是好的做法，有帮助于在问题发生时确定问题的原因。
 
 
-这里可以进一步对那个 `parse_config` 函数加以改进。此刻，这里返回的是个元组，然后随后又立即将那个元素，再次拆分为了单独的一些部分。这便是个或许这里尚未有着恰当抽象的表征。
+### 分组配置值
 
-有着改进空间的另一指标，便是 `parse_config` 的 `config` 部分，这暗示了这里返回的两个值是有关联的，且他俩都是某个配置值的组成部分。由于这里是将这两个值编组为了元组，而并未以数据结构（the structure of the data）方式分组，因此当前并未揭示出这层意义来；那么这里就要将这两个值，放入到某种结构体中，并分别给到该结构体的两个字段有意义的名字。这样做将让此代码的未来维护者更加容易理解，不同值直接是怎样相互联系起来的，以及他们各自的目的为何。
+我们可以再采取一小步，来进一步改进 `parse_config` 函数。目前，我们正返回一个元组，但随后我们立即又拆分该元组为单独部分。这是个我们或许还没有正确的抽象的迹象。
 
-下面清单 12-6 就给出了对这个 `parse_config` 函数的改进。
+另一个表明仍有改进空间的指标是 `parse_config` 的 `config` 部分，他暗示我们返回的两个值是相关的，并且都是一个配置值的一部分。除了分组这两个值编为元组外，我们目前并未以数据结构传达这种含义；我们将改为放置这两个值于一个结构体中，并为结构体的每个字段取个意义的名字。这样做将使这段代码的未来维护者更容易理解不同值如何相互关联以及他们的目的。
 
+下面清单 12-6 展示了对 `parse_config` 函数的改进。
+
+<a name="listing_12-6"></a>
 文件名：`src/main.rs`
 
 ```rust
-use std::env;
-use std::fs;
+use std::{env, fs};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     let config = parse_config(&args);
 
-    println! ("在文件 {} 中检索：{}", config.file_path, config.query);
+    println! ("
+        在文件 {} 中
+        检索 {}", config.file_path, config.query);
 
     let contents = fs::read_to_string(config.file_path)
-        .expect("应能读取这个这个文件。");
+        .expect("应该已经能够读取文件");
 
     // --跳过代码--
 }
@@ -109,36 +103,31 @@ fn parse_config(args: &[String]) -> Config {
 }
 ```
 
-*清单 12-6：将 `parse_config` 重构为返回 `Config` 结构体的实例*
+**清单 12-6**：重构 `parse_config` 以返回 `Config` 结构体的实例
 
-这里就已添加了一个名为 `Config`、定义为有着名为 `query` 与 `file_path` 字段的一个结构体。现在 `parse_config` 的签名，就表示其返回了一个 `Config` 值。而在那个 `parse_config` 的函数体中，之前曾于其中返回引用了 `args` 中那些 `String` 值的字符串切片，现在则定义了 `Config` 来包含持有所有权的一些 `String` 值。`main` 中的那个 `args` 变量，即为那些参数值的所有者，且仅允许那个 `parse_config` 函数借用那些参数值，这就意味着在 `Config` 尝试取得 `args` 中那些值的所有权时，就会破坏 Rust 的借用规则。
+我们添加了个名为 `Config` 的结构体，被定义为有着名为 `query` 与 `file_path` 两个字段。现在 `parse_config` 的签名表明他返回一个 `Config` 值。在 `parse_config` 的函数体中，我们曾返回引用 `args` 中 `String` 值的字符串切片，现在则定义 `Config` 为包含自有的 `String` 值。`main` 中的 `args` 变量是参数值的所有者，并且只允许 `parse_config` 函数借用他们，这意味着当 `Config` 尝试取得 `args` 中值的所有权时，我们将违反 Rust 的借用规则。
 
-对于 `String` 数据的管理，是可以采用多种方式的；而其中最容易的途径，当然虽不那么高效，便是在这些值上调用 `clone` 方法。这将构造出为那个 `Config` 实例所持有的该数据的完整拷贝，相比于存储到那个字符串数据的一个引用，这样做会消耗更多时间与内存。但对数据进行克隆，由于就不必对引用的生命周期加以管理，而也会令到这里的代码相当直接；在这样的情形下，为获得简单性而舍弃一点小小的性能，即是有价值的一种取舍。
+我们可以通过数种方式管理 `String` 数据；最简单但效率有些低的方法是调用值上的 `clone` 方法。这将为 `Config` 实例持有而构造数据的完整拷贝，相比存储到字符串数据的引用，这会消耗更多时间与内存。然而，克隆数据也使我们的代码变得非常简单，因为我们不必管理引用的生命周期；在这一情形下，放弃一点性能以获得简单性是值得的权衡。
 
-> **使用 `clone` 上的权衡**
+> **使用 `clone` 的权衡**
 >
-> 在相当多 Rust 公民中间，有着由于 `clone` 的运行时开销，而避免使用其来修复所有权问题的这种倾向。在接下来的 [第 13 章](Ch13_Functional_Language_Features_Iterators_and_Closures.md) 中，就会掌握到在这类情形下，怎样使用别的一些高效的方法。而现在，则由于仅会构造这些拷贝一次，且文件路径与查询字串都相当小，那么对少量字符串加以拷贝，以继续进行关注点分离过程，是可以的。相比于在起步阶段就尝试对代码进行超优化（hyperoptimize），更好的选择当然是有一个不那么高效的运行的程序了。而随着对 Rust 日益熟练，就会更容易以最为高效的解决办法开始，而此刻，调用 `clone` 是相当可接受的做法。
+> 由于 `clone` 的运行时开销，许多 Rustaceans 倾向于避免使用 `clone` 来解决所有权问题。在 [第 13 章](./Ch13_Functional_Language_Features_Iterators_and_Closures) 中，咱们将学习如何在这种情形下使用更高效的方法。但目前，复制几个字符串以继续取得进展是可以的，因为咱们只会构造一次这些拷贝，并且咱们的文件路径和查询字符串都非常小。相比于一开始就尝试过渡优化代码，hyperoptimize code，有个不那么高效的正常运行的程序会更好。随着咱们对 Rust 日益熟练，从最高效的解决方案入手就会变得更容易，但目前，调用 `clone` 完全是可接受的。
 
-这里已对 `main` 进行了更新，如此其就把由 `parse_config` 所返回的那个 `Config` 实例，置于一个名为 `config` 的变量中，同时这里更新了之前使用了 `query` 与 `file_path` 两个单独变量的代码，如此该代码现在使用的就是那个 `Config` 结构体上的字段了。
+我们已更新 `main` 以便其放置由 `parse_config` 返回的 `Config` 实例到名为 `config` 的变量中，并且更新了之前使用单独的 `query` 和 `file_path` 的代码，以便其现在改用 `Config` 结构体上的字段。
 
-现在这里的代码，就更清楚地反应了 `query` 与 `file_path` 二者是相关的，以及他们的目的是要配置该程序将如何运作。任何用到这两个值的代码，就都知道了要在那个 `config` 实例中，在以其目的而取名的字段中找到他们。
-
-
-### 给 `Config` 创建一个构造器
-
-**Creating a Constructor for `Config`**
+现在我们的代码更清楚地传达了 `query` 和 `file_path` 是相关的，并且他们的目的是配置程序的工作方式。任何使用这两个值的代码就都知道，要在 `config` 实例中，以其目的命名的字段中找到他们。
 
 
-到这里，就已把负责解析命令行参数的逻辑，从 `main` 中提取了出来，而将其放在了那个 `parse_config` 函数中。这样做有助于看出其中 `query` 与 `file_path` 两个值是相关的，而那层联系应在这里的代码中体现出来。随后这里添加了一个 `Config` 的结构体，来命名 `query` 与 `file_path` 这种关联目的，并能够将这些值的名字作为结构体字段，自这个 `parse_config` 函数而加以返回。
+### 创建 `Config` 的构造器
 
-那么既然这个 `parse_config` 函数的目的是要创建一个 `Config` 的实例，那么就可以将 `parse_config` 从一个普通函数，修改为一个命名为 `new` 的、与 `Config` 结构体关联起来的函数。进行这一修改，将令到代码更加符合 Rust 语言习惯。对于标准库中的那些类型，譬如 `String`， 就可以通过调用 `String::new` 创建出他们的实例来。与此类似，通过将 `parse_config` 修改为与 `Config` 关联起来的 `new` 函数，就可以通过调用 `Config::new` 而创建出 `Config` 的实例来。下面清单 12-7 给出了这里需要做出的修改。
+到目前为止，我们已从 `main` 中提取了负责解析命令行参数的逻辑，并将其放置于 `parse_config` 函数中。这样做帮助我们看出 `query` 与 `file_path` 两个值是相关的，并且这种关系应在我们的代码中得以传达。然后，我们添加了个 `Config` 的结构体来命名 `query` 与 `file_path` 的这种关联目的，并能够从 `parse_config` 函数作为字段的名字返回值的名字。
 
+因此，现在 `parse_config` 函数的目的是创建一个 `Config` 实例，我们可以将 `parse_config` 从普通函数修改为与 `Config` 结构体关联的，名为 `new` 的函数。进行这一修改将使代码更符合惯例。我们可以创建标准库的类型的实例，比如通过调用 `String::new` 创建 `String` 值。类似地，通过修改 `parse_config` 为与 `Config` 关联的 `new` 函数，我们将能够通过调用 `Config::new` 创建 `Config` 的实例。下面清单 12-7 显式了我们需要做出的修改。
+
+<a name="listing_12-7"></a>
 文件名：`src/main.rs`
 
 ```rust
-use std::env;
-use std::fs;
-
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -158,84 +147,80 @@ impl Config {
 }
 ```
 
-*清单 12-7：把 `parse_config` 修改为 `Config::new`*
+**清单 12-7**：修改 `parse_config` 为 `Config::new`*
 
 
-这里已将其中曾对 `parse_config` 进行调用的 `main`，更新为了调用 `Config::new`。已将 `parse_config` 这个名字，修改为了 `new`，并将其移入到了一个 `impl` 代码块里头，而正是这个 `impl` 代码块，把这个 `new` 函数，与 `Config` 关联了起来。请尝试再次编译此代码，来确保其的运作。
+我们已更新 `main`，其中原先我们调用 `parse_config` 的地方改为调用 `Config::new`。我们已修改 `parse_config` 的名字为 `new`，并将其迁移到 `impl` 代码块中，这个代码块将 `new` 函数与 `Config` 关联起来。请尝试再次编译这段代码以确保其正常运行。
 
 
 ## 修复错误处理
 
-**Fixing the Error Handling**
-
-
-现在就要开始修复这里的错误处理了。回顾到之前在尝试访问 `args` 矢量中索引 `1` 或索引 `2` 处的值，若该矢量包含了少于三个条目，那么就会导致该程序终止运行。请以不带任何参数运行这个程序；他就会看起来像下面这样：
+现在我们将着手修复错误处理。回想以下，当矢量值 `args` 包含少于三个项目时，尝试访问其中索引 1 或索引 1 处的值将导致程序终止运行。尝试不带任何参数的情况下运行这个程序；他将看起来像下面这样：
 
 ```console
-cargo run                                                                               lennyp@vm-manjaro
-    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
+$ cargo run
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.00s
      Running `target/debug/minigrep`
-thread 'main' panicked at 'index out of bounds: the len is 1 but the index is 1', src/main.rs:24:21
+
+thread 'main' (302106) panicked at src/main.rs:25:21:
+index out of bounds: the len is 1 but the index is 1
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-其中的行 `index out of bounds: the len is 1 but the index is 1` 是一条留给代码编写者的错误消息。该消息不会帮到终端用户，搞明白又该怎样做。现在就要来修复这个问题。
+其中的行 `index out of bounds: the len is 1 but the index is 1` 是留给程序员的错误消息。他不会帮到我们的最终用户了解他们应该做什么。我们来解决这个问题。
 
 
 ### 改进错误消息
 
-**Improving the Error Message**
+在下面清单 12-8 中，我们在 `new` 函数中添加了一项检查，将在访问索引 1 和索引 2 之前验证切片是否足够长。当切片不够长时，程序就会终止运行并显示一条更好的错误消息。
 
 
-下面的清单 12-8 中，这里于那个 `new` 函数中，在访问索引 `1` 与 `2` 之前，添加一个验证那个切片是否足够长的检查。若该切片没有足够长，那么这个程序就会终止运行，并显示出一个更好的错误消息。
-
-
+<a name="listing_12-8"></a>
 文件名：`src/main.rs`
 
 ```rust
     // --跳过代码--
     fn new(args: &[String]) -> Config {
         if args.len() < 3 {
-            panic! ("参数数量不足");
+            panic! ("参数不足");
         }
         // --跳过代码--
 ```
 
-*清单 12-8：添加一个参数个数的检查*
+**清单 12-8**：添加对参数数目的检查
 
+这段代码类似于 [我们在清单 9-13 中编写的 `Guess::new` 函数](../error_handling/panic_or_not.md#listing_9-13) ，其中我们在 `value` 参数超出有效值范围时调用了 `panic!`。这里我们不再检查值的范围，而是检查 `args` 的长度是否至少为 `3`，进而函数的其余部分可以在此条件满足的假设下运行。当 `args` 的项目少于三个时，这一条件将为 `true`，进而我们调用 `panic!` 宏来立即结束程序。
 
-此代码与 [清单 9-13 中曾编写过的 `Guess::new` 函数](Ch09_Error_Handling.md#创建用于验证的定制类型) 类似，其中在那个 `value` 参数超出有效值边界时，就调用了 `panic!` 宏。这里没有检查值的边界，而是就 `args` 的长度至少为 `3` 进行了检查，进而该函数的其余部分，就可以在此条件已满足的假定下运作了。在 `args` 所拥有的条目少于三个时，此条件便为真，进而这里就会条约那个 `panic!` 宏，来立即结束这个程序。
-
-有了`new` 中的这些额外少数几行，下面就不带任何参数地再度运行这个程序，来看看现在错误看起来如何：
+在`new` 中的额外这几行代码下，我们来再次不带任何参数运行该程序，看看报错现在如何：
 
 ```console
-$ cargo run                                                                            lennyp@vm-manjaro
-   Compiling minigrep v0.1.0 (/home/lennyp/rust-lang/minigrep)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.57s
+$ cargo run
+   Compiling minigrep v0.1.0 (/home/hector/rust-lang-zh_CN/projects/minigrep)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running `target/debug/minigrep`
-thread 'main' panicked at '参数数量不足', src/main.rs:25:13
+
+thread 'main' (305263) panicked at src/main.rs:26:13:
+参数不足
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-此输出好了一些：现在这里就有了一个合理的错误消息了。不过，这里还有一些不希望给到用户的无关信息。或许运用曾在清单 9-13 中用到的那种技巧，并非这里要用到的最佳技巧：到 `panic!` 的调用，相比于用法方面的问题，是更适合于编程方面的问题的，如同 [第 9 章中所讨论的那样](Ch09_Error_Handling.md#错误处理守则)。相反，这里将使用之前在第 9 章中曾学到的另一项技能 -- [返回一个 `Result`](Ch09_Error_Handling.md#带有-result-的可恢复错误)，以表示成功执行成功或是出错。
+这个输出更好：我们现在有条合理的错误消息。然而，我们有了一些不打算提供给用户的无关信息。也许我们在清单 9-13 中使用的技巧并不适合这里：正如 [第 9 章中讨论的](../error_handling/panic_or_not.md#错误处理指南准则)，调用 `panic!` 更适合编程问题，而非使用问题。相反，我们将使用咱们在第 9 章中学到的另一技巧 -- [返回 `Result`](../error_handling/result.md)，表示成功或出错。
 
 
-### 返回 `Result` 值，而非调用 `panic!` 宏
+### 返回 `Result` 而不是调用 `panic!`
 
-**Returning a `Result` Instead of Calling `panic!`**
+我们可以改为返回一个 `Result` 值，将在成功的情形下包含一个 `Config` 实例，在错误情形下则将描述问题。我们还将把函数名字从 `new` 修改为 `build`，因为许多程序员都会期望 `new` 函数永远不会失败。当 `Config::build` 与 `main` 通信时，我们可以使用 `Result` 类型来发出存在问题的信号。然后，我们可以修改 `main` 为将 `Err` 变种转换为对用户更实用的错误消息，而不会有调用 `panic!` 宏导致的前后的有关 `thread 'main'` 及 `RUST_BACKTRACE` 等字眼。
 
+下面清单 12-9 展示了我们需要对现在我们称为 `Config::Build` 的函数的返回值作出的修改，以及该函数为返回 `Result` 值所需的函数体。请注意，除非我们也更新 `main`，否则这段代码不会编译，我们将在下一清单中进行这一更新。
 
-与上面调用 `panic!` 相比，这里可返回将包含成功情形下的 `Config` 实例，及在错误情形下对问题进行描述的 `Result` 值。由于许多编程者都期望 `new` 函数绝不失败，因此这里还将把该函数的名字，从 `new` 修改为 `build`。在 `Config::build` 与 `main` 通信时，这里就可以使用这个 `Result` 类型，来发出存在某个问题的信号了。接下来就可以将 `main` 修改为将 `Err` 变种，转换为一个对程序使用者来说更实际的错误消息，而不再带有那些因调用 `panic!` 宏，而引发的前后有关 `thread 'main'` 及 `RUST_BACKTRACE` 的字眼。
-
-下面清单 12-9 给出了对现在调用的 `Config::Build` 函数返回值，以及该函数体需要一个返回 `Result` 值，而需要做出的修改。请注意在下一代码清单中，同时更新 `main` 之前，此代码是不会编译的。
-
+<a name="listing_12-9"></a>
 文件名：`src/main.rs`
 
 ```rust
 impl Config {
     fn build(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
-            return Err("参数数量不足");
+            return Err("参数不足");
         }
 
         let query = args[1].clone();
@@ -246,26 +231,24 @@ impl Config {
 }
 ```
 
-*清单 12-9：自 `Config::build` 返回一个 `Result`*
+**清单 12-9**：从 `Config::build` 返回一个 `Result`
 
-这里的 `build` 函数，返回的是一个在成功情形下带有 `Config` 实例，在错误情况下有着一个 `&'static str` 的 `Result` 值。这里的错误值将始终是有种 `'static` 生命周期的字符串字面值。
+我们的 `build` 函数在成功情形下返回带有 `Config` 实例的 `Result` 值，在错误情况下返回有着一个字符串字面值的 `Result` 值。我们的错误值将始终是有着 `'static` 生命周期的字符串字面值。
 
-在该函数的函数体中，这里完成了两处改变：与在使用者未传递足够参数时调用 `panic!` 宏不同，现在这里返回的是一个 `Err` 值，同时这里已将那个 `Config` 的返回值，封装在了一个 `Ok` 中。这些修改就令到该函数与其新的类型签名相符了。
+我们在该函数的函数体中进行了两处修改：当用户未传递足够参数时我们不再调用 `panic!`，现在返回一个 `Err` 值，并且我们将 `Config` 返回值包装在 `Ok` 中。这些修改使该函数符合其新的类型签名。
 
-从 `Config::build` 返回一个 `Err` 的值，就允许 `main` 函数对自那个 `build` 函数返回的 `Result` 值加以处理，进而在错误情形下，更明确的退出该程序进程。
+从 `Config::build` 返回 `Err` 值，使 `main` 函数能够处理 `build` 函数返回的 `Result` 值，进而在错误情形下能够更干净地退出进程。
 
 
 ### 调用 `Config::build` 并处理错误
 
-**Calling `Config::build` and Handling Errors**
+为了处理错误情形并打印用户友好的消息，我们需要更新 `main` 以处理 `Config::build` 返回的 `Result` 值，如下清单 12-10 中所示。我们还将负责在不使用 `panic!` 宏后，手动实现以非零错误代码退出这个命令行工具。非零退出状态属于一种约定，用来像调用我们程序的进程发出信号，表明程序以错误状态退出了。
 
-
-为对错误情形加以处理，并打印出用户友好的消息，这里就需要更新 `main`，以处理由 `Config::build` 所返回的那个 `Result` 值，如下清单 12-10 中所示。这里还将承担在不使用 `panic!` 宏后，以一个非零错误代码退出这个命令行工具的任务，并要亲自实现这个任务。非零的退出状态，是一条用于向调用咱们编写的程序的进程，发出程序以错误状态退出信号的约定。
-
+<a name="listing_12-10"></a>
 文件名：`src/main.rs`
 
 ```rust
-use std::process;
+use std::{env, fs, process};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -278,82 +261,80 @@ fn main() {
     // --跳过代码--
 ```
 
-*清单 12-10：在构建一个 `Config` 失败时以一个错误代码退出*
+**清单 12-10**：构建 `Config` 失败时以错误代码退出
 
-在此代码清单中，业已使用一个尚未详细讲过的方法：`unwrap_or_else`，这是个由标准库定义在 `Result<T, E>` 上的方法。使用 `unwrap_or_else`，就允许定义出一些定制的、非 `panic!` 的错误处理。在由 `Config::build` 返回的那个 `Result` 为一个 `Ok` 的值时，该方法的行为就跟 `unwrap` 类似：其返回 `Ok` 所封装的那个内部值。不过在返回的 `Result` 是个 `Err` 时，该方法就会调用那个 *闭包（closure）* 中的代码，而该闭包代码，则是这里所定义、并将其作为一个参数，而传递给 `unwrap_or_else` 的一个匿名函数（an anonymous function）。在 [第 13 章](Ch13_Functional_Language_Features_Iterators_and_Closures.md)，会更深入地讲到闭包特性。而此刻，仅需要明白 `unwrap_or_else` 将把那个 `Err` 的内部值，即此示例中的那个此前于清单 12-9 中所添加的静态字符串 `参数数量不足`，传递到这里的闭包中，那个位处于两个竖直管线之间的参数里。那么闭包中的代码，随后就可以在其运行的时候，使用这个 `err` 值了。
+在这个代码清单中，我们使用了个尚未详细介绍的方法：`unwrap_or_else`，他是由标准库定义在 `Result<T, E>` 上。使用 `unwrap_or_else` 允许我们定义一些定制的、非 `panic!` 的错误处理。当 `Result` 是 `Ok` 值时，这个方法的行为与 `unwrap` 类似：他返回 `Ok` 封装的内部值。但是，当值为 `Err` 时，这个方法会调用 *闭包，closure* 中的代码，所谓闭包，是我们定义的一个匿名函数，并作为参数传递给 `unwrap_or_else`。我们将在 [第 13 章](../Ch13_Functional_Language_Features_Iterators_and_Closures.md) 中更详细地介绍闭包。目前，咱们只需要知道 `unwrap_or_else` 将通过出现于垂直管道（译注：两条竖线）之间的参数 `err`，传递 `Err` 的内层值给闭包，`Err` 的内层值在这一情形下，即为我们在清单 12-9 中添加的静态字符串 `参数数量不足`。然后，闭包中的代码可以在其运行时使用 `err` 值。
 
-这里已添加了一个新的、将标准库的 `process` 带入到作用域中的 `use` 代码行。而将在错误情形下运行的那闭包中的代码，则只有两行：这里打印了那个 `err` 值，并于随后对 `process::exit` 进行了调用。这个 `process::exit` 函数，将立即停止该程序，并返回作为推出状态代码传递的那个数字。这与清单 12-8 中曾使用过的基于 `panic!` 的处理类似，只不过这里不在会受到先前全部的那些额外输出了。现在来尝试运行一下：
+我们添加了个新的 `use` 行，带入标准库中的 `process` 到作用域中。将在错误情形下运行的闭包中的代码只有两行：我们打印 `err` 值，然后调用 `process::exit`。`process::exit` 函数将立即停止程序，并返回作为退出状态代码传递的数字。这类似于我们在清单 12-8 中使用的基于 `panic!` 的处理，但我们不再得到所有额外的输出。我们来尝试一下：
 
 ```console
-$ cargo run                          ✔
-   Compiling minigrep v0.1.0 (/home/peng/rust-lang/minigrep)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.66s
+$ cargo run
+   Compiling minigrep v0.1.0 (/home/hector/rust-lang-zh_CN/projects/minigrep)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running `target/debug/minigrep`
-解析参数时遇到问题：参数数量不足
+解析参数时遇到问题：参数不足
 ```
 
-棒极了！这样的输出对于程序使用者来说，就友好多了。
+棒极了！这一输出对我们的用户来说更加友好。
 
 
-## 提取 `main` 中得逻辑
+## 提取 `main` 中的逻辑
 
-**Extract Logic from `main`**
+现在我们已经完成了配置解析的重构，我们来看看程序的逻辑。正如我们在 [二进制项目中的关注点分离](#二进制项目中的关注点分离) 小节中指出的，我们将提取出一个名为 `run` 的函数，将容纳 `main` 函数中当前不涉及建立配置或错误处理的所有逻辑。当我们完成后，`main` 将变得简洁并易于通过目测验证，并且我们将能够针对所有其他逻辑编写测试。
 
+下面清单 12-11 展示了提取  `run` 函数这一微小、渐进的改进
 
-既然这里已经完成了对配置解析的重构，那么就来转向该程序的逻辑部分。如同在 [“二进制项目的关注点分离”](#二进制程序项目的关注点分离) 小节中所指出的，这里将提取出一个保有当前在这个 `main` 函数中，不涉及到建立配置与错误处理的全部逻辑的 `run` 函数。在完成此过程时，`main` 就变得简洁而易于经由目测得以验证，并能编写出全部其他逻辑的测试。
-
-下面清单 12-11 给出了那个被提取出的 `run` 函数。此时，这里只进行小的、渐进式的提出该函数的改进。此时仍将该函数定义在 `src/main.rs` 中。
-
+<a name="listing_12-11"></a>
 文件名：`src/main.rs`
 
 ```rust
 fn main() {
     // --跳过代码--
-    println! ("在文件 {} 中检索：{}", config.file_path, config.query);
+    println! ("
+        在文件 {} 中
+        检索 {}", config.file_path, config.query);
 
     run(config);
 }
 
 fn run(config: Config) {
     let contents = fs::read_to_string(config.file_path)
-        .expect("应能读取这个这个文件。");
+        .expect("应该已经能够读取文件");
 
-    println! ("有着文本：\n{}", contents);
+    println! ("带有文本：\n{contents}");
 }
 
 // --跳过代码--
 ```
 
-*清单 12-11：提取出一个包含了程序逻辑其余部分的 `run` 函数*
+**清单 12-11**：提取包含其余程序逻辑的 `run` 函数
 
-这个 `run` 函数现在就包含了 `main` 中自读取文件开始的全部剩余逻辑。该 `run` 函数取了那个 `Config` 实例，作为一个参数。
-
-
-### 返回 `run` 函数中的错误
-
-**Returning Errors from the `run` Function**
+`run` 函数现在包含 `main` 中从读取文件开始的所有剩余逻辑。`run` 函数取 `Config` 实例作为参数。
 
 
-在其余程序逻辑分离到这个 `run` 函数之下，就可以改进错误处理了，就跟在清单 12-9 中对 `Config::build` 所做的那样。与其经由调用 `expect` 而允许该程序终止允许，这个 `run` 函数将在发生某种错误时，返回一个 `Result<T, E>` 类型的值。这样做就允许咱们进一步把有关错误处理的逻辑，以用户友好的方式整合到 `main` 中。下面清单 12-12 给出了这里需要对 `run` 的签名及函数体做出的修改。
+### 返回 `run` 中的错误
 
+随着剩余的程序逻辑被分离到 `run` 函数中，我们可以改进错误处理，就像在 [清单 12-9](#listing_12-9) 中对 `Config::build` 所做的那样。当出现错误时，`run` 函数将返回 `Result<T, E>`，而不是通过调用 `expect` 让程序终止运行。这将使我们能够以用户友好的方式，进一步把错误处理相关的逻辑整合到 `main` 中。下面清单 12-12 展示了我们需要对 `run` 的签名及函数体进行的修改。
+
+<a name="listing_12-12"></a>
 文件名：`src/main.rs`
 
 ```rust
 // --跳过代码--
-use std::error::Error;
+use std::{env, fs, process, error:Error};
 
 // --跳过代码--
 
 fn run(config: Config) -> Result<(), Box<dyn Error>>{
     let contents = fs::read_to_string(config.file_path)?;
 
-    println! ("有着文本：\n{}", contents);
+    println! ("有着文本：\n{contents}");
 
     Ok(())
 }
 ```
 
-**清单 12-12：将 `run` 函数修改为返回 `Result`**
+**清单 12-12**：修改 `run` 函数为返回 `Result`
 
 这里做出了三处显著修改。首先，这里把这个 `run` 函数的返回值类型，修改为了 `Result<(), Box<dyn Error>>`。此函数先前返回的是单元类型（the unit type），`()`，而这里则将其保留作了 `Ok` 情形中返回的值。
 
