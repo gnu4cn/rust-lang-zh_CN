@@ -380,15 +380,12 @@ To an admiring bog!
 
 ```
 
-Rust 告诉咱们，这里的代码忽略了那个 `Result` 值，而该 `Result` 值可能表示发生了某个错误。而这里没有对到底有无错误进行检查，同时编译器提醒了，这里或许是要有一些错误处理代码！下面就来纠正这个问题。
+Rust 告诉我们，我们的代码忽略了 `Result` 值，而 `Result` 值可能表明发生了错误。但我们并未检查是否存在错误，编译器提醒我们，我们或许是要在这里放一些错误处理代码！我们来纠正这个问题。
 
 
-### 处理自 `main` 中的 `run` 所返回的错误
+### 在 `main` 中处理自 `run` 返回的错误
 
-**Handling Errors Returned from `run` in `main`**
-
-
-这类就要对错误加以检查，并是要与代码清单 12-10 中曾用到的类似技巧，不过要以些许不同的方式，对这些错误加以处理：
+我们将检查错误，并使用我们在 [清单 12-10](#listing_12-10) 曾对 `Config::build` 使用的类似技巧来处理他们，但略有不同：
 
 
 文件名：`src/main.rs`
@@ -397,7 +394,9 @@ Rust 告诉咱们，这里的代码忽略了那个 `Result` 值，而该 `Result
 fn main() {
     // --跳过代码--
 
-    println! ("在文件 {} 中检索：{}", config.file_path, config.query);
+    println! ("
+        在文件 {} 中
+        检索 {}", config.file_path, config.query);
 
     if let Err(e) = run(config) {
         println! ("应用程序错误：{e}");
@@ -406,81 +405,65 @@ fn main() {
 }
 ```
 
-这里是要了 `if let` 而非 `unwrap_or_else`，来对 `run` 是否返回一个 `Err` 值加以检查，并在 `run` 确实返回了一个 `Err` 值时，调用 `process::exit(1)`。这个 `run` 函数并未返回一个，这里所要以与`Config::build` 返回的那个 `Config` 实例同样方式，而去 `unwrap` 的值，这里只关心的是探测到某个错误，因此这里就不需要 `unwrap_or_else` 来返回那个解封装值，亦即这里的 `()`。
+我们使用 `if let` 而非 `unwrap_or_else` 检查 `run` 是否返回 `Err` 值，并返回 `Err` 值时调用 `process::exit(1)`。`run` 函数没有以与`Config::build` 返回 `Config` 实例的同样方式，返回一个我们打算要 `unwrap` 的值。因为 `run` 在成功情形下返回 `()`，而我们只关心探测错误，因此我们无需 `unwrap_or_else` 来返回解封装值，该值只会是 `()`。
 
-其中的 `if let` 与 `unwrap_or_else` 两个函数的函数体，在成功及失败两种情形下是同样的：这里都打印出错误并退出程序。
+在两种情形下，`if let` 与 `unwrap_or_else` 两个函数的函数体是相同的：我们都会打印错误并退出。
 
 
 ## 拆分代码到库代码箱
 
-**Splitting Code into a Library Crate**
+到目前为止，我们的 `minigrep` 项目看起来不错！现在我们将拆分 `src/main.rs` 文件并放置一些代码到 `src/lib.rs` 文件中。这样一来，我们就可以测试代码，并有一个职责更少的 `src/main.rs`。
 
+我们来在 `src/lib.rs` 而不是 `src/main.rs` 中定义负责检索文本的代码，这将让我们（或任何使用我们的 `minigrep` 库的人）可以从相比我们的 `minigrep` 二进制项目的更多上下文中调用检索功能。
 
-到现在这个 `minigrep` 项目看起来就不错了！现在就要拆分这个 `src/main.rs` 文件，并将一些代码放入到 `src/lib.rs` 文件。那样就可以对代码加以测试，并有了一个有着更少职责的 `src/main.rs` 文件。
+首先，我们来在 `src/lib.rs` 中定义 `search` 函数签名，如下清单 12-13 中所示，以一个调用 `unimplemented!` 宏的函数体。我们将在填入实现时更详细地解释这个签名。
 
-接下来就要将那些非 `main` 函数的代码，从 `src/main.rs` 迁移到 `src/lib.rs`：
-
-- 那个 `run` 函数的定义；
-- 相关的 `use` 语句；
-- `Config` 结构体的定义；
-- 其中 `Config::build` 函数的定义。
-
-
-那么 `src/lib.rs` 的内容，就应包含下面清单 12-13 中所显示的那些签名（这里出于简洁考虑，已省略这些函数的函数体）。请注意在清单 12-14 中修改 `src/main.rs` 之前，这还不会编译。
-
+<a name="listing_12-13"></a>
 文件名：`src/lib.rs`
 
 ```rust
-use std::error::Error;
-use std::fs;
-
-pub struct Config {
-    pub query: String,
-    pub file_path: String,
-}
-
-impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        // --跳过代码--
-    }
-}
-
-pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
-    // --跳过代码--
+pub fn search<'a> (query: &str, contents: &'a str) -> Vec<&'a str> {
+    unimplemented! ();
 }
 ```
 
-*清单 12-13：将 `Config` 与 `run` 迁移到 `src/lib.rs` 中*
+**清单 12-13**：在 `src/lib.rs` 中定义 `search` 函数
 
-这里业已大量使用到那个 `pub` 关键字：在 `Config` 上，在其字段与其 `build` 方法上，以及在那个 `run` 函数上。现在这里就有了一个带有可测试公共 API 的库代码箱了！
+我们在函数定义上使用了 `pub` 关键字，指定 `search` 为我们库代码箱公开 API 的一部分。我们现在有了个即可以在二进制代码箱中使用，我们又可测试的库代码箱！
 
-现在就需要把那些已迁移到 `src/lib.rs` 的代码，带入到 `src/main.rs` 中二进制代码箱的作用域中了，如下清单 12-14 中所示。
+现在我们需要带入定义在 `src/lib.rs` 中的代码到 `src/main.rs` 中的二进制代码箱作用域并调用他，如下清单 12-14 中所示。
 
+
+<a name="listing_12-14"></a>
 文件名：`src/main.rs`
 
 ```rust
-use std::env;
-use std::process;
-
-use minigrep::Config;
+// -- 跳过代码 --
+use minigrep::search;
 
 fn main() {
-    // --跳过代码--
-    if let Err(e) = minigrep::run(config) {
-        // --跳过代码--
+// -- 跳过代码 --
+}
+
+// -- 跳过代码 --
+
+fn run(config: Config) -> Result<(), Box<dyn Error>>{
+    let contents = fs::read_to_string(config.file_path)?;
+
+    for line in search(&config.query, &contents) {
+        println! ("{line}");
     }
+
+    Ok(())
 }
 ```
 
-*清单 12-14：在 `src/main.rs` 中使用 `minigrep` 库代码箱*
+**清单 12-14**：在 `src/main.rs` 中使用 `minigrep` 库代码箱的 `search` 函数
 
-这里添加了一个 `use minigrep::Config` 的语句行，来将这个 `Config` 类型，从那个库代码箱，带入到这个二进制代码箱的作用域中，同时把这里的代码箱名字，作为了那个 `run` 函数的前缀。那么现在这全部功能，就应联系起来并生效了。使用 `cargo run` 运行这个程序，并确保所有东西都正确运作。
+我们添加了一个 `use minigrep::search;` 行，带入库代码箱中的 `search` 函数到二进制代码箱的作用域。然后，在 `run` 函数中，我们不再打印出文件的内容，而是调用 `search` 函数并作为参数传递 `config.query` 和 `contents`。然后，`run` 将使用 `for` 循环打印从 `search` 返回的与查询匹配的每个行。这也是移除 `main` 中显示查询字符串和文件路径的 `println!` 调用的好时机，以便我们的程序仅打印检索结果（当无错误发生时）。
 
-咦！这可是干了很多活了，还好现在已经为将来的成功做好了准备。现在处理错误就容易多了，同时令到代码更具模块性。从现在开始，几乎咱们的全部工作，就将在 `src/lib.rs` 完成了。
+请注意，检索函数将在任何打印发生之前，收集所有结果到一个其返回的矢量值中。这种实现在检索大型文件时可能会显示结果较慢，因为结果不会在找到时打印；我们将在第 13 章中讨论一种使用迭代器解决这个问题的可能方式。
 
-下面就来通过运用现在这种新发现的模组性优势，完成一些对于早先不具模组性代码较难实现，而对这新代码却易于实现的事情。
+呼！虽然工作量不小，但我们已经为今后的成功打下了坚实的基础。现在处理错误变得更加容易，而且我们使代码也更加模组化。从现在开始，我们几乎所有的工作都将在 `src/lib.rs` 中完成。
 
-
-（End）
-
-
+让我们利用这种新获得的模组化特性，做一些在旧代码下很难、但在新代码中却很简单的事情：我们将编写一些测试！

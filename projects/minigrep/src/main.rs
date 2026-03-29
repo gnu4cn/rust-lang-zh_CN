@@ -1,4 +1,5 @@
 use std::{env, fs, process, error::Error};
+use minigrep::search;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -12,13 +13,18 @@ fn main() {
         在文件 {} 中
         检索 {}", config.file_path, config.query);
 
-    run(config);
+    if let Err(e) = run(config) {
+        println! ("应用程序错误：{e}");
+        process::exit(1);
+    }
 }
 
 fn run(config: Config) -> Result<(), Box<dyn Error>>{
     let contents = fs::read_to_string(config.file_path)?;
 
-    println! ("有着文本：\n{contents}");
+    for line in search(&config.query, &contents) {
+        println! ("{line}");
+    }
 
     Ok(())
 }
