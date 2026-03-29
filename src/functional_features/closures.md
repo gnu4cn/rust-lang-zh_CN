@@ -1,20 +1,15 @@
-# 闭包：捕获其环境的匿名函数
+# 闭包
 
-**Closures: Anonymous Functions that Capture Their Environment**
-
-
-Rust 的闭包，是一些咱们可将其保存在变量中，或将其作为参数传递给其他函数的匿名函数。咱们可在一处创建出闭包，随后在别处调用该闭包，而在不同上下文中执行他，evaluate it。与函数不同，闭包可捕获到他们于其中被定义作用域的值。随后咱们将演示这些闭包特性，怎样实现代码重用与行为定制，unlike functions, closures can capture values from the scope in which they're defined. We'll demonstrate how these closure features allow for code reuse and behavior customization。
+Rust 的闭包属于匿名函数，咱们可将其保存在变量中，或作为参数传递给其他函数。咱们可在一处创建闭包，然后在其他地方调用该闭包，以在不同的上下文中对其求值。与函数不同，闭包可以捕获定义他们的作用域中的值。我们将演示这些闭包特性怎样实现代码重用与行为定制。
 
 
-## 使用闭包捕获环境
+## 捕获环境
 
-**Capturing Environment with Closures**
+咱们将首先探讨如何使用闭包捕获定义他们的环境中的值以供随后使用。场景如下：作为促销活动，我们的 T 恤衫公司会不定期向邮件列表中的某人赠送一件独家限量版的 T 恤衫。邮件列表中的人们可以选择添加他们偏好的颜色到他们的个人资料。当被选中获得免费 T 恤的人设置了喜好颜色时，他们会获得该颜色的 T 恤。当此人没有指定喜好颜色时，他们会获得公司当前有的数量最多的颜色。
 
+实现这一逻辑的方式有很多。在这个示例中，我们将使用一个名为 `ShirtColor` 的枚举，有着变种 `Red` 与 `Blue`（出于简单目的，限制了可选颜色的数量）。我们以 `Inventory` 结构体表示公司的库存，其有一个名为 `shirts` 的字段，包含一个表示当前库存中 T 恤衫颜色的 `Vec<ShirtColor>` 值。定义在 `Inventory` 上的方法 `giveaway` 会获取免费 T 恤衫中奖者的可选体恤衫颜色偏好，并返回那个人将获得的体恤衫颜色。这一设置如下面清单 13-1 中所示：
 
-咱们将首先检视，咱们可怎样使用闭包来捕获他们被定义所在环境的值，以供稍后使用。场景是这样的：每隔一段时间，咱们体恤衫公司都会以促销方式，送出一些独家的、限量版的体恤衫给邮件列表上的人。邮件列表上的人可选择性地将他们偏好的颜色，添加到他们的个人资料。若被选中得到免费T恤的人，设置了他们的喜好颜色，那么他们会收到那种颜色的衣服。而若那人不曾指定喜好颜色，他们就会收到该公司当前数量最多那种颜色的体恤衫。
-
-有许多方式实现这个业务逻辑。而对于这个示例，咱们将使用一个名为 `ShirtColor`，有着变种 `Red` 与 `Blue`（为简化目的而限制颜色数目）的枚举。咱们会以有着包含了表示当前库存中 T 恤衫颜色 `Vec<ShirtColor>` 的 `shirts` 字段的 `Inventory` 的结构体，表示该公司的当前库存。其中定义在 `Inventory` 上的方法 `giveaway`，会获取到免费体恤衫获得者的可选体恤衫颜色偏好，并返回那个人将得到的体恤衫颜色。下面清单 13-1 给出了这个设置：
-
+<a name="listing_13-1"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -60,46 +55,43 @@ fn main() {
     let user_pref1 = Some(ShirtColor::Red);
     let giveaway1 = store.giveaway(user_pref1);
     println! (
-        "选项为 {:?} 的用户，得到了 {:?}",
+        "选项为 {:?} 的用户得到 {:?}",
         user_pref1, giveaway1
     );
 
     let user_pref2 = None;
     let giveaway2 = store.giveaway(user_pref2);
     println! (
-        "选项为 {:?} 的用户得到了 {:?}",
+        "选项为 {:?} 的用户得到 {:?}",
         user_pref2, giveaway2
     );
 }
 ```
 
-*清单 13-1：体恤衫公司派发情形*
+**清单 13-1**：体恤衫公司赠品情况
 
-定义在 `main` 中的 `store`，剩下两件蓝色 T 恤与一件红色 T 恤，用于本次限量版促销活动。咱们分别对选项为红色 T 恤，与没有偏好的两名用户，调用了 `giveaway` 方法。
+定义在 `main` 中的 `store`，还有两件蓝色 T 恤和一件红色 T 恤可供本次限量版促销活动分发。我们分别对一名偏好红色的用户和已为没有偏好的用户调用了 `giveaway` 方法。
 
-再次说明，此代码可以许多方式实现，而这里，为了专注于闭包，故除了用到闭包的 `giveaway` 方法主体外，咱们都立足于已经学过的概念。在 `giveaway` 方法中，咱们以类型为 `Option<ShirtColor>` 的参数，而获取到用户偏好，并调用了 `user_preference` 上的 `unwrap_or_else` 方法。[`Option<T>` 上的 `unwrap_or_else` 方法](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else) 是由标准库定义的。他取一个参数：不带任何参数，返回一个值 `T` （与 `Option<T>` 的 `Some` 变种中存储的同一类型，此示例中即 `ShirtColor`）的闭包。在 `Option<T>` 为 `Some` 变种时，`unwrap_or_else` 就会返回 `Some` 里的那个值。而在 `Option<T>` 为 `None` 变种时，那么 `unwrap_or_else` 就会调用随后的闭包，并返回由该闭包所返回的值。
+同样，这段代码可以多种方式实现，在这里，为了专注于闭包，我们坚持使用咱们已经学过的概念，除了用到闭包的 `giveaway` 方法主体外。在 `giveaway` 方法中，我们以类型为 `Option<ShirtColor>` 的参数获取用户偏好，并调用 `user_preference` 上的 `unwrap_or_else` 方法。[`Option<T>` 上的 `unwrap_or_else` 方法](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else) 由标准库定义。他取一个参数：一个不带任何参数、返回值 `T` （存储在 `Option<T>` 的 `Some` 变种中的同一类型，这一情形下即 `ShirtColor`）的闭包。当 `Option<T>` 为 `Some` 变种时，`unwrap_or_else` 返回 `Some` 内的值。当 `Option<T>` 为 `None` 变种时，`unwrap_or_else` 会调用闭包，并返回闭包返回的值。
 
-咱们指定了闭包表达式，closure expression， `|| self.most_stocked()`，作为 `unwrap_orelse` 的参数。这是个本身不取参数的闭包（如闭包有参数，参数就应出现在两条竖线之间）。该闭包的主体调用了 `self.most_stocked()`。咱们于此处定义出该闭包，而 `unwrap_or_else` 的实现就会在需要其结果时，执行这个闭包。
+我们指定闭包表达式 `|| self.most_stocked()` 为 `unwrap_or_else` 的参数。这是个本身不取参数的闭包（当闭包有参数时，他们会出现在两条竖线之间）。该闭包的主体调用了 `self.most_stocked()`。咱们于此处定义了该闭包，而 `unwrap_or_else` 的实现将在随后需要结果时对这个闭包求值。
 
-运行此代码会打印出：
+运行这段代码会打印以下内容：
 
 
 ```console
-$ cargo run                                                         lennyp@vm-manjaro
-   Compiling closure_demo v0.1.0 (/home/lennyp/rust-lang/closure_demo)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.47s
-     Running `target/debug/closure_demo`
-选项为 Some(Red) 的用户，得到了 Red
-选项为 None 的用户得到了 Blue
+$ cargo run
+   Compiling shirt-company v0.1.0 (/home/hector/rust-lang-zh_CN/projects/shirt-company)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running `target/debug/shirt-company`
+选项为 Some(Red) 的用户得到 Red
+选项为 None 的用户得到 Blue
 ```
 
-这里有个有趣的地方，即这里曾传递了一个调用了在当前 `Inventory` 实例上的 `self.most_stocked()` 的闭包。标准库并不需要明白有关这里所定义的 `Inventory` 或 `ShirtColor` 的任何事情，或者在此场景下这里要运用的那些逻辑。这个闭包捕获了到 `self` 这个 `Inventory` 实例的一个不可变引用，并将该不可变引用，传递给这里指定给那个 `unwrap_or_else` 方法的代码。与之相反，函数是无法以这种方式，捕获到他们的环境的（the closure captures an immutable reference to the `self` `Inventory` instance and pass it with the code we specify to the `unwrap_or_else` method. Functions, on the other hand, are not able to capture their environment in this way）。
+这里一个有趣的方面是，我们传递了一个闭包，其会在当前的 `Inventory` 实例上调用 `self.most_stocked()`。标准库无需了解我们定义的 `Inventory` 或 `ShirtColor` 类型，或者我们打算在此场景中使用的逻辑。这个闭包捕获了到 `self` 这个 `Inventory` 实例的不可变引用，并将其与我们指定的代码一起，传递给 `unwrap_or_else` 方法。另一方面，函数无法以这种方式捕获他们的环境。
 
 
-## 闭包的类型推断与类型注解
-
-**Closure Type Inference and Annotation**
-
+## 推断与注解闭包类型
 
 函数与闭包之间，还有别的一些区别。闭包通常不要求咱们像 `fn` 函数那样，注解参数或返回值的类型。之所以在函数上要求类型注解，是因为类型是暴露给用户的显式接口的一部分。硬性要求定义出这种接口，对于确保所有人，在某个函数用到与返回的值类型上，达成一致尤为重要。而另一方面的闭包，则不是用在像这样的暴露接口中：他们被存储于变量中，而在无需对其命名及暴露给库用户下被用到。
 
