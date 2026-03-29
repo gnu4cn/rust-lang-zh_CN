@@ -136,7 +136,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
         search_insensitive(&config.query, &contents)
     } else {
         search(&config.query, &contents)
-    }
+    };
 
     for line in results {
         println! ("{line}");
@@ -176,44 +176,46 @@ impl Config {
 
 **清单 12-23**：检查名为 `IGNORE_CASE` 的环境变量中的是否有任何值
 
-在这里，我们创建了一个新变量 `ignore_case`。为了设置他的值，我们调用 `env::var` 函数并传递给他 `IGNORE_CASE` 环境变量的名字。`env::var` 函数返回 `Result` 值，当该环境变量设置为任何值时，返回的 `Result` 将是成功的 `Ok` 变种。当环境变量未设置时，他将返回 `Err` 变种。
+在这里，我们创建一个新变量 `ignore_case`。为了获取他的值，我们调用 `env::var` 函数并传递给他 `IGNORE_CASE` 环境变量的名字。当该环境变量被设置了任何值时，`env::var` 函数会返回一个 `Result` 值，其将是包含该环境变量的值的 `Ok` 变种。当该环境变量未被设置时，他将返回 `Err` 变种。
 
-我们使用 `Result` 上的 `is_ok` 方法来检查环境变量是否设置，这意味着程序应执行不区分大小写的检索。当 `IGNORE_CASE` 环境变量未设置为任何内容时，`is_ok` 将返回 `false`，进而程序将执行区分大小写的检索。我们不关心该环境变量的 *值*，只关心他是已设置或未设置，因此我们检查 `is_ok`，而不是使用 `unwrap`、`expect` 或我们已经在 `Result` 上看到的任何其他方法。
+我们使用 `Result` 上的 `is_ok` 方法，来检查环境变量是否设置，这意味着程序应执行不区分大小写的检索。当 `IGNORE_CASE` 环境变量未设置为任何内容时，`is_ok` 将返回 `false`，进而程序将执行区分大小写的检索。我们不关心该环境变量的 *值*，只关心他是已设置或未设置，因此我们检查 `is_ok`，而不是使用 `unwrap`、`expect` 或我们已经在 `Result` 上看到的任何其他方法。
 
-这里把在 `ignore_case` 变量中的值，传递给了那个 `Config` 实例，这样一来 `run` 函数就可以读取到那个值，并判定是要调用 `search_case_insensitive` 还是 `search`，就如同在清单 12-22 中所实现的那样。
+我们传递 `ignore_case` 变量中的值给 `Config` 实例，以便 `run` 函数可以读取到该值，并决定是调用 `search_case_insensitive` 还是 `search`，正如我们在清单 12-22 中所实现的那样。
 
-现在就来试着运行一下！首先，这里将在未设置那个环境变量及查询字串为 `to` 之下，运行这个程序，这样应匹配到包含了全部小写单词 “to” 的那些行：
+我们来试一试！首先，我们将在不设置环境变量，并以查询字符串 `to` 运行程序，这应匹配任何包含全部小写单词 “to” 的行：
 
 ```rust
-$ cargo run -- to poem.txt                                              ✔
-   Compiling minigrep v0.1.0 (/home/peng/rust-lang/minigrep)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.55s
+$ cargo run -- to poem.txt
+   Compiling minigrep v0.1.0 (/home/hector/rust-lang-zh_CN/projects/minigrep)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running `target/debug/minigrep to poem.txt`
-在文件 poem.txt 中检索：to
+
+        在文件 poem.txt 中
+        检索 to
 Are you nobody, too?
 How dreary to be somebody!
 ```
 
-看起来那代码仍会工作！现在，就在 `IGNORE_CASE` 被设置为 `1`，而查询字串同样为 `to` 之下，运行这个程序。
+看起来这仍然正常工作！现在我们来在 `IGNORE_CASE` 设置为 `1` 下，而以同样的查询字符串 `to` 运行程序：
 
 
 ```console
-$ IGNORE_CASE=1 cargo run -- to poem.txt                                ✔
+$ IGNORE_CASE=1 cargo run -- to poem.txt
 ```
 
-在使用的是 PowerShell 时，就需要用单独的命令，来设置该环境变量与运行这个程序：
+当咱们使用的是 PowerShell 时，咱们将需要以单独命令分别设置环境变量和运行程序：
 
 ```PowerShell
 PS> $Env:IGNORE_CASE=1; cargo run -- to poem.txt
 ```
 
-这样就会令到 `IGNORE_CASE` 持续到本次 shell 会话终止为止。使用 `Remove-Item` cmdlet 其就可以被清除设置。
+这将使 `IGNORE_CASE` 在咱们的 shell 会话的剩余时间内持续存在。该环境变量可以使用 `Remove-Item` 这个 cmdlet 取消设置。
 
 ```PowerShell
 PS> Remove-Item Env:IGNORE_CASE
 ```
 
-这里应得到包含了可能有着大写字母 "to" 的那些行：
+我们应得到包含可能有大写字母的 *to* 的行：
 
 ```console
 Are you nobody, too?
@@ -222,11 +224,11 @@ To tell your name the livelong day
 To an admiring bog!
 ```
 
-非常好，这里还得到了包含着 “To” 的那些行了！这里的 `minigrep` 现在可以完成，由一个环境变量控制的不区分大小写检索了。现在就清楚了怎样运用命令行参数，或是环境变量，来管理程序选项集了。
+太棒了，我们还得到了包含 *To* 的行！我们的 `minigrep` 程序现在可以执行由环境变量控制的不区分大小写的检索。现在咱们知道怎样使用命令行参数或环境变量来管理选项集。
 
-有的程序，同时实现同一配置的命令行参数 *与* 环境变量。在这样的情形下，这些程序就会确定下其中之一有着较高优先级。好比你自己的另一代码练习中，就会尝试经由命令行参数，或同时经由环境变量，对是否区分大小写进行控制。就会在程序在一种设置下区分大小写，而另一种设置下不区分大小写时，对到底命令行参数优先，还是环境变量优先，加以确定。
+一些程序允许针对同一配置同时使用命令行参数 *和* 环境变量。在这些情况下，程序会决定其中一个优先。对于咱们自己的其他练习，请尝试通过命令行参数或环境变量控制区分大小写。当程序以一组区分大小写和另一组忽略大小写时，请确定是命令行参数优先，还是环境变量优先。
 
-这个 `std::env` 模组，包含了许多用于处理环境变量的其他有用特性：请查看其文档来看看有哪些可用特性。
+`std::env` 模组包含许多用于处理环境变量的更有用特性：请查看文档以了解哪些特性可用。
 
 
 （End）
