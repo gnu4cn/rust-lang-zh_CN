@@ -1,19 +1,12 @@
 # 使用环境变量
 
-**Working with Environment Variables**
+我们将通过添加一项额外特性改进这个 `minigrep` 二进制项目：用户可通过环境变量打开的不区分大小写的检索选项。我们本可以构造这一特性为命令行选项，并要求用户每次希望应用时输入他，但通过构造其为环境变量，我们允许用户设置一次环境变量，而让该终端会话中的所有检索都不区分大小写。
 
+## 为不区分大小写的检索编写失败测试
 
-这里就要通过加入一项额外特性，来改进 `minigrep`：经由使用某个环境变量，用户可以开启与关闭的区分大小写的搜索选项。这里本可以将此特性，构造为一个命令行选项，并在用户打算应该该选项时，要求他们键入该命令行选项，而不是将其构造为一个环境变量，这样就允许用户只设置该环境变量一次，而在那次终端会话中的全部搜索，都是区分大小写的了。
+我们首先添加一个新的 `search_case_insensitive` 函数到 `minigrep` 库，将在环境变量有值时调用。我们将继续遵循 TDD 流程，因此第一步仍然是编写失败的测试。我们将为新的 `search_case_insensitive` 函数添加一个新的测试，并将原有测试从 `one_result` 重命名为 `case_sensitive`，以区分两个测试的差异，如下清单 12-20 中所示。
 
-
-## 编写这个区分大小写的 `search` 函数的失效测试
-
-**Writing a Failing Test for the Case-Insensitive `search` Function**
-
-
-首先这里要加入一个新的、在该环境变量有着某个值时会调用到的  `search_case_insensitive` 函数。这里将继续遵循 TDD 流程，因此第一步就是要再度编写一个失败测试（a failing test）。这里将给这个新的 `search_case_insensitive` 函数，添加一个新的测试，并将其中原来的测试，从 `one_result` 改名为 `case_sensitive`，以区分这里两个测试的不同之处，如下清单 12-20 中所示。
-
-
+<a name="listing_12-20"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -50,24 +43,22 @@ Trust me.";
 }
 ```
 
-*清单 12-20：给那个即将添加的不区分大小写函数添加一个新的失败测试*
+**清单 12-20**：为我们即将添加的不区分大小写的函数，添加新的失败测试
 
-请注意这里也已编辑过原先测试的 `contents` 了。这里添加了一个有着文本 `"Duct tape."` 的新行，其中用到一个在以区分大小写方式进行搜索时，不应与查询字串 `"duct"` 匹配的大写字母 D。以这种方式修改原来的那个测试，有助于确保这里不会意外破坏这里已经实现了的区分大小写检索功能。这个区分大小写的测试，现在应会通过，并应在实现不区分大小写检索过程中继续通过测试。
+请注意，我们也编辑了原先测试的 `contents`。我们添加了个有着文本 `"Duct tape."` 的新行。当我们以区分大小写的方式检索时，使用大写 *D* 不应与查询字串 `"duct"` 匹配。以这种方式修改原来的测试，有助于确保我们不会意外破坏我们已经实现的区分大小写的检索功能。这个测试现在应该通过，并且在我们开发不区分大小写的检索时，也应会继续通过。
 
-那个新的不区分大小写检索的测试，使用了 `"rUsT"` 作为其查询字串。在那个这里即将添加的 `search_case_insensitive` 函数中，该查询字串 `"rUsT"` 应匹配到包含有着大写字母 R 的 `"Rust:"` 行，并匹配到行 `"Trust me."`，尽管这两行都有着与该查询字串不同的大小写。这就是这里的失败测试，而由于这里尚未定义出那个 `search_case_insensitive` 函数，因此该测试将会失败。请随意添加一个始终返回空矢量值的骨架实现，就跟在清单 12-16 中对 `search` 函数所做的类似，来对测试编译与失败加以检视。
+针对 *不区分* 大小写的检索的新测试使用 `"rUsT"` 作为查询字符串。在我们将要添加的 `search_case_insensitive` 函数中，查询字符串 `"rUsT"` 应匹配包含有着大写字母 R 的 `"Rust:"` 的行，并会匹配行 `"Trust me."`。即使两行有着与查询字符串不同的大小写。这是我们的失败测试，他将编译失败，因为我们尚未定义 `search_case_insensitive` 函数。请随意添加一个始终返回空矢量值的骨架实现，类似于我们在 [清单 12-16](./test_driven_dev.md#listing_12-15) 中对 `search` 函数所做的方式，以看到测试会编译并会失败。
 
 
 ## 实现 `search_case_insensitive` 函数
 
-**Implementing the `search_case_insensitive` Function**
+如下清单 12-21 中所示，`search_case_insensitive` 函数将几乎与 `search` 函数一样。唯一区别就是，我们将把 `query` 与每个 `line` 都小写，以便无论输入参数的大小写如何，当我们检查该行是否包含查询字符串时，他们都将是同一种大小写。
 
-
-在下面清单 12-21 中所给出的这个 `search_case_insensitive` 函数，将与那个 `search` 函数几乎完全一样。唯一区别就是，这里将把其中的 `query` 与各个 `line` 做小写的处理，这样一来不论输入的参数是大写还是小写，在就该行是否包含查询字串时，他们都将是同样的拼写。
-
+<a name="listing_12-21"></a>
 文件名：`src/lib.rs`
 
 ```rust
-pub fn search_insensitive<'a>(
+pub fn search_case_insensitive<'a>(
     query: &str,
     contents: &'a str
 ) -> Vec<&'a str> {
@@ -84,20 +75,21 @@ pub fn search_insensitive<'a>(
 }
 ```
 
-*清单 12-21：定义出一个在对查询字串与文本行进行比较前，先对他们进行小写处理的 `search_case_insensitive` 函数*
+**清单 12-21**：定义 `search_case_insensitive` 函数为在比较查询字符串和行之前将他们小写
 
-首先，这里把那个 `query` 字符串进行小写处理，并将其存储在一个有着同样名字的遮蔽变量中（in a shadowed variable with the same name）。在查询字串上调用 `to_lowercase` 是必要的，如此不用户的查询为 `"rust"`、`"RUST"`、`"Rust"` 还是 `rUsT`，这里都将把查询字串，当作其为 `rust` 处理，而变得不区分大小写。尽管 `to_lowercase` 会处理基本 Unicode 字符，但他并不会 100% 精确。因此在编写真正应用时，这里就要完成些许更多的工作，但由于本小节是有关环境变量，而非 Unicode，因此这里就点到为止了。
+首先，我们将 `query` 字符串小写并将其存储在名字相同的新的变量中，从而遮蔽原先的 `query`。在查询字串上调用 `to_lowercase` 是必要的，这样无论用户查询的是 `"rust"`、`"RUST"`、`"Rust"` 还是 `rUsT`，我们都将把查询字符串当作 `rust` 处理，而对大小写不敏感。虽然 `to_lowercase` 可以处理基本的 Unicode 字符，但他不会 100% 准确。若我们在编写真正的应用时，我们会希望在这里做更多的处理，但由于这一小节是关于环境变量，而非 Unicode，因此暂且到此为止。
 
-请注意由于调用 `to_lowercase` 会创建出一个新数据，而非引用既有收据，因此现在的 `query` 就是一个新的 `String` 了。比如说查询字串为 `rUsT`：那个字符串切片并不包含这里要用到的小写字母 `u` 或 `t`，因此这里就不得不分配一个新的包含着 `rust` 的 `String` 变量。现在将 `query` 作为参数，传递给 `contains` 是，由于 `contains` 的函数签名被定义为取一个字符串切片，因此这里就需要添加一个地址符号 `&`。
+请注意，现在 `query` 是个 `String` 而非字符串切片，因为调用 `to_lowercase` 会创建新数据而不是引用既有收据。例如假设查询字符串是 `rUsT`：该字符串切片不包含可供我们使用的小写字母 `u` 或 `t`，因此我们必须分配一个包含 `rust` 的新 `String`。当我们现在作为参数传递  `query` 给 `contains` 时，我们需要添加一个 `&` 运算符，因为 `contains` 的签名被定义为取一个字符串切片。
 
-接下来，这里在各个 `line` 上添加了到 `to_lowercase` 的调用，来对全部字符小写处理。现在就已将 `line` 及 `query` 转换成了小写，这里就将找出与查询字串大小写无关的那些匹配了。
+接下来，我们对每个 `line` 调用 `to_lowercase`，以小写所有字符。现在我们转换了 `line` 和 `query` 为小写，无论查询字符串为何种大小写，我们都将找到匹配项。
 
-现在来看看这种实现是否通过那些测试：
+我们来看看这一实现是否会通过测试：
 
 ```console
-$ cargo test                                                            ✔
-    Finished test [unoptimized + debuginfo] target(s) in 0.00s
-     Running unittests src/lib.rs (target/debug/deps/minigrep-7d3f5b041202a66e)
+$ cargo test
+   Compiling minigrep v0.1.0 (/home/hector/rust-lang-zh_CN/projects/minigrep)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/minigrep-99ca5834a4ade3d5)
 
 running 2 tests
 test tests::case_insensitive ... ok
@@ -105,7 +97,7 @@ test tests::case_sensitive ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running unittests src/main.rs (target/debug/deps/minigrep-38ae0a181a4574d5)
+     Running unittests src/main.rs (target/debug/deps/minigrep-2180adaab572987a)
 
 running 0 tests
 
@@ -119,7 +111,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ```
 
-很棒！他们都通过了。现在，就要在那个 `run` 函数中，调用这个新的 `search_case_insensitive` 函数了。首先，这里将把一个配置项，添加到其中的 `Config` 结构体，来在区分大小写与不区分大小写检索之间加以切换。由于尚未在任何地方对这个字段进行初始化，因此这个字段的添加，将导致一些编译器错误：
+太好了！测试通过了。现在，我们来在 `run` 函数中调用新的 `search_case_insensitive` 函数。首先，我们将添加一个配置项到 `Config` 结构体，以在区分大小写与不区分大小写的检索之间切换。添加这个字段将导致编译器报错，因为我们尚未在任何地方初始化这个字段：
 
 文件名：`src/lib.rs`
 
@@ -131,10 +123,10 @@ pub struct Config {
 }
 ```
 
-这里添加了那个保存了一个布尔值（a Boolean） 的 `ignore_case` 字段。接下来，这里就需要那个 `run` 函数来检查这个 `ignore_case` 字段值，并使用该值来确定是要调用 `search` 函数还是 `search_case_insensitive` 函数，如下清单 12-22 中所示。这代码仍将不会编译。
+我们添加了个保存布尔值的 `ignore_case` 字段。接下来，我们需要 `run` 函数来检查 `ignore_case` 字段的值，并使用该值来决定调用 `search` 函数还是 `search_case_insensitive` 函数，如下清单 12-22 中所示。这段代码仍然还不会编译。
 
+<a name="listing_12-22"></a>
 文件名：`src/lib.rs`
-
 
 ```rust
 pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
@@ -154,20 +146,18 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
 }
 ```
 
-*清单 12-22：依据 `config.ignore_case` 中的值，调用 `search` 还是 `search_case_insensitive`*
+**清单 12-22**：依据 `config.ignore_case` 中的值调用 `search` 或 `search_case_insensitive`
 
-最后，这里需要就环境变量加以检查了。用于处理环境变量的那些函数，位于便准库的 `env` 模组中，因此这里就要在 `src/lib.rs` 的顶部，把那个模组带入到作用域中来。随后这里就会使用 `env` 模组中的 `var` 函数，来检视是否已有给名为 `IGNORE_CASE` 设置某个值，如下清单 12-23 中所示。
+最后，我们需要检查环境变量。用于处理环境变量的函数位于便准库中的 `env` 模组中，其已在作用域中，位于 `src/main.rs` 的顶部。我们将使用 `env` 模组中的 `var` 函数，来检查是否已经为名为 `IGNORE_CASE` 的环境变量设置了任何值，如下清单 12-23 中所示。
 
+<a name="listing_12-23"></a>
 文件名：`src/lib.rs`
 
 ```rust
-use std::env;
-// --跳过代码--
-
 impl Config {
     pub fn build(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
-            return Err("参数数量不足");
+            return Err("参数不足");
         }
 
         let query = args[1].clone();
@@ -184,11 +174,11 @@ impl Config {
 }
 ```
 
-*清单 12-23：就一个名为 `IGNORE_CASE` 的环境变量中的值进行检查*
+**清单 12-23**：检查名为 `IGNORE_CASE` 的环境变量中的是否有任何值
 
-这里创建了一个新的变量 `ignore_case`。而为设置他的值，这里调用了 `env::var` 函数，并传递给了其那个 `IGNORE_CASE` 环境变量的名字。这个 `env::var` 函数返回的是一个 `Result` 值。在该环境变量有曾被设置为某个值时，其就会返回一个包含了该环境变量值的成功 `Ok` 变种。而在该环境变量未曾被设置时，该函数将返回 `Err` 变种。
+在这里，我们创建了一个新变量 `ignore_case`。为了设置他的值，我们调用 `env::var` 函数并传递给他 `IGNORE_CASE` 环境变量的名字。`env::var` 函数返回 `Result` 值，当该环境变量设置为任何值时，返回的 `Result` 将是成功的 `Ok` 变种。当环境变量未设置时，他将返回 `Err` 变种。
 
-这里在那个返回的 `Result` 上使用了 `is_ok` 方法，来检查该环境变量是否有被设置，这就意味着该程序应完成一次不区分大小写的检索。在这个 `IGNORE_CASE` 环境变量未被设置为某个值时，那么 `is_ok` 就会返回 `false`，而这个程序就会执行一次区分大小写的检索。这里并不关系那个环境变量的 *值*，而只关心他是否被设置或未设置，因此这里使用的就是 `is_ok`，而非使用 `unwrap`、`expect` 或其他任何已见到过的 `Result` 上的那些方法。
+我们使用 `Result` 上的 `is_ok` 方法来检查环境变量是否设置，这意味着程序应执行不区分大小写的检索。当 `IGNORE_CASE` 环境变量未设置为任何内容时，`is_ok` 将返回 `false`，进而程序将执行区分大小写的检索。我们不关心该环境变量的 *值*，只关心他是已设置或未设置，因此我们检查 `is_ok`，而不是使用 `unwrap`、`expect` 或我们已经在 `Result` 上看到的任何其他方法。
 
 这里把在 `ignore_case` 变量中的值，传递给了那个 `Config` 实例，这样一来 `run` 函数就可以读取到那个值，并判定是要调用 `search_case_insensitive` 还是 `search`，就如同在清单 12-22 中所实现的那样。
 
