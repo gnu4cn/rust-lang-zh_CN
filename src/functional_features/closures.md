@@ -93,12 +93,13 @@ $ cargo run
 
 ## 推断与注解闭包类型
 
-函数与闭包之间，还有别的一些区别。闭包通常不要求咱们像 `fn` 函数那样，注解参数或返回值的类型。之所以在函数上要求类型注解，是因为类型是暴露给用户的显式接口的一部分。硬性要求定义出这种接口，对于确保所有人，在某个函数用到与返回的值类型上，达成一致尤为重要。而另一方面的闭包，则不是用在像这样的暴露接口中：他们被存储于变量中，而在无需对其命名及暴露给库用户下被用到。
+函数与闭包之间还存在更多差异。闭包通常不要求咱们像 `fn` 函数那样注解参数或返回值的类型。类型注解对函数是需要的，因为类型是暴露给咱们用户的显式接口的一部分。严格定义这一接口，对于确保所有人都对函数使用的值类型和返回的值类型达成一致至关重要。另一方面，闭包并不用于这样的暴露接口：他们存储在变量中，并且他们在无需命名及无需暴露给库的用户的情况下被使用。
 
-闭包通常是短小的，并仅在较窄的上下文里，而非任何场景下都有意义。在这些受限的条件下，编译器就可以推断出参数与返回值的类型，类似于其能够推断出绝大多数变量类型的方式（同样也有极少数编译器需要闭包类型注解的情况）。
+闭包通常很简短，且仅在狭窄的上下文中相关，而非在任意场景中。在这些受限的上下文中，编译器可以推断参数与返回值的类型，类似于其能够推断大多数变量类型的方式（在极少数情况下，编译器也需要闭包类型注解）。
 
-和变量一样，如果我们想增加明确性和清晰性，我们可以添加类型注释，代价是比严格意义上的必要更多的言语。注解闭包的类型，看起来会像是下面清单 13-2 中所给出的定义。在此示例中，咱们定义了一个闭包，并将其存储在变量中，而非清单 13-1 中咱们所做的，把闭包定义在咱们将其作为参数传递的地方。
+与变量一样，当我们想要提高显式性和清晰度时，可以添加类型注解，但代价是比严格必要的更加冗长。注解闭包的类型会看起来像下面清单 13-2 中所示的定义。在这个示例中，我们定义了个闭包并将其存储在一个变量中，而不是如同清单 13-1 中咱们所做的，在作为参数传递闭包处定义闭包。
 
+<a name="listing_13-2"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -109,10 +110,9 @@ let expensive_closure = |num: u32| -> u32 {
 }
 ```
 
-*清单 13-2：在闭包中加上可选的参数与返回值类型的类型注解*
+**清单 13-2**：添加闭包中参数与返回值的可选类型注解
 
-
-添加了类型注解后，闭包的语法看起来就更像函数的语法了。出于比较目的，这里咱们定义了把 `1` 加到参数的一个函数，与有着同样行为的一个闭包。咱们添加了一些空格，来对齐对应部分。这说明除了使用管道和大量的语法是可选的之外，闭包语法与函数语法是多么的相似：
+添加类型注解后，闭包的语法看起来与函数的语法更加相似。下面，我们出于比较目的，定义了一个加 1 到其参数的函数，以及有着同样行为的闭包。咱们添加了一些空格来对齐相关部分。这说明了闭包语法与函数语法的相似之处，除了管道的使用和部分可选的语法外。
 
 ```rust
 fn  add_one_v1   (x: u32) -> u32 { x + 1 };
@@ -121,10 +121,11 @@ let add_one_v3 = |x|             { x + 1 };
 let add_one_v4 = |x|               x + 1  ;
 ```
 
-第一行给出了函数定义，而第二行给出了完整注解过的闭包定义。在第三行，咱们移除了闭包定义的类型注解。在第四行，由于闭包的主体只有一个表达式，因此咱们移出了那对可选的花括号。这些全都是在其被调用时，会产生出同样行为的有效定义。由于 `add_one_v3` 与 `add_one_v4` 中的类型将从他们的使用中推断出来，因此这两行就要求两个被执行的闭包能被编译出来。这与 `let v = Vec::new();` 需要类型注解，或需要有某种类型的值插入到这个 `Vec` 中，Rust 才能够推断出类型相似。
+第一行展示了一个函数定义，第二行展示了一个完全注解的闭包定义。在第三行中，我们移除了闭包定义中的类型注解。在第四行中，我们移除了花括号，由于该闭包主体只有一个表达式，因此这是可选的。这些都属于有效的定义，在被调用时将产生相同的行为。`add_one_v3` 与 `add_one_v4` 这两行代码需要闭包被求值才能编译，因为类型将根据他们的用法得以推断。这类似于 `let v = Vec::new();` 需要类型注解或向该 `Vec` 插入某一类型的值，Rust 才能够推断类型。
 
-对于闭包定义，编译器将为其各个参数及其返回值，都推断出某种具体类型。举个例子，下面清单 13-3 给出了一个仅返回作为参数接收到的值的简短闭包定义。除这个示例外，这个闭包不是特别有用。请注意咱们没有添加任何类型注解到这个定义。由于没有类型注解，咱们可以用任何类型调用这个闭包，这里咱们第一次是以 `String` 类型调用的。若咱们随后尝试以整数调用 `example_closure` 时，就会得到一个报错。
+对于闭包定义，编译器将为每个参数与其返回值都推断出一种具体类型。例如，下面清单 13-3 展示了一个简短闭包的定义，仅返回其作为参数接收到的值。除了这个示例的目的外，这个闭包并不是很有用。请注意，我们没有向该定义添加任何类型注解。因为没有类型注解，我们可以任何类型调用这个闭包，我们在这里第一次是以 `String` 类型调用的。当我们随后尝试以整数调用 `example_closure` 时，我们将得到一个报错。
 
+<a name="listing_13-3"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -133,145 +134,181 @@ let add_one_v4 = |x|               x + 1  ;
     let n = example_closure(5);
 ```
 
-*清单 13-3：尝试以两种不同类型，调用类型为推断出的闭包*
+**清单 13-3**：尝试以两种不同类型，调用一个其类型为推断出的闭包
 
-编译器会给到我们如下错误：
+编译器给予我们下面这个报错：
 
 ```console
-$ cargo run                                                                             lennyp@vm-manjaro
-   Compiling closure-example v0.1.0 (/home/lennyp/rust-lang/closure-example)
-error[E0308]: mismatched types
- --> src/main.rs:4:29
+$ cargo run
+   Compiling closure-example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/closure-example)
+error[E0425]: cannot find value `你好` in this scope
+ --> src/main.rs:4:42
   |
-4 |     let n = example_closure(5);
-  |             --------------- ^- help: try using a conversion method: `.to_string()`
-  |             |               |
-  |             |               expected struct `String`, found integer
+4 |     let s = example_closure(String::from(你好));
+  |                                          ^^^^ not found in this scope
+
+error[E0308]: mismatched types
+ --> src/main.rs:5:29
+  |
+5 |     let n = example_closure(5);
+  |             --------------- ^ expected `String`, found integer
+  |             |
   |             arguments to this function are incorrect
   |
-note: closure defined here
- --> src/main.rs:2:27
+note: expected because the closure was earlier called with an argument of type `String`
+ --> src/main.rs:4:29
+  |
+4 |     let s = example_closure(String::from(你好));
+  |             --------------- ^^^^^^^^^^^^^^^^^^ expected because this argument is of type `String`
+  |             |
+  |             in this closure call
+note: closure parameter defined here
+ --> src/main.rs:2:28
   |
 2 |     let example_closure = |x| x;
-  |                           ^^^
+  |                            ^
+help: try using a conversion method
+  |
+5 |     let n = example_closure(5.to_string());
+  |                              ++++++++++++
 
-For more information about this error, try `rustc --explain E0308`.
-error: could not compile `closure-example` due to previous error
+Some errors have detailed explanations: E0308, E0425.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `closure-example` (bin "closure-example") due to 2 previous errors
 ```
 
-咱们第一次是以 `String` 值调用的 `example_closure`，编译器便推断出该闭包的 `x` 与返回值类型均为 `String`。这些类型随后就被锁定于 `example_closure` 中的那个闭包里，而在咱们接下来尝试对同一闭包使用不同类型时，便得到了类型报错。
+我们第一次以 `String` 值调用 `example_closure` 时，编译器会推断出该闭包的 `x` 与返回值类型为 `String`。这些类型随后就被锁定在 `example_closure` 中的闭包中，而当我们下次尝试对同一闭包使用不同类型时，便得到一个类型报错。
 
 
 ## 捕获引用抑或迁移所有权
 
-**Capturing Reference or Moving Ownership**
+闭包可以三种方式捕获其环境中的值，这直接对应于函数取得参数的三种方式：
 
+- 不可变地借用；
+- 可变地借用；
+- 与取得所有权。
 
-闭包可以三种方式，捕获到其环境中的值，这直接对应了函数取得参数的三种方式：不可变地进行借用、可变地借用，与取得所有权，closures can capture values from their environment in three ways, which directly map to the three ways a function can take a parameter: borrowing immutably, borrowing mutably, and taking ownership。闭包将根据函数主体会对捕获值做些什么，而确定出要使用何种方式。
+闭包将根据函数主体对捕获值执行的操作来决定使用何种方式。
 
 在下面清单 13-4 中，由于其只需不可变引用来打印出值，因此咱们定义了个捕获了到名为 `list` 矢量值的不可变引用的闭包：
 
+<a name="listing_13-4"></a>
 文件名：`src/main.rs`
 
 ```rust
-fn main() {
+fn main () {
     let list = vec! [1, 2, 3];
-    println! ("在定义闭包之前的：{:?}", list);
+    println! ("定义闭包前：{list:?}");
 
-    let only_borrows = || println! ("自闭包打印出的：{:?}", list);
+    let only_borrows = || println! ("闭包中的：{list:?}");
 
-    println! ("在调用闭包之前：{:?}", list);
+    println! ("调用闭包前：{list:?}");
     only_borrows();
-    println! ("在调用闭包之后：{:?}", list);
+    println! ("调用闭包后：{list:?}");
 }
 ```
 
-*清单 13-4：定义并调用捕获了不可变引用的闭包*
+**清单 13-4**：定义并调用捕获不可变引用的闭包
 
-这个示例还演示了变量可绑定到闭包定义，且咱们随后可通过使用变量名字与圆括号对，犹如变量名是个函数名一样，调用闭包。
+这个示例还说明，变量可以绑定到闭包定义，并且我们稍后可通过使用变量名字和圆括号调用该闭包，就像变量名是函数名一样。
 
-由于咱们可在同一时间，有着到 `list` 的多个不可变引用，因此在闭包定义前、闭包定义后而被调用前，及闭包调用后的代码中，在代码中 `list` 都是可访问的。此代码会编译、运行并打印出如下输出：
+因为我们可以同时有着多个对 `list` 的不可变引用，所以 `list` 在闭包定义前、闭包定义后但被调用前，及闭包调用后的代码中仍然是可访问的。这段代码会编译、运行，并打印如下输出：
 
 ```console
-$ cargo run                                                                             lennyp@vm-manjaro
-   Compiling closure-example v0.1.0 (/home/lennyp/rust-lang/closure-example)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.29s
+$ cargo run
+   Compiling closure-example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/closure-example)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
      Running `target/debug/closure-example`
 在定义闭包之前的：[1, 2, 3]
 在调用闭包之前：[1, 2, 3]
-自闭包打印出的：[1, 2, 3]
+闭包中的：[1, 2, 3]
 在调用闭包之后：[1, 2, 3]
 ```
 
-接下来，在下面清单 13-5 中，咱们修改了闭包主体，从而会添加一个元素到这个 `list` 矢量。闭包现在就会捕获可变引用：
+接下来，在下面清单 13-5 中，我们修改了闭包主体，使其添加一个元素到 `list` 矢量。闭包现在捕获了一个可变引用。
 
-
+<a name="listing_13-5"></a>
 文件名：`src/main.rs`
 
 ```rust
-fn main() {
-    let mut list = vec! [1, 2, 3];
-    println! ("在定义闭包之前的：{:?}", list);
+fn main () {
+    let list mut = vec! [1, 2, 3];
+    println! ("定义闭包前：{list:?}");
 
     let mut borrows_mutably = || list.push(7);
 
     borrows_mutably();
-    println! ("在调用闭包之后：{:?}", list);
+    println! ("调用闭包后：{:?}", list);
 }
 ```
 
-*清单 13-5：定义并调用会捕获可变引用的闭包*
+**清单 13-5**：定义并调用捕获可变引用的闭包
 
-此代码会编译、运行，并打印出：
-
+这段代码会编译、运行，并打印：
 
 ```console
-$ cargo run                                                                   lennyp@vm-manjaro
-   Compiling closure-example v0.1.0 (/home/lennyp/rust-lang/closure-example)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.47s
+$ cargo run
+   Compiling closure-example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/closure-example)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running `target/debug/closure-example`
-在定义闭包之前的：[1, 2, 3]
-在调用闭包之后：[1, 2, 3, 7]
+定义闭包前：[1, 2, 3]
+调用闭包后：[1, 2, 3, 7]
 ```
 
-请注意在 `borrows_mutably` 的定义与调用之间，不再有 `println!`： `borrows_mutably` 被定义时，其就捕获了到 `list` 的可变引用。由于该闭包被调用后，咱们没有再使用那个闭包，因此这个可变借用就结束了。由于在有着可变借用，a mutable borrow，时不允许有其他的借用，因此在该闭包的定义与调用期间，打印那个 `list` 的不可变借用是不允许的。请尝试在那里添加一个 `println!`，来看看咱们会得到什么报错！
+请注意，在 `borrows_mutably` 闭包的定义与调用之间不再有 `println!`： `borrows_mutably` 被定义时，其就捕获了到 `list` 的可变引用。闭包被调用后我们未再使用该闭包，因此可变借用结束。在闭包定义与闭包调用之间，打印目的的不可变借用不被允许，因为当存在可变借用时，不允许其他借用。请尝试在那里添加一个 `println!`，看看咱们会得到什么错误消息！
 
-即使闭包主体不严格需要所有权，而咱们仍要强制闭包取得其用到的环境中值的所有权时，咱们可在参数清单前，使用 `move` 关键字。
+> **译注**：在闭包定义和闭包调用之间放入一个不可变借用时，错误消息如下。
+>
+> ```console
+>    Compiling closure-example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/closure-example)
+> error[E0502]: cannot borrow `list` as immutable because it is also borrowed as mutable
+>  --> src/main.rs:7:23
+>   |
+> 5 |     let mut borrows_mutably = || list.push(7);
+>   |                               -- ---- first borrow occurs due to use of `list` in closure
+>   |                               |
+>   |                               mutable borrow occurs here
+> 6 |
+> 7 |     println! ("调用闭包前：{list:?}");
+>   |                             ^^^^ immutable borrow occurs here
+> 8 |     borrows_mutably();
+>   |     --------------- mutable borrow later used here
+>   |
+>   = note: this error originates in the macro `$crate::format_args_nl` which comes from the expansion of the macro `println` (in Nightly builds, run with -Z macro-backtrace for more info)
+>
+> For more information about this error, try `rustc --explain E0502`.
+> error: could not compile `closure-example` (bin "closure-example") due to 1 previous error
+> ```
 
-当将闭包传递给新线程以移动数据以使其由新线程拥有时，此技术最有用。当咱们在第 16 章中讲到并发时，将详细讨论线程与为何要使用线程，而现在，咱们来粗略地探讨一下，运用一个需要 `move` 关键字的闭包，生成新线程。下面清单 13-6 给出了修改后在新线程而非主线程中，打印出矢量值的清单 13-4：
+当咱们打算强制闭包取得其用到的环境中的值的所有权，即使闭包主体并不严格需要所有权时，咱们也可以在参数列表前使用 `move` 关键字。
+
+在传递闭包给新线程，以迁移数据使其归新线程所有，这一技巧最有用。咱们将在第 16 章中讨论并发时，详细讨论线程以及为何咱们将希望使用他们，而现在，咱们来简要地探讨一下，使用需要 `move` 关键字的闭包生成一个新线程。下面清单 13-6 展示了修改后的 [清单 13-4](#listing_13-4)，以在新线程而不是主线程中打印那个矢量值。
 
 文件名：`src/main.rs`
 
 ```rust
 use std::thread;
 
-fn main() {
-    let list = vec! [1, 2, 3];
-    println! ("在定义闭包之前的：{:?}", list);
+fn main () {
+    let mut list = vec! [1, 2, 3];
+    println! ("定义闭包前：{list:?}");
 
-    thread::spawn(move || println! ("从线程打印出的：{:?}", list))
-        .join()
-        .unwrap();
+    thread::spawn(move || println! ("线程中：{list:?}")).join().unwrap();
 }
 ```
 
-*清单 13-6：使用 `move` 关键字，强制那个线程的闭包取得 `list` 的所有权*
+**清单 13-6**：使用 `move` 强制线程的闭包取得 `list` 的所有权
 
-咱们生成了一个新线程，给到线程一个闭包作为参数来运行，we spawn a new thread, giving the thread a closure to run as an argument。闭包的主体体会打印出清单。在代码清单 13-4 中，由于不可变引用是打印 `list` 所需的最低权限，因此闭包仅使用了不可变引用捕获 `list`。在这个示例中，即使闭包主体只需不可变引用，咱们仍需通过把 `move` 关键字放在闭包定义的开头，而指明 `list` 应被迁移到闭包中。新线程可能在主线程其余部分执行完毕前执行结束，也有可能主线程先结束。若主线程依然保有 `list` 的所有权，而主线程又在新线程结束之前就结束而弃用掉 `list`，那么新线程中的 `list` 就会成为无效。因此，编译器要求 `list` 要迁移到给新线程的闭包中，如此那个引用将有效。请尝试去掉 `move` 关键字，或在闭包被定义出后使用 `list`，来看看会得到什么样的编译器报错！
+咱们生成一个新线程，给予该线程一个闭包作为参数运行。闭包主体体打印出列表。在清单 13-4 中，闭包仅使用了不可变引用捕获 `list`，因为这是打印 `list` 所需的最低权限。在这个示例中，即使闭包主体仍然只需要一个不可变引用，我们也需要通过放置 `move` 关键字在闭包定义的开头，指定 `list` 应被迁移到闭包中。若在对新线程调用 `join` 之前主线程执行了更多操作，新线程可能在主线程其余部分执行完成之前完成，或者主线程可能先完成。若主线程保留了 `list` 的所有权，而在新线程结束之前结束并弃用 `list`，则线程中的不可变引用将成为无效。因此，编译器要求，`list` 要迁移到提供给新线程的闭包中，以便该引用将有效。请尝试移除 `move` 关键字，或在闭包定义处之后使用 `list`，看看咱们会得到什么样的编译器报错！
 
 
-## 将捕获值迁出闭包与 `Fn` 特质
-
-**Moving Captured Values Out of Closures and the `Fn` Traits**
+## 从闭包中迁出捕获值
 
 一旦闭包捕获了引用，或捕获了环境中值的所有权（因此影响到被迁移 *进* 该闭包的任何物件），闭包主体中的代码，就会定义出闭包稍后被执行时，引用或值会发生什么（因此影响到被迁移 *出* 该闭包的相关项目，once a closure has captured a reference or captured ownership of a value from the environment where the closure is defined(thus affecting what, if anything, is moved *into* the closure), the code in the body of the closure defines what happens to the references or values when the closure is evaluated later(thus affecting what, if anything, is moved *out* of the closure)）。闭包主体可执行以下任意操作：
 
 - 将捕获到的值迁移出闭包;
-
 - 修改捕获到的值;
-
 - 既不迁移也不修改该值;
-
 - 或以不捕获环境中任何东西开始。
 
 闭包捕获进而处理环境中值的方式，影响到闭包会实现哪个特质，而特质则是指函数与结构体，能指明他们可使用闭包类别的方式。依据闭包主体处理环境中值的方式，闭包会以累加样式，自动实现一个、两个，或全部三个的 `Fn` 特质，the way a closure captures and handles values from the environment affects which traits the closure implements, and traits are how functions and structs can specify what kinds of closures they can use. Closures will automatically implement one, two, or all three of these `Fn` traits, in an additive fashion, depending on how the closure's body handles the values：
