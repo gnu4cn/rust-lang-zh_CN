@@ -284,6 +284,7 @@ $ cargo run
 
 在传递闭包给新线程，以迁移数据使其归新线程所有，这一技巧最有用。咱们将在第 16 章中讨论并发时，详细讨论线程以及为何咱们将希望使用他们，而现在，咱们来简要地探讨一下，使用需要 `move` 关键字的闭包生成一个新线程。下面清单 13-6 展示了修改后的 [清单 13-4](#listing_13-4)，以在新线程而不是主线程中打印那个矢量值。
 
+<a name="listing_13-6"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -304,22 +305,22 @@ fn main () {
 
 ## 从闭包中迁出捕获值
 
-一旦闭包捕获了引用，或捕获了环境中值的所有权（因此影响到被迁移 *进* 该闭包的任何物件），闭包主体中的代码，就会定义出闭包稍后被执行时，引用或值会发生什么（因此影响到被迁移 *出* 该闭包的相关项目，once a closure has captured a reference or captured ownership of a value from the environment where the closure is defined(thus affecting what, if anything, is moved *into* the closure), the code in the body of the closure defines what happens to the references or values when the closure is evaluated later(thus affecting what, if anything, is moved *out* of the closure)）。闭包主体可执行以下任意操作：
+一旦闭包从其被定义的环境中捕获了某个引用，或捕获了环境中某个值的所有权后（从而影响被迁移 *进入* 闭包中的内容，在有内容被迁入时），闭包主体中的代码定义在稍后闭包被求值时，对这些引用或值会发生什么操作（从而影响从闭包迁移 *出去* 的内容，在有内容被迁出时）。
 
-- 将捕获到的值迁移出闭包;
-- 修改捕获到的值;
-- 既不迁移也不修改该值;
-- 或以不捕获环境中任何东西开始。
+闭包主体可以执行以下任一操作：
 
-闭包捕获进而处理环境中值的方式，影响到闭包会实现哪个特质，而特质则是指函数与结构体，能指明他们可使用闭包类别的方式。依据闭包主体处理环境中值的方式，闭包会以累加样式，自动实现一个、两个，或全部三个的 `Fn` 特质，the way a closure captures and handles values from the environment affects which traits the closure implements, and traits are how functions and structs can specify what kinds of closures they can use. Closures will automatically implement one, two, or all three of these `Fn` traits, in an additive fashion, depending on how the closure's body handles the values：
+- 从闭包迁出捕获值、
+- 修改捕获值、
+- 既不移动也不修改值，
+- 或者从一开始就不捕获环境中的任何内容。
 
-1. `FnOnce` 特质适用于可被调用一次的闭包。由于全部闭包都可被调用，因此他们都至少实现了这个特质。而由于将捕获值迁移出其主体的闭包，只能被调用一次，因此这样的闭包将只实现 `FnOnce`，而不会实现其他 `Fn` 特质；
+闭包捕获并处理环境值的方式，会影响闭包实现的特质，而特质是函数与结构体可以指定他们可以使用何种闭包的方式。闭包将根据其主体处理值的方式，以累加的方式自动实现以下一个、两个或全部三个 `Fn` 特质：
 
-2. `FnMut` 特质适用于不会把捕获值迁出主体，但仍会修改捕获值的闭包。这些闭包可被多次调用；
+1. `FnOnce`，适用于只能调用一次的闭包。所有闭包都至少实现了这一特质，因为所有闭包都可被调用。会从其主体中迁出捕获值的闭包，将仅实现 `FnOnce` 而不会实现其他 `Fn` 特质，因为他只能被调用一次；
+2. `FnMut`，适用于不会从其主体迁出捕获值，但可能修改捕获值的闭包。这些闭包可被多次调用；
+3. `Fn`，适用于不会从其主体迁出捕获值，也不修改捕获值的闭包，以及不从环境中捕获任何内容的闭包，这在诸如并发地多次调用闭包的情形下非常重要。
 
-3. `Fn` 则适用于不把捕获值迁出主体，且不修改捕获值的闭包，以及不从环境捕获任何东西的闭包。在不会修改其环境下，这些闭包可被多次调用，在诸如并发地多次调用闭包的情形中，这种调用方式就相当重要。
-
-咱们来看看清单 13-1 中咱们曾用到的， `Option<T>` 上那个 `unwrap_or_else` 方法的定义：
+我们来看看我们在 [清单 13-1](#listing_13-1) 中使用的 `Option<T>` 上的 `unwrap_or_else` 方法的定义：
 
 ```rust
 impl<T> Option<T> {
@@ -335,16 +336,17 @@ impl<T> Option<T> {
 }
 ```
 
-回顾到 `T` 就是表示 `Optoin` 的 `Some` 变种中，值类型的泛型。类型 `T` 也是 `unwrap_or_else` 函数的返回值类型：比如，在 `Option<String>` 上调用 `unwrap_or_else` 的代码，就将得到一个 `String`。
+回想一下，`T` 属于泛型类型，表示 `Optoin` 的 `Some` 变种中值的类型。该类型 `T` 也是 `unwrap_or_else` 函数的返回类型：例如，对 `Option<String>` 调用 `unwrap_or_else` 的代码将得到一个 `String`。
 
-接下来，请留意 `unwrap_or_else` 函数有个额外的泛型参数 `F`。`F` 类型是名为 `f` 的参数类型，其正是调用 `unwrap_or_else` 时，咱们提供的闭包。
+接下来，请注意 `unwrap_or_else` 函数有着额外的泛型类型参数 `F`。类型 `F` 是名为 `f` 的参数的类型，这是我们在调用 `unwrap_or_else` 时提供的闭包。
 
-泛型 `F` 上所指定的特质边界，the trait bound，为 `FnOnce() -> T`，表示 `F` 必须能被调用一次、不取参数，并要返回 `T` 类型值。在特质边界中使用 `FnOnce`，表示 `unwrap_or_else` 只会调用 `f` 最多一次的约束。在 `unwrap_or_else` 的主体中，咱们就可以看到，当 `Option` 为 `Some` 时，`f` 不会被调用。当 `Option` 为 `None` 时，`f` 就会被调用一次。由于所有闭包都实现了 `FnOnce`，`unwrap_or_else` 会接收最为广泛的闭包，而尽可能地灵活。
+在泛型类型 `F` 上指定的特质边界为 `FnOnce() -> T`，这意味着 `F` 必须能够被调用一次、不取参数，并返回一个 `T` 值。在特质边界中使用 `FnOnce`，表达了 `unwrap_or_else` 不会调用 `f` 多次的约束。在 `unwrap_or_else` 的主体中，我们可以看到当 `Option` 为 `Some` 时，`f` 不会被调用。当 `Option` 为 `None` 时，`f` 将被调用一次。因为所有闭包都实现 `FnOnce`，所以 `unwrap_or_else` 接收所有三种闭包，而尽可能地灵活。
 
-> 注意：函数也可实现全部三个 `Fn` 特质。当咱们打算执行的操作，不需要捕获环境中的值时，便可在需要实现了 `Fn` 特质的物件处，使用函数名字而非闭包。比如，在 `Option<Vec<T>>` 值上，若该值为 `None`，那么咱们就可以调用 `unwrap_or_else(Vec::new)` 来获取到一个新的空矢量值。
+> 注意：当我们打算执行的操作，不需要捕获环境中的值时，我们可以在需要某种实现 `Fn` 特质之一的项目处，使用函数的名字而不是闭包的名字。例如，对于某个 `Option<Vec<T>>` 值，当该值为 `None` 时，我们可以调用 `unwrap_or_else(Vec::new)` 来得到一个新的空矢量值。
 
-现在咱们来看看定义在切片上的标准库方法 `sort_by_key`，以看出其与 `unwrap_or_else` 有何区别，及为何 `sort_by_key` 会使用 `FnMut` 而非 `FnOnce` 作为特质边界。闭包会得到一个到正被处理切片中，当前元素引用形式的参数，并返回可被排序的类型 `K` 的值。在咱们想要以各个条目的某种特定属性，对切片进行排序时，这个函数是有用的。在下面清单 13-7 中，咱们有着一个 `Rectangle` 实例的清单，且咱们使用了 `sort_by_key`，来以 `width` 属性的升序，对 `Rectangle` 实例加以排序：
+现在我们来看看定义在切片上的标准库方法 `sort_by_key`，了解他与 `unwrap_or_else` 有何区别，以及为何 `sort_by_key` 会使用 `FnMut` 而不是 `FnOnce` 作为特质边界。闭包以到正在处理的切片中的当前元素的引用的形式得到一个参数，并返回一个可排序的类型 `K` 的值。当咱们打算根据每个项目的某一特定属性对切片进行排序时，这个函数非常有用。在下面清单 13-7 中，我们有个 `Rectangle` 实例的列表，我们使用 `sort_by_key` 根据其 `width` 属性从低到高升序对他们排序：
 
+<a name="listing_13-7"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -362,24 +364,19 @@ fn main() {
     ];
 
     list.sort_by_key(|r| r.width);
-    println! ("以宽的升序排序：{:#?}", list);
-
-    list.sort_by_key(|r| r.height);
-    println! ("以高的升序排序：{:#?}", list);
+    println! ("{list:#?}");
 }
 ```
 
-*清单 13-7：使用 `sort_by_key` 来对矩形以宽和高分别排序*
+**清单 13-7**：使用 `sort_by_key` 根据宽度排序矩形
 
-
-此代码会打印出：
+这段代码会打印：
 
 ```console
-$ cargo run                                                                                       lennyp@vm-manjaro
-   Compiling closure-example v0.1.0 (/home/lennyp/rust-lang/closure-example)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.19s
-     Running `target/debug/closure-example`
-以宽的升序排序：
+$ cargo run
+   Compiling rectangles v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangles)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running `target/debug/rectangles`
 [
     Rectangle {
         width: 3,
@@ -392,29 +389,15 @@ $ cargo run                                                                     
     Rectangle {
         width: 10,
         height: 1,
-    },
-]
-以高的升序排序：
-[
-    Rectangle {
-        width: 10,
-        height: 1,
-    },
-    Rectangle {
-        width: 3,
-        height: 5,
-    },
-    Rectangle {
-        width: 7,
-        height: 12,
     },
 ]
 ```
 
-`sort_by_key` 被定义为取 `FnMut` 闭包的原因是，他会多次调用闭包：对切片中的每个条目调用一次。闭包 `|r| r.width` 不会捕获、修改，或从其环境迁迁出任何东西，因此其满足特质边界要求。
+`sort_by_key` 被定义为取一个 `FnMut` 闭包的原因是，他会多次调用该闭包：对切片中的每个条目调用一次。闭包 `|r| r.width` 不会捕获、修改或从其环境迁迁出任何项目，因此他满足特质边界要求。
 
-相比之下，清单 13-8 展示了一个只实现 FnOnce 特质的闭包的例子，因为他会把值移出环境。编译器不会让咱们在 `sort_by_key` 下使用这个闭包：
+相比之下，下面清单 13-8 展示了个仅实现 `FnOnce` 特质的闭包示例，因为他会从环境中迁出值。编译器不会让咱们与 `sort_by_key` 一起使用这个闭包：
 
+<a name="listing_13-8"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -432,40 +415,50 @@ fn main() {
     ];
 
     let mut sort_operations = vec! [];
-    let value = String::from("按照被调用到的 key");
+    let value = String::from("闭包被调用");
 
     list.sort_by_key(|r| {
         sort_operations.push(value);
         r.width
     });
-    println! ("{:#?}", list);
+    println! ("{list:#?}");
 }
 ```
 
-*清单 13-8：尝试在 `sort_by_key` 下使用 `FnOnce` 类型的闭包*
+**清单 13-8**：尝试对 `sort_by_key` 使用 `FnOnce` 类型的闭包
 
-这是一个精心设计的、迂回的方法（并不奏效），试图计算排序列表时 `sort_by_key` 被调用的次数。这段代码尝试通过把 `value` -- 闭包环境中的一个 `String` -- 压入到 `sort_operations` 矢量，而完成这个计数。闭包会捕获 `value`，随后通过将 `value` 的所有权转移给 `sort_operations` 矢量，而把 `value` 迁出闭包。闭包可以被调用一次；由于 `value` 将不再位于其被再次压入到 `sort_operations` 的环境中，因此第二次尝试调用他将不会工作。那么，这个闭包就只实现了 `FnOnce`。在咱们尝试编译此代码时，就会得到由于闭包必须实现 `FnMut`，而因此 `value` 无法被迁出闭包的报错：
+这是一种做作的、复杂的方式（无法正常工作），试图计算 `sort_by_key` 在排序 `list` 时调用闭包的次数。这段代码尝试通过压入 `value` -- 闭包的环境中的一个 `String` -- 到 `sort_operations` 矢量来完成这一计数。该闭包会捕获 `value`，随后通过转移 `value` 的所有权给 `sort_operations` 矢量值，从闭包迁出 `value`。这个闭包可以被调用一次；尝试第二次调用他是行不通的，因为 `value` 将不再位于环境中，无法再次被压入 `sort_operations`！因此，这个闭包仅实现了 `FnOnce`。当我们尝试编译这段代码时，我们会得到这个报错：`value` 无法从闭包中迁出，因为该闭包必须实现 `FnMut`：
 
 ```console
-$ cargo run                                                                                       lennyp@vm-manjaro
-   Compiling closure-example v0.1.0 (/home/lennyp/rust-lang/closure-example)
+$ cargo run
+   Compiling rectangles v0.1.0 (/home/hector/rust-lang-zh_CN/projects/rectangles)
 error[E0507]: cannot move out of `value`, a captured variable in an `FnMut` closure
   --> src/main.rs:18:30
    |
-15 |     let value = String::from("按照被调用到的 key");
-   |         ----- captured outer variable
+15 |     let value = String::from("闭包被调用");
+   |         -----   -------------------------- move occurs because `value` has type `String`, which does not implement the `Copy` trait
+   |         |
+   |         captured outer variable
 16 |
 17 |     list.sort_by_key(|r| {
    |                      --- captured by this `FnMut` closure
 18 |         sort_operations.push(value);
-   |                              ^^^^^ move occurs because `value` has type `String`, which does not implement the `Copy` trait
+   |                              ^^^^^ `value` is moved here
+   |
+help: `Fn` and `FnMut` closures require captured values to be able to be consumed multiple times, but `FnOnce` closures may consume them only once
+  --> /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/alloc/src/slice.rs:249:12
+help: consider cloning the value if the performance cost is acceptable
+   |
+18 |         sort_operations.push(value.clone());
+   |                                   ++++++++
 
 For more information about this error, try `rustc --explain E0507`.
-error: could not compile `closure-example` due to previous error
+error: could not compile `rectangles` (bin "rectangles") due to 1 previous error
 ```
 
-报错指向的是闭包主体中，把 `value` 迁出环境的那行。要修复这个问题，咱们需要修改闭包的主体，令其不将值迁出环境。要计算 `sort_by_key` 被调用的次数，在环境中保留一个计数器并在闭包主体中递增其值，是一种更直接的计算方法。下面清单 13-9 中的闭包，由于只捕获了到 `num_sort_operations` 计数器的可变引用，进而就可以被多次调用，其就会工作：
+报错指向闭包主体中从环境中迁出 `value` 的行。要解决这个问题，我们需要修改闭包的主体，以便他不会从环境中迁出值。在环境中保留一个计数器，并在闭包主体中递增其值，是计算闭包被调用次数的更直接的方法。下面清单 13-9 中的闭包之所以能与 `sort_by_key` 一起工作，是因为他仅捕获到 `num_sort_operations` 计数器的可变引用，因此可被多次调用。
 
+<a name="listing_13-9"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -487,40 +480,43 @@ fn main() {
         num_sort_operations += 1;
         r.width
     });
-    println! ("{:#?}\n 在 {num_sort_operations} 次操作下被排序好的", list);
+    println! ("{list:#?}，在 {num_sort_operations} 次操作后被排序好");
 }
 ```
 
-*清单 13-9：在 `sort_by_key` 下使用 `FnMut` 闭包是允许的*
+**清单 13-9**：与 `sort_by_key` 一起使用 `FnMut` 闭包是允许的
 
-在定义或使用用到了闭包的函数或类型时，`Fn` 特质非常重要。在下一节中，我们将讨论迭代器。许多迭代器方法，都会取闭包的参数，因此在继续学习时，请牢记这些闭包的细节！
+在定义或使用用到了闭包的函数或类型时，`Fn` 特质非常重要。在下一小节中，我们将讨论迭代器。许多迭代器方法都会取闭包参数，因此在我们继续学习时请牢记这些闭包细节！
 
-> 注：将清单 13-8 的代码，只加入一个地址符号 `&`，而修改成下面这样，也是工作的。这就要想想是为什么了：）
-
-```rust
-#[derive(Debug)]
-struct Rectangle {
-    width: u32,
-    height: u32,
-}
-
-fn main() {
-    let mut list = [
-        Rectangle { width: 10, height: 1 },
-        Rectangle { width: 3, height: 5 },
-        Rectangle { width: 7, height: 12 },
-    ];
-
-    let mut sort_operations = vec! [];
-    let value = String::from("按照被调用到的 key");
-
-    list.sort_by_key(|r| {
-        sort_operations.push(&value);
-        r.width
-    });
-    println! ("{:#?}\n{:#?}", list, sort_operations);
-}
-```
+> 译注：将 [清单 13-8](#listing_13-8) 中的代码，只加入一个地址符号 `&`，而修改成下面这样，也是工作的。这就要想想是为什么了：）
+>
+> ```rust
+> #[derive(Debug)]
+> struct Rectangle {
+>     width: u32,
+>     height: u32,
+> }
+>
+> fn main() {
+>     let mut list = [
+>         Rectangle { width: 10, height: 1 },
+>         Rectangle { width: 3, height: 5 },
+>         Rectangle { width: 7, height: 12 },
+>     ];
+>
+>     let mut sort_operations = vec! [];
+>     let value = String::from("闭包被调用");
+>
+>     list.sort_by_key(|r| {
+>         sort_operations.push(&value);
+>         r.width
+>     });
+>    println!("
+>        {list:#?}
+>        {sort_operations:#?}
+>        ");
+> }
+> ```
 
 
 （End）
