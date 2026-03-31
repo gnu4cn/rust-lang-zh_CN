@@ -95,7 +95,7 @@
     - [循环与迭代器下的性能问题](functional_features/performance.md)
 
 - [Cargo 的其他方面及 Crates.io](Ch14_More_about_Cargo_and_Crates-io.md)
-    - [使用发布配置文件自定义构建](crates-io/release_profiles.md)
+    - [在发布配置文件下定制构建](crates-io/release_profiles.md)
     - [发布代码箱到 Crates.io](crates-io/publishing.md)
     - [Cargo 工作区](crates-io/workspace.md)
     - [使用 `cargo install` 安装 Crates.io 上的二进制程序](crates-io/cargo_install.md)

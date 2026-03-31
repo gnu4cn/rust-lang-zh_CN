@@ -1,24 +1,26 @@
-# 使用不同发布配置文件，对构建进行定制
+# 在发布配置文件下定制构建
 
-**Customizing Builds with Release Profiles**
+在 Rust 中，所谓 *发布配置文件，release profiles*，是一些预定义的、定制的配置文件，带有允许程序员对编译代码的各种有着更多控制的不同选项。每个配置文件都是相对于其他配置文件独立配置的。
 
+Cargo 有两个主要配置文件：
 
-在 Rust 中，所谓 *发布配置文件，release profiles*，是带有实现程序员对编译代码有着更多掌控的，一些预定义及可定制的配置文件。相对其他配置文件，每个配置文件都是被独立配置的。
+- 当咱们运行 `cargo build` 时 Cargo 使用的 `dev` 配置文件、
+- 以及当咱们运行 `cargo build --release` 时 Cargo 用使用的 `release` 配置文件。
 
-Cargo 有两个主要发布配置文件：运行 `cargo build` 时 Cargo 用到的 `dev` 配置文件，与运行 `cargo build --release` 时 Cargo 用到的 `release` 配置文件。`dev` 配置文件被定义为有着用于开发的一些良好默认配置，而 `release` 配置文件有着用于发布构建的良好默认配置。
+`dev` 配置文件定义了用于开发的一些良好默认配置，`release` 配置文件则有着一些用于发布构建的良好默认配置。
 
-从咱们构建的输出中，这些配置文件名字或许不陌生：
+这两个配置文件名字，可能在咱们构建的输出中很熟悉：
 
 ```console
 $ cargo build
-    Finished dev [unoptimized + debuginfo] target(s) in 0.0s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.00s
 $ cargo build --release
-    Finished release [optimized] target(s) in 0.0s
+    Finished `release` profile [optimized] target(s) in 0.32s
 ```
 
-其中 `dev` 及 `release`，即由编译器用到的不同配置文件。
+其中的 `dev` 及 `release` 便是编译器用到的两种不同配置文件。
 
-Cargo 有着在咱们在项目的 `Cargo.toml` 文件中，未曾显式添加任何 `[profile.*]` 小节时，所适用的各个配置文件的默认设置。通过添加咱们打算定制的任何配置文件的 `[profile.*]` 小节，咱们就会覆盖掉默认设置的任何子集。比如，下面是 `dev` 与 `release` 配置文件中 `opt-level` 设置的默认值：
+Cargo 对每种配置文件都有一些默认配置，应用于咱们未曾在项目的 `Cargo.toml` 文件中显式地添加任何 `[profile.*]` 小节时。通过针对咱们打算定制的配置文件的 `[profile.*]` 小节，咱们可以覆盖默认设置中的任何子集。例如，下面是 `dev` 与 `release` 配置文件的 `opt-level` 设置的默认值：
 
 文件名：`Cargo.toml`
 
@@ -30,9 +32,9 @@ opt-level = 0
 opt-level = 3
 ```
 
-这个 `opt-level` 设置项，控制了 Rust 将应用到咱们代码的优化数目，有着范围 `0` 到 `3` 的取值范围。应用更多优化会延长编译时间，因此若咱们是在开发过程中而频繁编译代码，那么即使产生出的代码运行较慢，咱们也会想要更少的优化来更快地编译。因此默认的 `opt-level` 就是 `0`。而在咱们已准备好发布咱们的代码时，那么就最好用更多时间来编译。咱们将只以发布模式编译一次，但会运行编译好的程序许多次，因此发布模式就以较长的编译时间，换取到运行较快的代码。那就是 `release` 配置文件的 `opt-level` 默认为 `3` 的原因。
+`opt-level` 设置控制 Rust 将应用到咱们代码的优化数量，范围为 0 到 3。应用更多优化会延长编译时间，因此当咱们处于开发阶段而频繁编译代码时，那么即使生成的代码运行较慢，咱们也会希望更少的优化来编译更快。因此默认的 `opt-level` 是 `0`。当咱们准备好发布代码时，那么最好花更多时间编译。咱们将只以发布模式编译一次，但会运行编译好的程序许多次，因此发布模式以更长的编译时间换取运行更快的代码。这就是为什么 `release` 配置文件的 `opt-level` 默认为 `3`。
 
-通过在 `Cargo.toml` 中，给某个默认值添加不同的值，就可以覆盖掉这个默认值。比如，在打算于开发配置文件中使用优化级别 `1` 时，就可以把下面这两行，添加到项目的 `Cargo.toml`：
+咱们可以通过在 `Cargo.toml` 中为默认设置添加不同值来覆盖默认设置。例如，当我们打算在开发配置文件中使用优化级别 1 时，我们可以添加下面这两行到项目的 `Cargo.toml` 文件：
 
 文件名：`Cargo.toml`
 
@@ -41,9 +43,9 @@ opt-level = 3
 opt-level = 1
 ```
 
-此代码会覆盖默认设置 `0`。现在当咱们运行 `cargo build` 时，Cargo 将使用 `dev` 配置文件的默认设置，加上咱们对 `opt-level` 的定制。由于咱们把 `opt-level` 设置为了 `1`，Cargo 将应用相比于默认设置更多，但不如发布构建那样多的优化。
+这段代码会覆盖默认设置 `0`。现在，当我们运行 `cargo build` 时，Cargo 将使用 `dev` 配置文件的默认设置以及我们对 `opt-level` 的定制设置。由于我们设置 `opt-level` 为 `1`，Cargo 将应用相比默认设置更多的优化，但不如发布构建下的那么多。
 
-对于各个配置文件的完整配置项清单与默认设置，请参阅 [Cargo 文档](https://doc.rust-lang.org/cargo/reference/profiles.html)。
+针对每种配置文件的完整配置选项和默认设置清单，请参阅 [Cargo 文档](https://doc.rust-lang.org/cargo/reference/profiles.html)。
 
 
 （End）
