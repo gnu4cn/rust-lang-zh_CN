@@ -1,25 +1,20 @@
-# 改进咱们的 I/O 项目
+# 改进我们的 I/O 项目
 
-**Improving Our I/O Project**
-
-
-有了迭代器方面的新知识，咱们便可通过使用迭代器，改进第 12 章中的 I/O 项目，令到代码各处更清楚与简练。咱们来看看，迭代器可怎样改进其中 `Config::build` 与 `search` 函数的实现。
+借助这些关于迭代器的新知识，我们可以通过使用迭代器改进第 12 章中的 I/O 项目，使代码中的各处更清楚与更简洁。我们来看看迭代器可以怎样改进 `Config::build` 函数和 `search` 函数的实现。
 
 
-## 使用 `Iterator` 消除 `clone`
+## 使用迭代器消除 `clone`
 
-**Removing a `clone` Using an `Iterator`**
+在 [清单 12-6](../io_project/refactoring.md#listing_12-6) 中，我们添加了取一个 `String` 值的切片，进而通过索引该切片并克隆值创建了个 `Config` 结构体的实例，从而允许 `Config` 结构体拥有这些值。在下面清单 13-17 中，我们重现了 [清单 12-23](../io_project/env_variables.md#listing_12-23) 中 `Config::build` 函数的实现：
 
-
-在清单 12-6 中，我们添加了一些代码，这些代码获取了一个 `String` 值的切片，并通过索引到该切片并克隆这些值，来创建一个 `Config` 体的实例，使 `Config` 结构体拥有这些值。下面清单 13-17 中，咱们重现了清单 12-23 中 `Config::build` 函数的实现：
-
-文件名：`src/lib.rs`
+<a name="listing_13-17"></a>
+文件名：`src/main.rs`
 
 ```rust
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
+    fn build(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
-            return Err("参数数量不足");
+            return Err("参数不足");
         }
 
         let query = args[1].clone();
@@ -36,26 +31,22 @@ impl Config {
 }
 ```
 
-*清单 13-17：清单 12-23 中 `Config::build` 函数的重现*
+**清单 13-17**：重现清单 12-23 中的 `Config::build` 函数
 
-当时，我们说不用担心低效的克隆调用，因为将来咱们会移除它们。好吧，现在是时候了！
+当时，我们说过不要担心低效的 `clone` 调用，因为将在今后移除他们。嗯，就是现在了！
 
-咱们这里之所以需要 `clone` 方法，是由于在参数 `args` 中，咱们有一个 `String` 元素构成的切片，而 `build` 函数并不拥有 `args`。为返回 `Config` 实例的所有权，咱们不得不克隆 `Config` 结构体的 `query` 与 `filename` 字段，进而 `Config` 实例便可拥有他的值。
+我们在这里需要 `clone`，因为我们在参数 `args` 中有个有着 `String` 元素的切片，而 `build` 函数并不拥有 `args`。为了返回 `Config` 实例的所有权，我们必须克隆 `Config` 结构体 `query` 与 `file_path` 字段中的值，以便 `Config` 实例可以拥有他的值。
 
-利用我们对迭代器的新知识，我们可以改变构建函数，使其拥有一个迭代器作为其参数，而不是借用一个切片。我们将使用迭代器的功能，而不是检查切片的长度并对特定位置进行索引的代码。这将明确 `Config::build` 函数正在做什么，因为迭代器将访问这些值。
+凭借我们对迭代器的新知识，我们可以修改 `build` 函数为取得作为其参数的迭代器的所有权，而不是借用切片。我们将使用迭代器功能，而不是检查切片长度，然后索引到特定位置的代码。这将明确 `Config::build` 函数正在执行的操作，因为迭代器将访问这些值。
 
-一旦 `Config::build` 取得迭代器的所有权，而不再使用借用的索引操作，咱们就可以将 `String` 值从迭代器迁移到 `Config` 中，而不是调用 `clone` 方法并构造新的内存分配。
+一旦 `Config::build` 取得迭代器的所有权，而停止使用借用的索引操作，我们就可以迁移迭代器中的 `String` 值到 `Config` 中，而不是调用 `clone` 并构造新的内存分配。
 
 
 ### 直接使用返回的迭代器
 
-**Using the Returned Iterator Directly**
-
-
-请打开咱们 I/O 项目的 `src/main.rs` 文件，其看起来应是这样的：
+请打开咱们 I/O 项目的 `src/main.rs` 文件，其看起来应是下面这样：
 
 文件名：`src/main.rs`
-
 
 ```rust
 fn main() {
@@ -70,8 +61,9 @@ fn main() {
 }
 ```
 
-咱们将首先把咱们在清单 12-24 中，有着的 `main` 函数开头，修改为下面清单 13-18 中，使用迭代器的代码。在咱们一并更新 `Config::build` 前，这不会编译。
+我们将首先修改 [清单 12-24](../io_project/std_err.md#listing_12-24) 中的 `main` 函数开头，为下面清单 13-18 中的代码，这次使用迭代器。在我们更新 `Config::build` 前，这不会编译。
 
+<a name="listing_13-18"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -85,13 +77,14 @@ fn main() {
 }
 ```
 
-*清单 13-18：把 `env::args` 的返回值传递给 `Config::build`*
+**清单 13-18**：传递 `env::args` 的返回值给 `Config::build`
 
-`env::args` 函数会返回一个迭代器！相比于把迭代器值收集到矢量值，并随后把一个切片传递给 `Config::build`，现在咱们是在直接把由 `env::args` 返回的迭代器所有权，传递给 `Config::build`。
+`env::args` 函数返回的是个迭代器！逾期收集迭代器的值到一个矢量值，然后传递一个切片到 `Config::build`，现在我们传递自 `env::args` 返回的迭代器的所有权给 `Config::build`。
 
-接下来，咱们需要更新 `Config::build` 的定义。在咱们 I/O 项目的 `src/data_structures.rs` 文件中，咱们就要像下面清单 13-19 中那样，修改 `Config::build` 的函数签名。由于咱们需要更新该函数的主体体，因此这仍不会编译。
+接下来，我们需要更新 `Config::build` 的定义。我们来修改 `Config::build` 的定义为清单 13-19 那样。这仍将不编译，因为我们需要更新函数主体。
 
-文件名：`src/lib.rs`
+<a name="listing_13-19"></a>
+文件名：`src/main.rs`
 
 ```rust
 impl Config {
@@ -101,23 +94,21 @@ impl Config {
         // --跳过代码--
 ```
 
-*清单 13-19：将 `Config::build` 的函数签名，更新为期待得到一个迭代器*
+**清单 13-19**：更新 `Config::build` 的函数签名为期望迭代器
 
-`env::args` 函数的标准库文档显示，其返回的迭代器类型为 `std::env::Args`，且那种类型实现了 `Iterator` 特质，并会返回 `String` 值。
+`env::args` 函数的标准库文档显示，他返回的迭代器类型为 `std::env::Args`，而这种类型实现了 `Iterator` 特质并会返回 `String` 值。
 
-咱们已更新了 `Config::build` 函数的签名，那么参数 `args` 就会有一个有着特质边界 `impl Iterator<Item = String>` 的泛型，而不再是 `&[String]` 类型。咱们曾在第 10 章 [作为参数的特质](Ch10_Generic_Types_Traits_and_Lifetimes.md#作为参数的特质) 小节中，讨论过的 `impl Trait` 语法用法，表明 `args` 可以是任何实现了 `Iterator` 类型，且返回 `String` 条目的类型。
+我们已更新 `Config::build` 函数的签名，从而参数 `args` 有个带有特质边界 `impl Iterator<Item = String>` 的泛型类型，而不是有个 `&[String]` 类型。我们在第 10 章的 [将特质用作参数](../generic_types_traits_and_lifetimes/traits.md#将特质用作参数) 小节中讨论过 `impl Trait` 语法的这种用法，表明 `args` 可以是任何实现 `Iterator` 类型并返回 `String` 项目的类型。
 
-由于咱们正取得 `args` 的所有权，且咱们将通过对其迭代而修改 `args`，咱们便可把 `mut` 关键字，添加到 `args` 参数的说明中，以将其构造为可变。
-
-
-### 使用 `Iterator` 特质的方法而非索引
-
-**Using `Iterator` Trait Methods Instead of Indexing**
+由于我们正在取得 `args` 的所有权，并且将通过遍历他来修改 `args`，因此我们可以添加 `mut` 关键字到 `args` 参数的说明中以使其可变。
 
 
-接下来，咱们将修正 `Config::build` 函数的主体。由于 `args` 实现了 `Iterator` 特质，咱们便清楚咱们可以调用他上面 `next` 方法！下面清单 13-20 将清单 12-23 中的代码，更新为了使用 `next` 方法：
+### 使用 `Iterator` 特质方法
 
-文件名：`src/data_structures.rs`
+接下来，我们将修正 `Config::build` 的主体。由于 `args` 实现了 `Iterator` 特质，我们知道我们可以对其调用 `next` 方法！下面清单 13-20 更新 [清单 12-23](../io_project/env_variables.md#listing_12-23) 中的代码为使用 `next` 方法：
+
+<a name="listing_13-20"></a>
+文件名：`src/main.rs`
 
 ```rust
 impl Config {
@@ -128,12 +119,12 @@ impl Config {
 
         let query = match args.next() {
             Some(arg) => arg,
-            None => return Err("未曾获取到查询字串"),
+            None => return Err("未获取到查询字串"),
         };
 
         let file_path = match args.next() {
             Some(arg) => arg,
-            None => return Err("未曾获取到文件路径"),
+            None => return Err("未获取到文件路径"),
         };
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();
@@ -147,9 +138,9 @@ impl Config {
 }
 ```
 
-*清单 13-20：将 `Config::build` 函数的主体，修改为使用迭代器方法*
+**清单 13-20**：修改 `Config::build` 的主体为使用迭代器方法
 
-请记住 `env::args` 返回值中的第一个值，是程序的名字。咱们是要忽略那个值，而到下一值处，所以咱们首先调用 `next`，并对返回值不做任何处理。其次，咱们调用 `next` 来获取到咱们想要放入 `Config` 的 `query` 字段的值。若 `next` 返回一个 `Some`，咱们就使用 `match` 来提取该值。若其返回了 `None`，就意味着没有给出足够的参数，而咱们就及早地返回一个 `Err` 值。对于 `filename` 值，咱们进行了同样的处理。
+请记住，`env::args` 返回值中的第一个值是程序的名字。我们希望忽略该值并获取下一个值，所以首先我们调用 `next` 并对返回值不执行任何操作。然后，我们调用 `next` 来获取我们打算放入 `Config` 的 `query` 字段中的值。当 `next` 返回 `Some` 时，我们使用 `match` 来提取该值。当其返回 `None` 时，就意味着没有给出足够参数，我们提前以 `Err` 值返回。我们对 `filename` 值执行相同的操作。
 
 
 ## 使用迭代器适配器，令到代码更清晰
