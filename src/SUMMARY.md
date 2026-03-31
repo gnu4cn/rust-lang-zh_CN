@@ -92,7 +92,7 @@
     - [闭包](functional_features/closures.md)
     - [以迭代器处理一序列项目](functional_features/iterators.md)
     - [改进咱们的 I/O 项目](functional_features/improving_io_project.md)
-    - [性能比较：循环与迭代器](functional_features/performance.md)
+    - [循环与迭代器下的性能问题](functional_features/performance.md)
 
 - [Cargo 的其他方面及 Crates.io](Ch14_More_about_Cargo_and_Crates-io.md)
     - [使用发布配置文件自定义构建](crates-io/release_profiles.md)
