@@ -140,22 +140,18 @@ impl Config {
 
 **清单 13-20**：修改 `Config::build` 的主体为使用迭代器方法
 
-请记住，`env::args` 返回值中的第一个值是程序的名字。我们希望忽略该值并获取下一个值，所以首先我们调用 `next` 并对返回值不执行任何操作。然后，我们调用 `next` 来获取我们打算放入 `Config` 的 `query` 字段中的值。当 `next` 返回 `Some` 时，我们使用 `match` 来提取该值。当其返回 `None` 时，就意味着没有给出足够参数，我们提前以 `Err` 值返回。我们对 `filename` 值执行相同的操作。
+请记住，`env::args` 返回值中的第一个值是程序的名字。我们希望忽略该值并获取下一个值，所以首先我们调用 `next` 并对返回值不执行任何操作。然后，我们调用 `next` 来获取我们打算放入 `Config` 的 `query` 字段中的值。当 `next` 返回 `Some` 时，我们使用 `match` 来提取该值。当其返回 `None` 时，就意味着没有给出足够参数，我们提前以 `Err` 值返回。我们对 `file_path` 的值执行相同的操作。
 
 
-## 使用迭代器适配器，令到代码更清晰
+## 使用迭代器适配器清理代码
 
-**Making Code Clearer with Iterator Adaptors**
+我们还可以在我们 I/O 项目中的 `search` 函数中利用迭代器，其重现于下面清单 13-21 中，就像其在 [清单 12-19](../io_project/test_driven_dev.md#listing_12-19) 中那样：
 
-咱们也可以在 I/O 项目的 `search` 函数中利用迭代器，取被转载于下面清单 13-21 中，如同其曾在清单 12-19 中那样：
-
+<a name="listing_13-21"></a>
 文件名：`src/lib.rs`
 
 ```rust
-pub fn search<'a>(
-    query: &str,
-    contents: &'a str
-) -> Vec<&'a str> {
+pub fn search<'a> (query: &str, contents: &'a str) -> Vec<&'a str> {
     let mut results = Vec::new();
 
     for line in contents.lines() {
@@ -168,52 +164,48 @@ pub fn search<'a>(
 }
 ```
 
-*清单 13-21：清单 12-19 中 `search` 函数的实现*
+**清单 13-21**：清单 12-19 中 `search` 函数的实现
 
-咱们可使用迭代器适配器的方法，以更简练方式编写出此代码。这样做还可以让我们避免有一个可变的中间 `results` 矢量值。函数式编程风格，the functional programming style，倾向于最小化可变状态的数量以使代码更清晰。移除可变状态，就可能让令到搜索并行进行的今后功能增强可行，因为咱们将不必管理到 `results` 矢量的并发访问。下面清单 13-22 给出了这一修改：
+我们可以使用迭代器适配器方法，以更简洁的方式编写这段代码。这样做还让我们可以避免有个可变的中间 `results` 矢量值。函数式编程风格倾向于尽量减少可变状态，以使代码更加清晰。移除这一可变状态可能带来一项今后的功能增强，使检索并行地进行，因为我们将不必管理对 `results` 这一矢量值的并发访问。下面清单 13-22 展示了这一修改：
 
+<a name="listing_13-22"></a>
 文件名：`src/lib.rs`
 
 ```rust
-pub fn search<'a>(
-    query: &str,
-    contents: &'a str
-) -> Vec<&'a str> {
+pub fn search<'a> (query: &str, contents: &'a str) -> Vec<&'a str> {
     contents
         .lines()
         .filter(|line| line.contains(query))
-        .collect()
+        .collect
 }
 ```
 
-*清单 13-22：在 `search` 函数实现中使用迭代器适配器方法*
+**清单 13-22**：在 `search` 函数的实现中使用迭代器适配器方法
 
-回顾一下，`search` 函数的目的是要返回 `contents` 中包含 `query` 的所有行。与清单 13-16 中的 `filter` 示例类似，此代码使用 `filter` 适配器来只保留 `line.contains(query)` 返回 `true` 的行。咱们随后使用 `collect()`，把匹配行收集到另一矢量值中。这就简单多了！请随意做出同样的改变，在 `search_case_insensitive` 函数中使用迭代器方法。
+回顾一下，`search` 函数的目的是，返回 `contents` 中包含 `query` 的所有行。与 [清单 13-16](./iterators.md#listing_13-16) 中的 `filter` 示例类似，这段代码使用 `filter` 适配器来仅保留 `line.contains(query)` 返回 `true` 的行。然后我们以 `collect` 收集匹配的行到另一个矢量值中。这样简单多了！咱们也可以随意在 `search_case_insensitive` 函数中，进行同样的修改来使用迭代器的方法。
 
-> 函数 `search_case_insenstitive` 修改后如下所示：
+> **译注**：函数 `search_case_insenstitive` 修改后如下所示：
+>
+> ```rust
+> pub fn search_insensitive<'a>(
+>     query: &str,
+>     contents: &'a str
+> ) -> Vec<&'a str> {
+>     let query = query.to_lowercase();
+>
+>     contents
+>         .lines()
+>         .filter(|line| line.to_lowercase().contains(&query))
+>         .collect()
+> }
+> ```
 
 
-```rust
-pub fn search_insensitive<'a>(
-    query: &str,
-    contents: &'a str
-) -> Vec<&'a str> {
-    let query = query.to_lowercase();
+## 在循环或迭代器之间做出选择
 
-    contents
-        .lines()
-        .filter(|line| line.to_lowercase().contains(&query))
-        .collect()
-}
-```
+接下来的合理问题是，在咱们自己的代码中应该选择哪种风格，以及为什么：[清单 13-21](#listing_13-21) 中的最初实现，还是 [清单 13-22](#listing_13-22) 中使用迭代器的版本（假设我们在返回结果之前先收集所有结果，而不是返回迭代器）。大多数 Rust 程序员更倾向于使用迭代器风格。一开始掌握窍门有点困难，而一旦咱们熟悉了各种迭代器适配器及其作用，迭代器就会更容易理解。代码不再纠缠于各种循环细节和建立新的矢量值，而是专注于循环的高级目标。这种风格抽象掉部分常规代码，从而更容易看到这些代码特有的概念，比如迭代器中每个元素都必须通过的过滤条件。
 
-### 在循环或迭代器之间做出选择
-
-**Choosing Between Loops or Iterators**
-
-下一个合乎逻辑的问题是，咱们应在自己的代码中选择哪种风格与为什么：清单 13-21 中原本的实现，或清单 13-22 中用到迭代器的版本。大多数 Rust 程序员喜欢使用迭代器风格。一开始他有点难掌握，但一旦咱们对各种迭代器适配器和他们的作用有了感觉，迭代器就会更容易理解。该代码没有拨弄循环的各个部分，与构建出新的矢量值，而是专注于循环的高级目标。这就把一些普通的代码抽象化了，所以更容易看到这段代码特有的概念，比如迭代器中每个元素必须通过的过滤条件。
-
-但是，这两种实现方式真的等同吗？直观的假设可能是，更低级别的循环会更快。接下来咱们就会谈及性能问题。
+但这两种实现方式真的等价吗？只觉可能是较低级别的循环会更快。咱们来谈谈性能问题。
 
 
 （End）
