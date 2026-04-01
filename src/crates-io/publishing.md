@@ -209,7 +209,9 @@ fn main() {
 
 **清单 14-4**：使用 `art` 代码箱的项目的代码箱，`art` 代码箱的内部组织结构已导出
 
-> **译注**：使用本地未发布代码箱的方法，是在 `Cargo.toml` 的 `[dependencies]` 小节中，列出要使用的本地未发布代码箱。参见 [How to use a local unpublished crate?](https://stackoverflow.com/a/33025972)
+> **译注**：使用本地未发布代码箱的方法，是在 `Cargo.toml` 的 `[dependencies]` 小节中，列出要使用的本地未发布代码箱。
+>
+> - 参考：[How to use a local unpublished crate?](https://stackoverflow.com/a/33025972)
 >
 > 文件：`Cargo.toml`
 >
