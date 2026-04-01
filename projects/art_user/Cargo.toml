@@ -1,6 +1,7 @@
 [package]
-name = "art"
+name = "art_user"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+art = { path = "../art" }
