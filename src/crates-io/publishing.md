@@ -1,25 +1,27 @@
 # 发布代码箱到 Crates.io
 
-咱们已将 [crates.io](https://crates.io) 上的包用作过咱们项目的依赖项，但咱们也可以通过发布咱们自己的包，与其他人分享自己的代码。位于 [crates.io](https://crates.io) 网站的代码箱登记簿，会分发咱们包的源码，因此他主要托管开源代码。
+我们已将 [crates.io](https://crates.io) 上的包用作过项目的依赖项，但我们也可以通过发布咱们自己的包，与其他人分享自己的代码。位于 [crates.io](https://crates.io) 网站的代码箱登记簿，会分发咱们包的源码，因此他主要托管开源代码。
 
-Rust 与 Cargo 都有着一些让咱们发布的包，更容易被人们找到并使用的特性。接下来我们将讨论其中一些特性，然后讲解怎样发布包。
+Rust 与 Cargo 都有着一些让我们发布的包，更容易被人们找到并使用的特性。接下来我们将讨论其中一些特性，然后讲解怎样发布包。
 
 
 ## 制作有用的文档注释
 
-准确地为咱们的包编写文档，将帮助到其他使用者获悉怎样及何时来使用他们，因此投入时间来编写文档是值得的。第 3 章中，咱们曾讨论过如何使用双斜杠 `//`来注释 Rust 代码。Rust 还有用于文档的一种将生成 HTML 文档的特殊注释，而被方便地称作 *文档注释，documentation comment*。这些 HTML 会显示出公开 API 项目的文档注释内容，这些内容是为对了解怎样 *使用，use* 咱们的代码箱，而非咱们代码箱如何实现感兴趣的程序员所准备的。
+准确地为咱们的包编写文档，将帮助到其他用户了解怎样及何时来使用他们，因此投入时间编写文档是非常值得的。在第 3 章中，我们讨论过怎样使用双斜杠 `//` 来注释 Rust 代码。Rust 还有针对文档的一种特别注释，通常称为 *文档注释，documentation comment*，将生成 HTML 文档。生成的 HTML 会显示针对公开 API 项目的文档注释内容，是为有兴趣了解怎样 *使用* 咱们的代码箱，而不是对其 *实现* 感兴趣的程序员准确的。
 
-文档注释用的是三斜杠 `///` 而非双斜杠，并支持用于格式化文本的 Markdown 写法。要把文档注释恰好放在他们要注释的项目前，而紧接着注释项目。下面清单 14-1 给出了名为 `cargo_features_demo` 代码箱中，`add_one` 函数的文档注释。
+文档注释使用三斜杠 `///` 而非双斜杠，并支持 Markdown 表示法来格式化文本。要放置文档注释于他们说明的项目正上方。下面清单 14-1 展示了名为 `my_crate` 的代码箱中 `add_one` 函数的文档注释。
 
+<a name="listing_14-1"></a>
 文件名：`src/lib.rs`
 
 ~~~rust
-/// 将一加到所给数字。
+/// 加一到给定的数字。
+///
 /// # Examples
 ///
 /// ```
 /// let arg = 5;
-/// let answer = cargo_features_demo::add_one(arg);
+/// let answer = my_crate::add_one(arg);
 ///
 /// assert_eq! (6, answer);
 /// ```
@@ -28,106 +30,97 @@ pub fn add_one(x: i32) -> i32 {
 }
 ~~~
 
-*清单 14-1：函数的文档注释*
+**清单 14-1**：函数的文档注释
 
-这里，咱们给到了 `add_one` 函数完成什么的描述，以标题 `Examples` 开始了一个小节，并随后提供了演示怎样使用 `add_one` 函数的代码。咱们可通过运行 `cargo doc` 命令，生成文档注释的 HTML 文档。这个命令会运行与 Rust 一起分发的 `rustdoc` 工具，并将生成的 HTML 文档放在 `target/doc` 目录中。
+在这里，我们描述了 `add_one` 函数执行的操作，以标题 `Examples` 开始了一个小节，然后提供了演示怎样使用 `add_one` 函数的代码。我们可以通过运行 `cargo doc` 从这一文档注释生成 HTML 文档。这条命令运行随 Rust 一起分发的 `rustdoc` 工具，并放置生成的 HTML 文档于 `target/doc` 目录中。
 
-处于便利目的，运行 `cargo doc --open` 将构建出当前代码箱文档（以及咱们代码箱全部依赖的文档）的 HTML，并随后在 web 浏览器中打开得到的结果。导航到那个 `add_one` 函数，咱们将看到文档注释中的文本如何渲染出来，如下图片 14-01 中所示：
+出于便利目的，运行 `cargo doc --open` 将针对咱们的当前代码箱的文档（以及所有咱们的代码箱的依赖项的文档）构建 HTML，并在 web 浏览器中打开结果。导航到 `add_one` 函数，咱们将看到文档注释中的文本是如何渲染的，如下图 14-01 中所示：
 
+<a name="f_14-1">
 ![`add_one` 函数的 HTML 文档](../images/14-01.png)
 
-*图 14-01：`add_one` 函数的 HTML 文档*
+**图 14-1**：`add_one` 函数的 HTML 文档
 
 
-### 经常用到的小节
+### 常用小节
 
-**Commonly Used Sections**
+我们在清单 14-1 中使用了 `# Examples` 这个 Markdown 标题，以标题 “Examples” 创建了 HTML 中的一个小节。以下是代码箱作者在他们的文档中常用的一些别的小节：
 
+- `# Panics`：这些属于被文档注释的函数可能终止运行的情形。不希望他们的程序终止运行的调用者，应确保在这些情形下不要调用该函数；
+- `# Errors`：当函数返回一个 `Result` 时，描述可能发生的错误类别以及可能导致返回这些错误的条件，会对调用者很有帮助，以便他们可以编写以不同方式处理不同类别错误的代码;
+- `# Safety`：当函数的调用属于 `unsafe` （我们会在第 20 章讨论不安全）时，就应有一个小节解释为何该函数不安全，并涵盖该函数期望调用者遵守的不变量。
 
-咱们曾使用清单 14-1 中的 `# Examples`  Markdown 标题，来创建出 HTML 中带有标题 “Examples” 的小节。下面是代码箱作者们，经常在他们文档中用到的一些其他小节：
-
-- **Panics**：被文档注释的函数可能终止运行的情形。那些不愿其程序终止运行的调用者，就应确保在这些情形下他们不会调用该函数；
-- **Errors**：若函数返回了 `Result`，那么描述出可能发生的各种错误，及何种条件下会造成那些错误的返回，就能有效帮助到调用者，从而他们可以编写出以不同方式，处理不同类别错误的代码;
-- **Safety**：若函数调用起来是 `unsafe` 的（在第 19 章咱们就会讨论到不安全），那么就应有一个解释为何该函数不安全，并说明该函数期望调用者要遵守哪些不变因素的小节，if the funciton is `unsafe` to call(we discuss unsafety in Chapter 19), there should be a section explaining why the function is unsafe and covering the invariants that the function expects callers to uphold。
-
-
-多数的文档注释并不需要全部这些小节，但这仍不失为一个提醒咱们，关于咱们代码使用者将有兴趣了解的各方面的一个良好检查单。
+大多数文档注释都不需要所有这些小节，但这是个很好的检查清单，可以提醒咱们代码使用者有兴趣了解的各方面。
 
 
 ### 作为测试的文档注释
 
-在文档注释中添加一些示例代码块，可以帮助演示怎样使用咱们的库，且这样做有着附带的好处，an additional bonus：运行 `cargo test` 将把文档中示例代码作为测试运行！带有示例的文档属实很好。而在文档编写好后，由于代码已被修改而造成示例不工作，也是极为糟糕的。当咱们以清单 14-1 中 `add_one` 函数的文档，运行 `cargo test`，就将在测试结果中看到这样一个小节：
+在文档注释中添加示例代码块，可以帮助演示怎样使用咱们的库，并且还有个额外的好处：运行 `cargo test` 将作为测试运行文档中的代码示例！没有什么比带有示例的文档更好的了。但最糟糕的也莫过于示例无法运行，只因文档编写后代码已被修改。当咱们对清单 14-1 中的 `add_one` 函数的文档运行 `cargo test` 时，我们将看到测试结果中下面这样的一个小节：
 
 ```console
-   Doc-tests cargo_features_demo
+   Doc-tests my_crate
 
 running 1 test
-test src/lib.rs - add_one (line 7) ... ok
+test src/lib.rs - add_one (line 5) ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```
 
-现在当咱们修改那个函数或者那个示例，从而让示例中的 `assert_eq!` 终止运行，并再次运行 `cargo tset` 时，咱们将看到文档测试，the doc tests，捕获到示例与代码不再相互同步！
+现在，当我们修改函数或者示例，从而让示例中的 `assert_eq!` 终止运行，并再次运行 `cargo tset` 时，我们将发现文档测试检测到示例和代码之间未相互保持一致！
 
-> 注：此状况下的输出为：
-
-```console
-   Doc-tests cargo_features_demo
-
-running 1 test
-test src/lib.rs - add_one (line 7) ... FAILED
-
-failures:
-
----- src/lib.rs - add_one (line 7) stdout ----
-Test executable failed (exit status: 101).
-
-stderr:
-thread 'main' panicked at 'assertion failed: `(left == right)`
-  left: `6`,
- right: `7`', src/lib.rs:7:1
-stack backtrace:
-   0:     0x5620cf499480 - std::backtrace_rs::backtrace::libunwind::trace::h32eb3e08e874dd27
-                               at /rustc/897e37553bba8b42751c67658967889d11ecd120/library/std/src/../../backtrace/src/back                             trace/libunwind.rs:93:5
-   // ...
-  36:                0x0 - <unknown>
-
-
-
-failures:
-    src/lib.rs - add_one (line 7)
-
-test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
-
-error: doctest failed, to rerun pass `--doc`
-```
-
-> 注：执行 `cargo test --doc`，将只运行文档注释中的示例代码。
+> **译注**：此时运行测试的输出为：
+>
+> ```console
+>    Doc-tests my_crate
+>
+> running 1 test
+> test src/lib.rs - add_one (line 5) ... FAILED
+>
+> failures:
+>
+> ---- src/lib.rs - add_one (line 5) stdout ----
+> Test executable failed (exit status: 101).
+>
+> stderr:
+>
+> thread 'main' (462614) panicked at /tmp/rustdoctestw0cEJx/doctest_bundle_2024.rs:9:1:
+> assertion `left == right` failed
+>   left: 6
+>  right: 7
+> note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+>
+>
+>
+> failures:
+>     src/lib.rs - add_one (line 5)
+>
+> test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+> ```
+>
+> 执行 `cargo test --doc`，将只运行文档注释中的示例代码。
 
 
-### 注释被包含所在项目
-
-**Commenting Contained Items，代码箱、模组整体的注释**
+### 包含的程序项目注释
 
 
-`//!` 样式的文档注释，会把文档添加到包含注释的条目，而非注释之后的条目。咱们通常在代码箱根文件里（依惯例即 `src/lib.rs`），或模组里，添加这些文档注释，来将代码箱或模组作为整体，而为其编写文档，the style of doc comment `//!` adds documentation to the item contains the comments rather than to the items following the comments. We typically use these doc comments inside the crate root file(`src/lib.rs` by convention) or inside a module to document the crate or the module as a whole。
+`//!` 样式的文档注释，会添加文档到 *包含* 注释的项目，而非注释 *之后* 的项目。我们通常在代码箱根文件（依惯例为 `src/lib.rs`）内，或模组内添加这些文档注释，来将代码箱或模组作为整体，而为其编写文档。
 
-比如，要添加描述包含了 `add_one` 函数的 `cargo_features_demo` 代码箱目的的文档，咱们就要添加以 `//!` 开始的文档注释，到 `src/lib.rs` 文件的开头，如下清单 14-2 中所示：
+例如，为了添加描述包含 `add_one` 函数的 `my_crate` 代码箱用途的文档，我们就要添加以 `//!` 开头的文档注释，至 `src/lib.rs` 文件的开头，如下清单 14-2 中所示：
 
+<a name="listing_14-2"></a>
 文件：`src/lib.rs`
 
 ```rust
-//! # Cargo 特性示例代码箱
+//! # 我的代码箱
 //!
-//! `cargo_features_demo` 是令到执行某些确切计算更便利
-//! 的一些工具的集合。
-//!
+//! `my_crate` 是个实用工具集，旨在让执行
+//! 某些计算更加便捷。
 
-/// 将一加到所给数字。
+/// 加一到给定的数字。
 // --跳过代码--
 ```
 
-*清单 14-2：作为一个整体的 `cargo_features_demo` 代码箱的文档*
+**清单 14-2**：`my_crate` 代码箱作为一个整体的文档
 
 请注意由于咱们是以 `//!` 而非 `///` 开始的这些注释，因此在以 `//!` 开始的最后一行后，并无任何代码的，咱们是在给包含此注释的程序项目，而非紧接着此注释的程序项目编写文档。在此示例中，那个程序项目就是 `src/lib.rs` 文件，为代码箱根。这些注释描述了整个代码箱。
 
