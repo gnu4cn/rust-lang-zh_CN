@@ -279,24 +279,40 @@ fn main() {
 
 ## 建立 Crates.io 帐号
 
-
-在咱们能发布代码箱之前，咱们需要在 [crates.io](https://crates.io) 上创建帐号，并得到 API 令牌，an API token。而要这样做，就要访问 [crates.io](https://crates.io) 处的主页，并通过 GitHub 帐号登录。（目前 GitHub 帐号是必须的，但该站点今后可能会支持其他创建帐号途径。）在登录后，咱们就要访问 [https://crates.io/me/](https://creates.io/me/) 处的帐号设置，而获取自己的 API 密钥，API key。然后使用咱们的 API 密钥，运行 `cargo login` 命令，如下：
+在发布任何代码箱之前，咱们需要在 [crates.io](https://crates.io) 上创建一个账户并获取 API 令牌。为此，请访问 [crates.io](https://crates.io) 的主页，并通过 GitHub 帐号登录。（目前需要 GitHub 账户，但该站点今后可能会支持其他创建帐号的方式。）登录后，请访问 [https://crates.io/me/](https://creates.io/me/) 处的帐号设置，并获取咱们的 API 密钥。然后，运行 `cargo login` 命令并在出现提示时粘贴咱们的密钥，如下所示：
 
 ```console
-$ cargo login abcdefghijklmnopqrstuvwxyz012345
+$ cargo login --registry crates-io
+please paste the token found on https://crates.io/me below
+abcdefghijklmnopqrstuvwxyz012345
+       Login token for `crates-io` saved
 ```
 
-此命令将告知 Cargo 咱们的 API 令牌，并在 `~/.cargo/credentials` 文件中本地存储起来。请注意此令牌是个 *秘密，secret*：不要与任何人分享。不论因何种缘故，与任何人分享了，咱们都应吊销他，并在 [crates.io](https://crates.io) 上生成新的令牌。
+这条命令将告知 Cargo 咱们的 API 令牌，并存储在本地的 `~/.cargo/credentials` 文件中。请注意，这个令牌属于机密信息：请不要与任何人分享。当咱们出于任何原因与任何人分享了时，咱们都应在 [crates.io](https://crates.io) 上吊销他并生成一个新的令牌。
+
+> **译注**：原文这里是仅运行 `cargo login`，但译者已将登记簿修改为国内镜像，因此要加上 `--registry crates-io` 命令行选项。
+>
+> ```console
+> $ cargo login
+> error: crates-io is replaced with non-remote-registry source registry `ustc`;
+> include `--registry crates-io` to use crates.io
+> ```
+>
+> 要从 crates.io 登出，运行 `cargo logout` 即可。
+>
+> ```console
+> $ cargo logout
+>       Logout token for `crates-io` has been removed from local storage
+> note: This does not revoke the token on the registry server.
+>     If you need to revoke the token, visit <https://crates.io/me> and follow the instructions there.
+> ```
 
 
 ## 添加元数据到新代码箱
 
-Adding Metadata to a New Crate**
+假设咱们有个打算发布的代码箱。在发布前，咱们将需要在该代码箱的 `Cargo.toml` 文件的 `[package]` 小节中添加一些元数据。
 
-
-假设咱们有了个打算发布的代码箱。在发布前，咱们将需要在代码箱的 `Cargo.toml` 文件的 `[package]` 小节中，添加一些元数据。
-
-咱们的代码箱将需要一个独特的名字。当咱们在本地于代码箱上工作时，咱们可以给代码箱取任意喜欢的名字。但是，[crates.io](https://crates.io) 上代码箱的名字，则是以先到先得的原则分配的，allocated on a first-come, first-served basis。一旦某个代码箱名字已被占用，其他人就不能发布有着那个名字的代码箱。在尝试发布某个代码箱之前，咱们要检索一下打算使用的名字。若这个名字已被使用，咱们将需要找到另一名字，并编辑 `Cargo.toml` 文件中 `[package]` 小节下的 `name` 字段，来使用这个用作发布的新名字，像下面这样：
+咱们的代码箱将需要一个独特的名字。在本地开发代码箱时，咱们可以给代码箱取随意命名。但是，[crates.io](https://crates.io) 上的代码箱名字，是按照先到先得的原则分配的。一旦某个名字已被占用，其他人就不能以那个名字发布代码箱。在尝试发布代码箱之前，请县检索咱们打算使用的名字。当名字已被使用时，咱们将需要找到另一个名字，并编辑 `Cargo.toml` 文件中 `[package]` 小节下的 `name` 字段，以使用新的名字进行发布，像下面这样：
 
 文件名：`Cargo.toml`
 
@@ -305,33 +321,23 @@ Adding Metadata to a New Crate**
 name = "guessing_game"
 ```
 
-即使咱们已选了个独特的名字，当咱们此时运行 `cargo publish` 来发布这个代码箱时，仍将得到一条告警及随后的报错：
+即使咱们选择了个独特的名字，当咱们此时运行 `cargo publish` 来发布代码箱时，仍将受到一条告警，然后一条报错：
 
 
 ```console
-cargo publish                                                                                          lennyp@vm-manjaro
+$ cargo publish --registry crates-io
     Updating crates.io index
-warning: manifest has no description, license, license-file, documentation, homepage or repository.
-See https://doc.rust-lang.org/cargo/reference/manifest.html#package-metadata for more info.
-   Packaging guessing_game v0.1.0 (/home/lennyp/rust-lang/guessing_game)
-   Verifying guessing_game v0.1.0 (/home/lennyp/rust-lang/guessing_game)
-   Compiling libc v0.2.132
-   Compiling cfg-if v1.0.0
-   Compiling ppv-lite86 v0.2.16
-   Compiling getrandom v0.2.7
-   Compiling rand_core v0.6.3
-   Compiling rand_chacha v0.3.1
-   Compiling rand v0.8.5
-   Compiling guessing_game v0.1.0 (/home/lennyp/rust-lang/guessing_game/target/package/guessing_game-0.1.0)
-    Finished dev [unoptimized + debuginfo] target(s) in 3.55s
-   Uploading guessing_game v0.1.0 (/home/lennyp/rust-lang/guessing_game)
-error: failed to publish to registry at https://crates.io
+warning: manifest has no description, license, license-file, documentation, homepage or repository
+  |
+  = note: see https://doc.rust-lang.org/cargo/reference/manifest.html#package-metadata for more info
+-- 跳过输出 --
+error: failed to publish guessing_game-xfossdotcom v0.1.2 to registry at https://crates.io
 
 Caused by:
-  the remote server responded with an error: missing or empty metadata fields: description, license. Please see https://doc.rust-lang.org/cargo/reference/manifest.html for how to upload metadata
+  the remote server responded with an error (status 400 Bad Request): missing or empty metadata fields: description, license. Please see https://doc.rust-lang.org/cargo/reference/manifest.html for more information on configuring these fields
 ```
 
-此报错是由于咱们缺失了一些重要信息：描述及许可证是必须的，由此人们就会明白咱们的代码箱完成的什么，及在何种条件下他们可以使用他。在 `Cargo.toml` 中，由于代码箱的描述，会与咱们的代码箱一起呈现在搜索结果中，因此请添加仅仅一两句话的描述。而对于 `license` 字段，则需要提供 *某个许可证标识符值，a licence identifier value*。[Linux 基金会的软件包数据交换站，Linux Foundation's Software Package Data Exchange, SPDX，spdx.org](http://spdx.org/licenses/) 列出了可供这个值使用的标识符。比如，为指明咱们已使用 MIT 许可证，授权咱们的软件包，就要添加 `MIT` 的许可证标识符：
+这导致了一个报错，因为咱们缺少一些关键信息：描述信息及许可证是必需的，由此人们才会知道咱们的代码箱做什么，以及可以在什么条款下使用他。在 `Cargo.toml` 中，添加以两句话的描述信息，因为他会与咱们的代码箱一起出现在搜索结果中。对于 `license` 字段，咱们需要提供 *许可证标识符值*。[Linux 基金会的软件包数据交换](http://spdx.org/licenses/) 列出了咱们可以针对该值使用的标识符。例如，要指定咱们已使用 MIT 许可证授权咱们的代码箱，请添加 `MIT` 标识符：
 
 
 文件名：`Cargo.toml`
@@ -342,100 +348,91 @@ name = "guessing_game"
 license = "MIT"
 ```
 
-若咱们打算使用某个未出现于 SPDX 中的许可证，咱们就需要把那种许可证的文本，放置于某个文件里，把这个文件包含在咱们的项目中，并于随后使用 `license-file` 来指出那个文件的名字，而不再使用 `license` 键，the `license` key。
+当咱们打算使用某种未出现在 SPDX 中的许可证时，咱们就需要放置该许可证的文本于文件中，在咱们的项目中包含该文件，然后使用 `license-file` 来指定该文件的名字，而不是使用 `license` 键。
 
-至于哪种许可证适合于咱们的项目方面的指南，是超出这本书的范围的。Rust 社区的许多人，都以 Rust 项目同样的方式，即采用 `MIT OR Apache-2.0` 双重许可证，授权他们的项目。这种实践表明，咱们也可以通过 `OR` 来指定出多个许可证标识符，从而让咱们的项目有着多种许可证。
+关于哪种许可证适合咱们的项目方面的指南超出了这本书的范围。Rust 社区的许多人都以与 Rust 项目相同方式，使用 `MIT OR Apache-2.0` 双重许可证授权他们的项目。这种做法表明，咱们也可以指定由 `OR` 分隔的多个许可证标识符，有着针对咱们项目的多种许可证。
 
-在添加了独特名字、版本号、代码箱描述及许可证后，已准备好发布项目的 `Cargo.toml`文件，就会看起来像下面这样：
+添加了唯一名字、版本号、描述信息及许可证后，某个已准备好发布的项目的 `Cargo.toml`文件可能看起来像下面这样：
 
 文件名：`Cargo.toml`
 
 ```toml
 [package]
 name = "guessing_game"
-license = "MIT"
 version = "0.1.0"
-description = "一个在其中猜出计算机所选数字的有趣游戏。"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+edition = "2024"
+description = "一个有趣的游戏，咱们需要猜出电脑选择了哪个数字。"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
-rand = "0.8.3"
 ```
 
-[Cargo 文档](https://doc.rust-lang.org/cargo/) 介绍了为确保其他人能更容易发现并使用咱们代码箱，而可指明的别的一些元数据。
+[Cargo 的文档](https://doc.rust-lang.org/cargo/) 描述了其他咱们可以指定的元数据，以确保其他人可以更轻松地发现和使用咱们的代码箱。
 
 
 ## 发布到 Crates.io
 
-既然咱们已经创建了账号，保存了 API 令牌，选择了代码箱名字，并指定了必需的元数据，那么咱们就准备好发布了！发布代码箱，会上传特定版本到 [crates.io](https://crates.io)，供其他人使用。
+现在咱们已经创建了账号，保存了 API 令牌，为代码箱选择了名字，并指定了所需的元数据，咱们就可以开始发布了！发布代码箱会上传特定版本到 [crates.io](https://crates.io)，供他人使用。
 
-因为发布是 *永久性的，permanent*，因此要当心。版本绝无可能被覆盖，且代码无法被删除。[crates.io](https://crates.io) 的一个主要目标，是要充当代码的永久存档，以便依赖于 [crates.io](https://crates.io) 中代码箱的所有项目构建都将持续工作。而允许版本的删除，就会令到实现那个目标几无可能。不过，在咱们可发布的代码箱版本数目上没有限制。
+请小心！因为发布是 *永久性的*。该版本永远无法被覆盖，除特殊情况外，代码也无法被删除。Crates.io 的一个主要目标是充当代码的永久存档，以便依赖于 [crates.io](https://crates.io) 上的代码箱的所有项目的构建都将持续工作。允许版本删除将使该目标变得不可能。不过，咱们可以发布的代码箱版本数量没有限制。
 
-再度运行 `cargo publish` 命令。现在他就应成功了：
+再次运行 `cargo publish` 命令。现在应该成功了：
 
 ```console
-$ cargo publish                                                                        lennyp@vm-manjaro
+$ cargo publish --registry crates-io
     Updating crates.io index
-warning: manifest has no documentation, homepage or repository.
-See https://doc.rust-lang.org/cargo/reference/manifest.html#package-metadata for more info.
-   Packaging guessing_game-xfossdotcom v0.1.0 (/home/lennyp/rust-lang/guessing_game)
-   Verifying guessing_game-xfossdotcom v0.1.0 (/home/lennyp/rust-lang/guessing_game)
-   Compiling libc v0.2.132
-   Compiling cfg-if v1.0.0
-   Compiling ppv-lite86 v0.2.16
-   Compiling getrandom v0.2.7
-   Compiling rand_core v0.6.3
-   Compiling rand_chacha v0.3.1
-   Compiling rand v0.8.5
-   Compiling guessing_game-xfossdotcom v0.1.0 (/home/lennyp/rust-lang/guessing_game/target/package/guessing_game-xfossdotcom-0.1.0)
-    Finished dev [unoptimized + debuginfo] target(s) in 2.73s
-   Uploading guessing_game-xfossdotcom v0.1.0 (/home/lennyp/rust-lang/guessing_game)
+   Packaging guessing_game-xfossdotcom v0.1.2 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Updating `ustc` index
+    -- 跳过输出 --
+    Packaged 7 files, 5.9KiB (2.6KiB compressed)
+   Verifying guessing_game-xfossdotcom v0.1.2 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+   Compiling guessing_game-xfossdotcom v0.1.2 (/home/hector/rust-lang-zh_CN/projects/guessing_game/target/package/guessing_game-xfossdotcom-0.1.2)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 36.15s
+   Uploading guessing_game-xfossdotcom v0.1.2 (/home/hector/rust-lang-zh_CN/projects/guessing_game)
+    Uploaded guessing_game-xfossdotcom v0.1.2 to registry `crates-io`
+note: waiting for guessing_game-xfossdotcom v0.1.2 to be available at registry `crates-io`
+help: you may press ctrl-c to skip waiting; the crate should be available shortly
+   Published guessing_game-xfossdotcom v0.1.2 at registry `crates-io`
 ```
 
-恭喜！现在咱们就已与 Rust 社区分享了咱们的代码，且任何人都可将咱们的代码箱，添加为他们项目的依赖。
+恭喜！咱们现在已经与 Rust 社区分享了咱们的代码，任何人都可以轻松地添加咱们的代码箱为他们项目的依赖项。
 
-> 注：在 Crates.io 上的账号电子邮箱未验证时，将报出如下错误：
-
-```console
-Caused by:
-  the remote server responded with an error: A verified email address is required to publish crates to crates.io. Visit https://crates.io/me to set and verify your email address.
-```
-
-
-## 发布既有代码箱的新版本
+> **译注**：在 Crates.io 上的账号电子邮箱未验证时，将报出如下错误：
+>
+> ```console
+> Caused by:
+>   the remote server responded with an error: A verified email address is required to publish crates to crates.io. Visit https://crates.io/me to set and verify your email address.
+> ```
 
 
-咱们完成咱们代码箱的修改，而准备好发布新版本时，咱们要修改 `Cargo.toml` 中所指定的 `version` 值并重新发布。请运用 [语义版本控制规则，Semantic Versioning rules](http://semver.org/)，根据咱们已做出修改的类别，来确定出恰当的下一版本编号为何。然后运行 `cargo publish` 来上传新版本。
+## 发布现有代码箱的新版本
+
+当咱们对代码箱的进行了修改，而准备发布新版本时，咱们要修改在 `Cargo.toml` 中指定的 `version` 值并重新发布。请根据咱们所做的修改类型，使用 [语义化版本控制规则](http://semver.org/) 来确定合适的下一个版本编号。然后，运行 `cargo publish` 上传新的版本。
 
 
-## 使用 `cargo yank` 命令弃用 Crates.io 上的版本
+## 弃用 Crates.io 上的版本
 
-**Depracating Versions from Crates.io with `cargo yank`**
+尽管咱们无法移除代码箱的较早版本，但咱们可以阻止任何今后的项目添加他们为新的依赖项。当代码箱版本出于某种原因被破坏时，这一特性非常有用。在这种情形下，Cargo 支持 *抽出* 代码箱版本。
 
+*抽出* 版本会防止新项目依赖于该版本，同时允许所有依赖他的现有项目继续正常运行。本质上，抽出意味着所有带有 `Cargo.lock` 的项目都不会中断，并且任何今后生成的 `Cargo.lock` 文件都将不会使用抽出的版本。
 
-尽管咱们无法移除代码箱的先前版本，但咱们可以阻止任何今后的项目，将其添加为新的依赖项。这在某个代码箱版本由于某种原因，或别的问题而损坏时是有用的。在诸如此类的情形下，Cargo 支持把某个代码箱版本 *抽出来*，in such situations, Cargo supports *yanking* a crate version。
-
-抽出某个版本，在允许所有依赖该版本的既有项目继续工作的同时，会阻止新项目依赖那个版本。本质上，一次版本抽出，表示带有 `Cargo.lock` 的全部项目不会破坏，而任何今后生成的 `Cargo.lock` 文件，都将不使用被抽出的版本。
-
-要抽出代码箱的某个版本，就要在咱们先前已发布的代码箱目录中，运行 `cargo yank` 并指定出要抽出的版本。比如，咱们曾发布了名为 `guessing_game` 代码箱的 `0.1.0` 版本，而打算抽出他，咱们就要在 `guessing_game` 的项目目录下，运行下面的命令：
+要抽出代码箱的某个版本，就要在咱们先前发布的代码箱目录下，运行 `cargo yank` 并指定咱们打算抽出的版本。例如，当咱们已发布一个名为 `guessing_game` 版本 `0.1.0` 的代码箱，而打算抽出他时，那么我们就要在 `guessing_game` 的项目目录下运行以下命令：
 
 ```console
-$ cargo yank --vers 0.1.0                                                           4s lennyp@vm-manjaro
+$ cargo yank --vers 0.1.0 --registry crates-io
     Updating crates.io index
         Yank guessing_game-xfossdotcom@0.1.0
 ```
 
-通过把 `--undo` 添加到这个命令，咱们还可以撤销某次抽出，而允许项目开始再度依赖于某个版本：
+通过添加 `--undo` 到这个命令，咱们还可以撤销抽出，而允许项目再次依赖于某个版本：
 
 ```console
-$ cargo yank --vers 0.1.0 --undo                                                    lennyp@vm-manjaro
+$ cargo yank --vers 0.1.0 --undo --registry crates-io
     Updating crates.io index
       Unyank guessing_game-xfossdotcom@0.1.0
 ```
 
-抽出版本，*不会* 删除任何代码。比如，其无法删除那些不小心上传的机密信息。若发生了机密信息被上传的情况，咱们必须立即重置这些机密信息。
+抽出版本 *不会* 删除任何代码。例如，他无法删除意外上传的机密信息。当发生这种情况时，咱们必须立即重置这些机密信息。
 
 
 （End）

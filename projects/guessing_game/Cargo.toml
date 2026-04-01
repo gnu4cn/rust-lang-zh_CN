@@ -1,7 +1,10 @@
 [package]
-name = "guessing_game"
-version = "0.1.0"
+name = "guessing_game-xfossdotcom"
+version = "0.1.2"
 edition = "2024"
+description = "一个有趣的游戏，咱们需要猜出电脑选择了哪个数字。"
+license = "MIT OR Apache-2.0"
+
 
 [dependencies]
 rand = "0.8.5"
