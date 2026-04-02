@@ -98,7 +98,7 @@
     - [在发布配置文件下定制构建](crates-io/release_profiles.md)
     - [发布代码箱到 Crates.io](crates-io/publishing.md)
     - [Cargo 工作区](crates-io/workspace.md)
-    - [使用 `cargo install` 安装 Crates.io 上的二进制程序](crates-io/cargo_install.md)
+    - [以 `cargo install` 安装二进制代码箱](crates-io/cargo_install.md)
     - [以定制命令扩展 Cargo](crates-io/custom_commands.md)
 
 - [灵巧指针](Ch15_Smart_Pointers.md)

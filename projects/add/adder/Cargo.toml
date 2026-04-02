@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 add_one = { path = "../add_one" }
+add_two = { path = "../add_two" }
 rand = "0.8.3"
