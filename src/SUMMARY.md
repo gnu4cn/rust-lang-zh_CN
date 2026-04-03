@@ -5,6 +5,8 @@
 
 ---
 
+# 上篇
+
 - [入门](Ch01_Getting_Started.md)
     - [安装](getting_started/installation.md)
     - [Hello, World!](getting_started/hello_world.md)
@@ -18,10 +20,6 @@
     - [函数](programming_concepts/functions.md)
     - [注释](programming_concepts/comments.md)
     - [控制流](programming_concepts/control_flow.md)
-
----
-
-# 进阶
 
 - [“掌握” 所有权](Ch04_Understanding_Ownership.md)
     - [何为所有权？](ownership/about_ownership.md)
@@ -55,10 +53,6 @@
     - [`Result` 下的可恢复错误](error_handling/result.md)
     - [要 `panic!` 还是不要 `panic!`](error_handling/panic_or_not.md)
 
----
-
-# 深入掌握
-
 - [泛型、特质与生命周期](Ch10_Generic_Types_Traits_and_Lifetimes.md)
     - [泛型数据类型](generic_types_traits_and_lifetimes/generics.md)
     - [以特质定义共用行为](generic_types_traits_and_lifetimes/traits.md)
@@ -70,11 +64,6 @@
     - [控制测试运行方式](automated_tests/how_tests_are_run.md)
     - [测试的组织](automated_tests/test_organization.md)
 
----
-
-
-# 上篇总结 - 实操
-
 - [I/O 项目：构建命令行程序](Ch12_An_IO_Project_Building_a_Command_Line_Program.md)
     - [接受命令行参数](io_project/accepting_cli_arguments.md)
     - [读取文件](io_project/reading_a_file.md)
@@ -83,10 +72,6 @@
     - [使用环境变量](io_project/env_variables.md)
     - [重定向错误到标准错误](io_project/std_err.md)
 
-
----
-
-# 下篇
 
 - [函数式语言特性：迭代器与闭包](Ch13_Functional_Language_Features_Iterators_and_Closures.md)
     - [闭包](functional_features/closures.md)
@@ -100,6 +85,10 @@
     - [Cargo 工作区](crates-io/workspace.md)
     - [以 `cargo install` 安装二进制代码箱](crates-io/cargo_install.md)
     - [以定制命令扩展 Cargo](crates-io/custom_commands.md)
+
+---
+
+# 下篇
 
 - [灵巧指针](Ch15_Smart_Pointers.md)
     - [使用 `Box<T>` 指向内存堆上的数据](smart_pointers/box-t.md)
