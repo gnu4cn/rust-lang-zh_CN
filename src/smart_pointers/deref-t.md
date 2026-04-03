@@ -1,19 +1,16 @@
-# 使用 `Deref` 特质将灵巧指针视为常规引用
+# 将灵巧指针视为普通引用
 
-**Treating Smart Pointers Like Regular References with `Deref` Trait**
+实现 `Deref` 特质允许咱们定制 *解引用运算符* `*`（请不要与乘法或通配符混淆）的行为。通过以这种方式实现 `Deref`，灵巧指针可被视为普通引用，咱们可以编写对引用进行操作的代码，并也可以对灵巧指针使用该代码。
 
-
-实现 `Deref` 特质允许咱们自定义 *解引用操作符, the dereference operator*️'*' （不要与乘法或 glob 运算符相混淆）的行为。通过实现 `Deref`，灵巧指针可以被当作普通的引用来对待，咱们便可编写对引用进行操作的代码，并将该代码也用于灵巧指针。
-
-咱们首先来看看解除引用操作符是如何在常规引用中工作的。然后咱们将尝试定义一个行为类似于 `Box<T>` 的自定义类型，并看看为什么解除引用操作符在咱们新定义的类型上不像引用那样工作。咱们将探讨实现 `Deref` 特性如何使灵巧指针的工作方式与引用相似。然后咱们将看看 Rust 的 *解引用强制转换，deref coercion* 特性，以及其如何让咱们使用引用或灵巧指针工作的。
-
-> 注意：咱们将要建立的 `MyBox<T>` 类型和真正的 `Box<T>` 之间有一个很大的区别：咱们的版本不会将其数据存储在堆中。咱们把这个例子的重点放在 `Deref` 上，所以数据实际存储在哪里并不重要，重要的是类似指针的行为。
+咱们首先来看看解除引用运算符对常规引用的工作原理。然后，我们将尝试定义一个行为类似于 `Box<T>` 的自定义类型，并了解为什么解引用运算符没有像我们新定义的类型上的引用那样工作。我们将探讨实现 `Deref` 特质，是如何使灵巧指针以类似于引用的方式工作成为可能的。然后，我们将研究 Rust 的解引用强制转换特性，以及他是如何让咱们既可以使用引用，又可以使用灵巧指针的。
 
 
-## 根据引用得到值
 
-常规引用是一种指针，而看待指针的一种方式，便是指向存储于别处值的一个箭头。在下面清单 15-6 种，咱们创建了一个对 `i32` 值的引用，然后使用解引用操作符，来跟随对该值的引用：
+## 沿着引用前往值
 
+普通引用属于一种指针，而看待指针的一种方式是，指向存储于别处的值的箭头。在下面清单 15-6 中，我们创建了一个到 `i32` 值的引用，然后使用解引用运算符来跟随该引用前往值。
+
+<a name="listing_15-6"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -26,15 +23,15 @@ fn main() {
 }
 ```
 
-*清单 15-6：使用解引用操作符来跟随一个 `i32` 值的引用*
+**清单 15-6**：使用解引用运算符来跟随引用前往 `i32` 值
 
-变量 `x` 保存着一个 `i32` 值 `5`。咱们将 `y` 设置为等于到 `x` 的引用。咱们可以断言 `x` 等于 `5`。然而，如果咱们想对 `y` 中的值进行断言，咱们必须使用 `*y` 来跟随其所指向的值的音乐（因此是 *解引用，dereference*），这样编译器才能比较具体值。一旦咱们解引用了 `y`，咱们就可以访问咱们可将其与 `5` 比较的 `y` 指向的整数值。
+变量 `x` 保存着 `i32` 值 `5`。我们设置 `y` 等于到 `x` 的引用。我们可以断言 `x` 等于 `5`。但是，当我们打算对 `y` 中的值进行断言时，我们必须使用 `*y` 来跟随这个引用前往他指向的值（因此，叫做 *解引用*），以便编译器可以比较实际值。一旦解引用了 `y`，我们就有了我们可与 `5` 比较的， `y` 指向的整数值的访问权限。
 
-相反，如果咱们尝试编写 `assert_eq! (5, y);`，咱们便会得到下面这样的编译报错：
+相反，若我们尝试写下 `assert_eq! (5, y);`，我们就会得到下面这个编译报错：
 
 ```console
-$ cargo run                                                      ✔  
-   Compiling sp_demos v0.1.0 (/home/peng/rust-lang/sp_demos)
+$ cargo run
+   Compiling deref-example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/deref-example)
 error[E0277]: can't compare `{integer}` with `&{integer}`
  --> src/main.rs:6:5
   |
@@ -42,32 +39,20 @@ error[E0277]: can't compare `{integer}` with `&{integer}`
   |     ^^^^^^^^^^^^^^^^^ no implementation for `{integer} == &{integer}`
   |
   = help: the trait `PartialEq<&{integer}>` is not implemented for `{integer}`
-  = help: the following other types implement trait `PartialEq<Rhs>`:
-            f32
-            f64
-            i128
-            i16
-            i32
-            i64
-            i8
-            isize
-          and 6 others
   = note: this error originates in the macro `assert_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 For more information about this error, try `rustc --explain E0277`.
-error: could not compile `sp_demos` due to previous error
+error: could not compile `deref-example` (bin "deref-example") due to 1 previous error
 ```
 
-比较数字与对数字的引用是不允许的，因为他们属于不同的类型。咱们必须使用解引用操作符来跟随引用到他所指向的值。
+比较数字与对数字的引用是不允许的，因为他们属于不同的类型。我们必须使用解引用运算符来跟随引用前往其所指向的值。
 
 
 ## 像引用一样使用 `Box<T>`
 
-**Using `Box<T>` Like a Reference**
+我们可以重写清单 15-6 中的代码为使用 `Box<T>` 而不是引用；下面清单 15-7 中对 `Box<T>` 使用的解引用运算符，与清单 15-6 中对引用使用的作用方式相同：
 
-
-咱们可将清单 15-6 中的代码，重写为使用 `Box<T>` 而不是引用；下面清单 15-7 中 `Box<T>` 上使用的解引用操作符，与清单 15-6 中引用上使用的解引用操作符功能相同：
-
+<a name="listing_15-7"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -80,18 +65,20 @@ fn main() {
 }
 ```
 
-*清单 15-7：在 `Box<i32>` 上使用解引用操作符*
+**清单 15-7**：对 `Box<i32>` 使用解引用运算符
 
-清单 15-7 和清单 15-6 之间的主要区别在于，这里我们将 `y` 设置为指向 `x` 的拷贝值的 `Box<T>` 实例，而不是指向 `x` 值的引用。在最后的断言中，我们可以使用解除引用操作符来跟随 `Box<T>` 的指针，就像我们在 `y` 是一个引用时一样。接下来，我们将探讨 `Box<T>` 有什么特别之处，使我们能够通过定义我们自己的类型来使用解引用操作符。
-
-
-## 定义咱们自己的灵巧指针
+清单 15-7 和清单 15-6 之间的主要区别在于，这里我们设置 `y` 为指向 `x` 的拷贝值的匣子类型的实例，而不是指向 `x` 值的引用。在最后的断言中，我们可以像 `y` 仍然是个引用那样， 使用解除引用运算符来跟随匣子的指针。接下来，我们将通过定义我们自己的匣子类型，探讨 `Box<T>` 有什么特别之处，使我们能够使用解引用运算符。
 
 
-咱们来建立一个类似于标准库提供的 `Box<T>` 类型的灵巧指针，以体验灵巧指针的行为与默认的引用有什么不同。然后咱们将看看如何增加使用解除引用操作符的能力。
+## 定义我们自己的灵巧指针
 
-`Box<T>` 最终被定义为了具有一个元素的元组结构体，a tuple struct，因此清单 15-8 以同样方式，定义了一个 `MyBox<T>` 类型。咱们还将定义一个 `new` 函数，来匹配在 `Box<T>` 上定义的 `new` 函数。
+我们来构建一个类似于标准库提供的 `Box<T>` 类型的灵巧指针，以了解默认情况下灵巧指针类型与引用的行为方式有何不同。然后，我们将探讨怎样添加使用解除引用运算符的能力。
 
+> **注意**：咱们即将构建的 `MyBox<T>` 类型与真正的 `Box<T>` 之间有个很大的区别：我们的版本不会存储数据在堆上。我们把这个示例的重点放在 `Deref` 上，因此相比类似指针的行为，数据实际存储在何处并不重要。
+
+`Box<T>` 最终最终被定义为带有一个元素的元组结构体，因此清单 15-8 以同样方式定义了 `MyBox<T>` 类型。我们还将定义一个 `new` 函数，以与定义在 `Box<T>` 的 `new` 函数保持一致。
+
+<a name="listing_15-8"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -104,12 +91,13 @@ impl<T> MyBox<T> {
 }
 ```
 
-*清单 15-8：定义 `MyBox<T>` 类型*
+**清单 15-8**：定义 `MyBox<T>` 类型
 
-我们定义了一个名为 `MyBox` 的结构，并声明了一个通用参数 `T`，因为我们希望我们的类型可以容纳任何类型的值。`MyBox` 类型是一个元组结构，其中一个元素为 `T` 类型。`MyBox::new` 函数接收一个 `T` 类型的参数，并返回一个 `MyBox` 实例，该实例保存着传入的值。
+我们定义了个名为 `MyBox` 的结构体，并声明了个泛型参数 `T`，因为我们希望我们的类型可以容纳任何类型的值。`MyBox` 类型是个元组结构体，带有一个类型为 `T` 的元素。`MyBox::new` 函数取一个类型 `T` 的参数，并返回一个包含传入值的 `MyBox` 的实例。
 
-我们来试着将清单 15-7 中的 `main` 函数添加到清单 15-8 中，并将其改为使用我们定义的 `MyBox<T>` 类型而不是 `Box<T>`。清单 15-9 中的代码不会被编译，因为 Rust 不知道如何解除对 `MyBox` 的引用。
+我们来试着添加清单 15-7 中的 `main` 函数到清单 15-8 中，并修改他为使用我们定义的 `MyBox<T>` 类型，而不是 `Box<T>`。清单 15-9 中的代码不会编译，因为 Rust 不知道怎样解引用 `MyBox`。
 
+<a name="listing_15-9"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -124,43 +112,33 @@ fn main() {
 
 *清单 15-9：试图以咱们使用引用和 `Box<T>` 的方式使用 `MyBox<T>`*
 
-下面就是产生的编译报错：
+下面是产生的编译报错：
 
 ```console
 $ cargo run
-   Compiling sp_demos v0.1.0 (/home/peng/rust-lang/sp_demos)
+   Compiling deref-example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/deref-example)
 error[E0614]: type `MyBox<{integer}>` cannot be dereferenced
   --> src/main.rs:14:20
    |
 14 |     assert_eq! (5, *y);
-   |                    ^^
+   |                    ^^ can't be dereferenced
 
 For more information about this error, try `rustc --explain E0614`.
-error: could not compile `sp_demos` due to previous error
+error: could not compile `deref-example` (bin "deref-example") due to 1 previous error
 ```
 
-由于咱们未曾在这个 `MyBox<T>` 类型上实现过其被解引用的能力，因此他无法被解引用。为实现使用 `*` 运算符的解引用，就要实现 `Deref` 特质。
+我们的 `MyBox<T>` 类型无法被解引用，因为我们尚未对我们的类型实现这一能力。为了使 `*` 运算符下的解引用可行，我们就要实现 `Deref` 特质。
 
 
-## 通过实现 Deref 特质将类型视为引用
+## 实现 Deref 特质
 
-**Treating a Type Like a Reference by Implementing the `Deref` Trait**
+正如在第 10 章 中 [对类型实现特质](../generic_types_traits_and_lifetimes/traits.md#对类型实现特质) 小节中讨论的，要实现某个特质，我们需要提供该特质的必需方法的实现。标准库提供的 `Deref` 特质要求我们实现一个名为 `deref` 的方法，该方法会借用 `self` 并返回对内部数据的引用。下面清单 15-10 包含要添加到 `MyBox` 的定义的 `Deref` 的实现。
 
-
-正如第 10 章 ["在类型上实现特质"](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质) 小节中所讨论的，要实现某个特质，咱们需要为该特质的必要方法提供实现。由标准库提供的 `Deref` 特质，要求咱们实现一个名为 `deref` 的方法，该方法借用 `self` 并返回对内部数据的引用。下面清单 15-10 包含 `Deref` 的一个实现，来添加到 `MyBox` 的定义中：
-
+<a name="listing_15-10"></a>
 文件名：`src/main.rs`
 
 ```rust
 use std::ops::Deref;
-
-struct MyBox<T>(T);
-
-impl<T> MyBox<T> {
-    fn new(x: T) -> MyBox<T> {
-        MyBox(x)
-    }
-}
 
 impl<T> Deref for MyBox<T> {
     type Target = T;
@@ -171,11 +149,11 @@ impl<T> Deref for MyBox<T> {
 }
 ```
 
-*清单 15-10：在 `MyBox<T>` 上实现 `Deref`*
+**清单 15-10**：对 `MyBox<T>` 实现 `Deref`
 
-`type Target = T;` 语法定义了一个关联类型，an associated type，供 `Deref` 特质使用。关联类型是声明泛型参数的一种些许不同的方式，但现在咱们无需担心他们；咱们将在第 19 章中更详细地介绍他们。
+`type Target = T;` 语法定义了个供 `Deref` 特质使用的关联类型。关联类型属于声明泛型参数的一种略有不同的方式，但现在咱们无需担心他们；我们将在第 20 章中更详细地介绍他们。
 
-我们在 `deref` 方法的主体中填入 `&self.0`，这样 `deref` 就会返回一个我们想用 `*` 操作符访问的值的引用；回顾一下第五章 [“使用没有命名字段的元组结构体来创建不同的类型”](Ch05_Using_Structs_to_Structure_Related_Data.md#使用没有命名字段的元组结构体来创建不同的类型) 小节，`.0` 可以访问一个元组结构体中的第一个值。清单 15-9 中调用 `MyBox<T>` 值的 `main` 函数现在可以编译了，而且断言也通过了!
+我们以 `&self.0` 填入 `deref` 方法的主体，以便 `deref` 返回一个到我们打算以 `*` 运算符访问的值的引用；回顾第 5 章中 [以元组结构体创建不同类型](../structs/defining_and_instantiating.md#以元组结构体创建不同类型) 中，`.0` 可以访问元组结构体中的第一个值。清单 15-9 中对 `MyBox<T>` 值调用 `*` 的 `main` 函数现在会编译，且两个断言都会通过!
 
 如果没有 `Deref` 特质，编译器只能对 `&` 引用进行解引用。`deref` 方法给了编译器这样的能力：取一个实现 `Deref` 的任何类型的值，并调用 `deref` 方法来获得一个他知道如何解除引用的 `&` 引用。
 
