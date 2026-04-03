@@ -1,4 +1,4 @@
-# 使用 `Box<T>` 指向堆上的数据
+# 使用 `Box<T>` 指向堆上数据
 
 最简单的灵巧指针是 *匣子* ，其类型写为 `Box<T>`。匣子允许咱们存储数据于堆上，而非栈上。留在栈上的指向堆数据的指针。请参考 [第 4 章](../ownership/about_ownership.md#diff_between_stack_n_heap) 回顾栈和堆之间的区别。
 
