@@ -94,7 +94,7 @@
     - [使用 `Box<T>` 指向堆上数据](smart_pointers/box-t.md)
     - [将灵巧指针视为普通引用](smart_pointers/deref-t.md)
     - [通过 `Drop` 特质在清理时运行代码](smart_pointers/drop-t.md)
-    - [`RC<T>`，引用计数的灵巧指针](smart_pointers/rc-t.md)
+    - [`Rc<T>`，引用计数的灵巧指针](smart_pointers/rc-t.md)
     - [`RefCell<T>` 与内部可变性模式](smart_pointers/refcell-t.md)
     - [引用循环会泄露内存](smart_pointers/ref-cycles.md)
 

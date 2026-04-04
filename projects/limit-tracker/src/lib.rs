@@ -25,14 +25,18 @@ where
 
         let percentage_of_max = self.value as f64 / self.max as f64;
 
-        match percentage_of_max {
-            p if p >= 1.0 => self.messenger.send("出错：你已超出你的配额！"),
-            p if p >= 0.9 => self.messenger.send("紧急警告：你已用掉你配额的 90% ！"),
-            p if p >= 0.75 => self.messenger.send("警告：你已用掉你配额的 75% ！"),
-            _ => {},
-        }
+        if percentage_of_max >= 1.0 {
+            self.messenger.send("Error: 你已超出配额!");
+        } else if percentage_of_max >= 0.9 {
+            self.messenger
+                .send("Urgent warning: 你已用完 90% 的配额！");
+            } else if percentage_of_max >= 0.75 {
+                self.messenger
+                    .send("Warning: 你已用完 75% 的配额！");
+            }
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -46,25 +50,28 @@ mod tests {
     impl MockMessenger {
         fn new() -> MockMessenger {
             MockMessenger {
-                sent_messages: RefCell::new(vec! []),
+                sent_messages: RefCell::new(vec![]),
             }
         }
     }
 
     impl Messenger for MockMessenger {
         fn send(&self, message: &str) {
-            self.sent_messages.borrow_mut().push(String::from(message));
+            let mut one_borrow = self.sent_messages.borrow_mut();
+            let mut two_borrow = self.sent_messages.borrow_mut();
+
+            one_borrow.push(String::from(message));
+            two_borrow.push(String::from(message));
         }
     }
 
     #[test]
-    fn it_sends_an_over_75_percent_waring_message() {
+    fn it_sends_an_over_75_percent_warning_message() {
         let mock_messenger = MockMessenger::new();
         let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
 
         limit_tracker.set_value(80);
-        println! ("{}", mock_messenger.sent_messages.borrow().iter().next().unwrap());
 
-        assert_eq! (mock_messenger.sent_messages.borrow().len(), 1);
+        assert_eq!(mock_messenger.sent_messages.borrow().len(), 1);
     }
 }

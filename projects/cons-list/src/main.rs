@@ -1,12 +1,24 @@
+#[derive(Debug)]
 enum List {
-    Cons(i32, Box<List>),
+    Cons(Rc<RefCell<i32>>, Rc<List>),
     Nil,
 }
 
 use crate::List::{Cons, Nil};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 fn main() {
-    let a = Cons(5, Box::new(Cons(10, Box::new(Nil))));
-    let b = Cons(3, Box::new(a));
-    let c = Cons(4, Box::new(a));
+    let value = Rc::new(RefCell::new(5));
+
+    let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+
+    let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
+    let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+
+    println!("a 随后 = {a:?}");
+    println!("b 随后 = {b:?}");
+    println!("c 随后 = {c:?}");
 }
