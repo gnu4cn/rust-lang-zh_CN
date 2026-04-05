@@ -234,7 +234,7 @@ leaf 的父节点 = Some(Node { value: 5, parent: RefCell { value: (Weak) }, chi
 没有无限输出表明，这段代码没有创建引用环。我们也可以通过查看调用 `Rc::strong_count` 和 `Rc::weak_count` 得到的值来判断这点。
 
 
-### 可视化 `strong_count` 到 `weak_count` 的变化
+### 可视化 `strong_count` 与 `weak_count` 的变化
 
 咱们来通过创建一个新的内层作用域，并迁移 `branch` 的创建到该作用域中，看看 `Rc<Node>` 实例的 `strong_count` 和 `weak_count` 值会如何变化。通过这样做，我们可以看到在 `branch` 被创建时，以及当他超出作用域而被弃用时，分别会发生什么。相关修改如下清单 15-29 中所示。
 
