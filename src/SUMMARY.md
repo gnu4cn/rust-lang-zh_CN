@@ -96,7 +96,7 @@
     - [通过 `Drop` 特质在清理时运行代码](smart_pointers/drop-t.md)
     - [`Rc<T>`，引用计数的灵巧指针](smart_pointers/rc-t.md)
     - [`RefCell<T>` 与内部可变性模式](smart_pointers/refcell-t.md)
-    - [引用循环会泄露内存](smart_pointers/ref-cycles.md)
+    - [引用环会泄露内存](smart_pointers/ref-cycles.md)
 
 - [无惧并发](Ch16_Fearless_Concurrency.md)
     - [使用线程同步运行代码](concurrency/threads.md)

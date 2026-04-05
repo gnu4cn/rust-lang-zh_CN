@@ -15,10 +15,9 @@ fn main() {
         children: RefCell::new(vec! []),
     });
 
-    println! (
-        "叶子节点的强引用计数：{}，弱引用计数：{}\n",
+    println! ("leaf 的强引用计数 = {}，弱引用计数 = {}",
         Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
+        Rc::weak_count(&leaf)
     );
 
     {
@@ -30,22 +29,26 @@ fn main() {
 
         *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
 
-        println! (
-            "枝干节点的强引用计数：{}，弱引用计数：{}\n",
+        println! ("branch 的强引用计数 = {}，弱引用计数 = {}",
             Rc::strong_count(&branch),
-            Rc::weak_count(&branch),
-        );
-        println! (
-            "叶子节点的强引用计数：{}，弱引用计数：{}\n",
-            Rc::strong_count(&leaf),
-            Rc::weak_count(&leaf),
+            Rc::weak_count(&branch)
         );
 
+        println! ("leaf 的强引用计数 = {}，弱引用计数 = {}",
+            Rc::strong_count(&leaf),
+            Rc::weak_count(&leaf)
+        );
     }
-    println! ("叶子节点的父节点 = {:?}\n", leaf.parent.borrow().upgrade());
-    println! (
-        "叶子节点的强引用计数：{}，弱引用计数：{}\n",
+
+    println! ("leaf 的父节点 = {:?}", leaf.parent.borrow().upgrade());
+
+    println! ("leaf 的强引用计数 = {}，弱引用计数 = {}",
         Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
+        Rc::weak_count(&leaf)
     );
+    //    println! ("
+    //        leaf    rc = {}
+    //        branch  rc(strong) = {}
+    //        branch  rc(weak) = {}"
+    //        , Rc::strong_count(&leaf), Rc::strong_count(&branch), Rc::weak_count(&branch));
 }
