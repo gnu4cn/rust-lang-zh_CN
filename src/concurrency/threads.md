@@ -1,25 +1,23 @@
-# 运用线程来同步运行代码
+# 使用线程同时运行代码
 
-**Using Threads to Run Code Simutaneously**
+在大多数当前的操作系统中，受执行程序的代码都是运行于 *进程，a process* 中的，而操作系统将同时管理多个进程。在程序内部，咱们也可以有着同时运行的独立部分。运行这些独立部分的特性，称为 *线程，threads*。例如，某一 Web 服务器可以有多个线程，从而可以同时响应多个请求。
 
+拆分程序中的运算为多个线程，以同时运行多重任务，虽然可以提升性能，但也会增加复杂度。由于线程可以同时运行，因此对于咱们代码在不同线程上的各个部分将运行的顺序，就没有固有保证。这可能会导致问题，比如：
 
-在绝大多数当前的操作系统中，被执行的程序代码，都是运行于 *进程，a process* 中的，而所在的操作系统，则会同时管理多个进程。在程序内部，咱们同样可以有着同步运行的一些独立部分。运行这些独立部分的特性，便被称作 *线程，threads*。比如，web 服务器就可以有多个线程，如此他就可以在同一时间，响应多于一个的请求。
+- 竞争情形，其中线程正以不一致、易变的顺序访问数据或资源；
+- 死锁问题，其中两个线程正相互等待，从而阻止两个线程都无法继续运行；
+- 仅在特定情形下才发生的 bug，而难于重现并可靠修复。
 
-将咱们程序的运算，拆分为多个线程，来在同一时间运行多个任务，可以提升性能，但这样也增加了复杂度。由于线程能够同步运行，因此在于不同线程上，将要运行代码哪个部分的顺序方面，就没有了某种固有保证，because threads can run simultaneously, there's no inherent guarantee about the order in which parts of your code on different threads will run。这就会导致一些问题，诸如：
+Rust 试图缓解使用线程的负面影响，但在多线程情景下的编程仍要仔细斟酌，并需要不同于运行在单线程下的程序中的代码架构。
 
-- 竞争局面，其中线程正以不一致顺序，访问着一些数据或资源；
-- 死锁问题，其中两个线程正相互等待，而阻止了他们继续运行下去；
-- 只在一些确切情形下才发生，而难于重现并可靠修复的代码错误。
-
-Rust 试图消除这些运用线程方面的负面影响，但在多线程情景下的编程，仍要深思熟虑，并要求与运行在单线程下程序，截然不同的代码架构。
-
-诸多编程语言，都是以少数几种不同途径，实现的线程，且多数操作系统，均提供了编程语言为可以创建出线程而调用的 API。Rust 标准库使用的是线程实现的 1:1 模型，由此程序就会以一个语言线程，对应使用一个操作系统线程。也有实现了别的线程操作模型的代码箱，对这种 1:1 模型做出了取舍。
+编程语言实现的线程的方式各不相同，且许多操作系统都提供 API，供编程语言调用以创建新线程。Rust 标准库使用 1:1 的线程实现模型，即程序对一个语言线程，使用一个操作系统线程。也有一些代码箱实现了其他线程模型，分别对 1:1 模型进行了不同取舍（我们将在下一章中看到的 Rust 的异步系统，也提供了另一种并发方法）。
 
 
-## 使用 `spawn` 函数创建新线程
+## 以 `spawn` 创建新线程
 
-要创建出一个新的线程，咱们就要调用 `thread::spawn` 函数，并传递给他一个包含了打算在这个新线程中运行代码的闭包（在第 13 章中曾谈到过闭包）。下面清单 16-1 中的示例，会打印出来自主线程的一些文本，以及来自新线程的一些文本：
+要创建一个新线程，我们调用 `thread::spawn` 函数，并传递给他一个闭包（我们曾在 [第 13 章](../functional_features/closures.md) 中讨论过闭包），包含我们打算在新线程中运行的代码。下面清单 16-1 中的示例打印主线程中的一些文本和新线程中的其他文本。
 
+<a name="listing_16-1"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -29,61 +27,118 @@ use std::time::Duration;
 fn main() {
     thread::spawn(|| {
         for i in 1..10 {
-            println! ("\t- 你好，这是来自生成线程的数字 {} !", i);
+            println! ("hi，生成的线程中的数字 {i} !");
             thread::sleep(Duration::from_millis(20));
         }
     });
 
     for i in 1..5 {
-        println! ("- 你好，这是来自主线程的数字 {} !", i);
+        println! ("hi，主线程中的数字 {i} !");
         thread::sleep(Duration::from_millis(20));
     }
 }
 ```
 
-*清单 16-1：创建出一个新线程来打印某物件，与此同时主线程也在打印着其他东西*
+**清单 16-1**：创建出一个新线程来打印一项内容，同时主线程打印另一内容
 
-请注意在 Rust 程序主线程完毕时，全部生成的线程就被关闭了，而不论他们是否已结束运行。该程序的输出每次都会有些许不同，但其看起来将如下所示：
-
-```console
-- 你好，这是来自主线程的数字 1 !
-        - 你好，这是来自生成线程的数字 1 !
-- 你好，这是来自主线程的数字 2 !
-        - 你好，这是来自生成线程的数字 2 !
-- 你好，这是来自主线程的数字 3 !
-        - 你好，这是来自生成线程的数字 3 !
-- 你好，这是来自主线程的数字 4 !
-        - 你好，这是来自生成线程的数字 4 !
-        - 你好，这是来自生成线程的数字 5 !
-```
-
-到 `thread::sleep` 的调用，强制线程停止其执行短暂的时间，而允许别的线程运行。这些线程可能会轮流运行，但那并无保证：这取决于咱们的操作系统调度线程的方式。在此运行中，主线程就先行打印了，即便生成的线程中的打印语句，首先出现在代码中。而即便这里告诉了生成的线程，打印直到 `i` 为 `9` 的时候，但 `i` 在主线程关闭之前，仍只到了 `5`。
-
-若在运行此代码时，只看到主线程的输出，或未看到任何重叠部分，那么就要尝试增加其中那个范围（`1..10`, `1..5`）的数字，来给操作系统创造出，更多的与线程之间切换的机会。
-
-
-## 使用 `join` 句柄等待全部线程结束
-
-**Waiting for All Threads to Finish Using `join` Handles**
-
-
-清单 16-1 中的代码，不仅会由于主线程的结束而提前停止生成线程，并因为在线程运行的顺序上没有保证，咱们还根本无法确保其中的生成线程将得到完整运行！
-
-> **注**：在 `thred::sleep` 为 `1ms` 时，将偶发出现下面的运行结果：
+请注意，当 Rust 程序的主线程完成时，所有生成的线程都会关闭，无论他们是否已完成运行。这个程序的输出每次可能略有不同，但看起来类似于以下输出：
 
 ```console
-- 你好，这是来自主线程的数字 1 !
-        - 你好，这是来自生成线程的数字 1 !
-- 你好，这是来自主线程的数字 2 !
-        - 你好，这是来自生成线程的数字 2 !
-        - 你好，这是来自生成线程的数字 3 !
-- 你好，这是来自主线程的数字 3 !
-- 你好，这是来自主线程的数字 4 !
-        - 你好，这是来自生成线程的数字 4 !
-        - 你好，这是来自生成线程的数字 %
+$ cargo run
+   Compiling spawn_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/spawn_demo)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running `target/debug/spawn_demo`
+hi，主线程中的数字 1 !
+hi，生成的线程中的数字 1 !
+hi，主线程中的数字 2 !
+hi，生成的线程中的数字 2 !
+hi，主线程中的数字 3 !
+hi，生成的线程中的数字 3 !
+hi，主线程中的数字 4 !
+hi，生成的线程中的数字 4 !
 ```
 
-咱们可以通过将 `thread::spawn` 的返回值，保存在一个变量中，来修复该生成线程不运行或提前结束的问题。`thread::spawn` 的返回值类型为 `JoinHandle`。而 `JoinHandle` 值则是一个自有值，在咱们于其上调用 `join` 方法时，他将等待其线程执行完毕。下面清单 16-2 就给出了怎样使用清单 16-1 中所创建出的那个 `JoinHandle`，来确保该生成线程在 `main` 退出之前执行完毕：
+对 `thread::sleep` 的调用会强制线程在短时间内停止执行，从而允许另一线程运行。线程可能会轮流运行，但这并无保证：其取决于咱们的操作系统调度线程的方式。在这次运行中，主线程就先行打印了，即使生成线程中的打印语句首先出现在代码中。而且即使我们告诉生成的线程打印直到 `i` 为 `9`，但在主线程关闭前他只到 `5`。
+
+当咱们运行这段代码并且只看到主线程中的输出，或者没有看到任何的重叠时，请尝试增加两个范围（译注：`1..10`, `1..5`）中的数字，以便给操作系统在线程之间切换创造更多机会。
+
+
+## 等待所有线程结束
+
+清单 16-1 中的代码不仅会在大多数情况下因主线程的结束，而提前停止生成的线程，而且由于无法保证线程运行的顺序，我们也无法保证生成的线程会真正运行起来！
+
+> **译注**：在 `thred::sleep` 为 `1ms` 时，将偶发出现下面的运行结果：
+>
+> ```console
+> $ cargo run
+>     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+>      Running `target/debug/spawn_demo`
+> hi，主线程中的数字 1 !
+> hi，生成的线程中的数字 1 !
+> hi，主线程中的数字 2 !
+> hi，生成的线程中的数字 2 !
+> hi，主线程中的数字 3 !
+> hi，生成的线程中的数字 3 !
+> hi，主线程中的数字 4 !
+> hi，生成的线程中的数字 4 !
+> hi，生成的线程中的数字 %
+> ```
+
+我们可以通过保存 `thread::spawn` 的返回值于一个变量中，来解决生成的线程未运行或提前结束的问题。`thread::spawn` 的返回类型为 `JoinHandle`。 `JoinHandle` 属于自有值，当我们对其调用 `join` 方法时，他将等待其线程执行完毕。下面清单 16-2 展示了怎样使用我们在清单 16-1 中创建的线程的 `JoinHandle`，以及如何调用 `join` 以确保生成的线程会在 `main` 退出之前执行完毕。
+
+<a name="listing_16-2"></a>
+文件名：`src/main.rs`
+
+```rust
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let handle = thread::spawn(|| {
+        for i in 1..10 {
+            println! ("hi，生成的线程中的数字 {i} !");
+            thread::sleep(Duration::from_millis(1));
+        }
+    });
+
+    for i in 1..5 {
+        println! ("hi，主线程中的数字 {i} !");
+        thread::sleep(Duration::from_millis(1));
+    }
+
+    handle.join().unwrap();
+}
+```
+
+**清单 16-2**：保存来自 `thread::spawn` 的 `JoinHandle`，以保证线程运行完成
+
+> **译注**：结合第 9 章中 [出错时终止运行的快捷方式](../error_handling/result.md#出错时终止运行的快捷方式)，表明 `join` 返回的是个 `Result<T, E>` 类型的枚举值。
+
+对句柄调用 `join` 会阻塞当前正在运行的线程，直到该句柄所代表的线程终止。所谓 *阻塞* 线程，意味着该线程会被阻止执行工作或被阻止退出。因为我们放置对 `join` 的调用在主线程的 `for` 循环之后，因此运行清单 16-2 应产生类似于下面这样的输出：
+
+```console
+$ cargo run
+   Compiling spawn_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/spawn_demo)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running `target/debug/spawn_demo`
+hi，主线程中的数字 1 !
+hi，生成的线程中的数字 1 !
+hi，主线程中的数字 2 !
+hi，生成的线程中的数字 2 !
+hi，主线程中的数字 3 !
+hi，生成的线程中的数字 3 !
+hi，主线程中的数字 4 !
+hi，生成的线程中的数字 4 !
+hi，生成的线程中的数字 5 !
+hi，生成的线程中的数字 6 !
+hi，生成的线程中的数字 7 !
+hi，生成的线程中的数字 8 !
+hi，生成的线程中的数字 9 !
+```
+
+两个线程继续交替运行，但主线程因为这个对 `handle.join()` 的调用而会等待，并直到生成的线程完成才会结束。
+
+但是我们来看看，当我们像下面这样，将 `handle.join()` 移至 `main` 的 `for` 之前会发生什么：
 
 文件名：`src/main.rs`
 
@@ -94,99 +149,52 @@ use std::time::Duration;
 fn main() {
     let handle = thread::spawn(|| {
         for i in 1..10 {
-            println! ("\t- 你好，这是来自生成线程的数字 {} !", i);
-            thread::sleep(Duration::from_millis(20));
-        }
-    });
-
-    for i in 1..5 {
-        println! ("- 你好，这是来自主线程的数字 {} !", i);
-        thread::sleep(Duration::from_millis(20));
-    }
-
-    handle.join().unwrap();
-}
-```
-
-*清单 16-2：保存一个来自 `thread::spawn` 的 `JoinHandle` 来确保该线程运行完毕*
-
-> **注**：结合第 9 章中 [因错误而中止的快捷方式：`unwrap` 与 `expect`](Ch09_Error_Handling.md#因错误而中止的快捷方式unwrap-与-expect)，表明 `join` 返回的是个 `Result<T, E>` 类型的枚举值。
-
-在这个把手上调用 `join`，就会阻塞那个当前运行的线程，直到由该把手所表示的该线程终止。所谓 *阻塞，blocking* 某个线程，是指那个线程被阻止执行工作或退出，*blocking* a thread means that thread is prevented from performing work or exiting。由于咱们已将到 `join` 的调用，放在了那个主线程的 `for` 循环之后，因此运行清单 16-2 中的代码，应产生出如下类似的输出（注：但每次运行的输出仍然不同）：
-
-```console
-- 你好，这是来自主线程的数字 1 !
-        - 你好，这是来自生成线程的数字 1 !
-- 你好，这是来自主线程的数字 2 !
-        - 你好，这是来自生成线程的数字 2 !
-- 你好，这是来自主线程的数字 3 !
-        - 你好，这是来自生成线程的数字 3 !
-- 你好，这是来自主线程的数字 4 !
-        - 你好，这是来自生成线程的数字 4 !
-        - 你好，这是来自生成线程的数字 5 !
-        - 你好，这是来自生成线程的数字 6 !
-        - 你好，这是来自生成线程的数字 7 !
-        - 你好，这是来自生成线程的数字 8 !
-        - 你好，这是来自生成线程的数字 9 !
-```
-
-两个线程依旧交替运行，但因为这个到 `handle.join()` 的调用，主线程就会等待，而在生成线程完毕之前不会结束。
-
-不过来看看像下面这样，当咱们把 `handle.join()` 移至 `main` 中那个 `for` 循环前面时，会发生什么：
-
-文件名：`src/main.rs`
-
-```rust
-use std::thread;
-use std::time::Duration;
-
-fn main() {
-    let handle = thread::spawn(|| {
-        for i in 1..10 {
-            println! ("\t- 你好，这是来自生成线程的数字 {} !", i);
-            thread::sleep(Duration::from_millis(20));
+            println! ("hi，生成的线程中的数字 {i} !");
+            thread::sleep(Duration::from_millis(1));
         }
     });
 
     handle.join().unwrap();
 
     for i in 1..5 {
-        println! ("- 你好，这是来自主线程的数字 {} !", i);
-        thread::sleep(Duration::from_millis(20));
+        println! ("hi，主线程中的数字 {i} !");
+        thread::sleep(Duration::from_millis(1));
     }
 }
 ```
 
-主线程将等待生成线程运行完毕，并于随后运行他的 `for` 循环，因此输出将不再交错，如下所示：
+主线程将等待生成的线程完成，然后运行其 `for` 循环，因此输出将不再交错，如下所示：
 
 ```console
-        - 你好，这是来自生成线程的数字 1 !
-        - 你好，这是来自生成线程的数字 2 !
-        - 你好，这是来自生成线程的数字 3 !
-        - 你好，这是来自生成线程的数字 4 !
-        - 你好，这是来自生成线程的数字 5 !
-        - 你好，这是来自生成线程的数字 6 !
-        - 你好，这是来自生成线程的数字 7 !
-        - 你好，这是来自生成线程的数字 8 !
-        - 你好，这是来自生成线程的数字 9 !
-- 你好，这是来自主线程的数字 1 !
-- 你好，这是来自主线程的数字 2 !
-- 你好，这是来自主线程的数字 3 !
-- 你好，这是来自主线程的数字 4 !
+$ cargo run
+   Compiling spawn_demo v0.1.0 (/home/hector/rust-lang-zh_CN/projects/spawn_demo)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running `target/debug/spawn_demo`
+hi，生成的线程中的数字 1 !
+hi，生成的线程中的数字 2 !
+hi，生成的线程中的数字 3 !
+hi，生成的线程中的数字 4 !
+hi，生成的线程中的数字 5 !
+hi，生成的线程中的数字 6 !
+hi，生成的线程中的数字 7 !
+hi，生成的线程中的数字 8 !
+hi，生成的线程中的数字 9 !
+hi，主线程中的数字 1 !
+hi，主线程中的数字 2 !
+hi，主线程中的数字 3 !
+hi，主线程中的数字 4 !
 ```
 
-诸如 `join` 于何处被调用这样的细节，均会影响到咱们的线程，是否在同一时间运行。
+诸如 `join` 于何处被调用这样的细节，均会影响线程是否同时运行。
 
 
 ## 对线程使用 `move` 闭包
 
-**Using `move` Closures with Threads**
+我们会经常对传递给 `thread::spawn` 的闭包使用 `move` 关键字，因为该闭包随后将取得他使用的环境中的值的所有权，从而将这些值的所有权从一个线程转移至另一线程。在第 13 章中的 [捕获引用抑或迁移所有权](../functional_features/closures.md#捕获引用抑或迁移所有权) 中，我们讨论过闭包语境下的 `move` 关键字。现在，我们将更多地关注 `move` 与 `thread::spawn` 之间的交互。
 
+请注意，在清单 16-1 中，我们传递给 `thread::spawn` 的闭包没有取参数：我们没有在生成线程的代码中使用主线程中的任何数据。要在生成的线程中使用主线程中的数据，生成的线程的闭包必须捕获其所需的值。下面清单 16-3 展示了在主线程中创建一个矢量值，并在生成的线程中使用他的尝试。然而，正如咱们即将看到的那样，这尚不会工作。
 
-由于传递给 `thread::spawn` 的闭包随后将取得其用到的环境中一些值的所有权，由此就会把这些值的所有权，从一个线程转移到另一线程，因此咱们今后将经常在这些闭包上，使用 `move` 关键字。在第 13 章 [“捕获引用或迁移所有权”](Ch13_Functional_Language_Features_Iterators_and_Closures.md#捕获引用抑或迁移所有权) 小节，咱们就曾讨论过闭包语境下的 `move` 关键字。现在，咱们将更多地着重于 `move` 与 `thread::spawn` 之间的互动。
-
-请注意在清单 16-1 中，传递给 `thread::spawn` 的那个闭包没有取任何参数：咱们没有在生成线程中，使用主线程中的任何数据。为在生成线程中使用主线程中的数据，那么生成线程的闭包就必须捕获其所需的值。下面清单 16-3 给出了在主线程中创建出一个矢量值，并在生成线程中用到这个矢量值的一种尝试。然而，正如即将看到的那样，这将尚不会运作。
-
+<a name="listing_16-3"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -203,42 +211,43 @@ fn main() {
 }
 ```
 
-*清单 16-3：尝试在另一线程中，使用由主线程创建出的一个矢量值*
+**清单 16-3**：尝试在另一线程中使用主线程创建的矢量值
 
-这个闭包用到了 `v`，因此他将捕获 `v` 并将其构造为该闭包环境的一部分。由于 `thread::spawn` 是在一个新线程中运行此闭包，因此咱们应能够在那个新线程内部访问 `v`。然而在编译这个示例时，咱们会得到如下报错：
+闭包使用了 `v`，因此他将捕获 `v` 并使其成为闭包环境的一部分。由于 `thread::spawn` 会在新线程中运行这个闭包，因此我们应该能够在该新线程内部访问 `v`。但当我们编译这个示例时，我们得到以下报错：
 
 ```console
-cargo run                                                                                                                        lennyp@vm-manjaro
-   Compiling concur_demo v0.1.0 (/home/lennyp/rust-lang/concur_demo)
+$ cargo run
+   Compiling threads v0.1.0 (/home/hector/rust-lang-zh_CN/projects/threads)
 error[E0373]: closure may outlive the current function, but it borrows `v`, which is owned by the current function
-  --> src/main.rs:9:32
-   |
-9  |     let handle = thread::spawn(|| {
-   |                                ^^ may outlive borrowed value `v`
-10 |         println! ("这里有个矢量值：{:?}", v);
-   |                                           - `v` is borrowed here
-   |
+ --> src/main.rs:6:32
+  |
+6 |     let handle = thread::spawn(|| {
+  |                                ^^ may outlive borrowed value `v`
+7 |         println! ("这里有个矢量值：{v:?}");
+  |                                     - `v` is borrowed here
+  |
 note: function requires argument type to outlive `'static`
-  --> src/main.rs:9:18
-   |
-9  |       let handle = thread::spawn(|| {
-   |  __________________^
-10 | |         println! ("这里有个矢量值：{:?}", v);
-11 | |     });
-   | |______^
+ --> src/main.rs:6:18
+  |
+6 |       let handle = thread::spawn(|| {
+  |  __________________^
+7 | |         println! ("这里有个矢量值：{v:?}");
+8 | |     });
+  | |______^
 help: to force the closure to take ownership of `v` (and any other referenced variables), use the `move` keyword
-   |
-9  |     let handle = thread::spawn(move || {
-   |                                ++++
+  |
+6 |     let handle = thread::spawn(move || {
+  |                                ++++
 
 For more information about this error, try `rustc --explain E0373`.
-error: could not compile `concur_demo` due to previous error
+error: could not compile `threads` (bin "threads") due to 1 previous error
 ```
 
-Rust *推断出了，infers* 怎样去捕获 `v`，并由于 `println!` 值需要到 `v` 的一个引用，因此该闭包就尝试借用 `v`。然而，这里有个问题：Rust 无法识别出这个生成线程将运行多久，因此他就不清楚到 `v` 的引用是否将始终有效。
+Rust *推断* 出如何捕获 `v`，并由于 `println!` 只需 `v` 的引用，闭包会尝试借用 `v`。然而，这里存在一个问题：Rust 无法判断生成的线程将运行多长时间，因此他不知道到 `v` 的引用是否将始终有效。
 
-下面清单 16-4 提供了更倾向于有着到 `v` 的不将有效引用的一种场景：
+下面清单 16-4 提供了一个更有可能导致到 `v` 的引用将失效的场景。
 
+<a name="listing_16-4"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -251,31 +260,32 @@ fn main() {
     let v = vec! [1, 2, 3];
 
     let handle = thread::spawn(|| {
-        println! ("这里有个矢量值：{:?}", v);
+        println! ("这里有个矢量值：{v:?}");
     });
 
-    drop(v); // 噢，不要啊！
+    drop(v); // 噢，不要！
 
     handle.join().unwrap();
 }
 ```
 
-*清单 16-4：有着尝试从弃用了 `v` 的主线程捕获到 `v` 引用的闭包的一个线程*
+**清单 16-4**：带有尝试捕获对主线程中的 `v` 的引用的闭包的线程，主线程弃用了 `v`
 
-若 Rust 运行咱们运行此代码，那么就有可能在一点也没有运行那个生成线程下，其就会被立即置于后台中，if Rust allowed us to run this code, there's a possibility the spawned thread would be immediately put in the background without running at all。那个生成线程内部有着一个到 `v` 的引用，而主线程则使用第 15 章中曾讨论过的 `drop` 函数，立即弃用了 `v`。随后，在生成线程开始执行时，`v` 就不再有效了，一次到他的引用也失效了。噢，不要！
+若 Rust 运行我们运行这段代码，那么生成的线程有可能会被立即置于后台而根本不会运行。生成的线程内部有着到 `v` 的引用，而主线程立即使用我们在第 15 章中讨论的 [`drop` 函数](../smart_pointers/drop-t.md#drop_func) 弃用了 `v`。然后，当生成的线程开始执行时，`v` 已不再有效，因此到他的引用也失效了。噢，不要！
 
-要修复清单 16-3 中的编译器错误，咱们可以使用错误消息中的建议：
+要修复清单 16-3 中的编译器错误，我们可以使用错误消息的建议：
 
 ```console
 help: to force the closure to take ownership of `v` (and any other referenced variables), use the `move` keyword
-   |
-9  |     let handle = thread::spawn(move || {
-   |                                ++++
+  |
+6 |     let handle = thread::spawn(move || {
+  |                                ++++
 
 ```
 
-经由在那个闭包前添加 `move` 关键字，咱们就强制该闭包取得其用到值的所有权，而非让 Rust 来推断出他应借用该值。下面清单 16-5 给出的对清单 16-3 的修改，将如咱们设想的那样编译和运行：
+通过在闭包前添加 `move` 关键字，我们强制闭包取得他用到的值的所有权，而不是让 Rust 推断他应该借用这些值。下面清单 16-5 所示的对清单 16-3 的修改，将如我们预期的那样编译和运行。
 
+<a name="listing_16-5"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -285,41 +295,48 @@ fn main() {
     let v = vec! [1, 2, 3];
 
     let handle = thread::spawn(move || {
-        println! ("这里有个矢量值：{:?}", v);
+        println! ("这里有个矢量值：{v:?}");
     });
 
     handle.join().unwrap();
 }
 ```
 
-*清单 16-5：使用 `move` 关键字来强制闭包取得他所用到值的所有权*
+**清单 16-5**：使用 `move` 关键字强制闭包取得其使用的值的所有权
 
-或许也会尝试以同样做法，通过使用 `move` 关键字，去修复清单 16-4 中，主线程调用了 `drop` 的代码。然而，由于清单 16-4 尝试完成的事情，因为一种不同原因而不被允许，那么这样的修复就不会凑效。在咱们把 `move` 添加到闭包时，咱们就会把 `v` 迁移到该闭包的环境中，进而咱们就无法再在主线程中，于其上调用 `drop` 了。这是会得到如下的编译器错误：
+我们可能会尝试以同样的方式，通过使用 `move` 关键字来修复清单 16-4 中的代码，其中主线程调用了 `drop` 函数。然而，这种修复方法行不通，因为清单 16-4 试图执行的操作出于其他原因而被禁止。当我们添加 `move` 到闭包时，将迁移 `v` 到闭包的环境中，进而我们就无法再在主线程中对其调用 `drop` 了。我们会得到下面这个编译器报错：
 
 ```console
-$ cargo run                                                                                                                        lennyp@vm-manjaro
-   Compiling concur_demo v0.1.0 (/home/lennyp/rust-lang/concur_demo)
+$ cargo run
+   Compiling threads v0.1.0 (/home/hector/rust-lang-zh_CN/projects/threads)
 error[E0382]: use of moved value: `v`
-  --> src/main.rs:13:10
+  --> src/main.rs:10:10
    |
-7  |     let v = vec! [1, 2, 3];
+ 4 |     let v = vec! [1, 2, 3];
    |         - move occurs because `v` has type `Vec<i32>`, which does not implement the `Copy` trait
-8  |
-9  |     let handle = thread::spawn(move || {
+ 5 |
+ 6 |     let handle = thread::spawn(move || {
    |                                ------- value moved into closure here
-10 |         println! ("这里有个矢量值：{:?}", &v);
-   |                                            - variable moved due to use in closure
+ 7 |         println! ("这里有个矢量值：{v:?}");
+   |                                     - variable moved due to use in closure
 ...
-13 |     drop(v);
+10 |     drop(v);
    |          ^ value used here after move
+   |
+help: consider cloning the value before moving it into the closure
+   |
+ 6 ~     let value = v.clone();
+ 7 ~     let handle = thread::spawn(move || {
+ 8 ~         println! ("这里有个矢量值：{value:?}");
+   |
 
 For more information about this error, try `rustc --explain E0382`.
-error: could not compile `concur_demo` due to previous error
+error: could not compile `threads` (bin "threads") due to 1 previous error
 ```
 
-Rust 的所有权规则，再次挽救了咱们！由于 Rust 一直以来的保守，以及只为那个线程借用了 `v`，就意味着主线程理论上可以令到生成线程的引用失效，而得到了清单 16-3 中代码的报错。通过告知 Rust 将 `v` 的所有权迁移到生成线程，咱们就向 Rust 保证了主线程不会再使用 `v`。而若咱们以同样方式修改清单 16-4，那么随后在咱们于主线程中尝试使用 `v` 时，就破坏了那些所有权规则。这个 `move` 关键字，覆盖了 Rust 借用方面的保守做法；但他并无让咱们破坏所有权规则。
+Rust 的所有权规则再次拯救了我们！我们之所以得到清单 16-3 中代码的报错，是因为 Rust 在那里保持保守，而仅为线程借用 `v`，这意味着主线程理论上可以使生成的线程的引用失效。通过告知 Rust 迁移 `v` 的所有权到生成的线程，我们向 Rust 保证主线程将不再使用 `v`。当我们以同样方式修改清单 16-4 时，那么当我们尝试在主线程中使用 `v` 时，我们就会所有权规则。`move` 关键字会覆盖 Rust 借用的默认保守做法；但他不会让我们破坏所有权规则。
 
-有了线程及线程 API 方面的基本认识，接下来就有看看用线程可以 *做，do* 些什么。
+既然我们已经介绍了什么是线程，以及线程 API 提供的方法，我们来看看我们可以使用线程的一些情形。
 
 
 （End）
