@@ -248,7 +248,7 @@ hi number 9 from the first task!
 除发送消息外，我们还需要接收他们。在本例中，由于我们知道有多少条消息进来，因此我们可通过调用 `rx.recv().await` 四次，手动完成接收。但在真实世界中，我们一般会等待 *未知* 数量的消息，因此我们需要一直等待，直到确定没有更多信息为止。
 
 
-在 [清单 16-10](../concurrency/message_passing.md#listing-16-10) 中，我们使用了个 `for` 循环，处理从同步通道接收到的所有项目。然而，Rust 还没有一种，为 *异步的* 序列项目编写 `for` 循环的方法，因此我们需要使用一种以前从未见过的循环：`while let` 条件循环。这是我们曾在 [“使用 `if let` 与 `let else` 的简明控制流”](../enums_and_pattern_matching/if-let_control_flow.md) 小节中，看到的 `if let` 结构的循环版本。只要循环所指定的模式继续匹配值，其就会继续执行。
+在 [清单 16-10](../concurrency/message_passing.md#listing_16-10) 中，我们使用了个 `for` 循环，处理从同步通道接收到的所有项目。然而，Rust 还没有一种，为 *异步的* 序列项目编写 `for` 循环的方法，因此我们需要使用一种以前从未见过的循环：`while let` 条件循环。这是我们曾在 [“使用 `if let` 与 `let else` 的简明控制流”](../enums_and_pattern_matching/if-let_control_flow.md) 小节中，看到的 `if let` 结构的循环版本。只要循环所指定的模式继续匹配值，其就会继续执行。
 
 
 其中的 `rx.recv` 调用，会产生一个我们所等待的未来值。在其准备好前，运行时将暂停该未来值。一旦有消息到达，这个未来值将解析为 `Some(message)`，解析次数与消息到达次数相同。在通道关闭时，无论 *有多少* 消息到达，该未来值都会解析为表示不再有值的 `None`，并因此我们就应停止轮询 -- 即停止等待。
