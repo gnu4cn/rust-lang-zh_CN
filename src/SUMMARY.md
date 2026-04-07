@@ -99,7 +99,7 @@
     - [引用环会泄露内存](smart_pointers/ref-cycles.md)
 
 - [无惧并发](Ch16_Fearless_Concurrency.md)
-    - [使用线程同步运行代码](concurrency/threads.md)
+    - [使用线程同时运行代码](concurrency/threads.md)
     - [通过消息传递在线程间传输数据](concurrency/message_passing.md)
     - [共用状态的并发](concurrency/shared-state.md)
     - [`Sync` 与 `Send` 下的可扩展并发](concurrency/extensible_concurrency.md)
