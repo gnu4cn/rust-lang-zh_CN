@@ -102,7 +102,7 @@
     - [使用线程同步运行代码](concurrency/threads.md)
     - [通过消息传递在线程间传输数据](concurrency/message_passing.md)
     - [共用状态的并发](concurrency/shared-state.md)
-    - [使用 `Sync` 与 `Send` 的可扩展并发](concurrency/extensible_concurrency.md)
+    - [`Sync` 与 `Send` 下的可扩展并发](concurrency/extensible_concurrency.md)
 
 
 - [异步编程基础：异步、等待、未来值与流](Ch16_1_async_programming.md)
