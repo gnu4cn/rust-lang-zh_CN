@@ -1,18 +1,13 @@
-use std::{thread, time::Duration};
+use trpl::Html;
+
+async fn page_title(url: &str) -> Option<String> {
+    let response = trpl::get(url).await;
+    let response_text = response.text().await;
+    Html::parse(&response_text)
+        .select_first("title")
+        .map(|title| title.inner_html())
+}
 
 fn main() {
-    let (tx, mut rx) = trpl::channel();
-
-    thread::spawn(move || {
-        for i in 1..11 {
-            tx.send(i).unwrap();
-            thread::sleep(Duration::from_secs(1));
-        }
-    });
-
-    trpl::run(async {
-        while let Some(message) = rx.recv().await {
-            println!("{message}");
-        }
-    });
+    println!("Hello, world!");
 }
