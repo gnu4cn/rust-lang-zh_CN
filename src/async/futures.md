@@ -47,7 +47,7 @@ async fn page_title(url: &str) -> Option<String> {
     let response_text = response.text().await;
     Html::parse(&response_text)
         .select_first("title")
-        .map(|title_element| title_element.inner_html())
+        .map(|title| title.inner_html())
 }
 ```
 
@@ -60,12 +60,11 @@ async fn page_title(url: &str) -> Option<String> {
 
 > **注意**：这不同于我们在第 16 章中 [“以 `spawn` 创建新线程”](../concurrency/threads.md#以-spawn-创建新线程) 小节中，使用 `thread::spawn` 时看到的行为，当时我们传递给另一线程的闭包立即开始了运行。这也不同于许多其他语言处理异步的方式。但这对 Rust 很重要能够提供其性能保证至关重要，正如迭代器的情况一样。
 
-有了 `response_text`，我们就可以使用 `Html::parse`，将其解析为 `Html` 类型的实例。现在，我们有了一种可将其作为更丰富数据结构 HTML 处理的数据类型，而不是原始字符串了。特别是，我们可以使用 `select_first` 方法，查找给定 CSS 选择器的首个实例。通过传递字符串 `"title"`，我们将获取到文档中的第一个 `<title>` 元素，如果有的话。由于可能没有匹配的元素，`select_first` 会返回一个 `Option<ElementRef>`。最后，我们使用 `Option::map` 方法，在 `Option` 中的项目存在时，我们就可以使用他，若不存在，就什么也不做。(这里我们也可以使用一个 `match` 表达式，但 `map` 更为惯用。）在我们提供给 `map` 的函数主体中，我们调用了 `title_element` 上的 `inner_html`，获取为一个 `String` 的其内容。最后，我们得到了一个 `Option<String>`。
+一旦有了 `response_text`，我们就可以使用 `Html::parse`，将其解析为 `Html` 类型的实例。我们现在有了一种数据类型而不是原始字符串，可以作为一种更丰富的数据结构处理 HTML。特别是，我们可以使用 `select_first` 方法，找到给定 CSS 选择器的首个实例。通过传递字符串 `"title"`，我们将获取文档中的第一个 `<title>` 元素，当存在一个时。由于可能不存在任何匹配的元素，`select_first` 会返回一个 `Option<ElementRef>`。最后，我们使用 `Option::map` 方法，当 `Option` 中的项目存在时，该方法允许我们处理项目，并在不存在时什么也不做。(我们也可以在这里使用 `match` 表达式，但 `map` 更符合惯例。）在我们提供给 `map` 的函数体中，我们对 `title` 调用 `inner_html` 以获取他的内容，这是个 `String`。总而言之，我们有个 `Option<String>`。
 
+请注意，Rust 的 `await` 关键字位于咱们正在等待的表达式 *之后*，而不是之前。也就是说，他是个 *后缀* 关键字，a *postfix* keyword。若咱们在别的语言中使用过 `async`，这可能与咱们习惯的有所不同，但在 Rust 中，他使方法链，chains of methods，更容易使用。因此，我们可以修改 `page_title` 的主体为通过 `trpl::get` 和 `text` 函数调用之间的 `await`，链接二者在一起，如下清单 17-2 中所示。
 
-请注意，Rust 的 `await` 关键字，是在咱们正等待的表达式 *之后*，而不是之前。也就是说，他是个 *后缀* 关键字，a *postfix* keyword。如果咱们在别的语言中使用过 `async`，这可能与咱们所习惯的不同，但在 Rust 中，他使得方法链，chains of methods，更易于使用。因此，我们可以将 `page_url_for` 的主体，修改为与 `trpl::get` 及 `text` 函数两个调用链接起来，并在他们之间加上 `await`，如清单 17-2 所示。
-
-
+<a name="listing_17-2"></a>
 文件名：`src/main.rs`
 
 
@@ -73,27 +72,22 @@ async fn page_title(url: &str) -> Option<String> {
     let response_text = trpl::get(url).await.text().await;
 ```
 
+**清单 17-2**：`await` 关键字下的链式调用
 
-*清单 17-2：使用 `await` 关键字的链接*
+至此，我们已成功编写了第一个异步函数！在我们于 `main` 中添加一些代码调用他前，我们先进一步探讨一下我们编写的内容及其含义。
 
+当 Rust 看到标有 `async` 关键字标记的 *代码块* 时，会将其编译为一种独特的，实现 `Future` 特质的匿名数据类型。当 Rust 看到标有 `async` 的 *函数* 时，会将其编译为一个非异步函数，其主体即为一个异步代码块。异步函数的返回，即为编译器为该异步代码块创建的匿名数据类型。
 
-就这样，我们已成功编写了咱们的首个异步函数！在我们于 `main` 中添加一些代码调用他前，我们先来了解一下我们已编写的内容及其含义。
-
-
-当 Rust 看到某个以 `async` 关键字标记的代码块时，他会将其编译为一种实现了 `Future` 特质的唯一、匿名数据类型。当 Rust 看到某个以 `async` 标记的函数时，他会将其编译成一个主体为异步代码块的非异步函数。异步函数的返回值类型，就是编译器为该异步代码块所创建的匿名数据类型。
-
-
-因此，写下 `async fn`，就相当于编写了某个返回值类型为 *未来值* 的函数。对于编译器来说，诸如清单 17-1 中的 `async fn page_title` 的函数定义，就等同于如下定义的一个非异步函数：
+因此，写下 `async fn` 等同于编写一个返回 *未来值* 的返回类型的函数。对于编译器而言，诸如清单 17-1 中的 `async fn page_title` 的函数定义，大致等同于如下定义的非异步函数：
 
 
 ```rust
 use std::future::Future;
 use trpl::Html;
 
-fn page_title(url: &str) -> impl Future<Output = Option<String>> + '_ {
+fn page_title(url: &str) -> impl Future<Output = Option<String>> {
     async move {
         let text = trpl::get(url).await.text().await;
-
         Html::parse(&text)
             .select_first("title")
             .map(|title| title.inner_html())
@@ -102,57 +96,51 @@ fn page_title(url: &str) -> impl Future<Output = Option<String>> + '_ {
 ```
 
 
-我们来逐一了解，转换后版本的各个部分：
+我们来逐一分析转换后版本的各个部分：
 
 
-- 他使用了我们在第 10 章 [“作为参数的特质”](../generic_types_traits_and_lifetimes/traits.md#作为参数的特质) 小节中，讨论过的 `impl Trait` 语法；
-- 返回的特质是有着 `Output` 关联类型的 `Future`。请注意，`Output` 类型为 `Option<String>`，这与 `async fn` 版本 `page_title` 的原始返回值类型相同；
-- 原始函数主体中调用的所有代码，都被封装在一个 `async move` 代码块中。请记住，代码块都是一些表达式。整个代码块就是该函数所返回的表达式；
-- 如上所述，该异步代码块会产生一个 `Option<String>` 类型的值。该值与返回值类型中的 `Output` 类型匹配。这与咱们曾见过的其他代码块一样；
-- 新的函数体是个 `async move` 代码块，因为他使用 `url` 参数的方式；(我们将在本章后面，详细讨论 `async` 与 `async move`。）
+- 他使用了我们在第 10 章中 [将特质用作参数](../generic_types_traits_and_lifetimes/traits.md#将特质用作参数) 小节中讨论过的 `impl Trait` 语法；
+- 返回的值以关联类型 `Outpu` 实现 `Future`。请注意，`Output` 类型为 `Option<String>`，这与 `async fn` 版本的 `page_title` 的原始返回值类型相同；
+- 原始函数主体中调用的所有代码都封装在 `async move` 代码块中。请记住，代码块都属于表达式。这一整个代码块便是从该函数返回的表达式；
+- 如上所述，这个异步代码块会生成一个 `Option<String>` 类型的值。该值与返回类型中的 `Output` 类型匹配。这就像咱们见过的其他代码块一样；
+- 由于其使用 `url` 参数的方式，新的函数体是个 `async move` 代码块。(我们将在本章稍后详细讨论 `async` 与 `async move` 的区别。）
 - 该函数的新版本，在输出类型中有种我们以前从未见过的生命周期：`'_`。由于该函数返回了一个指向某个引用的未来值 -- 本例中，引用来自 `url` 参数 -- 因此我们就需要告诉 Rust，我们希望该引用要被包含。在这里，我们不必命名这个生命周期，因为 Rust 足够聪明，知道只有一个可能涉及到的引用，但我们 *确实* 必须明确指出，得到的那个未来值受该生命周期的约束。
 
 
-现在我们可以在 `main` 中调用 `page_title` 了。
+现在我们可以在 `main` 中调用 `page_title`。
 
 
+### 通过运行时执行异步函数
 
-### 确定单个页面的标题
+首先，我们将获取单个页面的标题，如下清单 17-3 中所示。不幸的是，这段代码还不会编译。
 
-
-首先，我们将获取到单个页面的标题。在清单 17-3 中，我们沿用了第 12 章 [“接收命令行参数”](../io_project/accepting_cli_arguments.md) 小节中，获取命令行参数的相同模式。然后，我们传递首个 URL 给 `page_title`，并等待结果。由于有未来值产生的值是个 `Option<String>`，因此我们使用一个 `match` 表达式，打印不同的信息，以反映该页面是否有着 `<title>`。
-
-
+<a name="listing_17-3"></a>
 文件名：`src/main.rs`
 
-
 ```rust
-// 此代码不会工作
-
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
     let url = &args[1];
     match page_title(url).await {
-        Some(title) => println!("The title for {url} was {title}"),
-        None => println!("{url} had no title"),
+        Some(title) => println!("{url} 的标题是 {title}"),
+        None => println!("{url} 没有标题"),
     }
 }
 ```
 
-*清单 17-3：以一个用户提供的参数，在 `main` 中调用 `page_title` 函数*
+**清单 17-3**：以一个用户提供的参数，在 `main` 中调用 `page_title` 函数
 
+我们沿用了我们在第 12 章 [接受命令行参数](../io_project/accepting_cli_arguments.md) 小节中，用于获取命令行参数的同一模式。然后，我们传递 URL 参数给 `page_title` 并等待结果。由于未来值生成的值是个 `Option<String>`，因此我们使用 `match` 表达式来打印不同的信息，以区分页面是否有 `<title>`。
 
-不幸的是，这段代码不会编译。我们只能在异步函数或代码块中，使用 `await` 关键字，同时 Rust 不会让我们将这个特殊的 `main` 函数标记为 `aysnc`。
-
+我们唯一可以使用 `await` 关键字的地方，是在异步函数或异步代码块中，并且 Rust 不允许我们标记特殊的 `main` 函数为 `async`。
 
 ```console
 error[E0752]: `main` function is not allowed to be `async`
-  --> src/main.rs:12:1
-   |
-12 | async fn main() {
-   | ^^^^^^^^^^^^^^^ `main` function is not allowed to be `async`
+ --> src/main.rs:3:1
+  |
+3 | async fn main() {
+  | ^^^^^^^^^^^^^^^ `main` function is not allowed to be `async`
 ```
-
 
 `main` 不能标记为 `async` 的原因，是异步代码需要一个 *运行时*：一个管理执行异步代码细节的 Rust 代码箱。某个程序的 `main` 函数可以 *初始化* 某个运行时，但 *他本身* 并不是个运行时。（我们将更多地了解为什么会有这种情况。）每个执行异步代码的 Rust 程序，都至少有一个其设置了某个运行时，并执行未来值之处。
 
