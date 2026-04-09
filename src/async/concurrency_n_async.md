@@ -1,139 +1,124 @@
-# 应用带有异步的并发
+# 以异步实现并发
 
-**Applying Concurrency with Async**
+在这一小节中，我们将应用异步到我们在第 16 章中，以线程解决的一些相同并发挑战。由于我们已经在那里讨论过许多的关键思想，因此在这一小节中我们将重点探讨线程和未来值之间的区别。
 
-
-在本节中，我们将把异步应用到第 16 章中，咱们在线程上所面临的一些并发挑战。由于我们已经在第 16 章中，讨论过很多关键思想，因此本节我们将重点讨论线程与未来值之间的不同之处。
-
-
-在许多情形下，使用异步处理并发的 API，与使用线程处理并发的 API 非常相似。而在其他情形下，二者最终会截然不同。即使线程与异步的 API *看起来* 很相似，他们也往往有着不同行为 -- 而且他们几乎总是有着不同的性能特征。
+在许多情形下，使用异步处理并发的 API，与使用线程的非常相似。而在其他情形下，二者最终会截然不同。即使 API 在线程与异步之间 *看起来* 相似，他们往往有着不同的行为 -- 而且他们几乎总是有着不同的性能特征。
 
 
-## 使用 `spawn_task` 创建新任务
+## 以 `spawn_task` 创建新任务
 
+我们在第 16 章中 [以 `spawn` 创建新线程](../concurrency/threads.md#以-spawn-创建新线程) 小节中解决的第一个操作是在两个单独线程上计数。我们来使用异步执行同样的操作。`trpl` 代码箱提供了一个看起来与 `thread::spawn` API 非常相似的 `spawn_task` 函数，以及作为 `thread::sleep` API 的异步版本的 `sleep` 函数。我们可以一起使用这两个函数实现计数示例，如下清单 17-6 中所示。
 
-在 [使用 Spawn 创建新线程](../concurrency/threads.md#使用-spawn-函数创建新线程) 小节中，我们解决的首项操作，是在两个独立线程上计数。现在我们来使用异步，完成同样的事情。`trpl` 代码箱提供了个与 `thread::spawn` 这个 API 非常相似的 `spawn_task` 函数，以及一个 `thread::sleep` API 异步版本的 `sleep` 函数。我们可以一并使用这两个函数，实现那个计数示例，如清单 17-6 所示。
-
-
+<a name="listing_17-6"></a>
 文件名：`src/main.rs`
-
 
 ```rust
 use std::time::Duration;
 
 fn main() {
-    trpl::run( async {
+    trpl::block_on( async {
         trpl::spawn_task( async {
             for i in 1..10 {
-                println!("hi number {i} from the first task!");
+                println!("hi 来自第一个任务的数字 {i} !");
                 trpl::sleep(Duration::from_millis(500)).await;
             }
         });
 
         for i in 1..5 {
-            println!("hi number {i} from the second task!");
+            println!("hi 来自第二个任务的数字 {i} !");
             trpl::sleep(Duration::from_millis(500)).await;
         }
     });
 }
 ```
 
-*清单 17-6：创建出在主任务打印其他内容时，打印一个东西的任务*
+**清单 17-6**：创建一个新任务来打印一项内容，同时主任务打印其他内容
+
+作为我们的起点，我们以 `trpl::block_on` 设置主函数，以便我们的顶级函数可以是异步的。
+
+> **注意**：从本章的这里开始，每个示例都将在 `main` 中包含这种带有 `trpl::block_on` 的完全相同的封装代码，因此我们通常会像对待 `main` 一样跳过他。请记住要在咱们的代码中包含他！
 
 
-作为咱们的起点，我们以 `trpl::run` 设置了咱们的主函数，这样我们的顶层函数就可以是异步的了。
+然后我们在该代码块中编写两个循环，每个循环都包含一个 `trpl::sleep` 调用，其会在发送下一条消息前等待半秒（500 毫秒）。我们将一个循环放在 `trpl::spawn_task` 的主体中，另一个放在顶级 `for` 循环中。我们还在 `sleep` 调用之后添加了 `await` 这个后缀关键字。
 
-
-> **注意**：从本章的这里开始，每个示例都将在 `main` 中，包含以 `trpl::run` 封装的完全相同代码，因此我们通常将跳过 `trpl::run`，就像跳过 `main` 一样。请不要忘记在咱们的代码中加入他！
-
-
-然后我们在该代码块中写了两个循环，每个循环都包含了个 `trpl::sleep` 调用，这会在发送下一条消息前等待半秒（500 毫秒）。我们将一个循环放在 `trpl::spawn_task` 的主体中，另一个放在一个顶层的 `for` 循环中。在 `sleep` 调用后，我们还添加了个 `await`。
-
-
-这段代码的行为与基于线程的实现类似 -- 包括当咱们运行这段代码时，在咱们自己终端中可能看到消息以不同顺序出现这一情况：
+这段代码的行为与基于线程的实现类似 -- 包括当咱们运行他时，可能看到消息以不同的顺序出现：
 
 
 ```console
-hi number 1 from the second task!
-hi number 1 from the first task!
-hi number 2 from the first task!
-hi number 2 from the second task!
-hi number 3 from the first task!
-hi number 3 from the second task!
-hi number 4 from the first task!
-hi number 4 from the second task!
-hi number 5 from the first task!
+hi 来自第二个任务的数字 1 !
+hi 来自第一个任务的数字 1 !
+hi 来自第一个任务的数字 2 !
+hi 来自第二个任务的数字 2 !
+hi 来自第一个任务的数字 3 !
+hi 来自第二个任务的数字 3 !
+hi 来自第一个任务的数字 4 !
+hi 来自第二个任务的数字 4 !
+hi 来自第一个任务的数字 5 !
 ```
 
 
-这个版本会在主异步代码块主体中的 `for` 循环结束时立即停止，因为由 `spawn_task` 生成的任务，在 `main` 函数结束时会被关闭。若咱们想要他一直运行到任务完成，就将需要使用一个联合句柄，a join handle，等待第一个任务完成。在线程下，我们曾使用 `join` 方法，在线程运行完毕前予以 “阻塞”。在下面的清单 17-7 中，我们可使用 `await` 完成同样的事情，因为任务句柄，the task handle，本身就是个未来值。他的 `Output` 类型是个 `Result`，因此我们也可以在等待他后，对其解封装。
+这个版本会在主异步代码块的主体中的 `for` 循环结束时立即停止，因为当 `main` 函数结束时，`spawn_task` 生成的任务会被关闭。若咱们希望程序一直运行到该任务完成，则将需要使用一个联合句柄，a join handle，来等待第一个任务完成。在线程下，我们曾使用 `join` 方法来“阻塞” 直到线程运行完毕。在下面的清单 17-7 中，我们可以使用 `await` 完成同样的事情，因为任务句柄，the task handle，本身就是个未来值。他的 `Output` 类型是个 `Result`，因此我们也可以在等待他后对其解包。
 
-
+<a name="listing_17-7"></a>
 文件名：`src/main.rs`
-
 
 ```rust
         let handle = trpl::spawn_task( async {
             for i in 1..10 {
-                println!("hi number {i} from the first task!");
+                println!("hi 来自第一个任务的数字 {i} !");
                 trpl::sleep(Duration::from_millis(500)).await;
             }
         });
 
         for i in 1..5 {
-            println!("hi number {i} from the second task!");
+            println!("hi 来自第二个任务的数字 {i} !");
             trpl::sleep(Duration::from_millis(500)).await;
-        }
+        };
 
         handle.await.unwrap();
 ```
 
-*清单 17-7：使用 `await` 与联合句柄，运行任务到完成*
+**清单 17-7**：对联合句柄使用 `await` 来运行任务至完成
 
-
-这个更新后的版本，会运行到 *两个循环* 都结束为止。
-
+这一更新后的版本会一直运行，直到 *两个* 循环都结束。
 
 ```console
-hi number 1 from the second task!
-hi number 1 from the first task!
-hi number 2 from the first task!
-hi number 2 from the second task!
-hi number 3 from the first task!
-hi number 3 from the second task!
-hi number 4 from the first task!
-hi number 4 from the second task!
-hi number 5 from the first task!
-hi number 6 from the first task!
-hi number 7 from the first task!
-hi number 8 from the first task!
-hi number 9 from the first task!
+hi 来自第二个任务的数字 1 !
+hi 来自第一个任务的数字 1 !
+hi 来自第一个任务的数字 2 !
+hi 来自第二个任务的数字 2 !
+hi 来自第一个任务的数字 3 !
+hi 来自第二个任务的数字 3 !
+hi 来自第一个任务的数字 4 !
+hi 来自第二个任务的数字 4 !
+hi 来自第一个任务的数字 5 !
+hi 来自第一个任务的数字 6 !
+hi 来自第一个任务的数字 7 !
+hi 来自第一个任务的数字 8 !
+hi 来自第一个任务的数字 9 !
 ```
 
 
-目前看来，异步与线程给到了我们同样的基本结果，只是语法不同：使用 `await` 而不是在联合句柄上调用 `join`，以及等待那个 `sleep` 调用。
+到目前为止，看起来异步和线程给予了我们类似的结果，只是语法不同：对联合句柄使用 `await` 而不是调用 `join`，以及等待 `sleep` 调用。
 
+更大的区别在于，我们无需为了实现这一目的而生成另一个操作系统线程。事实上，我们甚至不需要在这里生成一个任务。由于异步代码块会编译为匿名未来值，我们可以防止两个循环于一个异步代码块中，然后使用 `trpl::join` 函数让运行时同时运行他们至完成。
 
-更大的区别在于，我们无需启动另一个操作系统线程，来完成这项工作。事实上，我们甚至不需要在这里生成一个任务。由于异步代码块会编译为匿名的未来值，因此我们可将各个循环，放在一个异步代码块中，然后使用 `trpl::join` 函数，让运行时将他们运行完成。
+在第 16 章中的 [等待所有线程结束](../concurrency/threads.md#等待所有线程结束) 小节，我们展示了怎样对咱们调用 `std::thread::spawn` 时返回的 `JoinHandle` 类型使用 `join` 方法。`trpl::join` 函数类似，不过针对未来值。当咱们给予他两个未来值时，他会生成单个新的未来值，其输出是个元组，包含着咱们传入的两个未来值在 *全部* 完成后各自的输出。因此，在下面清单 17-8 中，我们使用 `trpl::join` 等待 `fut1` 和 `fut2` 都完成。我们 *并未* 等待 `fut1` 和 `fut2`，而是等待 `trpl::join` 生成的新的未来值。我们忽略了输出，因为他只是包含了两个单元值的元组。
 
-
-在 [“使用 `join` 句柄等待所有线程结束”](../concurrency/threads.md#使用-join-句柄等待全部线程结束) 小节中，我们展示了在调用 `std::thread::spawn` 时返回的 `JoinHandle` 类型上，如何使用 `join` 方法。这个 `trpl::join` 函数与之类似，不过用于未来值。当咱们给到他两个未来值时，他会产生出一个其输出为元组的新未来值，该元组中包含着咱们所传入的各个未来值完成后的输出。因此，在清单 17-8 中，我们使用了 `trpl::join`，等待 `fut1` 和 `fut2` 结束。我们等待的 *不是* `fut1` 和 `fut2`，而是由 `trpl::join` 生成的那个新未来值。我们会忽略输出，因为他只是个包含了两个单元值的元组。
-
-
+<a name="listing_17-8"></a>
 文件名：`src/main.rs`
-
 
 ```rust
         let fut1 = async {
             for i in 1..10 {
-                println!("hi number {i} from the first task!");
+                println!("hi 来自第一个任务的数字 {i} !");
                 trpl::sleep(Duration::from_millis(500)).await;
             }
         };
 
         let fut2 = async {
             for i in 1..5 {
-                println!("hi number {i} from the second task!");
+                println!("hi 来自第二个任务的数字 {i} !");
                 trpl::sleep(Duration::from_millis(500)).await;
             }
         };
@@ -141,27 +126,26 @@ hi number 9 from the first task!
         trpl::join(fut1, fut2).await;
 ```
 
-<a name="listing-17-8"></a> *清单 17-8：使用 `trpl::join` 等待两个匿名未来值*
+**清单 17-8**：使用 `trpl::join` 等待两个匿名未来值
 
-在运行此代码时，我们会看到两个未来值都会运行至完成：
+当我们运行这段代码时，我们会看到两个未来值都会运行至完成：
 
 
 ```console
-hi number 1 from the first task!
-hi number 1 from the second task!
-hi number 2 from the first task!
-hi number 2 from the second task!
-hi number 3 from the first task!
-hi number 3 from the second task!
-hi number 4 from the first task!
-hi number 4 from the second task!
-hi number 5 from the first task!
-hi number 6 from the first task!
-hi number 7 from the first task!
-hi number 8 from the first task!
-hi number 9 from the first task!
+hi 来自第一个任务的数字 1 !
+hi 来自第二个任务的数字 1 !
+hi 来自第一个任务的数字 2 !
+hi 来自第二个任务的数字 2 !
+hi 来自第一个任务的数字 3 !
+hi 来自第二个任务的数字 3 !
+hi 来自第一个任务的数字 4 !
+hi 来自第二个任务的数字 4 !
+hi 来自第一个任务的数字 5 !
+hi 来自第一个任务的数字 6 !
+hi 来自第一个任务的数字 7 !
+hi 来自第一个任务的数字 8 !
+hi 来自第一个任务的数字 9 !
 ```
-
 
 现在，咱们将看到每次都完全相同的顺序，这与我们在线程下看到的情况截然不同。这是因为 `trpl::join` 函数是 *公平的*，意味着他会以相同频率检查各个未来值，在二者之间交替进行，并绝不会在一个已就绪时，让另一个超前。在线程下，是由操作系统决定要检查哪个线程，以及让他运行多久。而在异步的 Rust 下，是由运行时决定要检查哪个任务。(在实践中，细节会变得复杂，因为异步运行时可能会在表象之下，使用操作系统的线程，作为其管理并发性的一部分，所以对运行时来说，保证公平性可能会更费事 -- 但这仍然是可行的！）运行时不必保证对任何给定操作的公平性，他们通常提供不同的 API，让咱们选择是否需要公平性。
 
