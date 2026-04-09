@@ -13,7 +13,7 @@ Rust 中异步编程的关键要素是 *未来值* 和 Rust 的 `async` 与 `awa
 这可能感觉有点抽象，所以我们来编写第一个异步程序：一个小的 web 爬虫。我们将从命令行传入两个 URL，并发地获取这两个 URL，并返回先完成的那个的结果。这个示例将有不少新语法，但不用担心 -- 我们将在过程中解释咱们需要了解的一切。
 
 
-## 我们的第一个异步程序
+# 我们的第一个异步程序
 
 为了将这一章的重点放在学习异步而不是处理该生态的各个部分上，我们创建了 `trpl` 代码箱（`trpl` 是 “The Rust Programming Language” 的缩写）。他重导出了咱们需要的所有类型、特质及函数，他们主要来自 `futures` 和 `tokio` 代码箱。`futures` 代码箱是 Rust 异步代码实验的正式场所，并且他实际上是 `Future` 特质的最初设计地。[Tokio](https://tokio.rs/) 是如今 Rust 中使用最广泛的异步运行时，特别是对于 web 应用。当然还有其他很棒的运行时，而他们可能更适合咱们的目的。我们之所以在 `trpl` 的底层使用 `tokio` 代码箱，是因为他经过充分测试且被广泛使用。
 
@@ -32,7 +32,7 @@ cargo add trpl
 现在我们可以使用 `trpl` 提供的各个部分来编写我们的第一个异步程序了。我们将构建出一个小型命令行工具，他将获取两个 web 页面，提取每个页面中的 `<title>` 元素，并打印出首先完成整个过程的页面的标题。
 
 
-### 定义 `page_title` 函数
+## 定义 `page_title` 函数
 
 我们以编写一个函数开始，他将取一个页面的 URL 作为参数，向其发出请求，并返回 `<title>` 元素的文本（见清单 17-1）。
 
@@ -110,7 +110,7 @@ fn page_title(url: &str) -> impl Future<Output = Option<String>> {
 现在我们可以在 `main` 中调用 `page_title`。
 
 
-### 通过运行时执行异步函数
+## 通过运行时执行异步函数
 
 首先，我们将获取单个页面的标题，如下清单 17-3 中所示。不幸的是，这段代码还不会编译。
 
@@ -142,54 +142,46 @@ error[E0752]: `main` function is not allowed to be `async`
   | ^^^^^^^^^^^^^^^ `main` function is not allowed to be `async`
 ```
 
-`main` 不能标记为 `async` 的原因，是异步代码需要一个 *运行时*：一个管理执行异步代码细节的 Rust 代码箱。某个程序的 `main` 函数可以 *初始化* 某个运行时，但 *他本身* 并不是个运行时。（我们将更多地了解为什么会有这种情况。）每个执行异步代码的 Rust 程序，都至少有一个其设置了某个运行时，并执行未来值之处。
+`main` 不能标记为 `async` 的原因，是异步代码需要 *运行时*：管理执行异步代码细节的某个 Rust 代码箱。程序的 `main` 函数可以 *初始化* 运行时，但 *他本身* 并不是运行时。（稍后我们将详细了解为什么会出现这种情况。）每个执行异步代码的 Rust 程序，都至少有一处，设置执行未来值的运行时的地方。
 
+大多数支持异步的语言都捆绑了运行时，但 Rust 没有。相反，存在许多可用的不同异步运行时，每种都针对其目标用例做出了不同的恰当取舍。例如，有着众多 CPU 核心及大量 RAM 的高吞吐量 web 服务器，与仅有单个核心、少量 RAM 且不具备堆分配能力的微控制器 MCU 相比，就有着截然不同的需求。提供这些运行时的代码箱，通常还会提供常用功能的异步版本，比如文件或网络 I/O 等。
 
-支持异步的大多数语言，都捆绑了某个运行时，但 Rust 并没有。相反，有许多不同异步运行时可用，每一种都根据其针对的用例，做出了不同取舍。例如，有着众多 CPU 核心及大量 RAM 的高吞吐量 web 服务器，与仅有一个核心、少量 RAM 且不具备内存堆分配能力的微控制器，就有着截然不同的需求。提供这些运行时的代码箱，通常还提供了诸如文件或网络 I/O 等常用功能的异步版本。
+在这里，以及本章的其余部分中，我们将使用 `trpl` 代码中的 `block_on` 函数，他会取一个未来值作为参数，并阻塞当前线程，知道该未来值运行完成。在幕后，调用 `block_on` 会使用 `tokio` 设置运行时，用于运行传入的未来值（`trpl` 代码箱的 `block_on` 的行为类似于其他代码箱的 `block_on` 函数）。一旦该未来值完成，`block_on` 就会返回该未来值产生的任何值。
 
+我们可以直接传递 `page_title` 返回的未来值给 `block_on`，并在其完成后，就可以像在清单 17-3 中尝试的那样，匹配得到的 `Option<String>`。但是，对于这一章中的大多数示例中（以及现实世界中的大多数异步代码），我们都将执行不止一个异步函数调用，因此我们将传递一个 `async` 代码块，并显式等待 `page_title` 调用的结果，如下清单 17-4 中所示。
 
-在这里，以及在本章的其余部分，我们将使用 `trpl` 代码中的 `run` 函数，他会取一个未来值作为参数，并将其运行完成。在幕后，调用 `run` 会设置一个用于运行传入未来值的运行时。一旦该未来值运行完成，`run` 就会返回该未来值所产生的任何值。
-
-
-我们可将由 `page_title` 返回的未来值，直接传递给 `run`，一旦其运行完成，我们就可以匹配得到的 `Option<String>`，就像咱们在清单 17-3 中所尝试的那样。但是，在本章的大多数示例中（以及现实世界中大多数异步代码中），我们将执行不止一个异步函数调用，因此我们将传递一个 `async` 代码块，并显式等待 `page_title` 调用的结果，如清单 17-4 所示。
-
-
+<a name="listing_17-4"></a>
 文件名：`src/main.rs`
-
 
 ```rust
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
-    trpl::run(async {
+    trpl::block_on(async {
         let url = &args[1];
         match page_title(url).await {
-            Some(title) => println!("The title for {url} was {title}"),
-            None => println!("{url} had no title"),
+            Some(title) => println!("{url} 的标题是 {title}"),
+            None => println!("{url} 没有标题"),
         }
     })
 }
 ```
 
+**清单 17-4**：通过 `trpl:block_on` 等待异步代码块
 
-<a name="listing-17-4"></a> *清单 17-4：使用 `trpl:run` 等待某个异步代码块*
-
-
-当我们运行这段代码时，我们会得到最初咱们预期的行为：
-
+当我们运行这段代码时，我们得到了最初预期的行为：
 
 ```console
-$ cargo run -- https://news.163.com
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
-     Running `target/debug/hello-async 'https://news.163.com'`
-The title for https://news.163.com was 网易新闻
+$ cargo run -- https://rust-lang.xfoss.com
+   Compiling hello-async v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello-async)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.58s
+     Running `target/debug/hello-async 'https://rust-lang.xfoss.com'`
+https://rust-lang.xfoss.com 的标题是 序和前言 - Yet another Chinese rust-lang book.
 ```
 
+呼--我们终于有了一些可以工作的异步代码！不过，但在添加代码让两个网站互相竞赛之前，我们先来简要回顾一下未来值的工作原理。
 
-呼 -- 我们终于有了一些可以工作的异步代码！不过，在我们添加让两个网站互相竞赛的代码前，我们来简单回顾一下，这些未来值的工作原理。
-
-
-每个 *等待点，await point* -- 即代码用到 `await` 关键字的各处 -- 都表示了一个控制权被交还给运行时之处。为实现这一点，Rust 需要跟踪涉及到异步代码块的状态，以便运行时可以启动其他工作，然后在准备好再次尝试推进第一个工作时再返回。这是个不可见的状态机，an invisible state machine，就像咱们写了个保存每个等待点当前状态的枚举一样：
+每个 *等待点，await point* -- 也就是代码中使用 `await` 关键字的每处 -- 都代表控制权交还给运行时的位置。为了做到这一点，Rust 需要跟踪异步代码块中涉及的状态，以便运行时可以启动一些其他工作，然后在准备好再次尝试推进第一项工作时返回。这属于不可见（隐形）的状态机，an invisible state machine，就好像咱们编写了个如下的枚举，来保存每个等待点处的当前状态一样：
 
 
 ```rust
@@ -200,30 +192,23 @@ enum PageTitleFuture<'a> {
 }
 ```
 
-然而，亲自编写在各个状态间转换的代码，既繁琐又容易出错，尤其是当咱们需要随后添加更多功能及更多状态时。幸运的是，Rust 编译器会自动创建及管理异步代码的状态机数据结构。有关数据结构的正常借用和所有权规则仍然适用，同时令人高兴的是，编译器还会为我们检查这些规则，并提供有用的错误消息。我们将在本章稍后部分讨论这些问题。
+然而，手动编写代码以在各个状态之间转换既繁琐又容易出错，尤其是在日后咱们需要添加更多功能和状态时。幸运的是，Rust 编译器会自动创建和管理异步代码的状态机数据结构。围绕数据结构的正常借用和所有权规则仍然适用，并且令人高兴的是，编译器还会为我们检查这些检查，并提供有用的错误消息。我们将在这一章后面讨论其中一些方面。
+
+最终，必须有某种机制来执行这个状态机，而这个机制就是运行时（这就是为什么咱们在研究运行时时，可能会遇到 *执行器，executors* 的提法：所谓执行器，是运行时中负责执行异步代码的部分。）
+
+现在咱们就能明白，为什么在清单 17-3 中，编译器阻止我们构造 `main` 本身为一个异步函数。若 `main` 是个异步函数，针对`main` 返回的未来值，就需要由其他组件来管理状态机，但 `main` 是程序的起点！因此，我们在 `main` 中调用 `trpl::block_on` 函数来设置运行时，并运行 `async` 代码块返回的未来值，知道其完成。
+
+> **注意**：某些运行提供了宏，以便咱们 *可以* 编写异步的 `main` 函数。这些宏会重写 `async fn main() { ... }` 为普通的 `fn main`，这与我们在清单 17-4 中手动完成的相同：调用一个函数，该函数会像 `trpl::run` 那样运行未来值至完成。
+
+现在，我们来把这部分放在一起，看看我们可以怎样编写并发代码。
 
 
-最终，必须有某种东西来执行这个状态机，而这个东西就是运行时（这就是为什么在研究运行时时，可能会遇到 *执行器，executors* 的概念：所谓执行器，是某个运行时中负责执行异步代码的部分。）
+## 让两个 URL 并发地相互竞争
 
+在下面的清单 17-5 中，我们从命令行以两个传入的两个不同 URL 调用 `page_title`，并通过选择先完成的未来值让他们竞争。
 
-现在咱们就明白，为什么编译器阻止了我们在清单 17-3 中，将 `main` 本身作为一个异步函数了吧。如果 `main` 是个异步函数，那么无论 `main` 返回什么样的未来值，都需要其他东西来管理状态机，但 `main` 是程序的起点！相反，我们在 `main` 中调用了 `trpl::run` 函数设置运行时，并在那个 `async` 返回 `Ready` 时，运行由其返回的未来值。
-
-
-> **注意**：有些运行时提供以便咱们编写异步 `main` 函数的宏。这些宏会重写 `async fn main() { ... }` 为普通的 `fn main`，这与我们在清单 17-5 中，手工编写的相同：调用某个像 `trpl::run` 那样，运行某个未来值至完成。
-
-
-现在，我们来将这些代码片段组合在一起，看看咱们如何编写并发代码。
-
-
-
-### 让我们的两个 URL 相互竞赛
-
-
-在下面的清单 17-5 中，我们以命令行上传入的两个不同 URL 调用 `page_title`，并进行比赛。
-
-
+<a name="listing_17-5"></a>
 文件名：`src/main.rs`
-
 
 ```rust
 use trpl::{Either, Html};
@@ -231,46 +216,43 @@ use trpl::{Either, Html};
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
-    trpl::run(async {
+    let fut_result = async {
         let title_fut_1 = page_title(&args[1]);
         let title_fut_2 = page_title(&args[2]);
 
         let (url, maybe_title) =
-            match trpl::race(title_fut_1, title_fut_2).await {
+            match trpl::select(title_fut_1, title_fut_2).await {
                 Either::Left(left) => left,
                 Either::Right(right) => right,
             };
 
-        println!("{url} returned first");
+        println! ("{url} 先返回");
         match maybe_title {
-            Some(title) => println!("Its page title is: '{title}'"),
-            None => println!("Its title could not be parsed."),
+            Some(title) => println! ("其页面标题为： '{title}'"),
+            None => println! ("他没有标题。"),
         }
-    })
+    };
+
+    trpl::block_on(fut_result)
 }
 
 async fn page_title(url: &str) -> (&str, Option<String>) {
-    let text = trpl::get(url).await.text().await;
-
-    let title = Html::parse(&text)
+    let response_text = trpl::get(url).await.text().await;
+    let title = Html::parse(&response_text)
         .select_first("title")
         .map(|title| title.inner_html());
     (url, title)
 }
 ```
 
+**清单 17-5**：对两个 URL 调用 `page_title` 以查看那个先返回
 
-*清单 17-5*
-
-
-我们以对用户提供的每个 URL，调用 `page_title` 开始。我们将得到的未来值，保存为 `title_fut_1` 与 `title_fut_2`。请记住，这些未来值还不会做任何事情，因为未来值是懒惰的，且我们还没有等待他们。然后，我们将这两个未来值传递给 `trpl::race`，他会返回一个表明传递给他的未来值中，首先完成那个的值。
+我们以对用户提供的每个 URL 调用 `page_title` 开始。我们保存得到的未来值为 `title_fut_1` 与 `title_fut_2`。请记住，这些还不会执行任何操作，因为未来值是懒惰的，且我们尚未对其进行等待。然后我们传递未来值给 `trpl::select`，他会返回一个值，表明传递给他的未来值中哪个先完成。
 
 
-> **注意**：表象之下，`race` 是建立在一个更通用的函数 `select` 基础上的，在真实世界 Rust 代码中，咱们将更经常遇到。`select` 函数可以完成很多 `trpl::race` 函数无法完成的事情，但他有一些我们现在可以跳过的额外复杂度。
+> **注意**：在底层，`trpl::select` 是基于定义在 `futures` 代码箱中的一个更通用的 `select` 函数构建的。`futures` 代码箱的 `select` 函数可以完成 `trpl::select` 函数无法完成的许多事情，但他也有一些额外的复杂性，目前我们可以跳过。
 
-
-
-两个未来值都可以合法地 “获胜”，因此返回 `Result` 是没有意义的。取而代之的是，`race` 会返回一种我们以前从未见过的类型 `trpl::Either`。`Either` 类型有点类似于 `Result`，因为他有两种情况。但与 `Result` 不同的是，`Either` 中没有成功或失败的概念。相反，他使用了 `Left` 与 `Right`，表示 “非此即彼”：
+由于两个未来值都可以合法地 “胜出”，因此返回 `Result` 并不合理。相反，`trpl::select` 返回一种我们以前从未见过的类型 `trpl::Either`。`Either` 类型与 `Result` 有点相似，因为他有两种情况。但与 `Result` 不同的是，`Either` 中没有成功或失败的概念。相反，他使用 `Left` 与 `Right` 来表示 “二者之一”：
 
 
 ```Rust
@@ -280,14 +262,11 @@ enum Either<A, B> {
 }
 ```
 
+当第一个参数获胜时，`select` 函数返回带有该未来值的输出的 `Left`，当第二个未来值参数获胜时，则返回带有 *该* 未来值的输出的 `Right`。这与调用该函数时参数出现的顺序一致：第一个参数位于第二个参数的左侧。
 
-在第一个参数获胜时，则 `run` 函数就会返回 `Left`，以及该未来值的输出结果；在第二个未来值参数获胜时，则返回 `Right`，以及该参数的输出结果。这与调用该函数时，参数出现的顺序一致：第一个参数是在第二个参数的左边。
+我们还更新了 `page_title` 为返回所传入的同一 URL。这样，当首先返回的页面没有我们可以解析的 `<title>` 时，我们仍然可以打印出一条有意义的消息。有了这些信息，我们最后更新 `println!` 的输出为既表明哪个 URL 先完成，也表明该 URL 处的 web 页面的 `<title>`，在有该元素时。
 
-
-我们还更新了 `page_title`，使其返回所传入的同一 URL。这样，在最先返回的页面没有我们可解析的 `<title>` 时，我们仍然可以打印出一条有意义的消息。有了这些信息，我们就可以通过更新 `println!` 的输出，表明哪个 URL 最先完成，并在该 URL 的网页有 `<title>` 元素时，该元素为何。
-
-
-现在，咱们已经构建了一个可工作的小型 web 爬虫！请选择几个 URL 并运行这个命令行工具。咱们可能会发现，一些网站的速度始终比其他网站快，而在其他情况下，速度较快的网站每次运行会有所不同。更重要的是，咱们已经掌握了使用未来值的基础知识，现在我们可以更深入研究，使用异步咱们可以做些什么了。
+现在，咱们已经构建了个可运行的小型 web 爬虫！请选择几个 URL 并运行这个命令行工具。咱们可能会发现，一些网站始终比其他网站快，而在其他情况下，较快的网站每次运行会有所不同。更重要的是，咱们已经掌握了使用未来值的基础知识，因此现在我们可以更深入地探索在异步下我们可以做些什么。
 
 （End）
 
