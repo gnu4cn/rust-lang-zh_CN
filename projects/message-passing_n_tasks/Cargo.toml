@@ -1,0 +1,7 @@
+[package]
+name = "message-passing_n_tasks"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+trpl = "0.3.0"
