@@ -1,4 +1,5 @@
 use std::time::Duration;
+use trpl::Either;
 
 fn main() {
     let fut = async {
@@ -16,4 +17,14 @@ fn main() {
     };
 
     trpl::block_on(fut);
+}
+
+async fn timeout<F: Future>(
+    future_to_try: F,
+    max_time: Duration,
+) -> Result<F::Output, Duration> {
+    match trpl::select(future_to_try, trpl::sleep(max_time)).await {
+        Either::Left(output) => Ok(output),
+        Either::Right(_) => Err(max_time),
+    }
 }
