@@ -109,8 +109,8 @@
     - [未来值与异步语法](async/futures.md)
     - [以异步实现并发](async/concurrency_n_async.md)
     - [使用任意数量的未来值](async/multiple_futures.md)
-    - [流：序列中的未来值](async/streams.md)
-    - [近观异步相关的特质](async/async_traits.md)
+    - [流：序列未来值](async/streams.md)
+    - [近观异步的特质](async/async_traits.md)
     - [放在一起：未来值、任务与线程](async/all_together.md)
 
 
