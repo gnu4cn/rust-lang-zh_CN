@@ -255,6 +255,55 @@ use std::pin::{Pin, pin};
 
 ## `Stream` 特质
 
-现在咱们对 `Future`、`Pin` 和 `Unpin` 特质有了更深入的理解，我们就可以转移注意力到 `Stream` 特质了。正如你在这一章前面了解到的，流类似于异步的迭代器。然而，与 Iterator 和 Future 不同的是，截至本文撰写之时，标准库中尚未定义 Stream，但 futures 库中提供了一个非常通用的定义，该定义在整个生态系统中被广泛使用。
+现在咱们对 `Future`、`Pin` 和 `Unpin` 特质有了更深入的理解，我们就可以转移注意力到 `Stream` 特质了。正如咱们在这一章前面了解到的，流类似于异步的迭代器。然而，不同于 `Iterator` 和 `Future`，截至本文撰写之时，`Stream` 在标准库中尚无定义，但 `futures` 代码箱中 *存在* 一个整个生态系统中广泛使用的定义。
 
-在探讨 Stream 特质如何将它们融合之前，让我们先回顾一下 Iterator 和 Future 特质的定义。从 Iterator 中，我们获得了序列的概念：其 next 方法返回 Option<Self::Item>。从 Future 中，我们获得了随时间推移而就绪的概念：其 poll 方法返回 Poll<Self::Output>。为了表示随时间推移而就绪的项目序列，我们定义了一个将这些特性结合在一起的 Stream 特质：
+在探讨 `Stream` 特质如何将他们融合之前，我们来先回顾一下 `Iterator` 和 `Future` 特质的定义。从 `Iterator` 中，我们有了序列的概念：其 `next` 方法返回 `Option<Self::Item>`。从 `Future` 中，我们有了随时间推移而就绪的概念：其 `poll` 方法返回 `Poll<Self::Output>`。为了表示随时间推移而就绪的项目序列，我们定义了一个 `Stream` 特质，将这两个特性结合在一起：
+
+```rust
+use std::pin::Pin;
+use std::task::{Context, Poll};
+
+trait Stream {
+    type Item;
+
+    fn poll_next(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>
+    ) -> Poll<Option<Self::Item>>;
+}
+```
+
+`Stream` 特质为流生成的项目类型，定义了个名为 `Item` 的关联类型。这类似于 `Iterator`，其中可能有零到多个项目，而不同于 `Future`，其中始终只有单个 `Output`，即使他是单元值类型 `()`。
+
+`Stream` 还定义了获取这些项目的方法。我们称其为 `poll_next`，以明确他以与 `Future::poll` 相同的方式轮询，并以与 `Iterator::next` 相同的方式生成项目序列。他的返回类型结合了 `Poll` 和 `Option`：
+
+- 外层类型为 `Poll`，因为必须检查其是否准备就绪，就像未来值一样；
+- 内层类型是 `Option`，因为他需要表明是否还有更多消息，就像迭代器一样。
+
+
+与该定义非常相似的内容，很可能最终会成为 Rust 标准库的一部分。与此同时，他是大多数运行时工具包的一部分，因此咱们可以放心使用，并且接下来我们将介绍的所有内容通常都应适用！
+
+不过，我们在 [流：序列中的未来值](./streams.md) 小节中看到的示例中，我们并未使用 `poll_next` 或 `Stream`，而是使用了 `next` 和 `StreamExt`。当然，我们可以像直接通过 `poll` 方法操作未来值一样，通过手动编写自己的 `Stream` 状态机，来直接使用 `poll_next` API。不过，使用 `await` 显得更优雅，并且 `StreamExt` 特质提供了 `next` 方法，因此我们完全可以这样做：
+
+```rust
+trait StreamExt: Stream {
+    async fn next(&mut self) -> Option<Self::Item>
+    where
+        Self: Unpin;
+
+    // 其他方法......
+}
+```
+
+> **注意**：我们在本章早先使用的实际定义与该定义略有不同，因为他支持那些尚不支持在特质中使用异步函数的 Rust 版本。因此，他的形式如下：
+>
+> `fn next(&mut self) -> Next<'_, Self> where Self: Unpin;`
+>
+> 其中 `Next` 类型是个实现 `Future` 的结构体，他允许我们将对 `self` 的引用生命周期，命名为 `Next<'_, Self>`，从而 `await` 可以与该方法配合使用。
+
+
+`StreamExt` 特质还汇集了所有可用于流的有趣方法。对于每种实现 `Stream` 的类型，`StreamExt` 都会自动被实现，但这两个特质是单独定义的，以便社区可以在不影响基础特质下，迭代这些便捷 API。
+
+在 `trpl` 代码箱中使用的 `StreamExt` 版本中，该特质不仅定义了 `next` 方法，还提供了 `next` 的默认实现，可以正确处理调用 `Stream::poll_next` 的细节。这意味着即使在咱们需要编写自己的流式数据类型时，也 *只* 必须实现 `Stream`，随后任何使用咱们数据类型的人，都能自动使用 `StreamExt` 及其方法。
+
+这就是我们要介绍的有关这些特质的底层细的全部内容。最后，我们来考略一下未来值（包括流）、任务和线程，怎样组合在一起！
