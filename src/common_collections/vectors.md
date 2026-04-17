@@ -185,7 +185,7 @@ error: could not compile `vector_demo` (bin "vector_demo") due to 1 previous err
 
 例如，假设我们想要获取电子表格某行中的值，其中该行中某些列包含整数、浮点数与字符串。我们可以定义一个枚举，其变种将保存不同的值类型，而所有枚举变种都将被视为同一类型：即这个枚举。然后，我们可以创建一个矢量来保存这个枚举，进而最终保存不同类型。我们已在下面清单 8-9 中演示了这点。
 
-<a name="listing_8-8"></a>
+<a name="listing_8-9"></a>
 ```rust
     enum SpreadsheetCell {
         Int(i32),

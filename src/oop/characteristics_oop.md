@@ -7,7 +7,9 @@
 
 Erich Gamma、Richard Helm、Ralph Johnson 及 John Vlissides 等的合著 *[Design Patterns: Elements of Reusable Object-Oriented Software](https://en.wikipedia.org/wiki/Design_Patterns)* （Addison-Wesley Professional, 1994），又被通俗地叫做 *The Gang of Four* 书，是面向对象设计模式的汇编。该书是这样定义 OOP 的：
 
-> “面向对象的程序对象所组成。**对象** 封装了数据和操作该数据的过程。这些过程通常称为 **方法** 或 **操作**”。
+> “
+> 面向对象的程序对象所组成。**对象** 封装了数据和操作该数据的过程。这些过程通常称为 **方法** 或 **操作**
+> ”。
 
 使用这个定义，那么 Rust 是面向对象的：结构体和枚举包含数据，而 `impl` 代码块提供结构体和枚举上的方法。尽管带有方法的结构体与枚举未 *被称作* 对象，但根据 The Gang of Four 对对象的定义，他们提供了同样的功能。
 
