@@ -1,6 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-
 pub struct Post {
     state: Option<Box<dyn State>>,
     content: String,
@@ -26,19 +23,18 @@ impl Post {
         if let Some(s) = self.state.take() {
             self.state = Some(s.request_review())
         }
-    }
 
-    pub fn approve(&mut self) {
-        if let Some(s) = self.state.take() {
-            self.state = Some(s.approve())
+        pub fn approve(&mut self) {
+            if let Some(s) = self.state.take() {
+                self.state = Some(s.approve())
+            }
         }
     }
-}
 
-trait State {
-    fn request_review(self: Box<Self>) -> Box<dyn State>;
-    fn approve(self: Box<Self>) -> Box<dyn State>;
-    fn content<'a>(&self, post: &'a Post) -> &'a str { "" }
+    trait State {
+        fn request_review(self: Box<Self>) -> Box<dyn State>;
+        fn approve(self: Box<Self>) -> Box<dyn State>;
+    }
 }
 
 struct Draft {}
@@ -74,9 +70,5 @@ impl State for Published {
 
     fn approve(self: Box<Self>) -> Box<dyn State> {
         self
-    }
-
-    fn content<'a>(&self, post: &'a Post) -> &'a str {
-        &post.content
     }
 }
