@@ -188,7 +188,7 @@ impl State for PendingReview {
 我们将保持 `Post` 上的 `content` 方法不变，使其返回一个空字符串切片。我们现在既可以让 `Post` 处于 `PendingReview` 状态，也可以处于 `Draft` 状态，但我们想要 `PendingReview` 状态下的同样行为。现在清单 18-11 再第二个 `assert_eq!` 前都可以正常工作了！
 
 
-## 添加 `approve` 以修改 `content` 的行为
+### 添加 `approve` 以修改 `content` 的行为
 
 `approve` 方法将类似于 `request_review` 方法：他将设置 `state` 为当前状态规定的，再状态为 “批准” 时应具有的值，如下清单 18-16 中所示。
 
