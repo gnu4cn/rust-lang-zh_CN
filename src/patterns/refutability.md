@@ -1,7 +1,4 @@
-# 可证伪性：某个模式有无可能匹配失败
-
-**Refutability: Whether a Pattern Might Fail to Match**
-
+# 可证伪性：模式是否会匹配失败
 
 模式有两种形式：可证伪与不可证伪的。将匹配所传递的任何可能值模式，即为 *不可证伪的，irrefuatable*。一个示例即为 `let x = 5;` 语句中的 `x`；由于 `x` 会匹配任何值，而因此必定不会匹配失败。那些对某些可能的值，会匹配失败的模式，便是 *可证伪的，refutable*。这样的一个示例，便是表达式 `if let Some(x) = a_value` 中的 `Some(x)`，因为若 `a_value` 中的值为 `None` 而非 `Some` 时，这个 `Some(x)` 模式就将不匹配。
 

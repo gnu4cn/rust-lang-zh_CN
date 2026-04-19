@@ -121,7 +121,7 @@
 
 - [模式与匹配](Ch19_Patterns_and_Matching.md)
     - [可以使用模式的所有地方](patterns/all_places.md)
-    - [可证伪性：某个模式是否会匹配失败](patterns/refutability.md)
+    - [可证伪性：模式是否会匹配失败](patterns/refutability.md)
     - [模式语法](patterns/syntax.md)
 
 - [先进特性](Ch20_Advanced_Features.md)
