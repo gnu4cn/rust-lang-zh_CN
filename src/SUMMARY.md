@@ -117,7 +117,7 @@
 - [面向对象编程特性](Ch17_Object_Oriented_Programming_Features_of_Rust.md)
     - [面向对象语言的特征](oop/characteristics_oop.md)
     - [使用特质对象抽象共用行为](oop/trait_objects.md)
-    - [实现面向对象的设计模式](oop/implementing.md)
+    - [实现一种面向对象的设计模式](oop/implementing.md)
 
 - [模式与匹配](Ch18_Patterns_and_Matching.md)
     - [可使用模式的全部处所](patterns/all_places.md)

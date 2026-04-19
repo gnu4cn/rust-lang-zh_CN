@@ -1,6 +1,6 @@
-# 实现面向对象的设计模式
+# 实现一种面向对象的设计模式
 
-*状态模式，the state pattern*，属于一种面向对象的设计模式。这种模式的关键在于，我们定义某个值可能在内部具有的一套状态。这些状态由一组 *状态对象，state objects* 表示，而值的行为会根据其状态而变化。我们即将进行一个博客帖子结构体的示例，其有着一个保存其状态的字段，该字段将为 “草稿”、“审阅” 或 “已发布” 三个状态集中的一个状态对象。
+[*状态模式，the state pattern*](https://en.wikipedia.org/wiki/State_pattern)，属于一种面向对象的设计模式。这种模式的关键在于，我们定义某个值可能在内部具有的一套状态。这些状态由一组 *状态对象，state objects* 表示，而值的行为会根据其状态而变化。我们即将进行一个博客帖子结构体的示例，其有着一个保存其状态的字段，该字段将为 “草稿”、“审阅” 或 “已发布” 三个状态集中的一个状态对象。
 
 状态对象共用功能：当然，在 Rust 中，我们使用结构体与特质，而非对象与继承。每个状态对象都负责自己的行为，并管理何时应转换为另一种状态。保存状态对象的值，对状态的不同行为，或何时进行状态转换一无所知。
 
@@ -177,7 +177,7 @@ impl State for PendingReview {
 
 我们添加 `request_review` 方法到 `State` 特质；所有实现这个特质的类型，现在都将需要实现 `request_review` 方法。请注意，我们没有使用 `self`、`&self` 或 `&mut self` 作为这个方法的第一个参数，而是使用 `self: Box<Self>`。这种语法意味着，这个方法仅在对包含这种类型的 `Box` 调用时才有效。这种语法会取得 `Box<Self>` 的所有权，从而使旧状态失效，以便 `Post` 的状态值可以转换为新状态。
 
-为了消费旧的状态，`request_review` 方法需要取得状态值的所有权。这就是 `Post` 的 `state` 字段中 `Option` 发挥作用的地方：我们调用 `take` 方法，来从 `state` 字段取出 `Some` 值，并在其位置留下一个 `None`，因为 Rust 不允许我们在结构体中有着未填充的（无效或空字段) 字段。这让我们可以从 `Post` 中迁出 `state` 值，而不是借用他。然后，我们将设置帖子的 `state` 值为这一操作的结果。
+为了消费旧的状态，`request_review` 方法需要取得状态值的所有权。这就是 `Post` 的 `state` 字段中 `Option` 发挥作用的地方：我们调用 `take` 方法（译注：标准库 `Option` 上的），来从 `state` 字段取出 `Some` 值，并在其位置留下一个 `None`，因为 Rust 不允许我们在结构体中有着未填充的（无效或空字段) 字段。这让我们可以从 `Post` 中迁出 `state` 值，而不是借用他。然后，我们将设置帖子的 `state` 值为这一操作的结果。
 
 为了获的 `state` 值的所有权，我们需要暂时设置 `state` 为 `None`，而不是以 `self.state = self.state.request_review();` 这样的代码直接设置他。这确保了在我们将 `Post` 转换为新的状态后，`Post` 无法再使用旧的 `state` 值。
 
@@ -268,20 +268,23 @@ impl Post {
 
 > **译注**：这里涉及到一个 “委托”、“委派” 的概念，updating the `content` on `Post` to delegate to a `content` medthod on `State`
 
-由于咱们的目标是要把所有规则，都保持于实现了 `State` 的那些结构体中，因此咱们就要调用 `state` 字段中值上的 `content` 方法，并将帖子实例（那就是 `self`）作为参数加以传递。随后咱们要返回从 `state` 值上的 `content` 方法调用所返回的值。
+由于目标是要保留所有这些规则在实现 `State` 的结构体内，因此我们对 `state` 中的值调用 `content` 方法，并作为参数传递帖子实例（即 `self`）。然后，我们对 `state` 值使用 `content` 方法返回的值。
 
-由于咱们要的是到 `Option<T>` 内部值的一个引用，而非该值的所有权，因此咱们调用了 `Option<T>` 上的 `as_ref` 方法。由于 `state` 是个 `Option<Box<dyn State>>`，在咱们调用 `as_ref` 时，就会返回一个 `Option<&Box<dyn State>>`。而若咱们没有调用 `as_ref`，那么由于咱们无法无法把 `state` 迁移出那个借用的函数参数 `&self`，而将得到一个报错。
+我们对 `Option` 调用 `as_ref` 方法，因为我们想要对 `Option<T>` 内部值的引用，而非该值的所有权。由于 `state` 是个 `Option<Box<dyn State>>` 值，因此当我们调用 `as_ref` 时，会返回一个 `Option<&Box<dyn State>>`。若我们没有调用 `as_ref`，我们将得到一个报错，因为我们无法从函数参数中借用的 `&self` 中迁出 `state`。
 
-咱们随后调用了 `unwrap` 方法（标准库 `Option<T>` 类型上的），由于咱们清楚，`Post` 上的那些方法，会确保 `state` 将在这些方法完成时，始终包含某个 `Some` 值，因此咱们就明白，这个`unwrap` 是绝不会终止运行的。这便是第 9 章 [相比与编译器咱们掌握着更多信息的情形](Ch09_Error_Handling.md#相比于编译器代码编写者掌握了更多信息的情形) 小节所讲到的情形之一：即咱们明白某个 `Option<T>` 不可能是个 `None` 值，尽管编译器无法掌握这一点。
+然后我们调用 `unwrap` 方法（译注：标准库 `Option<T>` 类型上的），我们知道该方法将绝不会终止运行，因为我们清楚 `Post` 上的方法在执行后，会确保 `state` 将始终包含一个 `Some` 值。这正是第 9 章中 [咱们比编译器掌握更多信息时](/error_handling/panic_or_not.html#咱们比编译器掌握更多信息时) 小节中我们讨论过的情形之一，尽管编译器无法理解这点，但我们知道绝不可能是个 `None` 值。
 
-到 `unwrap` 方法这里，当咱们在 `&Box<dyn State>` 上调用 `content` 方法时，强制解引用转换，deref coercion 就会在那个 `&` 及 `Box` 上发挥作用，从而 `content` 方法就将在实现了 `State` 特质的类型上，最终被调用到。而那就意味着咱们需要把 `content` 添加到 `State` 特质的定义，而那正是咱们把根据咱们所有的状态，返回什么样的内容，这种逻辑要放入的地方，如下清单 17-18 中所示：
+此时，当我们调用 `&Box<dyn State>` 上的 `content` 方法时，解引用强制转换，deref coercion，将对 `&` 和 `Box` 生效，从而最终对实现 `State` 特质的类型调用 `content` 方法。这意味着我们需要添加 `content` 到 `State` 特质定义，这就是我们放置根据我们拥有的状态，返回何种内容的逻辑之处，如下清单 18-18 中所示。
 
+<a name="listing_18-18"></a>
 文件名：`src/lib.rs`
 
 ```rust
 trait State {
     // -- 跳过代码 --
-    fn content<'a>(&self, post: &'a Post) -> &'a str { "" }
+    fn content<'a>(&self, post: &'a Post) -> &'a str {
+        ""
+    }
 }
 
 // -- 跳过代码 --
@@ -296,86 +299,79 @@ impl State for Published {
 }
 ```
 
-*清单 17-18：把 `content` 方法添加到 `State` 特质*
+**清单 18-18**：添加 `content` 方法到 `State` 特质
 
-咱们添加了返回空字符串切片的 `content` 方法默认实现。那就意味着咱们无需在 `Draft` 与 `PendingRereview` 两个结构体上实现 `content` 方法。而 `Published` 结构体则将重写这个 `content` 方法，并返回 `post.content` 中的值。
+我们添加了一个 `content` 方法的默认实现，会返回一个空字符串切片。这意味着我们无需对 `Draft` 与 `PendingRereview` 两个结构体实现 `content` 方法。`Published` 结构体则将重写 `content` 方法，并返回 `post.content` 中的值。虽然这样做很方便，但让 `State` 上的 `content` 方法决定 `Post` 的内容，模糊了 `State` 与 `Post` 职责之间的界线。
 
-> **注**：由于 `content` 默认实现返回的是 `""` 空字符串切片，是个已知大小的值，故方才可以写默认实现。而若将 `request_review` 或 `approve` 也写为默认实现，即如下面这样：
-
-```rust
-trait State {
-    fn request_review(self: Box<Self>) -> Box<dyn State> { self }
-    fn approve(self: Box<Self>) -> Box<dyn State> { self }
-    fn content<'a>(&self, post: &'a Post) -> &'a str { "" }
-}
-```
+> **译注**：由于 `content` 默认实现返回的是 `""` 空字符串切片，是个已知大小的值，故方才可以写默认实现。而若将 `request_review` 或 `approve` 也写为默认实现，即如下面这样：
+>
+> ```rust
+> trait State {
+>     fn request_review(self: Box<Self>) -> Box<dyn State> { self }
+>     fn approve(self: Box<Self>) -> Box<dyn State> { self }
+>     fn content<'a>(&self, post: &'a Post) -> &'a str { "" }
+> }
+> ```
 >
 > 那么将报出错误：
-
-```console
-$ cargo run                                                                                     ✔  
-   Compiling simple_blog v0.1.0 (/home/peng/rust-lang/simple_blog)
-error[E0277]: the size for values of type `Self` cannot be known at compilation time
-  --> src/lib.rs:40:53
-   |
-40 |     fn approve(self: Box<Self>) -> Box<dyn State> { self }
-   |                                                     ^^^^ doesn't have a size known at compile-time
-   |
-   = note: required for the cast from `Self` to the object type `dyn State`
-help: consider further restricting `Self`
-   |
-40 |     fn approve(self: Box<Self>) -> Box<dyn State> where Self: Sized { self }
-   |                                                   +++++++++++++++++
-
-For more information about this error, try `rustc --explain E0277`.
-error: could not compile `simple_blog` due to previous error
-```
+>
+> ```console
+> $ cargo run
+>    Compiling simple_blog v0.1.0 (/home/peng/rust-lang/simple_blog)
+> error[E0277]: the size for values of type `Self` cannot be known at compilation time
+>   --> src/lib.rs:40:53
+>    |
+> 40 |     fn approve(self: Box<Self>) -> Box<dyn State> { self }
+>    |                                                     ^^^^ doesn't have a size known at compile-time
+>    |
+>    = note: required for the cast from `Self` to the object type `dyn State`
+> help: consider further restricting `Self`
+>    |
+> 40 |     fn approve(self: Box<Self>) -> Box<dyn State> where Self: Sized { self }
+>    |                                                   +++++++++++++++++
+>
+> For more information about this error, try `rustc --explain E0277`.
+> error: could not compile `simple_blog` due to previous error
+> ```
 >
 > 这表示 Rust 中的默认实现，需要返回值为固定大小。
 
-请注意正如咱们曾在第 10 章中讨论过的那样，在这个方法上咱们需要生命周期注解。咱们取了到某个 `post` 的引用作为参数，并返回的是到那个 `post` 一部分的引用，因此所返回引用的生命周期，便于这个 `post` 参数生命周期相关。
+请注意，正如我们在第 10 章中讨论的那样，我们需要对这个方法的生命周期注解。我们取的是到某个 `post` 值的引用作为参数，并返回的是到该 `post` 一部分的引用，因此返回的引用的生命周期便与该 `post` 参数的生命周期相关。
 
-而咱们就完成了 -- 清单 17-11 的全部代码现在便工作了！咱们就已实现了博客帖子工作流规则，the rules of the blog post workflow 下的状态模式。与那些规则相关的逻辑，是存在与这些状态对象中，而非散落于 `Post` 的各处，the logic related to the rules lives in the state objects rather than being scattered throughout `Post`。
+我们就完成了 -- 现在清单 18-11 中的全部代码都可以正常工作了！我们已经通过博客帖子工作流程的规则，实现了状态模式。与规则相关的逻辑存在于状态对象中，而不是分散在 `Post` 的各处。
 
-> 为何不用枚举，Why Not An Enum？
+> **为什么不使用枚举**？
 >
-> 你可能已经想到，为何咱们没有使用将不同帖子状态作为变种的一个 `enum`。那确实是一种可行的办法，请尝试并比较最后的结果，来发现你要选哪个方案！运用枚举的一个不足之处，便是在每个检查枚举值的地方，将都需有一个 `match` 表达式，或类似的东西来处理每种可能的变种。相比这里的特质对象方法，那就会有更多重复代码。
+> 咱们可能已经在想，为什么我们没有使用枚举，将不同的帖子可能状态作为变种。这当然是一种可行的办法；请尝试并比较最终结果，看看咱们要选哪种方案！使用枚举的一个缺点是，凡是会检查枚举的值的地方，都需有一个 `match` 表达式，或类似的表达式来处理所有可能的变种。这可能比这种特质对象的方法更加重复。
 
 
-## 状态模式的取舍
+### 评估状态模式
 
-**Trade-offs of the State Pattern**
+我们已经展示了，Rust 能够实现面向对象的状态模式，封装博客帖子在每种状态下应具备的不同类别的行为。`Post` 上的方法对这些不同行为一无所知。由于我们组织代码的方式，我们只须查看一个地方，即可了解已发布帖子的不同行为方式：即 `Published` 结构体上对 `State` 特质的实现。
 
+若我们要创建一种不使用状态模式的替代实现，我们可能转而在 `Post` 上的方法中，甚至在 `main` 代码中使用 `match` 表达式，在这些地方检查博客帖子状态并改变行为。这意味着为了理解处于已发布状态的帖子的所有影响，我们将必须在多个地方查看。
 
-咱们已经证明，Rust 是能够实现这种面向对象模式，来封装处于不同状态下帖子应具备的各种不同行为。`Post` 上的方法对这些各种行为毫不知情。咱们组织代码的方式，即咱们必须仅在一处查看，而获悉某个已发布帖子可以有的那些不同行为方式：这便是 `Published` 结构体上 `State` 特质的实现。
+在状态模式下，`Post` 的方法以及我们使用 `Post` 的地方都不需要 `match` 表达式，而要添加新的状态，我们将只需要添加一个新结构体，并在一处对一个结构体实现特质方法即可。
 
-若咱们原本打算创建另一种不使用状态模式的替代实现，那么咱们可能就会在 `Post` 上的那些方法中，使用一些检查帖子状态的 `match` 表达式，并在那些 `match` 表达式处改变行为。那就意味着咱们将不得不查看多个地方，来了解某个处于已发布状态帖子的全部影响！这样做只会徒增咱们所添加的更多一些状态：每个的这些 `match` 表达式，都将需要另一支臂。
+使用状态模式的实现易于扩展以添加更多功能。要了解维护使用状态模式的代码的简单性，请尝试以下这些建议：
 
-而在状态模式下，那些 `Post` 方法以及那些咱们用到 `Post` 的各处，就不需要那些 `match` 表达式，而要添加一个新状态，咱们将只需添加一个新结构体，并在那个结构体上实现那些特质方法即可。
+- 添加一个 `reject` 方法，将帖子状态从 `PendingReview` 改回 `Draft`；
+- 需要两次调用 `approve`，然后状态才可以更改为 `Published`；
+- 仅当博客帖子处于 `Draft` 状态时，才允许用户添加文本内容。提示：让状态对象负责内容可能的变更，但不负责修改 `Post`。
 
-使用状态模式的这种实现，易于添加更多功能。为发现使用状态模式维护代码的简单性，请尝试下面几条建议：
+状态模式的一个缺点则是，由于状态本身实现了状态之间的转换，因此某些状态会相互耦合。当我们在 `PendingReview` 和 `Published` 之间添加另一状态，比如 `Scheduled` 时，我们将不得不修改 `PendingReview` 中的代码为转而过渡到 `Scheduled`。若 `PendingReview` 在新状态的添加下无需修改，那么工作量会减少，但这意味着要转换到另一种设计模式。
 
-- 请添加将帖子状态从 `PendingReview` 改回到 `Draft` 的一个 `reject` 方法；
+另一个缺点是我们重复了一些逻辑。为了消除部分重复，我们可能会为 `State` 特质上，返回 `self` 的 `request_review` 和 `approve` 两个方法构造默认实现；但这行不通：当作为特质对象使用 `State` 时，该特质不知道具体的 `self` 究竟是什么，因此在编译时返回类型是未知的。（这属于早先提到的 [`dyn` 兼容性规则](./trait_objects.md#dyn_rules) 之一。）
 
-- 在状态可被改变为 `Published` 之前，要求两次到 `approve` 的调用；
+其他重复包括 `Post` 上 `request_review` 和 `approve` 两个方法的相似实现。这两个方法都对 `Post` 的 `state` 字段使用了 `Option::take`，并在 `state` 为 `Some` 时，他们委派给同一个方法的封装值的实现，并设置 `state` 的新值为该方法的结果。若我们在 `Post` 上有大量遵循这种模式的方法时，我们可能会考虑定义一个宏，defining a macro，来消除这种重复（请参阅第 20 章中的 [关于宏](../advanced_features/macros.md) 小节）。
 
-- 只有在某个帖子处于 `Draft` 状态时，才允许用户添加文本内容。提示：让状态对象负责那些可能修改内容的操作，而不负责修改 `Post` 的操作。
+通过完全按照面向对象的定义实现状态模式，我们没有利用我们原本可以利用的 Rust 的优势。我们来看看可以对 `blog` 代码箱进行哪些修改，可以使无效状态以及无效的状态转换，成为编译时的报错。
 
+### 将状态和行为编码为类型
 
-状态模式的一个缺点则是，由于这些状态都实现那些状态间的转换，那么其中一些状态就相互耦合了。当咱们在 `PendingReview` 于 `Published` 之间，添加另一状态，比如 `Scheduled` 时，咱们将不得不把 `PendingReview` 中的代码，修改为相应地转换到 `Scheduled`。若在新状态的添加下，`PendingReview` 无需修改，那么就会少一些事情，然而那便意味着转换到另一种涉及模式了。
+我们将展示怎样重新构思状态模式，以获得一套不同的权衡取舍。与其完全地封装状态及状态过渡，从而使外部代码对他们一无所知，我们将编码状态为不同的类型。于是乎，Rust 的类型检查系统就将通过发出编译器报错，阻止在仅允许已发布的帖子之处使用草稿帖子的尝试。
 
-至于另一个缺点，便是咱们重复了一些逻辑。为消除一些重复，咱们就可能会尝试构造 `State` 特质上，返回 `self` 的 `request_review` 于 `approve` 两个方法的默认实现；然而，由于该特质不清楚那个具体的 `self` 将为何物，因此这会违反对象安全性，violate object safety。咱们希望能够将 `State` 作为特质对象使用，因此咱们就需要他的那些方法是对象安全的。
-
-其他代码重复包括了 `Post` 上 `request_review` 与 `approve` 两个方法的一些相似实现。这两个方法都委托给了那个 `Option` 的 `state` 字段中值上的同一方法，并将 `state` 字段的值，设置到方法的结果。若咱们在 `Post` 上有着大量的遵循这种模式的方法，咱们就会考虑定义出一个宏，defining a macro，来消除这种重复（请参阅第 19 章中 ["宏，Macros"](Ch19_Advanced_Features.md#关于宏) 小节）。
-
-经由这种完全按照面向对象模式下所定义的状态模式，来实现这种模式，咱们就没有利用上原本所能利用的 Rust 的全部优势。下面就来看看，咱们可对那个 `simple_blog` 能做出的，可将无效状态与无效状态转换，构造为编译时错误的一些改变。
-
-
-### 将状态与行为编码为类型
-
-咱们将给出如何对这种状态模式加以反思，以得到一套不同的权衡取舍。不同于对状态及状态的转换进行完全地封装，进而外部代码对他们一无所知，咱们将把那些状态编码为不同类型。于是乎，Rust 的类型检查系统，就将通过发出编译器报错，阻止在那些仅允许已发布帖子之处，使用草稿帖子的尝试。
-
-下面来考虑一下清单 17-11 中，`main` 函数的第一部分：
+我们来考虑 [清单 18-11](#listing_18-11) 中 `main` 函数的第一部分：
 
 文件名：`src/main.rs`
 
@@ -388,9 +384,9 @@ fn main() {
 }
 ```
 
-咱们仍旧使用 `Post::new`，实现了新的处于草稿状态的那些帖子的创建，并实现了将文本添加到帖子内容的能力。但与在草稿帖子上有着返回空字符串的 `content` 方法不同，咱们将把 `Post` 构造为根本就没有那个 `content` 方法。那样的话，在咱们尝试获取某个草稿帖子的内容时，就会得到告诉咱们该方法不存在的编译器报错。由此，对于生产中咱们无意地显示出帖子内容，由于那样的代码甚至都不会编译，那么这将是不可能的了。清单 17-19 给出了 `Post` 结构体的定义，以及一个 `DraftPost` 的结构体，以及各自上的一些方法：
+我们仍然实现了使用 `Post::new` 创建处于草稿状态的帖子，以及添加文本到帖子内容的能力。但与在草稿帖子上提供一个返回空字符串的 `content` 方法不同，我们让 `Post` 根本没有 `content` 方法。这样，当我们尝试获取草稿帖子的内容时，我们将得到一个编译器报错，告诉我们该方法不存在。因此，我们不可能在生产中意外地显示草稿帖子内容，因为相关代码甚至不会编译。下面清单 18-19 展示了 `Post` 结构体的定义和一个 `DraftPost` 结构体，以及各自的方法。
 
-
+<a name="listing_18-19"></a>
 文件名：`src/lib.rs`
 
 ```rust
@@ -421,29 +417,28 @@ impl DraftPost {
 }
 ```
 
-*清单 17-19：有着 `content` 方法的 `Post` 与不带 `content` 方法的 `DraftPost`*
+**清单 17-19**：有着 `content` 方法的 `Post` 和不带 `content` 方法的 `DraftPost`
 
+`Post` 与 `DraftPost` 这两个结构体都包含一个私有 `content` 字段，存储博客帖子文本。两个结构体不再包含 `state` 字段，因为我们正在迁移对状态的编码到结构体的类型。`Post` 结构体将表示已发布的帖子，并且他有个返回 `content` 的 `content` 方法。
 
-`Post` 与 `DraftPost` 两个结构体都有着存储了博客帖子文本的私有 `content` 字段。由于咱们正将状态编码，迁移到一些结构体类型，因此这两个结构体就不再有 `state` 字段了。`Post` 结构体将表示已发布帖子，而他便有着返回 `content` 的 `content` 方法。
+我们仍然有个 `Post::new` 函数，但他不再返回 `Post` 的实例，而是返回 `DraftPost` 的实例。由于 `content` 是私有的，并且没有任何返回 `Post` 值的函数，因此现在无法创建 `Post` 的实例。
 
-咱们仍有一个 `Post::new` 函数，但不是返回 `Post` 实例，其返回的是 `DraftPost` 实例。由于 `content` 是私有的，而有没有任何返回 `Post` 的函数，那么此刻就不可能创建出 `Post` 实例。
+`DraftPost` 结构体有个 `add_text` 方法，因此我们可以像以前一样添加文本到 `content`，但请注意，`DraftPost` 没有定义 `content` 方法！因此，现在程序确保了所有帖子都以草稿帖子开始，而草稿帖子没有让他们的内容可用于显示。任何试图绕过这些约束的尝试都将导致编译器报错。
 
-`DraftPost` 结构体有着一个 `add_text` 方法，因此咱们就可以如同之前那样，把文本添加到 `content`，但请注意 `DraftPost` 并没有定义一个 `content` 方法！因此现在的程序确保了全部帖子都以草稿帖子开头，而草稿帖子并不会让他们的内容用于显示。任何绕过这些约束的尝试，都将导致编译器报错。
+那么，我们怎样得到已发布的帖子呢？我们希望强制执行草稿帖子必须被审阅和批准后，才能发布的规则。处于等待审阅状态的帖子仍不应显示任何内容。我们来通过
 
+- 添加另一结构体 `PendingReviewPost`、
+- 在 `DraftPost` 上定义一个返回 `PendingReviewPost` 实例的 `request_review` 方法，
+- 并在 `PendingReviewPost` 上定义返回 `Post` 的 `approve` 方法，
 
-### 以到不同类型的转换，实现（状态的）转换
+来实现这些约束，如下清单 18-20 中所示。
 
-**Implementing Transitions as Transformations into Different Types**
-
-
-那么怎样来获取到某个已发布帖子呢？咱们是打算强化某个草稿帖子在其可被发布之前，必须被审阅和批准的规则。处于等待审阅状态的帖子，应仍然不显示任何内容。下面酒类通过添加另一结构体，`PendingReviewPost`、在 `DraftPost` 上定义出返回 `PendingReviewPost` 实例的 `request_review` 方法，以及在 `PendingReviewPost` 上定义出返回 `Post` 的 `approve` 方法，实现这些约束，如下清单 17-20 中所示：
-
+<a name="listing_18-20"></a>
 文件名：`src/lib.rs`
 
 ```rust
 impl DraftPost {
     // -- 跳过代码 --
-
     pub fn request_review(self) -> PendingReviewPost {
         PendingReviewPost {
             content: self.content,
@@ -464,46 +459,45 @@ impl PendingReviewPost {
 }
 ```
 
-*清单 17-20：通过在 `DraftPost` 上调用 `request_review` 而被创建出的 `PendingReviewPost` 实例，以及将 `PendingReviewPost` 转变为已发布 `Post` 的 `approve` 方法*
+**清单 18-20**：通过对 `DraftPost` 调用 `request_review`，一个 `PendingReviewPost` 得以创建，以及一个转换 `PendingReviewPost` 为已发布的 `Post` 的 `approve` 方法
 
-`request_review` 与 `approve` 两个方法，都取得了 `self` 的所有权，从而消费了 `DraftPost` 及 `PendingReviewPost` 实例，并把他们相应地转换成了 `PendingReviewPost` 与已发布的 `Post`。以这种方式，在咱们于 `DraftPost` 实例上调用了 `request_review` 之后，便不会再有任何遗存的 `DraftPost` 实例，对 `PendingReviewPost` 之类亦是如此。`PendingReviewPost` 结构体之上，并没有 `content` 方法，因此正如 `DraftPost` 一样，尝试读取其内容，会导致编译器报错。由于获取确实有定义出的 `content` 方法的已发布 `Post` 实例的唯一方式，为在某个 `PendingReviewPost` 上调用 `approve` 方法，而获取到一个 `PendingReviewPost` 的唯一方法，为在某个 `DraftPost` 上调用 `request_review` 方法，咱们现在便已将这个博客帖子工作流，编码为了类型系统。
+`request_review` 和 `approve` 两个方法都会取得 `self` 的所有权，从而消费 `DraftPost` 及 `PendingReviewPost` 实例，并分别把他们转换为 `PendingReviewPost` 和已发布的 `Post`。这样，在对 `DraftPost` 实例调用 `request_review` 后，我们就不会再有任何遗存的 `DraftPost` 实例，以此类推。`PendingReviewPost` 结构体上未定义 `content` 方法，因此尝试读取其内容会导致编译器报错，就像 `DraftPost` 一样。由于获取带有 `content` 方法的已发布的 `Post` 实例的唯一方式是，对 `PendingReviewPost` 调用 `approve` 方法；而获取 `PendingReviewPost` 的唯一方式是，对 `DraftPost` 调用 `request_review` 方法，我们现在已编码博客帖子工作流为类型系统。
 
-不过咱们还必须对 `main` 做出一些小的修改。`request_review` 与 `approve` 两个方法，返回的都是一些新实例，而不再是修改他们于其上所调用的结构，因此咱们就需要添加更多 `let post = ` 遮蔽赋值语句，来保存那些返回的实例。咱们还不能断言草稿于等待审阅帖子的内容为空字符串，咱们也是不需要他们的：咱们再也不会编译，尝试使用处于这些状态下的帖子内容的代码。下面清单 17-21 中，给出了 `main` 中更新后的代码：
+但我们还必须对 `main` 进行一些小的更改。`request_review` 和 `approve` 两个方法都会返回新的实例，而不是修改在其上调用他们的结构体，因此我们需要添加更多 `let post = ` 的遮蔽赋值，来保存返回的实例。我们还不能有那些关于草稿和等待审阅帖子的内容为空字符串的断言，也不需要这些断言：我们无法再编译尝试使用处于这些状态的帖子的内容的代码。`main` 中更新后的代码显示于下面清单 18-21 中。
 
+<a name="listing_18-21"></a>
 文件名：`src/main.rs`
 
 ```rust
-use neo_simple_blog::Post;
+use blog::Post;
 
 fn main() {
     let mut post = Post::new();
 
-    post.add_text("这是一个博客帖子。");
+    post.add_text("今天午饭我吃了沙拉。");
 
     let post = post.request_review();
+
     let post = post.approve();
 
-    assert_eq! ("这是一个博客帖子。", post.content());
+    assert_eq! ("今天午饭我吃了沙拉。", post.content());
 }
 ```
 
-*清单 17-21：为使用这个博客帖子工作流的新实现，而对 `main` 的一些修改*
+**清单 18-21**：对 `main` 的修改，以使用博客帖子工作流的新实现
 
+我们需要对 `main` 进行修改以重新指派 `post`，意味着这种实现已不再严格遵循面向对象的状态模式：状态之间的转换不再完全封装在 `Post` 的实现内。不过，我们的收获是，由于类型系统和编译时发生的类型检查，无效状态现在是不可能的！这确保了一些错误，比如未发布的帖子的内容的显示等，在投入生产之前就会被发现。
 
-咱们所需做出的对 `post` 重新复制的那些修改，表示这种实现，已不再那么严格遵循面向对象设计模式了：状态之间的转换，不再是整个地封装在 `Post` 实现里。不过，咱们的收获，则是由于类型系统，以及编译时所发生的类型检查，那些无效状态现在就不可能了！这样就确保了一些确切代码错误，比如未发布帖子内容的显示等，在其到达生产部署之前，就将被发现。
+请在清单 18-21 之后的 `blog` 代码箱的基础上，尝试这一小节开头建议的任务，看看咱们对这一版本代码的设计有何看法。请注意，某些任务可能已在这一设计中完成。
 
-请在清单 17-21 之后的情况下，尝试在 `neo_simple_blog` 上实现本小节开头给出的那些任务，来发现你对此版本代码的设计模式有何看法。请注意其中一些任务，在这种模式下或许已被完成了。
-
-
-咱们业已看到，即使 Rust 有能力实现面向对象的一些设计模式，而对于其他模式，比如将状态编码为类型系统等，在 Rust 中也都是可行的。这些模式都有着不同的取舍。尽管咱们可能对面向对象的那些模式非常熟悉，但对问题进行反思，而运用上 Rust 那些特性的优势，就可以提供到各种好处，比如在编译时阻止一些代码错误等。出于比如所有权这样的，面向对象语言所不具备的某些特性，那么在 Rust 中，面向对象的那些模式，将并不总是最佳方案。
+我们已经看到，尽管 Rust 能够实现面向对象的设计模式，但在 Rust 中其他模式，比如编码状态为类型系统等也是可用的。这些模式有着不同的权衡取舍。尽管咱们可能对面向对象的模式非常熟悉，但重新构思问题以利用 Rust 的特性，会带来诸多好处，比如在编译时防止 bug 等。由于面向对象语言不具备所有权这样的一些特性，因此面向对象模式并不总是 Rust 中的最佳解决方案。
 
 
 # 本章小节
 
-在读完这一章之后，不论咱们认为或是不认为 Rust 是门面向对象语言，现在都明白，咱们可以在 Rust 中，使用特质对象来获得一些面向对象的特性。动态调遣，dynamic dispatch 可以些许运行时性能损失，换取到咱们代码一定程度的灵活性。咱们则可运用这样的灵活性，来实现能有助于代码可维护性的一些面向对象模式。Rust 还有面向对象语言所没有的其他一些特性，比如所有权等。对于利用 Rust 各种长处方面的优势来讲，面向对象模式将不总是最佳方式，但其为一种可行选项。
+无论咱们在读完这一章后，是否认为 Rust 属于面向对象语言，咱们现在都知道，可以在 Rust 中使用特质对象获得一些面向对象的特性。动态分派可以在损失部分运行时性能下，给予咱们一定的灵活性。我们可以利用这种灵活性来实现面向对象的模式，从而提高代码的可维护性。Rust 还具备面向对象语言所没有的其他特性，比如所有权等。面向对象模式并不总是利用 Rust 优势的最佳方式，但他是一种可用选项。
 
-接下来，咱们将看看各种模式，这是带来大量灵活性的 Rust 诸多特性的另一项。虽然贯穿本书，咱们已经粗略地看了看他们，但仍尚未见识到他们的完整能力。咱们就拭目以待吧！
-
+接下来，我们将看看模式，这是 Rust 另一项赋予代码灵活性的特性。虽然我们在全书中已对其进行了简要介绍，但还没有了解他们的全部能力。我们来开始吧！
 
 （End）
 
