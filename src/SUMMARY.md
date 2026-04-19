@@ -105,7 +105,7 @@
     - [`Sync` 与 `Send` 下的可扩展并发](concurrency/extensible_concurrency.md)
 
 
-- [异步编程基础：异步、等待、未来值与流](Ch16_1_async_programming.md)
+- [异步编程基础：异步、等待、未来值与流](Ch17_async_programming.md)
     - [未来值与异步语法](async/futures.md)
     - [以异步实现并发](async/concurrency_n_async.md)
     - [使用任意数量的未来值](async/multiple_futures.md)
@@ -114,24 +114,24 @@
     - [未来值、任务与线程](async/all_together.md)
 
 
-- [面向对象编程特性](Ch17_Object_Oriented_Programming_Features_of_Rust.md)
+- [面向对象编程特性](Ch18_Object_Oriented_Programming_Features_of_Rust.md)
     - [面向对象语言的特征](oop/characteristics_oop.md)
     - [使用特质对象抽象共用行为](oop/trait_objects.md)
     - [实现一种面向对象的设计模式](oop/implementing.md)
 
-- [模式与匹配](Ch18_Patterns_and_Matching.md)
+- [模式与匹配](Ch19_Patterns_and_Matching.md)
     - [可使用模式的全部处所](patterns/all_places.md)
     - [可证伪性：某个模式是否会匹配失败](patterns/refutability.md)
     - [模式语法](patterns/syntax.md)
 
-- [先进特性](Ch19_Advanced_Features.md)
+- [先进特性](Ch20_Advanced_Features.md)
     - [不安全的 Rust](advanced_features/unsafe.md)
     - [高级特质](advanced_features/adv_traits.md)
     - [高级类型](advanced_features/adv_types.md)
     - [高级函数与闭包](advanced_features/adv_fns_and_closures.md)
     - [关于宏](advanced_features/macros.md)
 
-- [最后项目：构建多线程的 Web 服务器](Ch20_Final_Project_Building_a_Multithreaded_Web_Server.md)
+- [最后项目：构建多线程的 Web 服务器](Ch21_Final_Project_Building_a_Multithreaded_Web_Server.md)
     - [构建单线程的 Web 服务器](final_project/single-threaded.md)
     - [将这个单线程服务器修改为多线程服务器](final_project/multithreaded.md)
     - [优雅关机与内存清理](final_project/graceful_shutdown.md)
