@@ -21,4 +21,10 @@
 
 在这一章结束时，咱们将了解如何使用模式来清晰地表达许多概念。
 
-
+> **译注**：Rust 中的模式匹配，借鉴了 Erlang/OTP 中的概念。模式匹配在 Erlang/OTP 中属于基础的存在。
+>
+> 参考：
+>
+> - [变量绑定与模式匹配](https://erl.xfoss.com/part-ii/Ch03-basic_concepts.html#%E5%8F%98%E9%87%8F%E7%BB%91%E5%AE%9A%E4%B8%8E%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D)
+>
+> - [又来模式匹配](https://erl.xfoss.com/part-ii/Ch03-basic_concepts.html#%E5%8F%88%E6%9D%A5%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D)

@@ -120,7 +120,7 @@
     - [实现一种面向对象的设计模式](oop/implementing.md)
 
 - [模式与匹配](Ch19_Patterns_and_Matching.md)
-    - [可使用模式的全部处所](patterns/all_places.md)
+    - [可以使用模式的所有地方](patterns/all_places.md)
     - [可证伪性：某个模式是否会匹配失败](patterns/refutability.md)
     - [模式语法](patterns/syntax.md)
 
