@@ -1,7 +1,7 @@
 fn main() {
-    let v = vec! ['a', 'b', 'c'];
+    let x = 5 else {
+        return;
+    };
 
-    for (index, value) in v.iter().enumerate() {
-        println! ("{} 处于索引 {} 处", value, index);
-    }
+    println! ("{x}");
 }

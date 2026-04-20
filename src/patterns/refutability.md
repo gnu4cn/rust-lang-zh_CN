@@ -1,91 +1,89 @@
 # 可证伪性：模式是否会匹配失败
 
-模式有两种形式：可证伪与不可证伪的。将匹配所传递的任何可能值模式，即为 *不可证伪的，irrefuatable*。一个示例即为 `let x = 5;` 语句中的 `x`；由于 `x` 会匹配任何值，而因此必定不会匹配失败。那些对某些可能的值，会匹配失败的模式，便是 *可证伪的，refutable*。这样的一个示例，便是表达式 `if let Some(x) = a_value` 中的 `Some(x)`，因为若 `a_value` 中的值为 `None` 而非 `Some` 时，这个 `Some(x)` 模式就将不匹配。
+模式有两种形式：可证伪与不可证伪的。对于任何可能传递的值都匹配的模式，属于 *不可证伪的，irrefuatable*。例如，语句 `let x = 5;` 中的 `x`，因为 `x` 会匹配任何值，因此不可能匹配失败。对于某些可能的值可能匹配失败的模式，属于 *可证伪的，refutable*。例如，表达式 `if let Some(x) = a_value` 中的 `Some(x)`，因为当 `a_value` 中的值为 `None` 而非 `Some` 时，`Some(x)` 模式将不匹配。
 
-函数参数、`let` 语句及 `for` 循环，就只能接受不可证伪的模式，这是由于这些情况下，当值不匹配时，程序便无法执行任何有意义的事情。`if let` 与 `while let` 表达式，接受可证伪与不可证伪的模式，但由于根据定义，他们被计划来处理可能的匹配失败：某个条件的功能，便在于其根据匹配成功或失败，而区别执行的能力，因此编译器会就不可证伪模式发出告警。
+函数参数、`let` 语句及 `for` 循环只能接受不可证伪的模式，因为当值不匹配时程序无法执行任何有意义的操作。`if let` 与 `while let` 表达式，以及 `let...else` 语句，接受可证伪和不可证伪的模式，但编译器会对不可证伪模式发出告警，因为根据定义，他们意图处理可能的失败：条件的功能在于其能够根据成功或失败，而以不同方式执行的能力。
 
-一般来说，咱们无须担心可证伪与不可证伪模式的区别；但是，咱们确实需要熟悉可证伪性的概念，这样咱们在看到报错消息时，就可以予以响应。在这些情形下，咱们将需要根据代码所预期的行为，而要么修改模式，或者修改该模式下用到的那个结构。
+一般来说，咱们不必担心可证伪与不可证伪模式的区别；但是，咱们确实需要熟悉可证伪性的概念，以便在在报错消息中看到时可以予以响应。在这种情形下，咱们需要根据代码的预期行为，修改模式或者与模式一起使用的结构。
 
-接下来就看看，当咱们在 Rust 要求使用不可证伪模式的地方，尝试使用某种可证伪模式，及反过来 Rust 要求使用可证伪模式，而尝试使用不可证伪模式时，会发生什么。下面清单 18-8 给出了一个 `let` 语句，不过咱们指定了一个可证伪的 `Some(x)` 模式。正如你会期待的那样，此代码将不会编译。
+我们来通过一个实例看看，当我们尝试在 Rust 要求使用不可证伪模式的地方使用可证伪模式，或者反之，会发生什么。下面清单 19-8 展示了一个 `let` 语句，但我们对模式指定了个可证伪的模式 `Some(x)`。正如咱们所料，这段代码将不编译。
 
+<a name="listing_19-8"></a>
 ```rust
     let Some(x) = some_option_value;
 ```
 
-*清单 18-*：在 `let` 下使用可证伪模式的尝试*
+**清单 19-8**：尝试对 `let` 使用可证伪模式
 
-
-若 `some_option_value` 是个 `None` 值，他就会与模式 `Some(x)` 匹配失败，意味着该模式为可证伪的。但是，由于此处没有可处理 `None` 值的有效代码，因此该 `let` 表达式就只能接收某个不可证伪的模式。在编译时，Rust 将抱怨说咱们曾于要求不可证伪模式的某处，使用了可证伪模式：
+当 `some_option_value` 是个 `None` 值时，他将与模式 `Some(x)` 匹配失败，这意味着该模式是可证伪的。但是，`let` 语句只能接受不可证伪模式，因为没有可处理 `None` 值的有效代码。在编译时，Rust 将抱怨我们试图在要求不可证伪模式的地方使用可证伪模式：
 
 ```console
 $ cargo run
-   Compiling patterns v0.1.0 (file:///projects/patterns)
-error[E0005]: refutable pattern in local binding: `None` not covered
-   --> src/main.rs:3:9
-    |
-3   |     let Some(x) = some_option_value;
-    |         ^^^^^^^ pattern `None` not covered
-    |
-    = note: `let` bindings require an "irrefutable pattern", like a `struct` or an `enum` with only one variant
-    = note: for more information, visit https://doc.rust-lang.org/book/ch18-02-refutability.html
-note: `Option<i32>` defined here
-    = note: the matched value is of type `Option<i32>`
-help: you might want to use `if let` to ignore the variant that isn't matched
-    |
-3   |     let x = if let Some(x) = some_option_value { x } else { todo!() };
-    |     ++++++++++                                 ++++++++++++++++++++++
+   Compiling patterns v0.1.0 (/home/hector/rust-lang-zh_CN/projects/patterns)
+error[E0005]: refutable pattern in local binding
+ --> src/main.rs:3:9
+  |
+3 |     let Some(x) = some_option_value;
+  |         ^^^^^^^ pattern `None` not covered
+  |
+  = note: `let` bindings require an "irrefutable pattern", like a `struct` or an `enum` with only one variant
+  = note: for more information, visit https://doc.rust-lang.org/book/ch19-02-refutability.html
+  = note: the matched value is of type `Option<i32>`
+help: you might want to use `let...else` to handle the variant that isn't matched
+  |
+3 |     let Some(x) = some_option_value else { todo!() };
+  |                                     ++++++++++++++++
 
 For more information about this error, try `rustc --explain E0005`.
-error: could not compile `patterns` due to previous error
+error: could not compile `patterns` (bin "patterns") due to 1 previous error
 ```
 
-由于咱们不曾以 `Some(x)` 涵盖（且无法涵盖到！）所以有效值，Rust 便理所当然地产生了一个编译器报错。
+由于我们没有以模式 `Some(x)` 覆盖（也无法涵盖！）所有有效值，Rust 理所当然地会产生编译器报错。
 
-而当咱们在需要不可证伪模式处，有着某个可证伪模式时，咱们可通过修改用到该模式的代码修复之：与其使用 `let`，咱们可以使用 `if let`。随后在该模式不匹配时，该代码就仅仅会跳过位于那花括号中代码，从而给了其有效继续的一种方式。下面清单 18-9 给出了修复清单 18-8 中代码的方式。
+当我们在需要不可证伪模式的地方使用了可证伪模式时，可以通过修改使用该模式的代码来修复：我们可以使用 `let...else`，而不是使用 `let`。然后，当模式不匹配时，花括号中的代码就会处理该值。下面清单 19-9 展示了如何修复清单 19-8 中的代码。
 
 
 ```rust
-    if let Some(x) = some_option_value {
-        println! ("{}", x);
-    }
+    let Some(x) = some_option_value else {
+        return;
+    };
 ```
 
-*清单 18-9：使用 `if let` 与带有可证伪模式代码块，而非 `let`*
+**清单 19-9**：对可证伪模式使用 `let...else` 和一个代码块，而非 `let`
 
-咱们就已给了代码一条出路了！这段代码是完全有效的，尽管其意味着咱们在不接收到报错下，无法使用某个不可证伪模式。而在咱们给到 `if let` 某个将始终匹配的模式时，如下清单 18-10 中所示，编译器就会给出一条告警。
+我们给予了代码一种退出条件！这段代码完全有效，尽管这意味着我们无法在没有收到告警的情况下，使用不可证伪模式。当我们给予 `let...else` 某个始终匹配的模式时，如下清单 19-10 中所示，编译器将给出告警。
 
 ```rust
-    if let x = 5 {
-        println! ("{}", x);
-    }
+    let x = 5 else {
+        return;
+    };
 ```
 
-*清单 18-10：在 `if let` 下使用不可证伪模式的尝试*
+**清单 19-10**：尝试对 `let...else` 使用不可证伪模式
 
-Rust 会抱怨，以某个不可证伪模式使用 `if let` 没有意义：
+Rust 会抱怨，对 `let...else` 使用不可证伪模式没有意义：
 
 ```console
-$ cargo run                                                                                                                lennyp@vm-manjaro
-   Compiling refutable_demo v0.1.0 (/home/lennyp/rust-lang/refutable_demo)
-warning: irrefutable `if let` pattern
- --> src/main.rs:2:8
+$ cargo run
+   Compiling patterns v0.1.0 (/home/hector/rust-lang-zh_CN/projects/patterns)
+warning: irrefutable `let...else` pattern
+ --> src/main.rs:2:5
   |
-2 |     if let x = 5 {
-  |        ^^^^^^^^^
+2 |     let x = 5 else {
+  |     ^^^^^^^^^
   |
-  = note: this pattern will always match, so the `if let` is useless
-  = help: consider replacing the `if let` with a `let`
+  = note: this pattern will always match, so the `else` clause is useless
+  = help: consider removing the `else` clause
   = note: `#[warn(irrefutable_let_patterns)]` on by default
 
-warning: `refutable_demo` (bin "refutable_demo") generated 1 warning
-    Finished dev [unoptimized + debuginfo] target(s) in 0.59s
-     Running `target/debug/refutable_demo`
-5
+warning: `patterns` (bin "patterns") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/debug/patterns`
 ```
 
-由于这个原因，除了应以一个不可证伪模式匹配全部剩余值的最后支臂外，其他那些匹配支臂，就必须使用可证伪模式。Rust 允许咱们在仅有一个支臂的 `match` 中，使用不可证伪模式，但这种语法不是特别有用，并可以一个更简单的 `let` 语句替换。
+因此，匹配支臂必须使用可证伪模式，除了最后支臂外，他应以不可证伪模式匹配任何剩余的值。Rust 允许我们在仅有一个支臂的 `match` 中使用不可证伪模式，但这种语法并不是特别有用，可以更简单的 `let` 语句替换。
 
-现在，咱们就知道了哪些地方要使用模式，以及可证伪与不可证伪模式的区别，下面就来介绍所有可用于创建模式的语法。
+现在咱们知道了哪里使用模式，以及可证伪与不可证伪模式的区别，我们来介绍可用于创建模式的所有语法。
 
 
 （End）
