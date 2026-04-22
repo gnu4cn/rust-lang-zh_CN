@@ -1,31 +1,25 @@
 # 高级特性
 
-**Advanced Features**
+到目前为止，咱们已经掌握了 Rust 编程语言最常用的部分。在第 21 章进行另一个项目之前，我们将探讨一些咱们可能偶尔会遇到、但未必每天都会用到的语言的几个方面。当咱们遇到一些不明白之处时，可以将这一章作为参考。这里介绍的特性，在一些非常特定的情形下非常有用。尽管咱们可能不会经常接触他们，但我们希望确保咱们掌握 Rust 提供的所有特性。
 
-到此时，咱们业已学习了 Rust 编程语言的那些最为常用部分。在第 20 章中咱们完成另一个项目之前，将看看咱们可能会偶尔碰到，但却不会每天用到的这门语言的一些方面。咱们可将这一章，当作在今后遇到一些不明白之处时的一份参考。这里所涵盖的特性，在一些非常特定情形下是有用的。尽管咱们可能不会经常碰到这些情形，咱们还是希望，能掌握 Rust 所提供到的全部特性。
+在这一章中，我们将探讨：
 
-咱们将在这一章，涵盖以下内容：
-
-- 不安全的 Rust, unsafe Rust: 怎样选择不使用 Rust 的一些保证，而由程序员亲自负责维持这些保证；
-
-+ 一些高级特质，advanced traits:
-    - 关联类型，associated types；
-    - 默认类型参数，default type parameters；
-    - 完全合格语法，fully qualified syntax；
+- 不安全的 Rust: 如何放弃 Rust 的一些保证，而自行承担手动维护这些保证的责任；
++ 高级特质:
+    - 关联类型；
+    - 默认类型参数；
+    - 完全限定语法，fully qualified syntax；
     - 超特质，supertraits；
-    - 及与特质相关的新型模式，the newtype pattern in relation to traits。
-
-+ 一些高级类型：
-    - 更多有关新型模式的内容；
-    - 类型别名，type aliases；
+    - 及与特质相关的新类型模式，the newtype pattern in relation to traits。
++ 高级类型：
+    - 深入探讨新类型模式；
+    - 类型别名；
     - 永恒类型，the never type；
-    - 以及动态大小的类型，dynamically sized types。
-
-- 高级函数与高级闭包：函数指针与返回的闭包，function pointers and returning closures；
-
-- 宏，macros：那些在编译时定义了别的代码的代码定义方式，ways to define code that defines more code at compile time。
+    - 以及动态长度类型，dynamically sized types。
+- 高级函数与高级闭包：函数指针和返回闭包；
+- 宏：在编译时定义更多代码的代码的方式。
 
 
-本章是给每个人应该了解的，一整套 Rust 特性！咱们就开始吧！
+这是一整套的 Rust 特性，适合每个人！让我们开始吧！
 
 
