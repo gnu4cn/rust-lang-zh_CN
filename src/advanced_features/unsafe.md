@@ -1,102 +1,80 @@
 # 不安全的 Rust
 
-**Unsafe Rust**
+到目前为止，我们讨论的所有代码都在编译时强制执行了 Rust 的内存安全保证。然而，Rust 内部隐藏着第二种语言，他不会强制执行这些内存安全保证：他被称为 *不安全 Rust*，其工作方式与 Rust 类似，但给予了我们额外的超能力。
 
-到目前为止，本书所讨论的全部代码，都曾在编译时，将 Rust 的内存安全保证进行了强制执行。然而，Rust 内部有着另一种不强制进行这些内存安全保证的语言：他被叫做 *不安全的 Rust，unsafe rust*，而其与常规 Rust 工作类似，只不过赋予了咱们额外的超能力。
+不安全 Rust 之所以存在，是因为静态分析，static analysis 本质上是保守的。在编译器尝试确定代码是否支持保证时，相比接受一些无效的程序，拒绝一些有效的程序更好。尽管代码 *可能* 没有问题，当当 Rust 编译器缺乏足够的信息对来确信其正确性，他将拒绝该代码。在这些情况下，咱们可以使用不安全代码特性告诉编译器，“相信我，我知道我在做什么。” 但请注意，使用不安全 Rust 需要自担风险：若不当使用非安全代码，可能会因内存不安全而引发问题，比如空指针的解引用。
 
-不安全 Rust 之所以存在，是因为静态分析，static analysis 天生是保守的。在编译器尝试判断出代码是否维持了那些保证时，相比接受一些无效程序，则退回一些有效程序会更佳。尽管代码 *可能* 没有问题，在 Rust 编译器没有足够信息对代码有信心时，他就会退回该代码。在这些情况下，咱们就可以使用不安全代码特性，来告诉编译器，“请相信我，我明白我在做什么。”但请当心，使用不安全 Rust 要风险自担：若不当使用非安全代码，那么由内存不安全而导致的问题就会发生，比如空指针的解引用。
-
-Rust 有着一个非安全的另外自我，an unsafe alter ego，的另一原因，便是所采行的计算机硬件本质上是不安全的。若 Rust 不允许咱们执行非安全操作，那么咱们就无法完成一些特定任务。Rust 需要允许咱们完成一些底层系统编程，诸如直接与操作系统交互，或甚至编写咱们自己的操作系统。而进行底层编程工作，是这门语言的目标之一。下面就来探讨，咱们可以使用非安全 Rust 做些什么，以及怎样使用非安全 Rust。
+Rust 具有不安全的另一个自我，an unsafe alter ego，的另一原因是，底层的计算机硬件本质上是不安全的。若 Rust 不允许咱们执行不安全的操作，咱们就无法完成某些任务。Rust 需要允许咱们执行底层的系统编程，例如直接与操作系统交互，甚至编写自己的操作系统。进行底层编程工作正是这门语言的目标之一。我们来探讨以下，我们可以使用不安全的 Rust 做什么，以及怎样做。
 
 
-## 不安全的超能力
+## 发挥不安全的超能力
 
-**Unsafe Superpowers**
+要切换到不安全的 Rust，就要使用 `unsafe` 关键字，然后开启一个包含不安全代码的新代码块。咱们可以在不安全的 Rust 中，执行五项在安全 Rust 下无法执行的操作，我们称之为 *不安全的超能力*。这些超能力包括以下能力：
 
+1. 解引用原始指针;
+2. 调用不安全的函数或方法；
+3. 访问或修改可变的静态变量；
+4. 实现不安全的特质；
+5. 访问 `union` 类型的字段。
 
-要切换到非安全 Rust，就要使用 `unsafe` 关键字，并于随后开启一个驻留着非安全代码的新代码块。在非安全 Rust 中，可以进行安全 Rust 所不能进行的五种行为，咱们把这些行为叫做 *不安全的超能力，unsafe superpowers*。这些超能力包括了实现下面这些的能力：
+重要的是要明白， `unsafe` 不会关闭借用检查器，或禁用 Rust 的其他任何安全检查：当咱们在不安全代码中使用引用时，他仍将受检查。`unsafe` 关键字仅给予咱们对这五项特性的访问，他们随后不受编译器的内存安全检查。咱们在不安全代码块内部仍将获得一定程度的安全。
 
-- 解引用某个原始指针，dereference a raw pointer;
-- 调用某个非安全的函数或方法；
-- 访问或修改某个可变静态变量；
-- 实现某个非安全特质；
-- 访问 `union` 类型的那些字段。
+此外，`unsafe` 并不意味着代码块内的代码就必然危险，或是肯定存在内存安全问题：其初衷是，作为程序员的咱们将确保 `unsafe` 代码块内的代码，将以有效的方式访问内存。
 
+人容易犯错，错误在所难免，但通过要求这五种不安全操作位于 `unsafe` 注解的代码块内，咱们就将知道，与内存安全相关的任何错误，都必须位于 `unsafe` 代码块内。请保持 `unsafe` 代码块较小；日后排查内存错误时，咱们会为此感到庆幸。
 
-明白 `unsafe` 关键字，并不会关闭借用检查器或停用任何其他的 Rust 安全性检查，是重要的：当咱们在非安全代码中用到某个引用时，其仍将受检查。`unsafe` 关键字只给到咱们访问随后不受编译器内存检查的这五种特性访问。在非安全代码块内部，咱们仍将获得一定程度的安全性。
+为了尽可能隔离不安全代码，最好将此类代码封装在安全抽象中，并提供安全的 API，我们将在本章后面的内容中探讨不安全的函数及方法时，进一步讨论这种做法。标准库的部分内容，便是作为在审计后的不安全代码之上的安全抽象实现的。将不安全代码封装在安全抽象中，可以防止 `unsafe` 的使用泄漏到咱们或咱们的用户可能打算使用以以 `unsafe` 代码实现的功能的所有地方，因为使用安全抽象是安全的。
 
-此外，`unsafe` 并不意味着其代码块内的代码就必然是危险的，或是明显将有着内存安全问题：其意图是作为编程者的咱们，将确保 `unsafe` 代码块内部的代码将以有效的方式访问内存。
-
-人是容易犯错误的，而错误就会发生，但通过要求将这五种非安全操作，置于以 `unsafe` 做标记出的代码块中，咱们就将清楚，任何与内存安全相关的错误，都必须在某个 `unsafe` 代码块里。请保持那些 `unsafe` 代码块较小；当咱们在调查内存错误时，就会对这种做法感激不尽。
-
-为尽量隔离非安全代码，最佳做法即把非安全代码，封闭在安全抽象里，而提供一个安全的 API，在本章检视到非安全函数及方法时，咱们将讨论这个问题，to isolate unsafe code as much as possible, it's best to enclose unsafe code within a safe abstraction and provide a safe API, which we'll discuss later in the chapter when we examing unsafe functions and methods。标准库的一些部分，即是作为已审核过的非安全代码的安全抽象，而实现的。由于运用安全抽象是安全的，因此将非安全代码封装在安全抽象中，就阻止了 `unsafe` 的运用，溢出到可能会用到以 `unsafe` 代码实现功能的全部处所。
-
-下面就来依次看看，每个的这五种超能力。咱们还将看看一些提供了到非安全代码的安全接口的一些抽象。
+我们来依次探讨这五种不安全的超能力。我们还将研究一些为不安全代码的提供安全接口的抽象。
 
 
 ## 解引用原始指针
 
-**Dereferencing a Raw Pointer**
+在第 4 章的 [悬空引用](../ownership/references_and_borrowing.md#悬空引用) 小节中，我们提到编译器会确保引用始终有效。不安全 Rust 有两种名为 *原始指针* 的新类型，他们与引用类似。与引用一样，原始指针可以是不可变的或可变的，并分别写为 `*const T` 及 `*mut T`。其中星号 `*` 并非是解引用运算符；而是类型名字的一部分。在原始指针的语境下，*不可变* 意味着该指针在解引用后不能直接赋值。
 
+不同于引用和及灵巧指针，原始指针有着以下特征：
 
-在第 4 章的 [悬空引用](Ch04_Understanding_Ownership.md#悬空引用dangling-references) 小节，咱们曾提到编译器会确保引用始终有效。不安全的 Rust 则有着与引用类似的， 叫做 *原始指针，raw pointers* 的两种新类型。与引用一样，原始指针可以是不可变或可变的，并被相应地写作 `*const T` 及 `*mut T`。其中的星号 `*` 并非是解引用运算符；他是这种类型名字的一部分。在原始指针语境下，*不可变，immutable* 意指该指针在被解引用之后，不能被直接赋值。
+- 允许通过同时存在指向同一内存位置的不可变和可变指针，或多个可变指针，来忽略借用规则；
+- 不保证指向有效的内存；
+- 允许为空；
+- 不实现任何自动清理。
 
-与引用及灵巧指针不同，原始指针有着以下特征：
+通过选择不让 Rust 强制执行这些保证，咱们可以放弃有保证的安全性，以换取更高的性能，或者获得与另一语言或与硬件交互的能力，其中 Rust 的保证均不适用。
 
-- 通过同一内存位置上的可变及不可变指针，或多个到内存同一位置上的可变指针，原始指针允许忽略借用规则；
-- 原始指针不保证指向有效的内存；
-- 原始指针允许为空 `null`；
-- 原始指针不会实现任何的自动清理。
+下面清单 20-1 展示了怎样创建不可变和可变的原始指针。
 
-
-经由选择不让 Rust 强制执行这些保证，咱们就可以放弃（编译器）保证的安全性，而换得更佳的性能，或与其他语言或与硬件交互的能力，二者都是在 Rust 的保证中没有实现的。
-
-下面清单 19-1 给出了怎样从引用创建出不可变与可变原始指针的方式：
-
+<a name="listing_20-1"></a>
 ```rust
     let mut num = 5;
 
-    let r1 = &num as *const i32;
-    let r2 = &mut num as *mut i32;
-
-
-    println! ("{:?}, {:?}", r1, r2);
+    let r1 = &raw const num;
+    let r2 = &raw mut num;
 ```
 
-*清单 19-1：自引用创建原始指针*
+**清单 20-1**：通过原始借用运算符创建原始指针
 
-> 运行结果如下：
+请注意，我们在这段代码中未包含 `unsafe` 关键字。我们可以在安全代码中创建原始指针；我们只是不能在不安全代码块外部解引用原始指针，稍后咱们就将看到。
 
-```console
-$ cargo run
-   Compiling raw_pointers v0.1.0 (/home/lenny.peng/rust-lang/raw_pointers)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.59s
-     Running `target/debug/raw_pointers`
-0x7ffc2c28eb84, 0x7ffc2c28eb84
-```
+我们通过使用原始借用运算符，创建了原始指针：`&raw const num` 创建了一个 `*const i32` 的不可变原始指针，而 `&raw mut num` 创建了一个 `*mut i32` 的可变原始指针。由于我们直接从局部变量创建了他们，因此我们知道这些特定的原始指针是有效的，但我们不能对任何原始指针都做出这样的假设。
 
-> 注：这里的两个内存地址一样，但每次运行会显示不同的内存地址。
+为了演示这点，接下来我们将创建一个我们无法确定其有效性的原始指针，使用 `as` 关键字强制转换值，而不是使用原始借用运算符。下面清单 20-2 展示了怎样创建一个指向内存中任意位置的原始指针。尝试使用任意内存属于未定义行为：该地址处可能存在数据，也可能没有；编译器可能会优化代码，以便不存在内存访问，或者程序可能会因段错误而终止。通常，没有编写此类代码的充分理由，尤其是在咱们可以使用原始借用运算符替代的情况下，但这种做法确实有可能的。
 
-请注意在此代码中，咱们并未包含 `unsafe` 关键字。咱们可在安全代码中，创建原始指针；只是咱们无法在非安全代码块外部，解引用原始指针，后面马上就将看到这一点。
-
-为验证这一点，接下来咱们将创建咱们不能那么确定其有效性的一个原始指针。下面清单 19-2 给出了怎么创建到内存中任意位置的一个原始指针。尝试使用任意内存，属于不明确行为：在那个地址处可能有数据，或可能没有，编译器就可能优化该代码，如此就没有了内存访问，或是该程序可能以段错误，a segmentation fault，而出错。通常，像下面这样编写代码并无好的理由，但这样写是可能的。
-
+<a name="listing_20-2"></a>
 ```rust
     let address = 0x012345usize;
     let r = address as *const i32;
-
-    println! ("{:?}", r);
 ```
 
-*清单 19-2：创建到任意内存地址的一个原始指针*
+**清单 20-2**：创建指向任意内存地址的原始指针
 
-回顾到咱们可在安全代码中创建原始指针，但咱们不能 *解引用，deference* 原始指针及读取所指向的数据。下面清单 19-3 中，咱们在要求 `unsafe` 代码块的一个原始指针上，使用了解引用运算符 `*`。
+回顾一下，我们可以在安全代码中创建原始指针，但我们不能解引用原始指针并读取所指向的数据。在下面清单 20-3 中，我们对一个需要使用不安全代码块的原始指针，使用了解引用运算符 `*`。
 
+<a name="listing_20-3"></a>
 ```rust
     let mut num = 5;
 
-    let r1 = &num as *const i32;
-    let r2 = &mut num as *mut i32;
+    let r1 = &raw const num;
+    let r2 = &raw mut num;
 
     unsafe {
         println! ("r1 为：{}", *r1);
@@ -104,34 +82,20 @@ $ cargo run
     }
 ```
 
-*清单 19-3：在 `unsafe` 代码块里解引用原始指针*
+**清单 20-3**：在 `unsafe` 代码块内解引用原始指针
 
-> 运行结果如下：
+创建指针本身并无害处；只有当我们试图访问他指向的值时，我们才最终会遇到无效值。
 
-```console
-$ cargo run
-   Compiling raw_pointers v0.1.0 (/home/lenny.peng/rust-lang/raw_pointers)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.15s
-     Running `target/debug/raw_pointers`
-r1 为：5
-r2 为：5
-```
+另请注意，在清单 20-1 与 20-3 中，我们创建了 `*const i32` 与 `*mut i32` 两个原始指针，都指向存储 `num` 的同一内存位置。反之若我们尝试创建到 `num` 的不可变和可变的引用，则代码将不会编译，因为 Rust 的所有权规不允许在存在不可变引用的同时存在可变引用。在原始指针下，我们可以创建到同一位置的可变指针与不可变指针，并通过可变指针修改数据，这潜在地会造成数据竞争。请务必当心！
 
-创建指针没有什么害处；只有在咱们尝试访问其所指向的值可能遇到无效值时，才会造成危害。
-
-还要注意在清单 19-1 与 19-3 中，咱们创建的 `*const i32` 与 `*mut i32` 两个原始指针，都指向了同一内存地址，及 `num` 所存储之处。相反若咱们尝试创建到这个 `num` 的一个不可变与可变的引用，那么由于 Rust 的所有权规则在有任何不可变引用的同时，允许可变引用，该代码就不会被编译。有了原始指针，咱们就可以创建到同一内存地址的可变指针与不可变指针，而经由那个可变指针修改数据，就会潜在的造成数据竞争。所以请当心！
-
-在全部的这些危险之下，咱们为何还要使用原始指针呢？一个主要的原因就是在与 C 代码交互时，正如将在下一小节，[”调用非安全函数或方法“](#调用不安全函数或方法)，中将看到的。另一中情况，便是在构建借用检查器不清楚的一些安全抽象时。咱们将介绍非安全函数，并在随后看看一个用到不安全代码的安全抽象。
+面对所有这些危险，为什么咱们还要使用原始指针呢？一个主要用例是在与 C 代码交互时，咱们将在下一小节中看到这点。另一个用例是在构建借用检查器无法理解的安全抽象时。我们将先介绍不安全函数，然后通过一个使用不安全代码的安全抽象示例来说明。
 
 
-## 调用不安全函数或方法
+## 调用不安全的函数或方法
 
-**Calling an Unsafe Function or Method**
+咱们可以在不安全代码块中执行的第二种操作是调用不安全函数。不安全函数和方法看起来和常规函数和方法完全相同，但他们的定义开头有个额外的 `unsafe`。这种上下文中的 `unsafe` 关键字表明，该函数具有我们在调用该函数时需要遵守的要求，因为 Rust 无法保证我们满足这些要求。通过在 `unsafe` 代码块中调用不安全函数，我们表明我们已经阅读了该函数的文档，并承担遵守函数合约的责任。
 
-
-在非安全代码块中咱们所能进行的第二种操作，便是调用不安全函数了。不安全函数与方法看起来就像是常规函数与方法，但他们在其余定义之前，有个额外的 `unsafe` 关键字。由于 Rust （编译器）无法保证咱们在调用该函数时，业已满足一些要求，而因此这个 `unsafe` 关键字，就表明了其本身就有着这些要求。通过在 `unsafe` 代码块中调用某个不安全函数，就是说咱们为遵守该函数的合约，而已经阅读了这个函数的文档。
-
-下面即为一个未在其函数体中实现任何东西的名为 `dangerous` 的不安全函数：
+以下是个名为 `dangerous` 的不安全函数，其函数体中没有执行任何操作：
 
 ```rust
     unsafe fn dangerous() {}
@@ -141,35 +105,33 @@ r2 为：5
     }
 ```
 
-咱们必须在一个单独的 `unsafe` 代码块里调用这个 `dangerous` 函数。若咱们尝试在那个 `unsafe` 代码块外部调用 `dangerous`，就将得到一个报错：
+我们必须在单独的 `unsafe` 代码块内调用 `dangerous` 函数。若我们尝试在没有 `unsafe` 代码块的情况下调用 `dangerous`，我们将收到报错：
 
 ```console
 $ cargo run
-   Compiling unsafe_functions v0.1.0 (/home/lenny.peng/rust-lang/unsafe_functions)
-error[E0133]: call to unsafe function is unsafe and requires unsafe function or block
- --> src/main.rs:6:5
+   Compiling unsafe_functions v0.1.0 (/home/hector/rust-lang-zh_CN/projects/unsafe_functions)
+error[E0133]: call to unsafe function `dangerous` is unsafe and requires unsafe function or block
+ --> src/main.rs:4:5
   |
-6 |     dangerous();
+4 |     dangerous();
   |     ^^^^^^^^^^^ call to unsafe function
   |
   = note: consult the function's documentation for information on how to avoid undefined behavior
 
 For more information about this error, try `rustc --explain E0133`.
-error: could not compile `unsafe_functions` due to previous error
+error: could not compile `unsafe_functions` (bin "unsafe_functions") due to 1 previous error
 ```
 
-而在 `unsafe` 代码块下，咱们便是在对 Rust 声称，咱们已经阅读了该函数的文档，明白如何恰当地使用他，以及咱们已经检查过咱们履行了这个函数合约。
+在 `unsafe` 代码块下，我们向 Rust 断言我们已经阅读了该函数的文档，了解如何正确使用他，并且已验证我们正在履行该函数的合约。
 
-不安全函数的函数体，都是有效的一些 `unsafe` 代码块，因此就可以在不安全函数里执行其他一些不安全操作，而无需添加别的 `unsafe` 代码块。
-
-
-### 创建非安全代码的安全抽象
-
-**Creating a Safe Abstraction over Unsafe Code**
+要在不安全函数的函数体内执行不安全的操作，咱们仍然需要使用 `unsafe` 代码块，就像在常规函数内一样，当咱们忘记时，编译器将警告咱们。这有助于咱们使不安全代码块尽可能小，因为整个函数体内坑能并不都需要不安全操作。
 
 
-仅仅因为某个函数包含了不安全代码，并不意味着咱们就需要将这整个函数标记为 `unsafe`。事实上，将不安全代码封装在安全函数中，就是一种常见的抽象。作为一个示例，下面咱们就来研究一下标准库中的 `split_at_mut` 函数，其就需要一些不安全代码。咱们将探讨咱们该怎样实现他。这个安全方法是定义在可变切片上的：他会取得一个切片，并通过于作为参数给定的索引处分割这个切片，而将其构造为两个切片。下面清单 19-4 给出了使用 `split_at_mut` 函数的方式：
+### 创建对不安全代码的安全抽象
 
+仅仅因为函数包含不安全代码，并不意味着我们需要标记整个函数为 `unsafe`。事实上，封装不安全代码在安全函数中，属于一种常见的抽象。作为示例，我们来研究一下标准库中的 `split_at_mut` 函数，他需要一些不安全的代码。我们将探讨怎样实现他。这个安全方法定义在可变切片上：他取一个切片，并通过在作为参数给出的索引处分割这个切片，而将使其成为两个切片。下面清单 20-4 展示了如何使用 `split_at_mut`。
+
+<a name="listing_20-4"></a>
 ```rust
     let mut v = vec! [1, 2, 3, 4, 5, 6];
 
@@ -181,10 +143,11 @@ error: could not compile `unsafe_functions` due to previous error
     assert_eq! (b, &mut [4, 5, 6]);
 ```
 
-*清单 19-4：使用安全的 `split_at_mut` 函数*
+**清单 20-4**：使用安全的 `split_at_mut` 函数
 
-仅使用安全的 Rust，咱们是没法实现这个函数的。一种尝试可能看起来像清单 19-5 那样，其不会编译。为简化起见，咱们将把 `split_at_mut` 实现为一个函数而非方法，并只对 `i32` 的值而非泛型 `T` 实现。
+我们无法仅使用安全的 Rust 实现这个函数。一种尝试可能类似于下面清单 20-5，但该代码将不编译。为简化起见，我们把 `split_at_mut` 实现为函数而非方法，并且只针对 `i32` 值的切片，而非泛型类型 `T`。
 
+<a name="listing_20-5"></a>
 ```rust
 fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
     let len = values.len();
@@ -193,43 +156,43 @@ fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
 
     (&mut values[..mid], &mut values[mid..])
 }
-
 ```
 
-*清单 19-5：仅使用安全的 Rust 的`split_at_mut` 的一种实现尝试*
+**清单 20-5**：仅使用安全 Rust 对 `split_at_mut` 的一种实现尝试
 
-这个函数首先得到的是那个切片的总长度。随后其通过检查作为参数所给到的索引小于等于这个总长度，而断言了该索引是在切片里的。这个断言意味着在咱们传入了大于要分割切片长度的一个索引时，该函数将在他尝试使用那个索引前终止运行。
+这个函数首先获取切片的总长度。然后，通过检查作为参数给出的索引是否小于或等于该长度，断言该索引位于切片范围内。这一断言意味着，当我们传递的索引大于要分割切片的长度时，该函数在尝试使用该索引前会终止运行。
 
-随后咱们返回了在一个元组中的两个可变切片：一个来自原始切片开头到 `mid` 索引处，而另一个则是来自从 `mid` 处到那个切片的末尾。
+然后，我们以元组形式返回两个可变切片：一个从原始切片的开头到 `mid` 索引处，另一个从 `mid` 处到切片的末尾。
 
-当咱们尝试编译清单 19-5 中的代码时，就将得到一个报错：
-
+当我们尝试编译清单 20-5 中的代码时，将得到一个报错：
 
 ```rust
 $ cargo run
-   Compiling safe_abstraction v0.1.0 (/home/lenny.peng/rust-lang/safe_abstraction)
+   Compiling unsafe_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/unsafe_example)
 error[E0499]: cannot borrow `*values` as mutable more than once at a time
- --> src/main.rs:8:31
+ --> src/main.rs:6:31
   |
-3 | fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
+1 | fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
   |                         - let's call the lifetime of this reference `'1`
 ...
-8 |     (&mut values[..mid], &mut values[mid..])
+6 |     (&mut values[..mid], &mut values[mid..])
   |     --------------------------^^^^^^--------
   |     |     |                   |
   |     |     |                   second mutable borrow occurs here
   |     |     first mutable borrow occurs here
   |     returning this value requires that `*values` is borrowed for `'1`
+  |
+  = help: use `.split_at_mut(position)` to obtain two mutable non-overlapping sub-slices
 
 For more information about this error, try `rustc --explain E0499`.
-error: could not compile `safe_abstraction` due to previous error
+error: could not compile `unsafe_example` (bin "unsafe_example") due to 1 previous error
 ```
 
-Rust 的借用检查器无法搞清楚，咱们是在借用那个切片的不同部分；他只知道咱们借用了同一切片两次。由于借用切片的两个不同部分没有重叠，因此这样做从根本上讲是可以的，但 Rust 没有足够聪明到明白这点。在咱们清楚代码是没有问题的，而 Rust 并不清楚时，你们就是要用到不安全代码的时候了。
+Rust 的借用检查器无法理解，我们正在借用切片的不同部分；他只知道我们从同一个切片借用了两次。借用切片的不同部分基本上是可行的，因为这两个切片并不重叠，但 Rust 还不够聪明，无法知道这点。当我们知道代码没有问题，而 Rust 不知道时，就该使用不安全代码了。
 
-清单 19-6 给出了如何使用一个 `unsafe` 代码块、一个原始指针，以及一些到非安全函数的调用，来领到这个 `split_at_mut` 实现工作的方式。
+下面清单 20-6 展示了如何通过使用 `unsafe` 代码块、原始指针以及对不安全函数的一些调用，使 `split_at_mut` 的实现正常工作。
 
-
+<a name="listing_20-6"></a>
 ```rust
 use std::slice;
 
@@ -248,18 +211,17 @@ fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
 }
 ```
 
-*清单 19-6： 在 `split_at_mut` 函数实现中使用不安全代码*
+**清单 20-6**： 在 `split_at_mut` 函数的实现中使用不安全代码
 
-回顾第 4 章中的 [“切片类型”](Ch04_Understanding_Ownership.md#切片类型the-slice-type) 小节，切片即为到一些数据的指针，与切片的长度。咱们使用了 `len` 方法，来获取切片的长度，并使用 `as_mut_ptr` 方法来访问切片的原始指针。在这个示例中，由于咱们有着一个到一些 `i32` 值的可变切片，`as_mut_prr` 就会返回类型 `*mut i32` 的原始指针，其已被咱们存储在变量 `ptr` 中。
+回顾第 4 章中 [切片类型](../ownership/the_slice_type.md) 小节，切片属于指向某些数据的指针和切片的长度。我们使用 `len` 方法来获取切片的长度，并使用 `as_mut_ptr` 方法访问切片的原始指针。在这一情形下，由于我们有个`i32` 值的可变切片，`as_mut_prr` 会返回一个类型 `*mut i32` 的原始指针，我们存储在变量 `ptr` 中。
 
-咱们保留了那个 `mid` 索引是在切片里的断言。随后咱们就到了那不安全代码处：`slice::from_raw_parts_mut` 函数会取一个原始指针及长度，并创建出一个切片。咱们使用这个函数，来创建自 `ptr` 开始，且长度为 `mid` 的一个切片。随后咱们以 `mid` 作为参数，调用 `ptr` 上的 `add` 方法，来得到于 `mid` 处开始的一个原始指针，而咱们创建出使用那个指针，且以 `mid` 之后项目数量为长度的一个切片。
+我们保留 `mid` 索引位于切片范围内的断言。然后，我们来到不安全的代码：`slice::from_raw_parts_mut` 函数取一个原始指针和一个长度，并创建一个切片。我们使用这个函数创建一个从 `ptr` 开始、长度为 `mid` 个项目的切片。然后，我们以 `mid` 作为参数对 `ptr` 调用 `add` 方法，以获取一个从 `mid` 处开始的原始指针，并使用该指针和 `mid` 之后的剩余项目数作为长度创建一个切片。
 
-由于函数 `slice::from_raw_parts_mut` 取了一个原始指针，且必须相信这个指针是有效的，因此该函数是不安全的。由于原始指针上的 `add` 方法必须相信那个偏移地址亦为有效指针，故其也是不安全的。因此，咱们就不得不在这些到 `slice::from_raw_parts_mut` 及 `add` 的调用周围，放置一个 `unsafe` 代码块，从而才可以调用他们。通过查阅代码，及添加上 `mid` 务必小于等于 `len` 的断言，咱们就可以讲，在那个 `unsafe` 代码块里用到的全部原始指针，都将是到那个切片里数据的有效指针。这便是 `unsafe` 可接受及合理的使用。
+函数 `slice::from_raw_parts_mut` 是不安全的，因为他取一个原始指针，并且必须信任该指针是有效的。原始指针上的 `add` 方法也是不安全的，因为他必须信任偏移量位置也是有效的指针。因此，我们必须在调用 `slice::from_raw_parts_mut` 及 `add` 放在 `unsafe` 代码块中，才可以调用他们。通过查看代码并添加 `mid` 必须小于或等于 `len` 的断言，我们可以确定，在 `unsafe` 代码块内使用的所有原始指针都将是指向切片中数据的有效指针。这是对 `unsafe` 合理且恰当的使用。
 
-请注意咱们无需将所得的 `split_at_mut` 函数标记为 `unsafe`，且咱们可以从安全的 Rust 调用这个函数。由于这个函数实现只会创建出其所访问数据的有效指针，因此他是以安全方式使用的 `unsafe` 代码，而咱们则以这个函数实现，就已经创建到非安全代码的安全抽象了。
+相比之下，下面清单 20-7 中对 `slice::from_raw_parts_mut` 的使用，可能会在使用切片时崩溃。这段代码会取一个任意的内存位置，并创建一个长度 10,000 个项目的切片。
 
-作为对照，下面清单 19-7 中 `slice::from_raw_parts_mut` 的使用，于那个切片被用到时，大致就会崩溃。此代码取的是一个任意内存地址，并创建了有着 10,000 个条目长的切片。
-
+<a name="listing_20-7"></a>
 ```rust
     use std::slice;
 
@@ -269,100 +231,113 @@ fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
     let values: &[i32] = unsafe { slice::from_raw_parts_mut(r, 10000) };
 ```
 
-*清单 19-7：自任意内存地址创建切片*
+**清单 20-7**：从任意内存位置创建切片
 
 
 > *注*：上面的代码运行结果：
-
-
-```console
-$ cargo run
-   Compiling safe_abstraction v0.1.0 (/home/lenny.peng/rust-lang/safe_abstraction)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.15s
-     Running `target/debug/safe_abstraction`
-```
-
-> 可见并无报错，但若加上 `println! (":?", values);` 语句，运行结果将如下：
-
-
-```console
-$ cargo run
-   Compiling safe_abstraction v0.1.0 (/home/lenny.peng/rust-lang/safe_abstraction)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.17s
-     Running `target/debug/safe_abstraction`
-Segmentation fault (core dumped)
-```
-
+>
+> ```console
+> $ cargo run
+>    Compiling unsafe_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/unsafe_example)
+>     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+>      Running `target/debug/unsafe_example`
+> ```
+>
+> 可见并无报错，但若加上 `println! ("{values:?}");` 语句，运行结果将如下：
+>
+>
+> ```console
+> $ cargo run
+>    Compiling unsafe_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/unsafe_example)
+>     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+>      Running `target/debug/unsafe_example`
+> zsh: segmentation fault (core dumped)  RUSTFLAGS="-A warnings" cargo run
+> ```
+>
 > 报出了段错误。
 
-咱们并不拥有位于此任意地址处的内存，且没有此代码所创建出的切片，包含着一些有效 `i32` 值方面的保证。那么尝试将 `values` 当作其为有效切片使用，就会导致未定义行为，undefined behavior。
+我们并不拥有这一任意位置处的内存，并且无法保证这段代码创建的切片包含有效的 `i32` 值。尝试将 `values` 当作有效的切片使用，将导致未定义行为。
 
 
-### 使用 `extern` 的函数调用外部代码
+### 使用 `extern` 函数调用外部代码
 
-**Using `extern` Functions to Call External Code**
+有时，咱们的 Rust 代码可能需要与以另一种语言编写的代码交互。为此，Rust 提供了 `extern` 关键字，他有助于创建和使用 *外部函数接口，Foreign Function Interface, FFI*，这是用于编程语言定义函数，并使另一种（外部）语言能够调用这些函数的方式。
 
+下面清单 20-8 展示了怎样建立与 C 语言标准库中的 `abs` 函数的集成。在 `extern` 代码块中声明的函数，在 Rust 代码中调用时通常是不安全的，因此 `extern` 代码块也必须标记为 `unsafe`。原因是其他语言不会强制执行 Rust 的规则与保证，并且 Rust 无法检查他们，因此确保安全性的责任落在程序员身上。
 
-有的时候，咱们的 Rust 代码可能需要跟以其他语言编写的代码交互。为这个目的，Rust 有着一个推动 *异种函数接口，Foreign Function Interface, FFI* 的创建与运用的 `extern` 关键字。所谓 FFI，是某门编程语言用于定义出一些函数，并实现一门别的（异种）编程语言来调用这些函数的方式。
-
-下面清单 19-8 演示了怎样建立与来自 C 语言标准库 `abs` 函数的集成。从 Rust 代码调用 `extern` 代码块中声明的函数，总是不安全的。原因在于其他语言没有强制执行 Rust 的规则与保证，同时 Rust 无法对他们加以检查，因此确保安全性的责任，就落在编程者身上。
-
+<a name="listing_20-8"></a>
 文件名：`src/main.rs`
 
 ```rust
-extern "C" {
+unsafe extern "C" {
     fn abs(input: i32) -> i32;
 }
 
 fn main() {
     unsafe {
-        println! ("C 语言中 -3 的绝对值为：{}", abs(-3));
+        println! ("根据 C 语言，-3 的绝对值为：{}", abs(-3));
     }
 }
 ```
 
-*清单 19-8：声明并调用定义在别的语言中的 `extern` 函数*
+**清单 20-8**：声明并调用在另一种语言中定义的 `extern` 函数
 
 
 > 上面代码运行结果为：
-
-```console
-$ cargo run
-   Compiling extern_code v0.1.0 (/home/lenny.peng/rust-lang/extern_code)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.37s
-     Running `target/debug/extern_code`
-C 语言中 -3 的绝对值为：3
-```
-
-在那个 `extern "C"` 代码块里头，咱们列出了咱们打算调用的，来自另一语言的函数名字与签名。其中的 `"C"` 部分，定义了外部函数用到的何种 *应用二进制接口，application binary interface, ABI*：正是 ABI，定义了在汇编层面，at the assembly level，调用该函数的方式。而这个 `"C"` ABI，便是最常用的，且其遵循着 C 编程语言的 ABI。
-
-
-> **自其他语言调用 Rust 的函数，calling Rust functions from other languages**
 >
-> 咱们还可以使用 `extern` 关键字，来创建允许其他语言调用 Rust 函数的接口。与创建出整个 `extern` 代码块不同，咱们只是要在相关函数的 `fn` 关键字前，添加 `extern` 关键字，并指定出要使用的 ABI。咱们还需添加一个 `#[no_mangle]` 注解，来告诉 Rust 编译器不要修饰这个函数的名字，mangle the name of this function。所谓 *名字修饰，Mangling*，是在编译器将咱们给到某个函数的名字，修改为别的包含了给到编译过程其他部分消费的更多信息，但对人类更难于阅读名字的做法。各种编程语言的编译器，对名字的修饰会略有不同，因此为了 Rust 函数可被其他语言命名，咱们就必须关闭 Rust 编译器的名字装饰。
->
-> 在下面的示例中，咱们构造了一个其被编译到共享库，a shared library，并从 C 代码链接后，便可从 C 语言代码访问的 `call_from_c` 函数：
+> ```console
+> $ cargo run
+>    Compiling extern_code v0.1.0 (/home/hector/rust-lang-zh_CN/projects/extern_code)
+>     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+>      Running `target/debug/extern_code`
+> 根据 C 语言，-3 的绝对值为：3
+> ```
+
+在 `unsafe extern "C"` 代码块中，我们列出打算调用的另一种语言中的函数的名字与签名。其中 `"C"` 部分定义了外部函数使用的 *应用程序二进制接口，application binary interface, ABI*：ABI 定义在汇编层面，at the assembly level，如何调用该函数。`"C"` 的 ABI 最为常用的，遵循 C 编程语言的 ABI。有关 Rust 支持的所有 ABI 的信息，请参阅 [Rust 参考手册](https://doc.rust-lang.org/stable/reference/items/external-blocks.html#abi)。
+
+在 `unsafe extern` 代码块内声明的每个项目都是隐式不安全的。但是，某些 FFI 函数 *是* 可以安全调用的。例如，C 标准库中的 `abs` 函数就没有任何内存安全顾虑，并且我们知道他可以任何 `i32` 值调用。在这种情况下，我们可以使用 safe 关键字来表示该特定函数可以安全调用，即使他位于 `unsafe extern` 代码块中。一旦进行这一修改，调用他就不再需要 `unsafe` 代码块，如下清单 20-9 中所示。
+
+<a name="listing_20-9"></a>
+文件名：`src/main.rs`
 
 ```rust
-#[no_mangle]
-pub extern "C" fn call_from_c() {
-    println! ("刚从 C 调用了一个 Rust 函数！");
+unsafe extern "C" {
+    safe fn abs(input: i32) -> i32;
+}
+
+fn main() {
+    println! ("根据 C 语言，-3 的绝对值为：{}", abs(-3));
 }
 ```
 
-> `extern` 的这种用法，不需要 `unsafe` 关键字。
+**清单 20-9**：在 `unsafe extern` 代码块中显式地标记函数为 `safe`，并安全地调用他
+
+标记外部函数为安全，并不意味着他本质上就是安全的！相反，这更像是咱们向 Rust 做出的承诺，即该函数是安全的。确保信守承诺仍然是咱们的责任！
+
+
+### 从其他语言调用 Rust 函数
+
+我们还可以使用 `extern` 创建接口，允许其他语言调用 Rust 的函数。无需创建整个 extern 代码块，我们只需在相关函数的 `fn` 关键字之前添加 `extern` 关键字，并指定要使用的 ABI 即可。我们还需要添加 `#[unsafe(no_mangle)]` 注解，以告知 Rust 编译器不要破坏该函数的名字。所谓 *名字重整*，是指编译器将我们给函数起的名字，更改为不同名字，该名字包含更多供编译过程的其他部分使用的信息，但可读性较低。每种编程语言的编译器对名字的重构方式略有不同，因此为了其他语言能够识别 Rust 函数，我们必须禁用 Rust 编译器的名字重构特性。这属于不安全的，因为在没有内置的名字重构下，不同库之间可能存在名字冲突，因此我们有责任确保我们选择的名字，在没有名字重构的情况下安全地导出。
+
+在以下示例中，我们构造 `call_from_c` 函数为编译成共享库并从 C 中链接后，可从 C 代码访问：
+
+```rust
+#[unsafe(no_mangle)]
+pub extern "C" fn call_from_c() {
+    println!("刚刚从 C 调用了 Rust 函数！");
+}
+```
+
+`extern` 的这种语法，仅需在属性中要求 `unsafe`，而无需在 `extern` 代码块上声明。
 
 
 ## 访问或修改可变静态变量
 
-**Accessing or Modifying a Mutable Static Variable**
+在本书中，我们还没有讨论全局变量，Rust 虽然支持全局变量，但可能会给 Rust 的所有权带来问题。当两个线程同时访问同一个可变全局变量时，可能会引发数据竞争。
 
+在 Rust 中，全局变量被称为 *静态* 变量。下面清单 20-10 展示了以字符串切片作为值的静态变量的声明和使用。
 
-在本书中，咱们还不曾讲到过 *全局变量，global variables*，其不受 Rust 不支持而会与 Rust 的所有权规则发生问题。在两个线程都访问同一可变全局变量时，就会引起数据竞争。
-
-在 Rust 中，全局变量被称为 *静态，static* 变量。下面清单 19-9 给出了有着字符串切片作为值的，一个静态变量的示例声明与运用。
-
-
+<a name="listing_20-10"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -373,17 +348,20 @@ fn main() {
 }
 ```
 
-*清单 19-9：定义并使用不可变静态变量*
+**清单 20-10**：定义和使用不可变静态变量
 
-静态变量与咱们曾在第三章中 [“变量与常量区别”](Ch03_Common_Programming_Concepts.md#常量) 小节讨论过的常量类似。静态变量的名字，依约定都是 `SCREAMING_SNAKE_CASE` 形式。静态变量只能存储有着 `'static` 声明周期的引用，这意味着 Rust 编译器可以计算出声明周期，而不要求咱们显式地对其加以注解。访问不可变的静态变量是安全的。
+静态变量与我们在第 3 章中 [声明常量](../programming_concepts/variables_and_mutability.md#声明常量) 小节中讨论过的常量类似。按照惯例，静态变量的名字采用 `SCREAMING_SNAKE_CASE` 个是。静态变量只能存储具有 `'static` 声明周期的引用，这意味着 Rust 编译器可以计算出声明周期，我们不需要显式注解他。访问不可变的静态变量是安全的。
 
-常量与不可变静态变量的细微差别在于，静态变量里的值在内存中有着固定地址。用到该值就总是将访问同一数据。而另一方面的常量，则凡是在用到他们时，都是允许复制他们数据的。另一不同便是，静态变量可以是可变的。访问与修改可变静态变量是 *不安全的*。下面清单 19-10 给出了如何声明、访问及修改名为 `COUNT` 的可变静态变量方式。
+常量与不可变静态变量之间的一个细微差别是，静态变量中的值在内存中有着固定的地址。使用该值将始终将访问同一数据。另一方面，常量则允许在每次使用时复制其数据。另一个区别是，静态变量可以是可变的。访问和修改可变静态变量是 *不安全的*。下面清单 20-11 展示了如何声明、访问和修改名为 `COUNT` 的可变静态变量。
 
-
+<a name="listing_20-11"></a>
 文件名：`src/main.rs`
 
 ```rust
 static mut COUNTER: u32 = 0;
+
+/// 安全提示：同时从多个线程调用此函数属于未定义行为，
+/// 因此咱们 *必须* 确保每次仅从单个线程调用他。
 
 fn add_to_count(inc: u32) {
     unsafe {
@@ -392,19 +370,23 @@ fn add_to_count(inc: u32) {
 }
 
 fn main() {
-    add_to_count(3);
-
     unsafe {
-        println! ("COUNTER: {}", COUNTER);
+        // 安全提示：此函数仅在 `main` 中的单个线程中调用。
+        add_to_count(3);
+        println! ("COUNTER: {}", *(&raw const COUNTER));
     }
 }
 ```
 
-*清单 19-10：读取自或写入到可变静态变量均为不安全的*
+**清单 20-11**：对可变静态变量的读取和写入时不安全的
 
-与常规变量一样，咱们使用 `mut` 关键字指明可变性。任何读或写 `COUNTER` 的代码，都必须是在 `unsafe` 代码块里。由于这段代码是单线程的，因此其会如咱们预期的那样，编译并打印 `COUNTER: 3`。让多个线程访问 `COUNTER`，就可能会导致数据竞争。
+与常规变量一样，我们使用 `mut` 关键字指定可变性。任何读写 `COUNTER` 的代码都必须位于 `unsafe` 代码块内。清单 20-11 中的代码会编译并如预期打印 `COUNT: 3` ，因为他是单线程的。让多个线程访问 `COUNTER` 可能会导致数据竞争，因此这属于为定义行为。因此，我们需要标记整个函数为 `unsafe` 并记录安全限制，以便任何调用该函数的人，都知道哪些是可以安全执行，哪些不可以安全执行。
 
-在全局可访问的可变数据之下，就难于确保没有数据竞争，这就是 Rust 为何将可变静态变量视为不安全的原因。在可行条件下，就要首选运用并发技巧，以及在第 16 章中曾讨论过的线程安全的灵巧指针，从而编译器将就自不同线程访问数据以安全方式完成，而加以检查。
+每当我们编写不安全的函数时，惯例是在代码中添加以 `SAFETY` 开头的注释，并解释调用者需要采取哪些措施才能安全地调用该函数。同样，每当我们执行不安全的操作时，惯例也是添加以 `SAFETY` 开头的注释，说明安全规则是如何得到维护的。
+
+此外，编译器会默认通过编译器 lint 规则阻止任何试图创建可变静态变量引用操作。您必须通过添加 #[allow(static_mut_refs)] 注解来显式禁用该 lint 规则的保护，或者通过使用原始借用运算符之一创建的原始指针来访问该可变静态变量。 这包括隐式创建引用的情况，例如本代码片段中在 `println!` 中的用法。要求通过原始指针创建对静态可变变量的引用，有助于使使用它们的安全要求更加明确。
+
+对于全局可访问的可变数据，很难确保不存在数据竞争，这就是 Rust 为何将可变静态变量视为不安全的原因。在可能的情况下，最好使用我们在第 16 章中讨论的并发技术和线程安全的智能指针，以便编译器能够检查来自不同线程的数据访问是否安全。
 
 
 ## 实现不安全的特质

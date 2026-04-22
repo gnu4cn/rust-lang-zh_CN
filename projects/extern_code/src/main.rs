@@ -1,17 +1,13 @@
-extern "C" {
-    fn abs(input: i32) -> i32;
-    fn sqrt(input: f64) -> f64;
+unsafe extern "C" {
+    safe fn abs(input: i32) -> i32;
 }
 
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn call_from_c() {
-    println! ("刚从 C 调用了一个 Rust 函数！");
+    println!("刚刚从 C 调用了 Rust 函数！");
 }
 
 fn main() {
-    unsafe {
-        println! ("C 语言中 -3 的绝对值为：{}，3.0 的平方根为：{}", abs(-3), sqrt(3.0));
-    }
+    println! ("根据 C 语言，-3 的绝对值为：{}", abs(-3));
 }
-
