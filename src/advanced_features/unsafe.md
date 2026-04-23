@@ -360,7 +360,7 @@ pub extern "C" fn call_from_c() {
 >     cargo build --release
 >     ```
 >
-> 输出将位于 `target/release/libmy_rust_lib.so`（或类似的扩展名）。、
+>     输出将位于 `target/release/libmy_rust_lib.so`（或类似的扩展名）。
 >
 > 5. 从 C 语言中调用
 >
@@ -392,7 +392,7 @@ pub extern "C" fn call_from_c() {
 >     刚刚从 C 调用了 Rust 函数！
 >     ```
 >
-> 专业提示：对于复杂的项目，请使用 [`cbindgen`](https://github.com/mozilla/cbindgen) 工具，从咱们的 Rust 代码自动生成 C/C++ 头文件。
+> **专业提示**：对于复杂的项目，请使用 [`cbindgen`](https://github.com/mozilla/cbindgen) 工具，从咱们的 Rust 代码自动生成 C/C++ 头文件。
 
 ## 访问或修改可变静态变量
 
