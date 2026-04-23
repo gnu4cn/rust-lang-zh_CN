@@ -341,7 +341,7 @@ pub extern "C" fn call_from_c() {
 >     name = "my_rust_lib"
 >     crate-type = ["cdylib"]
 >     ```
->     这个 `lib` 小节指定了这个库代码像应被编译为一个兼容 C 的动态库。
+>     这个 `lib` 小节指定该库代码箱应被编译为一个兼容 C 的动态库。
 >
 > 3. 在 `src/lib.rs` 中，使用属性 `#[unsafe(no_mangle)]` 阻止 Rust 修改函数名字，使用 `extern "C"` 来应用 C 的调用约定。
 >
@@ -447,55 +447,103 @@ fn main() {
 
 每当我们编写不安全的函数时，惯例是在代码中添加以 `SAFETY`（安全提示） 开头的注释，并解释调用者需要采取哪些措施才能安全地调用该函数。同样，每当我们执行不安全的操作时，惯例也是添加以 `SAFETY` 开头的注释，说明安全规则是如何得到维护的。
 
-此外，编译器会默认通过编译器 lint 规则阻止任何试图创建可变静态变量引用操作。您必须通过添加 #[allow(static_mut_refs)] 注解来显式禁用该 lint 规则的保护，或者通过使用原始借用运算符之一创建的原始指针来访问该可变静态变量。 这包括隐式创建引用的情况，例如本代码片段中在 `println!` 中的用法。要求通过原始指针创建对静态可变变量的引用，有助于使使用它们的安全要求更加明确。
+此外，默认情况下，编译器会通过编译器语法检查器规则，拒绝任何创建到可变静态变量的引用的尝试。咱们必须通过添加 `#[allow(static_mut_refs)]` 注解，显式禁用该语法检查规则的保护，或者通过以原始借用运算符之一创建的原始指针，访问可变静态变量。这包括不可见地创建引用的情况，例如这个代码清单中的 `println!` 中的用法。要求到静态可变变量的引用通过原始指针创建，有助于使使用他们的安全要求更加明确。
 
-对于全局可访问的可变数据，很难确保不存在数据竞争，这就是 Rust 为何将可变静态变量视为不安全的原因。在可能的情况下，最好使用我们在第 16 章中讨论的并发技术和线程安全的智能指针，以便编译器能够检查来自不同线程的数据访问是否安全。
-
-
-## 实现不安全的特质
-
-**Implementing an Unsafe Trait**
+对于全局可访问的可变数据，很难确保不存在数据竞争，这就是 Rust 为何将可变静态变量视为不安全的原因。在可能的情况下，最好使用我们在第 16 章中讨论的并发技术和线程安全的灵巧指针，以便编译器可以检查在不同线程中的数据访问是否安全。
 
 
-咱们可以使用 `unsafe`，来实现不安全的特质。在至少有一个特质的方法有着编译器无法验证的一些定数，some invariant that the compiler can't verify，时，那么这个特质便是不安全的。通过在 `trait` 关键字前加上 `unsafe` 关键字，并将特质的实现也标记为 `unsafe`，咱们就把这个特质声明为了 `unsafe`，如下清单 19-11 中所示。
+## 实现不安全特质
 
+我们可以使用 `unsafe` 来实现不安全特质。当至少有一个特质方法有着编译器无法验证的某些不变量时，该特质就属于不安全的。我们通过在 `trait` 关键字前添加 `unsafe` 关键字，并将该特质的实现也标记为 `unsafe`，来声明该特质为 `unsafe`，如下清单 20-12 中所示。
 
+<a name="listing_20-12"></a>
 ```rust
 unsafe trait Foo {
-    // 这里是些方法
+    // 方法在这里
 }
 
 unsafe impl Foo for i32 {
     // 方法实现在这里
 }
-
-fn main() {}
 ```
 
-*清单 19-11：定义并实现不安全的特质*
+**清单 20-12**：定义并实现不安全特质
 
 
-通过使用 `unsafe impl`，咱们就承诺咱们将坚守那些编译器无法验证的定数，we'll uphold the invariants that the compiler can't verify。
+通过使用 `unsafe impl`，我们承诺将维护那些编译器无法验证的不变量。
 
-作为示例，请回顾第 16 章中 [“`Sync` 与 `Send` 特质下的可扩展并发”](Ch16_Fearless_Concurrency.md#sync-与-send-两个特质下的可扩展并发) 小节中，曾讨论过的 `Sync` 与 `Send` 两个标记性特质：在咱们的类型完全是由 `Send` 与 `Sync` 两种类型构成时，编译器就会自动实现这些特质。而在咱们实现某个包含了非 `Send` 或 `Sync` 的类型，比如原始指针，同时咱们打算将那个类型标记为 `Send` 或 `Sync` 时，咱们就必须使用 `unsafe`。Rust 无法验证咱们的类型坚守了其可被跨线程安全发送，或自多个线程安全访问的那些保证；因此，咱们就需要手动完成这些检查，并以 `unsafe` 照这样加以表明。
+例如，回顾我们在第 16 章中 [Sync 与 Send 下的可扩展并发](../concurrency/extensible_concurrency.md) 小节中讨论过的 `Sync` 与 `Send` 标记特质：当我们的类型完全由实现 `Send` 与 `Sync` 的其他类型构成时，编译器会自动实现这两个特质。当我们实现的类型包含未实现 `Send` 或 `Sync` 的类型，比如原始指针，而我们打算标记该类型为 `Send` 或 `Sync` 时，我们必须使用 `unsafe`。Rust 无法验证我们的类型是否维护了其可被安全地跨线程安全发送，或从多个线程安全地访问的保证；因此，我们需要手动进行这些检查，并通过 `unsafe` 加以表明。
 
 
 ## 访问联合体的字段
 
-**Accessing fields of a union**
+仅适用于 `unsafe` 的最后一个操作是访问联合体的字段。所谓 `union`，类似于 `struct`，但在特定实例中一次仅用到一个声明的字段。联合体主要用于与 C 代码中的联合体交互。访问联合体字段属于不安全的，因为 Rust 无法保证当前存储于联合体实例中的数据的类型。咱们可以在 [Rust 参考手册](https://doc.rust-lang.org/reference/items/unions.html) 中了解有关联合体的更多信息。
 
 
-使用 `unsafe` 的就只剩下最后的用法了，那便是访问 *联合体，union* 的字段。`union` 与 `struct` 类似，但一次只会用到特定实例中一个声明的字段。联合体主要用于与 C 语言代码中的联合体交互。由于 Rust 无法保证在联合体示例当前所存储的数据类型，因此访问联合体字段是不安全的。在 [Rust 参考手册](https://doc.rust-lang.org/reference/items/unions.html) 中，可了解更多有关联合体的知识。
+## 使用 Miri 检查不安全代码
 
+在编写不安全代码时，咱们可能希望检查咱们所编写的代码是否确实安全且正确。实现这一目标的最佳方法之一是，使用 [Miri](https://github.com/rust-lang/miri/) —— Rust 官方用于检测未定义行为的工具。与在编译时工作的 *静态* 工具 “借用检查器” 不同，Miri 是一款在运行时工作的 *动态* 工具。他通过运行咱们的程序，或通过其测试套件来检查咱们的代码，并在检测到咱们违反了其对 Rust 应如何工作的理解时发出告警。
 
-## 何时使用不安全代码
+使用 Miri 需要 Rust 的每日构建版本（我们在 [附录 G：Rust 的构建过程与每日发布](../appendix/releases.md) 中对此有更详细的说明）。咱们可以通过输入 `rustup +nightly component add miri`，来同时安装 Rust 的每日构建版本和 Miri 工具。这不会改变咱们项目所使用的 Rust 版本；他只是添加该工具到咱们的系统中，以便咱们在需要时使用。咱们可以通过输入 `cargo +nightly miri run` 或 `cargo +nightly miri test` 来对项目运行 Miri。
 
-**When to use unsafe code**
+举个有关这有多么有用的例子，请考虑我们针对 [清单 20-7](#listing_20-7) 运行这一工具时会发生什么。
 
+```console
+$ cargo +nightly miri run
+I will run `"rustup" "component" "add" "rust-src"` to install the `rust-src` component for the selected toolchain. Proceed? [Y/n] Y
+info: downloading component 'rust-src'
+info: installing component 'rust-src'
+Preparing a sysroot for Miri (target: x86_64-unknown-linux-gnu)... done
+   Compiling unsafe_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/unsafe_example)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running `/home/hector/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo-miri runner target/miri/x86_64-unknown-linux-gnu/debug/unsafe_examp
+le`
+warning: unused variable: `values`
+ --> src/main.rs:7:9
+  |
+7 |     let values: &[i32] = unsafe { slice::from_raw_parts_mut(r, 10000) };
+  |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_values`
+  |
+  = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
 
-运用 `unsafe` 来采取上述五种做法（超能力）没有什么过错，或者不受欢迎。但由于编译器无法助力于保持内存安全，因此要让 `unsafe` 代码正确就更为棘手一些。在有使用 `unsafe` 代码的某种理由时，就可以这样做，而在问题出现时，显式的 `unsafe` 注解，就会令到排查问题原因更为容易。
+warning: integer-to-pointer cast
+ --> src/main.rs:5:13
+  |
+5 |     let r = address as *mut i32;
+  |             ^^^^^^^^^^^^^^^^^^^ integer-to-pointer cast
+  |
+  = help: this program is using integer-to-pointer casts or (equivalently) `ptr::with_exposed_provenance`, which means that Miri might miss pointer bugs in this program
+  = help: see https://doc.rust-lang.org/nightly/std/ptr/fn.with_exposed_provenance.html for more details on that operation
+  = help: to ensure that Miri does not miss bugs in your program, use Strict Provenance APIs (https://doc.rust-lang.org/nightly/std/ptr/index.html#strict-provenance, https://crates.io/crates/sptr) instead
+  = help: you can then set `MIRIFLAGS=-Zmiri-strict-provenance` to ensure you are not relying on `with_exposed_provenance` semantics
+  = help: alternatively, `MIRIFLAGS=-Zmiri-permissive-provenance` disables this warning
 
+error: Undefined Behavior: pointer not dereferenceable: pointer must be dereferenceable for 40000 bytes, but got 0x1234[noalloc] which is a dangling pointer
+ (it has no provenance)
+ --> src/main.rs:7:35
+  |
+7 |     let values: &[i32] = unsafe { slice::from_raw_parts_mut(r, 10000) };
+  |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Undefined Behavior occurred here
+  |
+  = help: this indicates a bug in the program: it performed an invalid operation, and caused Undefined Behavior
+  = help: see https://doc.rust-lang.org/nightly/reference/behavior-considered-undefined.html for further information
 
-（End）
+note: some details are omitted, run with `MIRIFLAGS=-Zmiri-backtrace=full` for a verbose backtrace
 
+error: aborting due to 1 previous error; 2 warnings emitted
 
+```
+
+Miri 正确地警告我们，我们正在将整数强制转换为指针，这可能是个问题，但 Miri 无法确定是否确实存在问题，因为他不知道该指针的来源。然后，Miri 于清单 20-7 有着未定义行为处返回一个错误，因为我们遇到了悬空指针。多亏了 Miri，我们现在知道存在未定义行为的风险，进而我们可以考虑如何让代码变得安全。在某些情况下，Miri 甚至可以就如何修复错误提出建议。
+
+Miri 并不能捕获咱们在编写不安全代码时可能犯的所有错误。Miri 属于一款动态分析工具，因此他只能捕获实际运行的代码中的问题。这意味着咱们需要与良好的测试技术结合来使用他，以提升咱们对所编写的不安全代码的信心。此外，Miri 也无法覆盖咱们代码可能存在不安全性的所有可能情况。
+
+换句话说：当 Miri *确实* 检测到了问题，咱们就知道存在 bug；但仅仅因为 Miri *没有* 检测到 bug，则并不意味着没有问题。不过，他确实可以检测出很多问题。请尝试对这一章中的其他不安全代码示例运行他，看看他会给出什么提示！
+
+咱们可以在 [Miri 的 GitHub 仓库](https://github.com/rust-lang/miri/) 中了解更多相关信息。
+
+## 正确使用不安全代码
+
+使用 `unsafe` 来使用刚才讨论的五种超能力之一并没有错，也不会被视为不妥，但要使 `unsafe` 代码正确就比较棘手，因为编译器无法帮助维护内存安全。当咱们有理由使用 `unsafe` 代码时，咱们可以这样做，而显式的 `unsafe` 注解可以让咱们在他们出现问题时，更容易追踪到问题的根源。每当咱们编写不安全代码时，都可以使用 Miri 来帮助咱们更加确信咱们编写的代码符合 Rust 的规则。
+
+要更深入地探索如何高效地使用不安全的 Rust，请阅读 Rust 官方的 `unsafe` 指南，[Rustonomicon](https://doc.rust-lang.org/nomicon/)。
