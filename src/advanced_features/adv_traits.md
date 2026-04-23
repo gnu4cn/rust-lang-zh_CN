@@ -228,10 +228,11 @@ $ cargo run
 *疯狂地挥舞双臂*
 ```
 
-由于 `fly` 方法取了一个 `self` 参数，那么当咱们有着实现了一个 *特质* 的两个 *类型* 时，Rust 就可以根据 `self` 的类型，找出要使用特质的哪个实现。
+由于 `fly` 方法取一个 `self` 参数，因此当我们有两种都实现了同一个 *特质* 的 *类型* 时，Rust 可以根据 `self` 的类型来确定要使用哪个特质的实现。
 
-然而，不是方法的那些关联函数，是没有 `self` 参数的。当存在以同样函数名字，定义了非方法函数的类型或特质时，除非咱们使用了 *完全合格语法，fully qualified syntax*，否则 Rust 就不会总是清楚咱们所指的是何种类型。比如，在下面清单 19-19 中，咱们创建了一个用于动物收容所的特质，其中打算将所有狗崽都命名为 `点点`。咱们构造了带有关联的非方法函数 `baby_name` 的一个 `Animal` 特质。对结构体 `Dog` 实现了这个 `Animal` 特质，在 `Dog` 上咱们还直接提供了一个关联的非方法函数 `baby_name`。
+然而，不是方法的关联函数没有 `self` 参数。当存在多个类型或特质，以相同的函数名字定义了非方法的函数时，除非咱们使用 *完全限定语法，fully qualified syntax*，否则 Rust 并不总是知道咱们所指的是何种类型。例如，在下面清单 20-20 中，我们为动物收容所创建了一个特质，他们打算将所有狗崽取名为点点。我们以一个关联的非方法函数，构造了一个 `Animal` 特质。`Animal` 特质针对结构体 `Dog` 予以实现，我们还在 `Dog` 上直接提供了一个关联的非方法函数 `baby_name`。
 
+<a name="listing_20-20"></a>
 ```rust
 trait Animal {
     fn baby_name() -> String;
@@ -247,7 +248,7 @@ impl Dog {
 
 impl Animal for Dog {
     fn baby_name() -> String {
-        String::from("Puppy")
+        String::from("小狗")
     }
 }
 
@@ -256,55 +257,58 @@ fn main() {
 }
 ```
 
-*清单 19-19：有着一个关联函数的特质以及一个有着同样函数名字关联函数、还实现了那个特质的类型*
+**清单 20-20**：一个带有关联函数的特质，以及一个有着同名关联函数且还实现了该特质的类型
 
-咱们是在那个定义在 `Dog` 上的关联函数里，实现的将全部狗仔命名为点点的代码。`Dog` 类型还实现了特质 `Animal`，该特质描述了全部动物都有的特征。小狗都叫做狗崽，且这一点是在 `Dog` 上的 `Animal` 特质中，与 `Animal` 特质关联的 `baby_name` 函数中得以表达的。
+我们在于 `Dog` 上定义的 `baby_name` 关联函数中，实现了将所有狗崽取名为点点的代码。`Dog` 类型还实现了 `Animal` 特质，该特质描述了所有动物共有的特征。狗崽都叫做小狗，这一点在对 `Dog` 的 `Animal` 特质实现中，在与 `Animal` 特质关联的 `baby_name` 函数中得以表达。
 
-在 `main` 函数中，咱们调用了那个 `Dog::baby_name` 函数，这就会调用直接定义在 `Dog` 上的那个关联函数。此代码会打印下面的输出：
+在 `main` 中，我们调用了 `Dog::baby_name` 函数，他会直接调用定义在 `Dog` 上的关联函数。这段代码会打印以下输出：
 
 ```console
 $ cargo run
-    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
-     Running `target/debug/disambiguation`
+   Compiling traits_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/traits_example)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running `target/debug/traits_example`
 狗崽叫做 点点
 ```
 
-此输出不是咱们想要的。咱们想要调用作为咱们曾在 `Dog` 上实现过的 `Animal` 特质一部分的那个 `baby_name` 函数，从而代码会打印出 `小狗叫做 狗崽`。咱们曾在清单 19-18 中用到的指定特质名字的技巧，这里就不管用了；而若咱们将 `main` 修改为下面清单 19-20 中的代码，咱们就将收到一个编译报错。
+这种输出不是我们想要的。我们希望调用我们对 `Dog` 实现的 `Animal` 特质的一部分的 `baby_name` 函数，以便代码打印 `狗崽叫做 小狗`。我们在清单 20-19 中使用的指定特质名字的技巧在这里不管用；若我们修改 `main` 为下面清单 20-21 中的代码，我们将得到一个编译报错。
 
+<a name="listing_20-21"></a>
 ```rust
 fn main() {
-    println! ("小狗叫做 {}", Animal::baby_name());
+    println! ("狗崽叫做 {}", Animal::baby_name());
 }
 ```
 
-*清单 19-20：尝试调用 `Animal` 特质中的那个 `baby_name` 函数，但 Rust 不清楚要使用那个实现*
+**清单 20-21**：尝试调用 `Animal` 特质中的 `baby_name` 函数，但 Rust 不知道要使用哪个实现
 
-由于 `Animal::baby_name` 没有 `self` 参数，且这里可能有别的实现了 `Animal` 特质的类型，因此 Rust 就无法计算出咱们想要的那个 `Animal::baby_name` 实现。咱们将得到下面这个编译器错误：
+由于 `Animal::baby_name` 没有 `self` 参数，并且可能有其他类型实现了 `Animal` 特质，因此 Rust 无法计算出我们想要使用哪个 `Animal::baby_name` 实现。我们将得到以下编译器报错：
 
 
 ```console
 $ cargo run
-   Compiling disambiguation v0.1.0 (/home/lenny.peng/rust-lang/disambiguation)
+   Compiling traits_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/traits_example)
 error[E0790]: cannot call associated function on trait without specifying the corresponding `impl` type
   --> src/main.rs:20:26
    |
-2  |     fn baby_name() -> String;
+ 2 |     fn baby_name() -> String;
    |     ------------------------- `Animal::baby_name` defined here
 ...
-20 |     println! ("小狗叫做 {}", Animal::baby_name());
-   |                              ^^^^^^^^^^^^^^^^^ cannot call associated function of trait
+20 |     println! ("狗崽叫做 {}", Animal::baby_name());
+   |                              ^^^^^^^^^^^^^^^^^^^ cannot call associated function of trait
    |
 help: use the fully-qualified path to the only available implementation
    |
-20 |     println! ("小狗叫做 {}", <Dog as Animal>::baby_name());
+20 |     println! ("狗崽叫做 {}", <Dog as Animal>::baby_name());
    |                              +++++++       +
 
 For more information about this error, try `rustc --explain E0790`.
-error: could not compile `disambiguation` due to previous error
+error: could not compile `traits_example` (bin "traits_example") due to 1 previous error
 ```
 
-为消除歧义并告知 Rust 咱们打算使用 `Dog` 的那个 `Animal` 实现，而非某种其他类型的 `Animal` 实现，咱们需要使用完全合格语法。下面清单 19-21 演示了怎样使用完全合格语法。
+为了消除歧义，并告知 Rust 我们想要使用针对 `Dog` 的 `Animal` 实现，而不是其他类型的 `Animal` 实现，我们需要使用完全限定语法。下面清单 20-22 演示了怎样使用完全限定语法。
 
+<a name="listing_20-22"></a>
 文件名：`src/main.rs`
 
 ```rust
@@ -313,38 +317,31 @@ fn main() {
 }
 ```
 
-*清单 19-21：使用完全合格语法来指明，咱们是要调用实现在 `Dog` 上的 `Animal` 特质中的那个 `baby_name` 函数*
+**清单 20-22**：使用完全限定语法来指定我们希望调用对 `Dog` 实现的 `Animal` 特质中的 `baby_name` 函数
 
-通过讲出咱们希望将 `Dog` 类型，针对这个 `baby_name` 函数调用而作为 `Animal` 对待，从而表明咱们打算调用实现在 `Dog` 上的 `Animal` 特质中的 `baby_name` 方法，这样位处那尖括号中的类型注解，提供给 Rust。此代码现在将打印出咱们想要的输出：
-
+我们向 Rust 提供了尖括号内的类型注解，这表明我们希望调用对 `Dog` 实现的 `Animal` 特质中的 `baby_name` 函数，即表明我们希望针对这次函数调用，将 `Dog` 类型视为 `Animal`。这段代码现在将打印我们想要的输出：
 
 ```console
 $ cargo run
-   Compiling disambiguation v0.1.0 (/home/lenny.peng/rust-lang/disambiguation)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.18s
-     Running `target/debug/disambiguation`
-小狗叫做 狗崽
+   Compiling traits_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/traits_example)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running `target/debug/traits_example`
+狗崽叫做 小狗
 ```
 
-一般来讲，完全合格语法是像下面这样定义的：
-
+一般而言，完全限定语法定义如下：
 
 ```rust
 <Type as Trait>::function(receiver_if_method, next_arg, ...);
 ```
 
-对于那些不是方法的语法，此处就不会有 `receiver`：这里将只有其他参数的清单。在调用函数或方法的所有地方，咱们都可以使用完全合格语法。不过，在 Rust 能够从程序中另外的信息计算出（要调用哪个函数或方法）时，那么这种语法便是可以省略的。咱们只需在有着多个使用了同一名字的实现，且 Rust 需要帮助来识别出咱们打算调用哪个实现时，才需要使用这种更为冗长的语法。
+对于不属于方法的关联函数，就不存在 `receiver`：只有其他参数的列表。咱们可以在调用函数或方法的任何地方使用完全限定语法。但是，对于 Rust 可以从程序中的其他信息计算出的部分，咱们可以省略这种语法的任何部分。仅在存在多个使用相同名字的实现，并且 Rust 需要帮助来时别咱们想要调用哪个实现时，咱们才需要使用这种更详细的语法。
 
+## 使用超特质
 
-## 在一个特质里运用超特质寻求另一特质的功能
+有时，咱们可能会编写一个依赖于另一特质的特质定义：为了让某种类型实现前一个特质，咱们会希望要求该类型也实现后一个特质。咱们之所以会这样做，是为了让咱们的特质定义可以使用后一个特质中的关联项目。咱们的特质所依赖的特质，被称为咱们特质的 *超特质，supertrait*。
 
-**Using Supertraits to Require One Trait's Functionality Within Another Trait**
-
-
-有的时候，咱们可能会编写依赖于另一特质的特质：对于要实现前一个特质的类型，咱们希望寻求那个类型也实现后一个特质。为了咱们的特质定义，可以利用后一个特质的那些关联项目，咱们就会实现这一点。咱们的特质所依赖的那个特质，被称为咱们特质的 *超特质，supertrait*。
-
-比方说，咱们打算构造一个带有将所给的值格式化，从而其被星号框起来的 `outline_print` 方法，这样一个 `OutlinePrint` 特质。而那个所给的值则是，一个实现了标准库特质 `Display` 来得到 `(x, y)` 的 `Point` 结构体，即当咱们在有着 `x` 为 `1` `y` 为 `3` 的 `Point` 上调用 `outline_print` 时，其将打印以下输出：
-
+例如，假设我们打算构造一个带有 `outline_print` 方法的 `OutlinePrint` 特质，该方法将打印格式化的给定值，使其被星号框起来。也就是说，假设有个实现标准库特质 `Display` 以得到 `(x, y)` 的 `Point` 结构体，当我们对  `x` 为 `1`、`y` 为 `3` 的 `Point` 调用 `outline_print` 时，他应打印以下内容：
 
 ```console
 **********
@@ -354,9 +351,9 @@ $ cargo run
 **********
 ```
 
-在 `outline_print` 方法的实现中，咱们打算使用 `Display` 特质的功能。因此，咱们就需要指明，这个 `OutlinePrint` 特质将只对那些同时实现了 `Display` 生效，且提供了 `OutlinePrint` 所需的功能。咱们可以通过指明 `OutlinePrint: Display`，在该特质定义中实现那一点。这种技巧类似于给特质添加特质边界。下面清单 19-22 给出了这个 `OutlinePrint` 特质的一种实现。
+在 `outline_print` 方法的实现中，我们打算使用 `Display` 特质的功能。因此，我们需要指定 `OutlinePrint` 特质仅适用于同时实现 `Display`，且提供 `OutlinePrint` 所需功能的类型。我们可以通过指定 `OutlinePrint: Display`，在特质定义中实现这点。这种技巧类似于添加特质边界到特质。下面清单 20-23 展示了 `OutlinePrint` 特质的实现。
 
-
+<a name="listing_20-23"></a>
 ```rust
 use std::fmt;
 
@@ -364,21 +361,20 @@ trait OutlinePrint: fmt::Display {
     fn outline_print(&self) {
         let output = self.to_string();
         let len = output.len();
-
         println! ("{}", "*".repeat(len + 4));
         println! ("*{}*", " ".repeat(len + 2));
-        println! ("* {} *", output);
+        println! ("* {output} *");
         println! ("*{}*", " ".repeat(len + 2));
         println! ("{}", "*".repeat(len + 4));
     }
 }
 ```
 
-*清单 19-22：需要 `Display` 中功能的 `OutlinePrint` 特质实现*
+**清单 20-23**：实现需要 `Display` 中功能的 `OutlinePrint` 特质
 
-由于咱们已指明 `OutlinePrint` 需要 `Display` 特质，因此咱们就可以使用那个任何实现了 `Display` 类型上均已实现了的 `to_string` 函数。若咱们在没有于特质名字之后加上冒号并指明 `Display` 特质，便尝试使用 `to_string`，咱们就会得到一个声称当前作用域中的类型 `&Self` 下，未找到名为 `to_string` 的方法的报错。
+由于我们已指定 `OutlinePrint` 需要 `Display` 特质，因此我们可以使用 `to_string` 函数，他会针对实现 `Display` 的任何类型自动实现。若我们在没有于特质名字之后添加冒号并指定 `Display` 特质的情况下，尝试使用 `to_string`，我们就会得到一个报错，指出在当前作用域中找不到类型 `&Self` 的名为 `to_string` 的方法。
 
-下面来看看当咱们尝试在某个未实现 `Display` 的类型，比如 `Point` 结构体上，实现 `OutlinePrint` 时会发生什么：
+我们来看看当我们尝试对某个未实现 `Display` 的类型，比如 `Point` 结构体，实现 `OutlinePrint` 时会发生什么：
 
 
 ```rust
@@ -394,26 +390,48 @@ impl OutlinePrint for Point {}
 
 ```console
 $ cargo run
-   Compiling supertrait v0.1.0 (/home/lenny.peng/rust-lang/supertrait)
+   Compiling traits_example v0.1.0 (/home/hector/rust-lang-zh_CN/projects/traits_example)
 error[E0277]: `Point` doesn't implement `std::fmt::Display`
-  --> src/main.rs:21:23
+  --> src/main.rs:20:23
    |
-21 | impl OutlinePrint for Point {}
-   |                       ^^^^^ `Point` cannot be formatted with the default formatter
+20 | impl OutlinePrint for Point {}
+   |                       ^^^^^ unsatisfied trait bound
    |
-   = help: the trait `std::fmt::Display` is not implemented for `Point`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+help: the trait `std::fmt::Display` is not implemented for `Point`
+  --> src/main.rs:15:1
+   |
+15 | struct Point {
+   | ^^^^^^^^^^^^
 note: required by a bound in `OutlinePrint`
   --> src/main.rs:3:21
    |
-3  | trait OutlinePrint: fmt::Display {
+ 3 | trait OutlinePrint: fmt::Display {
    |                     ^^^^^^^^^^^^ required by this bound in `OutlinePrint`
 
+error[E0277]: `Point` doesn't implement `std::fmt::Display`
+  --> src/main.rs:24:7
+   |
+24 |     p.outline_print();
+   |       ^^^^^^^^^^^^^ unsatisfied trait bound
+   |
+help: the trait `std::fmt::Display` is not implemented for `Point`
+  --> src/main.rs:15:1
+   |
+15 | struct Point {
+   | ^^^^^^^^^^^^
+note: required by a bound in `OutlinePrint::outline_print`
+  --> src/main.rs:3:21
+   |
+ 3 | trait OutlinePrint: fmt::Display {
+   |                     ^^^^^^^^^^^^ required by this bound in `OutlinePrint::outline_print`
+ 4 |     fn outline_print(&self) {
+   |        ------------- required by a bound in this associated function
+
 For more information about this error, try `rustc --explain E0277`.
-error: could not compile `supertrait` due to previous error
+error: could not compile `traits_example` (bin "traits_example") due to 2 previous errors
 ```
 
-为修复这个问题，咱们就要在 `Point` 上实现 `Display` 并满足 `OutlinePrint` 所需的约束，如下面这样：
+为了修复这个问题，我们对 `Point` 实现 `Display`，从而满足 `OutlinePrint` 所需的约束条件，像下面这样：
 
 ```rust
 impl fmt::Display for Point {
@@ -423,11 +441,10 @@ impl fmt::Display for Point {
 }
 ```
 
-随后在 `Point` 上实现 `OutlinePrint` 就将成功编译，而咱们就可以在 `Point` 实例上调用 `outline_print` 来将其实现在星号轮廓里了。
+然后，对 `Point` 实现 `OutlinePrint` 特质将成功编译，我们就可以对 `Point` 实例调用 `outline_print` 方法，将其显示在由星号构成的轮廓内。
 
 
 ## 通过新型模式实现外部特质
-
 
 第 10 章中的 [“在类型上实现特质”](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质) 小节，咱们曾提到，指明只有当特质或类型二者之一，属于代码本地的时，咱们才被允许在类型上实现特质的孤儿规则，the orphan rule。而使用涉及到在元组结构体中创建出一个新类型的 *新型模式，newtype pattern*，那么绕过这种限制便是可行的了。（咱们曾在第 5 章的 [“使用不带命名字段的元组结构体来创建不同类型”](Ch05_Using_Structs_to_Structure_Related_Data.md#使用不带命名字段的元组结构体来创建不同类型) 小节，谈到过元组结构体）这种元组结构体讲有一个字段，且将是围绕咱们要实现某个特质的类型的一个瘦封装，a thin wrapper。随后这个封装类型，便是咱们代码箱的本地类型了，而咱们就可以在这个封装上实现那个特质了。所谓 *新型，newtype*，是源自 Haskell 编程语言的一个术语。使用这种模式没有运行时性能代码，同时那个封装类型在编译时会被略去。
 
