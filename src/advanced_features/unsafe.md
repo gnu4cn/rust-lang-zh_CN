@@ -336,62 +336,61 @@ pub extern "C" fn call_from_c() {
 >
 > 2. 更新这个库代码箱的 `Cargo.toml` 文件，加入下面的内容：
 >
-> ```toml
-> [lib]
-> name = "my_rust_lib"
-> crate-type = ["cdylib"]
-> ```
->
-> 着一个 `lib` 小节指定了这个库代码像应被编译为一个兼容 C 的动态库。
+>     ```toml
+>     [lib]
+>     name = "my_rust_lib"
+>     crate-type = ["cdylib"]
+>     ```
+>     这个 `lib` 小节指定了这个库代码像应被编译为一个兼容 C 的动态库。
 >
 > 3. 在 `src/lib.rs` 中，使用属性 `#[unsafe(no_mangle)]` 阻止 Rust 修改函数名字，使用 `extern "C"` 来应用 C 的调用约定。
 >
-> ```rust
-> #[unsafe(no_mangle)]
-> pub extern "C" fn call_from_c() {
->     println!("刚刚从 C 调用了 Rust 函数！");
-> }
-> ```
+>     ```rust
+>     #[unsafe(no_mangle)]
+>     pub extern "C" fn call_from_c() {
+>         println!("刚刚从 C 调用了 Rust 函数！");
+>     }
+>     ```
 >
 > 4. 构建共享库
 >
-> 运行构建命令，以生成共享对象文件（例如，Linux 上的 `.so`，MacOS 上的 `.dylib` 或 Windown 上的 `.dll`）。
+>     运行构建命令，以生成共享对象文件（例如，Linux 上的 `.so`，MacOS 上的 `.dylib` 或 Windown 上的 `.dll`）。
 >
-> ```console
-> cargo build --release
-> ```
+>     ```console
+>     cargo build --release
+>     ```
 >
 > 输出将位于 `target/release/libmy_rust_lib.so`（或类似的扩展名）。、
 >
 > 5. 从 C 语言中调用
 >
->  为了从 C 中调用该库，咱们需要一个头文件，或一个匹配 Rust 签名的函数原型。
+>     为了从 C 中调用该库，咱们需要一个头文件，或一个匹配 Rust 签名的函数原型。
 >
-> ```c
-> #include <stdio.h>
+>     ```c
+>     #include <stdio.h>
 >
-> extern void call_from_c();
+>     extern void call_from_c();
 >
-> int main () {
->     call_from_c();
+>     int main () {
+>         call_from_c();
 >
->     return 0;
-> }
-> ```
+>         return 0;
+>     }
+>     ```
 >
 > 6. 编译和链接
 >
-> 在编译 C 代码时，要将其与生成的 Rust 库链接。咱们可需需要设置 `LD_LIBRARY_PATH`（在 Linux 上），以便系统可以在运行时找到该共享对象。
+>     在编译 C 代码时，要将其与生成的 Rust 库链接。咱们可需需要设置 `LD_LIBRARY_PATH`（在 Linux 上），以便系统可以在运行时找到该共享对象。
 >
-> ```bash
-> # 编译并链接（根据需要调整路径和库名）
-> $ gcc main.c -L./target/release -lmy_rust_lib -o my_app
+>     ```bash
+>     # 编译并链接（根据需要调整路径和库名）
+>     $ gcc main.c -L./target/release -lmy_rust_lib -o my_app
 >
-> # 运行程序
-> $ export LD_LIBRARY_PATH=./target/release:$LD_LIBRARY_PATH
-> $ ./my_app
-> 刚刚从 C 调用了 Rust 函数！
-> ```
+>     # 运行程序
+>     $ export LD_LIBRARY_PATH=./target/release:$LD_LIBRARY_PATH
+>     $ ./my_app
+>     刚刚从 C 调用了 Rust 函数！
+>     ```
 >
 > 专业提示：对于复杂的项目，请使用 [`cbindgen`](https://github.com/mozilla/cbindgen) 工具，从咱们的 Rust 代码自动生成 C/C++ 头文件。
 
