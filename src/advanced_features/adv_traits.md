@@ -446,13 +446,12 @@ impl fmt::Display for Point {
 
 ## 通过新型模式实现外部特质
 
-第 10 章中的 [“在类型上实现特质”](Ch10_Generic_Types_Traits_and_Lifetimes.md#在类型上实现某个特质) 小节，咱们曾提到，指明只有当特质或类型二者之一，属于代码本地的时，咱们才被允许在类型上实现特质的孤儿规则，the orphan rule。而使用涉及到在元组结构体中创建出一个新类型的 *新型模式，newtype pattern*，那么绕过这种限制便是可行的了。（咱们曾在第 5 章的 [“使用不带命名字段的元组结构体来创建不同类型”](Ch05_Using_Structs_to_Structure_Related_Data.md#使用不带命名字段的元组结构体来创建不同类型) 小节，谈到过元组结构体）这种元组结构体讲有一个字段，且将是围绕咱们要实现某个特质的类型的一个瘦封装，a thin wrapper。随后这个封装类型，便是咱们代码箱的本地类型了，而咱们就可以在这个封装上实现那个特质了。所谓 *新型，newtype*，是源自 Haskell 编程语言的一个术语。使用这种模式没有运行时性能代码，同时那个封装类型在编译时会被略去。
+在第 10 章中 [对类型实现特质](../generic_types_traits_and_lifetimes/traits.md#对类型实现特质) 小节中，我们提到了 “孤儿规则，the orphan rule”，规定只有当特质或类型（或两者同时）属于我们代码箱本地时，才允许对类型实现特质。我们可以使用新型模式，the newtype pattern, 绕过这一限制，该模式涉及在元组结构体中创建新类型。（我们在第 5 章中 [以元组结构体创建不同类型](../structs/defining_and_instantiating.md#以元组结构体创建不同类型) 小节中讨论过元组结构体）元组结构体将包含一个字段，并且是我们打算实现某个特质的类型的轻量级包装器。然后，包装器类型对于我们的代码箱来说就属于本地的，我们可以对包装器实现该特质。所谓 *新型，newtype*，是一个 [源自 Haskell 编程语言的术语](https://wiki.haskell.org/index.php?title=Newtype)。使用这种模式不会造成运行时性能开销，并且包装器类型会在编译时省略。
 
-作为一个示例，就说咱们打算在 `Vec<T>` 上实现 `Display`，而由于 `Display` 特质与 `Vec<T>` 类型，均被定义在咱们代码箱外部，因此孤儿规则会阻止咱们直接这样做。咱们可以构造一个保存着 `Vec<T>` 类型实例的 `Wrapper`；随后咱们就可以在 `Wrapper` 上实现 `Display`，并使用那个 `Vec<T>` 值，如下清单 19-23 中所示。
+举例来说，假设我们打算对 `Vec<T>` 实现 `Display`，但 “孤儿规则” 会阻止我们直接这样做，因为 `Display` 特质和 `Vec<T>` 类型均被定义在我们的代码箱外部。我们可以构造一个包含 `Vec<T>` 类型实例的 `Wrapper` 结构体；然后，我们可以对 `Wrapper` 实现 `Display` 并使用 `Vec<T>` 值，如下清单 20-24 中所示。
 
-
-文件名：`src/main.rs`
-
+<a name="listing_20-24"></a>
+文件名：`projects/newtype/src/main.rs`
 
 ```rust
 use std::fmt;
@@ -466,18 +465,18 @@ impl fmt::Display for Wrapper {
 }
 fn main() {
     let w = Wrapper(vec! [String::from("你好"), String::from("世界")]);
-    println! ("w = {}", w);
+    println! ("w = {w}");
 }
 ```
 
-*清单 19-23：创建一个围绕 `Vec<String>` 的 `Wrapper` 类型来实现 `Display`*
+**清单 20-24**：创建一个包围 `Vec<String>` 的 `Wrapper` 类型，以实现 `Display`
 
-由于 `Wrapper` 是个元组结构体，且 `Vec<T>` 是该元组中位于索引 `0` 处的项目，因此其中 `Display` 的实现，便使用了 `self.0` 来方法那个内部的 `Vec<T>`。随后咱们就可以在 `Wrapper` 上使用 `Display` 的功能了。
+由于 `Wrapper` 是个元组结构体，而 `Vec<T>` 是元组中索引 `0` 处的项目，因此 `Display` 的实现使用 `self.0` 来访问内层的 `Vec<T>`。这样，我们就可以对 `Wrapper` 使用 `Display` 特质的功能。
 
-使用这种技巧的缺点，则是那个 `Wrapper` 是个新的类型，因此其没有他所保存值的那些方法。咱们讲必须直接在 `Wrapper` 上，实现 `Vec<T>` 的全部方法，即委托给 `self.0` 的那些方法，这就会允许咱们将 `Wrapper` 完全当作 `Vec<T>` 那样对待了。而若咱们想要这个新的类型，有着那个内部类型所有的全部方法，那么在 `Wrapper` 上实现 `Deref` 特质（曾在第 15 章的 [“运用 `Deref` 特质将灵巧指针像常规引用那样对待”](Ch15_Smart_Pointers.md#通过实现-deref-特质而像引用那样对待某个类型) 小节讨论过），来返回那个内部类型，将是一种办法。而若咱们不打算 `Wrapper` 类型有着内部类型的所有方法 -- 比如，为限制 `Wrapper` 的行为 -- 咱们就必须手动实现仅咱们想要的那些方法了。
+使用这种技巧的缺点在于，`Wrapper` 是个新的类型，因此他不具备其包含的值的方法。我们将必须直接对 `Wrapper` 实现 `Vec<T>` 的所有方法，以便这些方法委托给 `self.0`，这将允许我们将 `Wrapper` 完全视为 `Vec<T>`。而若我们希望新类型具有内层类型的所有方法，那么对 `Wrapper` 实现 `Deref` 特质，以返回内层类型将是一种解决方法（我们在第 15 章中的 [将灵巧指针视为普通引用](../smart_pointers/deref-t.md) 小节中讨论过实现 `Deref` 特质）。若我们不希望 `Wrapper` 类型拥有内层类型的所有方法 -- 例如，为了限制 `Wrapper` 类型的行为 -- 我们就必须手动实现我们真正想要的方法。
 
 
-即使不牵涉到特质，这种新型模式也是有用的。接下来就要转换一下视角，而看看与 Rust 的类型系统交互的一些高级方式。
+即使不涉及特质，新型模式也很有用。我们来转换一下视角，看看与 Rust 类型系统交互的一些高级方式。
 
 
 （End）
