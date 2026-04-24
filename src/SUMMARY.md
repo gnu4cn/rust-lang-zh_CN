@@ -129,7 +129,7 @@
     - [高级特质](advanced_features/adv_traits.md)
     - [高级类型](advanced_features/adv_types.md)
     - [高级函数与闭包](advanced_features/adv_fns_and_closures.md)
-    - [关于宏](advanced_features/macros.md)
+    - [宏，macro](advanced_features/macros.md)
 
 - [最后项目：构建多线程的 Web 服务器](Ch21_Final_Project_Building_a_Multithreaded_Web_Server.md)
     - [构建单线程的 Web 服务器](final_project/single-threaded.md)

@@ -1,7 +1,4 @@
-# 关于宏
-
-**Macros**
-
+# 宏，macro
 
 贯穿这本书，咱们业已用到像是 `println!` 这样的宏，但咱们并未完整地探讨过何为宏，以及其工作原理。 *宏，macro* 这个术语，指的是 Rust 中的一个特性家族：有着 `macro_rules!` 的 *声明式，declarative* 宏，与如下三种 *程序性，procedural* 宏：
 
