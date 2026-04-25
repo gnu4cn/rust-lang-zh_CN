@@ -64,8 +64,9 @@ fn main() {
 
 在这里， 我们使用的是定义在 `ToString` 特质中的 `to_string` 函数，标准库已针对任何实现 `Display` 特质的类型实现了这一特质。
 
-自第 6 章 [“枚举取值”](Ch06_Enums_and_Pattern_Matching.md#枚举取值) 小节，回顾咱们所定义的各个枚举变种名字，也会成为一个初始化函数。咱们可以将这些初始化函数，作为实现了那些闭包特质的函数指针使用，这就意味着咱们可以把这些初始化函数，指定为取闭包的方法的参数，像下面这样：
+回顾第 6 章中 [枚举值](../enums_and_pattern_matching/defining_an_enum.md#枚举值) 小节，我们定义的每个枚举变种的名字，也会成为一个初始化函数。我们可以将这些初始化函数作为实现闭包特质的函数指针使用，这意味着我们指定初始化函数为取闭包的方法的参数，如下清单 20-31 中所示。
 
+<a name="listing_20-31"></a>
 ```rust
     enum Status {
         Value(u32),
@@ -75,61 +76,93 @@ fn main() {
     let list_of_statuses: Vec<Status> = (0u32..20).map(Status::Value).collect();
 ```
 
-这里咱们运用了那些经由使用 `Status::Value` 的初始化函数，于其上调用了 `map` 的那个范围中各个 `u32` 值，而创建出了一些 `Status::Value` 的实例。有的人会首选这种方式，而别的人则首选闭包。他们会编译到同样的代码，因此请使用你认为更清晰的风格。
+**清单 20-33**：对 `map` 方法使用枚举初始化器，以从数字创建 `Status` 示例
+
+在这里，我们通过使用 `Status::Value` 的初始化函数，使用对其调用 `map` 的范围中的每个 `u32` 值创建 `Status::Value` 的实例。有些人希望这种风格，有些人则更倾向于使用闭包。两种方式会编译为同样的代码，因此请使用咱们觉得更清晰的风格。
 
 
 ## 返回闭包
 
-**Returning Closures**
+闭包由特质表示，这意味着咱们不能直接返回闭包。在大多数咱们可能希望返回特质的情形下，咱们可以转而使用实现该特质的具体类型作为函数的返回值。然而，对于闭包咱们通常不能这样做，因为他们没有可返回的具体类型；例如，当闭包捕获了其作用域中的任何值时，咱们就不允许使用函数指针 `fn` 作为返回类型。
 
+相反，咱们将通常使用我们在第 10 章学过的 [`impl Trait` 语法](../generic_types_traits_and_lifetimes/traits.md#对类型实现特质)。咱们可以使用 `Fn`、`FnOnce` 和 `FnMut`，返回任何函数类型。例如，以下清单 20-32 中的代码将正常编译。
 
-闭包是由特质表示的，这就意味着咱们不能直接返回闭包。在多数咱们可能打算返回特质的情形中，咱们都可以转而使用实现了该特质的具体类型，作为函数的返回值。但是，由于闭包没有可返回的具体类型，因此对于闭包是不能这样做的；就好比咱们是不被允许将函数指针作为返回值类型。
-
-
-下面的代码尝试直接返回一个闭包，但其不会编译：
-
+<a name="listing_20-32"></a>
+文件名：`projects/returning_closure/src/main.rs`
 
 ```rust
-fn returns_closure() -> dyn Fn(i32) -> i32 {
+fn returns_closure() -> impl Fn(i32) -> i32 {
     |x| x + 1
 }
 ```
 
-编译器报错如下：
+**清单 20-32**：使用 `impl Trait` 语法从函数返回闭包
 
-```console
-$ cargo build
-   Compiling returning_closure v0.1.0 (/home/lenny.peng/rust-lang/returning_closure)
-error[E0746]: return type cannot have an unboxed trait object
- --> src/main.rs:1:25
-  |
-1 | fn returns_closure() -> dyn Fn(i32) -> i32 {
-  |                         ^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
-  |
-  = note: for information on `impl Trait`, see <https://doc.rust-lang.org/book/ch10-02-traits.html#returning-types-that-implement-traits>
-help: use `impl Fn(i32) -> i32` as the return type, as all return paths are of type `[closure@src/main.rs:2:5: 2:8]`, which implements `Fn(i32) -> i32`
-  |
-1 | fn returns_closure() -> impl Fn(i32) -> i32 {
-  |                         ~~~~~~~~~~~~~~~~~~~
+然而，正如我们在第 13 章中 [推断与注解闭包类型](../functional_features/closures.md#推断与注解闭包类型) 小节中指出的，每个闭包本身也属于其自己的独特类型。当咱们需要处理多个有着相同签名，却有着不同实现的函数时，就将需要为他们使用特质对象。试想一下，当咱们编写像是下面清单 20-33 中所示的代码时，会发生什么。
 
-For more information about this error, try `rustc --explain E0746`.
-error: could not compile `returning_closure` due to previous error
+<a name="listing_20-33"></a>
+
+```rust
+fn main() {
+    let handlers = vec![returns_closure(), returns_initialized_closure(123)];
+    for handler in handlers {
+        let output = handler(5);
+        println!("{output}");
+    }
+}
+
+fn returns_closure() -> impl Fn(i32) -> i32 {
+    |x| x + 1
+}
+
+fn returns_initialized_closure(init: i32) -> impl Fn(i32) -> i32 {
+    move |x| x + init
+}
 ```
 
-这个报错再度指向了那个 `Sized` 特质！Rust 不清楚他将需要多少内存空间来存储这个闭包。早先咱们就已见到了对这个问题的解决办法了。咱们可以使用一个特质对象：
+**清单 20-33**：创建一个由返回 `impl Fn` 类型的函数定义的闭包构成的 `Vec<T>`
+
+这里我们有两个函数：`returns_closure` 和 `returns_initialized_closure`，他们都返回 `impl Fn(i32) -> i32`。请注意，尽管他们实现了同一类型，但返回的闭包却不同。当我们尝试编译这段代码时，Rust 会让我们知道这行不通：
+
+```console
+$ cargo run
+   Compiling returning_closure v0.1.0 (/home/hector/rust-lang-zh_CN/projects/returning_closure)
+error[E0308]: mismatched types
+  --> src/main.rs:2:44
+   |
+ 2 |     let handlers = vec![returns_closure(), returns_initialized_closure(123)];
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected opaque type, found a different opaque type
+...
+ 9 | fn returns_closure() -> impl Fn(i32) -> i32 {
+   |                         ------------------- the expected opaque type
+...
+13 | fn returns_initialized_closure(init: i32) -> impl Fn(i32) -> i32 {
+   |                                              ------------------- the found opaque type
+   |
+   = note: expected opaque type `impl Fn(i32) -> i32`
+              found opaque type `impl Fn(i32) -> i32`
+   = note: distinct uses of `impl Trait` result in different opaque types
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `returning_closure` (bin "returning_closure") due to 1 previous error
+```
+
+这一报错消息告诉我们，每当我们返回 `impl Trait` 时，Rust 都会创建一个唯一的 *不透明类型，opaque type*，其中我们无法窥见 Rust 为我们构建的具体细节，也无法推测出 Rust 将生成何种类型供我们自行编写。因此，尽管这两个函数返回了实现相同特质（`Fn(i32) -> i32`） 的闭包，但 Rust 为每个闭包生成的不透明类型却是不同的。（这类似于我们在第 17 章中 [`Pin` 类型与 `Unpin` 特质](../async/async_traits.md#pin-与-unpin-特质) 中看到的，即使不同异步块有着同一输出类型，Rust 也会为他们生成不同的具体类型。）我们已经多次看到这种问题的解决方案：我们可以使用特质对象，如下清单 20-34 中所示。
+
+<a name="listing_20-34"></a>
 
 ```rust
 fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
     Box::new(|x| x + 1)
 }
+
+fn returns_initialized_closure(init: i32) -> Box<dyn Fn(i32) -> i32> {
+    Box::new(move |x| x + init)
+}
 ```
 
-这段代码可以很好地编译。有关特质对象的更多内容，请参考第 17 章中的 [“使用特质对象实现不同类型值”](Ch17_Object_Oriented_Programming_Features_of_Rust.md#使用允许不同类型值的特质对象) 小节。
+**清单 20-34**：创建一个 `Vec<T>`，其中包含由返回 `Box<dyn Fn>` 的函数定义的闭包，以便他们具有相同的类型
 
+这段代码可以正常编译。有关特质对象的更多信息，请参阅第 18 章中 [使用特质对象抽象共用行为](../oop/trait_objects.md) 小节。
 
-接下来，咱们就要看看宏了！
-
-
-（End）
-
-
+接下来，我们来看看宏！
