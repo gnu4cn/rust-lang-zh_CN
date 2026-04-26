@@ -1,28 +1,27 @@
-# 构建一个单线程的 Web 服务器
+# 构建单线程的 Web 服务器
 
-咱们将通过让一个单线程的 web 服务器工作起来而开始。在咱们开始前，先来看看在构建 web 服务器中涉及到的一些协议的快速概览。这些协议的细节，超出了本书范围，而简要概述，就将给到咱们所需的信息。
+我们将从让单线程的 web 服务器运行开始。在开始之前，我们来先快速概述一下构建 web 服务器所涉及的协议。这些协议的细节超出了本书的范围，但简要概述就将给予咱们所需的信息。
 
-Web 服务器中涉及的两种主要谢谢，分别是 *超文本传输协议，Hypertext Transfer Protocol, HTTP* 与 *传输控制协议，Transmission Control Protocol, TCP*。两种协议都是 *请求-响应，request-response* 的协议，表示 *客户端，client* 发起请求，而 *服务器，server* 监听到请求并提供给客户端一个响应。这些请求和响应的内容是由两种协议定义的。
+Web 服务器涉及的两个主要协议，分别是 *超文本传输协议 HTTP* 和 *传输控制协议 TCP*。这两个协议都属于 *请求-响应* 协议，这意味着 *客户端* 发起请求，*服务器* 监听请求并向客户端提供响应。这些请求和响应的内容由协议定义。
 
-TCP 是种描述了信息如何从一台服务器到达另一服务器，但并未指明信息为何的低级别。HTTP 则是经由定义请求与响应的内容，而于 TCP 之上构建的。技术上要在其他协议上使用 HTTP 是可行的，但在绝大多数情况下，HTTP 都在 TCP 上发送他的数据。咱们将在 TCP 的原始字节，与 HTTP 请求和响应下，进行工作。
+TCP 属于底层协议，描述了信息如何从一台服务器传输到另一服务器的具体细节，但并未规定这些信息的内容。HTTP 通过定义请求和响应的内容，而构建于 TCP 之上。从技术上讲，于其他协议一起使用 HTTP 是可行的，但在绝大多数情况下，HTTP 都时通过 TCP 发送数据。我们将使用 TCP 和 HTTP 请求和响应的原始字节。
 
 
 ## 监听 TCP 连接
 
-**Listen to the TCP Connection**
-
-
-咱们的 web 服务器需要监听某个 TCP 连接，因此那便是咱们将要做的第一部分工作。标准库提供了一个 `std::net` 模组，允许咱们完成这一点。咱们来以寻常方式构造一个新的项目：
+我们的 web 服务器需要监听 TCP 连接，因此这是我们将要处理的第一部分。标准库提供了 `std::net` 模组，让我们可以做到这一点。我们来以惯常方式构造一个新项目：
 
 ```console
-$ cargo new hello --vcs none
-     Created binary (application) `hello` package
+$ cargo new hello
+    Creating binary (application) `hello` package
+note: see more `Cargo.toml` keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 $ cd hello
 ```
 
-现在请输入下面清单 20-1 中 `src/main.rs` 里的代码来开始。这段代码会在本地地址 `127.0.0.1:7878` 处监听传入的 TCP 流。当他获取到一个传入流时，他就会打印 `连接已建立！`。
+现在，请在 `src/main.rs` 中输入下面清单 21-1 中的代码来开始。这段代码将在本地地址 `127.0.0.1:7878` 上监听传入的 TCP 流。当他获取到传入流时，他将打印 `连接已建立！`。
 
-文件名：`src/main.rs`
+<a name="listing_21-1"></a>
+文件名：`projects/hello/src/main.rs`
 
 ```rust
 use std::net::TcpListener;
@@ -38,50 +37,58 @@ fn main() {
 }
 ```
 
-*清单 20-1：监听传入流并在咱们接收到某个流时打印一条消息*
+**清单 21-1**：监听传入流，并在接收到流时打印消息
 
-运用 `TcpListener`，咱们就可以在地址 `127.0.0.1:7878` 处监听 TCP 连接。在这个地址中，冒号之前的部分，是个表示咱们的计算机的 IP 地址（在所有计算机上这都是同样的，而并不特别表示本书作者的计算机），同时 `7878` 为端口。咱们之所以选择了这个端口，有两个原因：通常不是在这个端口上接收 HTTP，因此咱们的服务器，大概率不会与咱们可能在咱们的机器上运行的任何别的 web 服务器冲突，而 `7878` 则是电话机上输入的 *rust*。
+使用 `TcpListener`，我们可以监听地址 `127.0.0.1:7878` 上的 TCP 连接。在地址中，冒号之前的部分是个 IP 地之，代表咱们的计算机（这在每台计算机上都是相同的，并不特指本书作者的计算机），而 `7878` 是端口。我们选择这个端口有两个原因：HTTP 在这个端口上通常是不接受的，因此我们的服务器不太可能于咱们机器上运行的任何其他 web 服务器冲突，并且 `7878` 在电话上输入时听起来像 *rust*。
 
-这个场景中的 `bind` 函数，会像将返回一个新 `TcpListener` 实例的 `new` 函数一样工作。该函数之所以叫做 `bind`，是因为在网络通信中，连接到要监听的端口，被称为 “绑定到端口”。
+在这一情形下的 `bind` 函数的作用与 `new` 函数相似，将返回一个新的 `TcpListener` 实例。该函数称为 `bind`，因为在网络通信中，连接到某个要监听的端口称为 “绑定到端口”。
 
-`bind` 函数返回的是个 `Result<T, E>`，表明有可能绑定失败。比如，连接到端口 `80` 需要管理员权限（非管理员只可以监听高于 `1023` 的那些端口，译注：在 *nix 平台上有此限制，但在 Win 平台上没有），因此若咱们在非管理员下尝试连接到端口 `80`，端口绑定就不会工作。在比如咱们运行了这个程序的两个实例，而因此有两个程序在监听同一端口时，端口绑定也不会工作。由于咱们仅是处于学习目的，而编写的一个基本服务器，因此咱们就不会纠结于处理这些类别的错误；相反，咱们使用 `unwrap` 来在错误发生时停止这个程序。
+`bind` 函数返回 `Result<T, E>`，这表明绑定可能失败。例如，当我们运行了程序的两个实例，而因此让两个程序监听同一个端口时；由于我们只是出于学习目的而编写一个基础服务器，因此无需担心处理此类错误；相反，我们使用 `unwrap` 来在错误发生时停止程序。
 
-`TcpListener` 上的 `incoming` 方法，会返回一个给到咱们流（更具体的，是一些类型 `TcpStream` 的流）序列的迭代器，an iterator that gives us a sequence of streams。单一的 *流，stream* 表示了客户端与服务器之间的一个打开的连接，an open connection。而一个 *连接，connection* 则是客户端连接到服务器过程中，完整的请求与响应的叫法，服务器会生成一个响应，且服务器会关闭这个连接。就这样，咱们将从那个 `TcpStream` 读取，来看看客户端发送了什么，并于随后把咱们的响应写到这个流，以将数据发送回客户端。总的来说，这个 `for` 循环将依次处理每个连接，并为咱们产生一系列要处理的流。
+`TcpListener` 上的 `incoming` 方法返回一个迭代器，给予我们一个流的序列（更具体地说，是 `TcpStream` 类型的流）。单个 *流* 代表客户端与服务器之间的开放连接。所谓 *连接，conneciton*，是指完整的请求和响应过程，其中客户端连接到服务器，服务器生成响应，然后服务器关闭连接。因此，我们将从 `TcpStream` 中读取以查看客户端发送的内容，然后将响应写入流以将数据发送回客户端。总的来说，这个 `for` 循环将依次处理每个连接，并生成一系列供我们处理的流。
 
-至于现在，咱们对流的处理，是由在流有任何错误时，调用 `unwrap` 来终止咱们的程序所构成；若没有任何错误，那么这个程序就会打印一条消息。在下一代码清单中，咱们将为流成功的情形，添加更多功能。在客户端连接到服务器时，咱们可能会从那个 `incoming` 方法收到错误的原因，便是咱们没有真正在一些连接上迭代。相反，咱们是在一些 *连接尝试，connection attempts* 上迭代。连接可能因为数种原因而不成功，许多的这些原因都是特定于操作系统的。比如，许多操作系统都有他们所支持的并发开启连接数限制，a limit to the number of simultaneous open connecitons；超出那个数目的新建连接尝试就会产生错误，除非一些开启的连接关闭。
+目前，我们对流的处理包括
 
-咱们来尝试运行这段代码！在终端里运行 `cargo run` 并随后在 web 浏览器中加载 `127.0.0.1:7878`。由于服务器没有正确发回任何数据，因此浏览器应给出像是 `Connection reset,` 的错误消息。但当咱们看着终端时，应看到在浏览器连接到服务器时，有数条打印处的消息！
+- 当流出现任何错误时，调用 `unwrap` 来终止程序；
+- 当没有任何错误时，程序则打印一条消息。
 
-> 注：可使用 `$curl 127.0.0.1:7878` 命令进行调试，且使用 `curl` 也是网络编程调试中常用的方法。
+我们将在下一代码清单中为流成功的情形添加更多功能。当客户端连接到服务器时，我们可能会从 `incoming` 方法收到错误的原因在于，我们实际上并不是在遍历连接。而是在遍历 *连接尝试*。连接可能因多种原因而失败，其中许多原因都是特定于操作系统的。例如，许多操作系统对可支持的同时打开连接的数量有限制；超过该数量的新连接尝试将引发错误，知道部分已打开的连接被关闭为止。
+
+我们来尝试运行这段代码！在终端中执行 `cargo run`，然后在 web 浏览器中加载 `127.0.0.1:7878`。由于服务器当前尚未返回任何数据，浏览器应该显示 `Connection reset,` 的错误消息。但当咱们查看终端时，应该看到浏览器连接到服务器时打印的几条消息！
+
+> **译注**：可使用 `curl 127.0.0.1:7878` 命令进行调试，且使用 `curl` 也是网络编程调试中常用的方法。
 
 ```console
+   Compiling hello v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.26s
      Running `target/debug/hello`
-连接已建立！
+
 连接已建立！
 连接已建立！
 连接已建立！
 ```
 
-有的时候，咱们会看到一次浏览器请求下打印出的多条消息；原因可能是浏览器在构造页面请求时，也会构造其他资源的请求，像是出现在浏览器 tab 分页中的 `favicon.ico` 图标。
+有时咱们会看到针对一次浏览器请求打印多条消息；原因可能是浏览器在请求页面时，同时也请求了其他资源，例如显示在浏览器标签页中的 `favicon.ico` 图标。
 
-也可由可能是由于这个服务器没有响应任何数据，浏览器因此会尝试多次连接到这个服务器。在 `stream` 超出作用域，而在那个循环结束出被丢弃时，连接就会作为 `drop` 实现的一部分而被关闭。由于故障可能是临时的，因此浏览器有时会以重试处理关闭的连接。重要的是，咱们已然成功得到了到 TCP 连接的句柄，a handle to a TCP connection！
+也可能是因为服务器没有响应任何数据，导致浏览器尝试多次连接到服务器。当 `stream` 超出作用域并在循环结束时被启用时，连接将作为 `drop` 实现的一部分而被关闭。浏览器有时会通过重试来处理关闭的连接，因为问题可能是暂时的。
 
-请记得在咱们完成运行代码的特定版本时，要通过按下 `Ctrl-c` 来停止这个程序。以后在完成了各套代码修改后，要通过运行 `cargo run` 命令重启这个程序，来确保咱们是在运行最新的代码。
+浏览器有时也会在不发送任何请求的情况下，打开与服务器的多个连接，以便稍后 *真正* 发送请求时，这些请求可以更快地发生。当这种情况发生时，我们的服务器将发现到每个连接，无论连接上是否有请求。例如，许多基于 Chrome 的浏览器版本都会这样做；咱们可以通过使用隐私浏览模式，或使用其他浏览器来禁用这一优化。
+
+重要的是我们已经成功获得了 TCP 连接的句柄！
+
+请记住在运行完特定版本的代码后按下 `Ctrl-c` 来停止程序。然后，在完成每套代码修改后，要通过运行 `cargo run` 命令重启程序，以确保运行的是最新版本的代码。
 
 
 ## 读取请求
 
-**Reading the Request**
+我们来实现读取来自浏览器的请求的功能！为了将首先获取连接，然后对连接采取一些操作的关注点分离，我们将开启一个新函数来处理连接。在这个新的 `handle_connection` 函数中，我们将读取 TCP 流中的数据并将其打印出来，以便我们可以查看浏览器发送的数据。请修改代码为下面清单 21-2 这样。
 
-
-咱们来实现读取来自浏览器请求的功能！为将首选获取到连接，及随后对连接采取一些措施这两个关注点分离，咱们将开启一个用于处理连接的新函数。在这个新的 `handle_connection` 函数中，咱们将从 TCP 流读取数据，并将其打印出来，从而咱们就可以看到从浏览器发出的数据。请将代码修改为清单 20-2 这样。
-
+<a name="listing_21-2"></a>
 文件名：`src/main.rs`
 
 ```rust
-#![allow(warnings)]
 use std::{
-    io::{prelude::*, BufReader},
+    io::{BufReader, prelude::*},
     net::{TcpListener, TcpStream},
 };
 
@@ -91,87 +98,83 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_conn(stream);
+        handle_connection(stream);
     }
 }
 
-fn handle_conn(mut stream: TcpStream) {
-    let buf_reader = BufferedReader::new(stream);
-    let http_req: Vec<_> = buf_reader
+fn handle_connection(mut stream: TcpStream) {
+    let buf_reader = BufReader::new(&stream);
+    let http_request: Vec<_> = buf_reader
         .lines()
-        .map(|res| res.unwrap())
+        .map(|result| result.unwrap())
         .take_while(|line| !line.is_empty())
         .collect();
 
-    println! ("请求：{:#?}", http_request);
+    println!("Request: {http_request:#?}");
 }
 ```
 
-*清单 20-2：从 `TcpStream` 读取并打印出数据*
+**清单 21-2**：从 `TcpStream` 读取并打印数据
 
+我们带入 `std::io::prelude` 和 `std::io::BufReader` 到作用域，以访问允许我们从流中读取和向流中写入的特质与类型。在 `main` 函数的 `for` 循环中，我们不再打印表示我们已建立连接的消息，而是调用新的 `handle_connection` 函数，并传递 `stream` 给他。
 
-咱们将 `std::io::prelude` 与 `std::io::BufReader` 带入作用域，来获取到实现从 TCP 流读取和写入的那些特质与类型的访问。在 `main` 函数的那个 `for` 循环中，不再是打印一条声称咱们已构造一个连接的消息，咱们限制调用了新的 `handle_conn` 函数，并把那个 `stream` 传递给他。
+在 `handle_connection` 函数中，我们创建了一个新的 `BufReader` 实例，封装了到 `stream` 的引用。`BufReader` 通过管理到 `std::io::Read` 特质方法的调用，为我们带来缓冲功能。
 
-在 `handle_conn` 函数中，咱们创建了一个新的，封装着到 `stream` 的一个可变引用的 `BufReader` 实例。`BufReader` 会通过管理到 `std::io::Read` 特质一些方法的调用，为咱们添加缓冲。
+我们创建了一个名为 `http_request` 的变量，以收集浏览器发送到我们服务器的请求行。通过添加 `Vec<_>` 的类型注解，我们表明希望收集这些行到一个矢量值中。
 
-咱们创建了一个名为 `http_req` 的变量，来收集浏览器发送到咱们服务器的请求的那些行。通过添加那个 `Vec<_>` 类型注解，咱们表明了咱们打算把这些行收集到一个矢量值中。
+`BufReader` 实现了 `std::io::BufRead` 特质，该特质提供了 `lines` 方法。`lines` 方法通过在遇到新行字节时分割数据流，返回一个 `Result<String, std::io::Error>` 类型的迭代器。为了获取每个 `String`，我们 `map` 并 `unwrap` 每个 `Result`。当数据不是有效的 UTF-8 编码，或者从流读取存在问题时，`Result` 可能就是错误。同样，生产程序应该更优雅地处理这些错误，但为了简单起见，我们选择了在错误情形下停止程序。
 
-`BufReader` 实现了 `std::io::BufRead` 特质，该特质提供了 `lines` 方法。`lines` 方法会经由当其发现一个新行字节，a newline byte, 时分割数据流，而返回一个 `Result<String, std::io::Error` 的迭代器。而要获取各个 `String`，咱们就要映射，map，并 `unwrap` 各个 `Result`。若数据不是有效的 UTF-8，或从 TCP 流读取存在问题时，这个 `Result` 就可能是个错误。再次声明，生产程序应更优雅地处理这些报错，但咱们为简化目的，而选择了在错误情形下停止这个程序。
+浏览器通过在一行中连续发送两个换行符来表示 HTTP 请求的结束。因此，为了从流中获取一次请求，我们会不断取得行，直到遇到空字符串的行为止。一旦我们收集这些行到矢量值中，我们就会使用美观的调试格式将他们打印出来，以便查看 web 浏览器发送给服务器的指令。
 
-浏览器通过在一行中发送两个新行字符，发出 HTTP 请求结束信号。因此要从 TCP 流获取一次请求，咱们就要取那些直到咱们得到一个为空字符串的行为止的那些行。一旦咱们将这些行收集到那个矢量值中，咱们就用漂亮的调试格式，把他们打印处理，如此咱们就可以看看，web 浏览器正发送给咱们服务器的那些指令。
-
-咱们来试试这段代码！启动这个程序，并再次于浏览器中构造一次请求。请注意咱们仍会在浏览器中得到一个错误页面，但终端中咱们程序的输出，现在将看起来类似于下面这样：
+我们来试试这段代码！启动程序并再次在浏览器中发出请求。请注意，我们仍然会在浏览器中得到错误页面，但终端中的程序输出现在将类似于下面这样：
 
 ```console
 $ cargo run
-   Compiling hello v0.1.0 (file:///projects/hello)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.42s
+   Compiling hello v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.23s
      Running `target/debug/hello`
-请求: [
+Request: [
     "GET / HTTP/1.1",
     "Host: 127.0.0.1:7878",
-    "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:99.0) Gecko/20100101 Firefox/99.0",
-    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-    "Accept-Language: en-US,en;q=0.5",
-    "Accept-Encoding: gzip, deflate, br",
-    "DNT: 1",
     "Connection: keep-alive",
+    "sec-ch-ua: \"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+    "sec-ch-ua-mobile: ?0",
+    "sec-ch-ua-platform: \"Linux\"",
+    "DNT: 1",
     "Upgrade-Insecure-Requests: 1",
-    "Sec-Fetch-Dest: document",
-    "Sec-Fetch-Mode: navigate",
+    "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Sec-Fetch-Site: none",
+    "Sec-Fetch-Mode: navigate",
     "Sec-Fetch-User: ?1",
-    "Cache-Control: max-age=0",
+    "Sec-Fetch-Dest: document",
+    "Accept-Encoding: gzip, deflate, br, zstd",
+    "Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,ko;q=0.6,zh-TW;q=0.5,ja;q=0.4,it;q=0.3,ro;q=0.2,de;q=0.1",
 ]
 ```
 
+> **译注**：使用 `curl 127.0.0.1:7878` 的输出，如下面这样：
+>
+> ```console
+> $ cargo run
+>     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+>      Running `target/debug/hello`
+> Request: [
+>     "GET / HTTP/1.1",
+>     "Host: 127.0.0.1:7878",
+>     "User-Agent: curl/8.19.0",
+>     "Accept: */*",
+> ]
+> ```
 
-> 注：使用 `curl --noproxy '*' 127.0.0.1:7878` 的输出，如下面这样：
+根据咱们的浏览器，咱们可能会得到略有不同的输出。现在我们正在打印请求数据，通过查看请求第一行中 `GET` 之后的路径，我们可以发现为何我们会从一次浏览器请求得到多个连接。当重复的连接都在请求 `/`，我们就知道浏览器正在重复获取 `/`，因为他没有从我们的程序得到响应。
 
-
-```console
-$ cargo run
-    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
-     Running `target/debug/hello`
-请求：[
-    "GET / HTTP/1.1",
-    "Host: 127.0.0.1:7878",
-    "User-Agent: curl/7.68.0",
-    "Accept: */*",
-]
-```
-
-根据咱们的浏览器，咱们可能会得到些许不同的输出。既然咱们打印了请求数据，咱们就可以通过查看请求第一行中 `GET` 之后的路径，而发现为何咱们会从一次浏览器请求，得到多个连接。若重复的连接都是在请求 `/`，咱们就知道由于浏览器没有从咱们的程序得到响应，因此其是在尝试重复获取 `/`。
-
-下面来对这一请求数据加以细分，以搞清楚浏览器是在询问咱们的程序些什么。
+我们来分写这一请求数据，以了解浏览器向我们的程序请求什么。
 
 
-## 近观 HTTP 请求
+## 仔细观察 HTTP 请求
 
-**A closer Look at an HTTP Request**
-
-
-HTTP 是种基于文本的协议，而请求会采用下面这种格式：
+HTTP 属于基于文本的协议，请求采用以下格式：
 
 ```text
 Method Request-URI HTTP-Version CRLF
@@ -179,39 +182,35 @@ headers CRLF
 message-body
 ```
 
-第一行是保存着有关该客户端正请求什么的信息的 *请求行，request line*。该请求行的第一部分，表示正使用的 *方法，method*，比如 `GET` 或 `POST`，描述了客户端是如何构造此请求的。咱们的客户端使用了一个 `GET` 请求，这意味着其是在询问信息。
+第一行是 *请求行*，包含有关客户端请求的信息。请求行的第一部分指明了所使用的方法，比如 `GET` 或 `POST`，这描述了客户端是发出请求的方式。我们的客户端使用了 `GET` 请求，这意味着他正在请求信息。
 
-请求行接下来的部分为 `/`，表示客户端正请求的 *同一资源标识符，Uniform Resource Identifier, URI*：URI 几乎是，但不完全与 *同一资源定位符，Uniform Resource Locator, URL* 一样。URIs 与 URLs 之间的区别对于这章中咱们的目的不重要，但 HTTP 的规格使用了 URI 这个词，因此咱们只能在此处暗自用 URL 代替 URI。
+请求行的下一部分是 `/`，表示客户端正在请求的 *同一资源标识符，URI*：URI 与 *统一资源定位符，URL* 几乎相同。URI 与 URL 之间的区别对于我们这一章的目的来说不重要，但 HTTP 规范使用 URI 这一术语，因此我们在这里可以将 *URL* 理解为 *URI*。
 
-最后部分是客户端所用的 HTTP 版本，而随后这个请求行便以一个 *CRLF 序列，CRLF sequence* （CRLF 代表的是 *回车，carriage return* 与 *换行，line fedd*，是打字机时代的术语！）结束了。这个 CRLF 序列还可以写作 `\r\n`，其中的 `\r` 是个回车，而 `\n` 是个换行。CRLF 序列将请求行与其余的请求数据分开。请注意当 CRLF 被打印时，咱们会看到一个新行开始，而非 `\r\n`。
+最后一部分是客户端使用的 HTTP 版本，随后请求行以 CRLF 序列结束。（CRLF 代表 *回车，carriage return* 和 *换行，line fedd*，这是打字机时代的术语！）CRLF 序列也可以写成 `\r\n`，其中的 `\r` 是回车符，`\n` 是换行符。CRLF 序列将请求行与请求数据的其余部分分开。请注意，当打印 CRLF 时，我们会看到一个新行开始，而不是 `\r\n`。
 
-查看如今咱们从运行这个程序所接收到的请求行数据，咱们发现 `GET` 即为请求方法，`/` 便是请求的 URI，而 `HTTP/1.1` 则是请求的 HTTP 版本。
+查看到目前为止运行程序所接收的请求行数据，我们可以看到，`GET` 是请求方法，`/` 是请求 URI，`HTTP/1.1` 是版本。
 
-在请求行之后，从 `Host:` 开始的其余那些行，就是些头了。`GET` 请求没有请求体。
+在请求行之后，从 `Host:` 开始的其余行都属于头部。`GET` 请求没有请求体。
 
-请从不同浏览器构造请求，或是询问不同地址，比如 `127.0.0.1:7878/test`，来发现请求数据会怎样变化。
+请尝试从不同浏览器发出请求，或是请求不同的地址，比如 `127.0.0.1:7878/test`，以查看请求数据如何变化。
 
-> 注：运行 `curl --noproxy '*' 127.0.0.1:7878/test` 时，请求数据如下所示：
+> **译注**：运行 `curl 127.0.0.1:7878/test` 时，请求数据如下所示：
+>
+> ```console
+> Request: [
+>     "GET /test HTTP/1.1",
+>     "Host: 127.0.0.1:7878",
+>     "User-Agent: curl/8.19.0",
+>     "Accept: */*",
+> ]
+> ```
 
-
-```console
-请求：[
-    "GET /test HTTP/1.1",
-    "Host: 127.0.0.1:7878",
-    "User-Agent: curl/7.68.0",
-    "Accept: */*",
-]
-```
-
-既然咱们明白了浏览器是在询问什么，下面就来发回一些数据吧！
-
-
-## 写下响应
-
-**Writing a Response**
+现在我们知道浏览器请求了什么，我们就来发回一些数据！
 
 
-咱们将要实现发送响应客户端请求数据。响应有着下面的格式：
+## 编写响应
+
+我们将实现发送数据以响应客户端请求。响应有着以下格式：
 
 ```text
 HTTP-Version Status-Code Reason-Phrase CRLF
