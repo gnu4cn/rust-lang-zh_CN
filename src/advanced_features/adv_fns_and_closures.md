@@ -147,7 +147,7 @@ For more information about this error, try `rustc --explain E0308`.
 error: could not compile `returning_closure` (bin "returning_closure") due to 1 previous error
 ```
 
-这一报错消息告诉我们，每当我们返回 `impl Trait` 时，Rust 都会创建一个唯一的 *不透明类型，opaque type*，其中我们无法窥见 Rust 为我们构建的具体细节，也无法推测出 Rust 将生成何种类型供我们自行编写。因此，尽管这两个函数返回了实现相同特质（`Fn(i32) -> i32`） 的闭包，但 Rust 为每个闭包生成的不透明类型却是不同的。（这类似于我们在第 17 章中 [`Pin` 类型与 `Unpin` 特质](../async/async_traits.md#pin-与-unpin-特质) 中看到的，即使不同异步块有着同一输出类型，Rust 也会为他们生成不同的具体类型。）我们已经多次看到这种问题的解决方案：我们可以使用特质对象，如下清单 20-34 中所示。
+这一报错消息告诉我们，每当我们返回 `impl Trait` 时，Rust 都会创建一个唯一的 *不透明类型，opaque type*，其中我们无法窥见 Rust 为我们构建的具体细节，也无法推测出 Rust 将生成何种类型供我们自行编写。因此，尽管这两个函数返回了实现相同特质（`Fn(i32) -> i32`） 的闭包，但 Rust 为每个闭包生成的不透明类型却是不同的。（这类似于我们在第 17 章中 [`Pin` 类型与 `Unpin` 特质](../async/async_traits.md#pin-与-unpin-特质) 中看到的，即使不同异步代码块有着同一输出类型，Rust 也会为他们生成不同的具体类型。）我们已经多次看到这种问题的解决方案：我们可以使用特质对象，如下清单 20-34 中所示。
 
 <a name="listing_20-34"></a>
 
