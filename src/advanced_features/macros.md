@@ -337,7 +337,7 @@ fn impl_hello_macro(ast: &syn::DeriveInput) -> TokenStream {
 
 这里使用的 `stringify!` 宏内置于 Rust。他取一个 Rust 表达式，比如 `1 + 2`，并在编译时转换该表达式为字符串字面值，比如 `"1 + 2"`。这与 `format!` 或 `println!` 不同，二者属于会求值表达式然后转换结果为 `String` 的宏。由于存在 `#name` 可能是个要原样打印的表达式的可能性，因此我们使用 `stringify!`。使用 `stringify!` 还能通过在编译时转换 `#name` 为字符串字面值，从而节省一次内存分配。
 
-此时，在 `hello_macro` 和 `hello_macro_derive` 下的 `cargo build` 都应成功完成。我们来将这两个代码箱连接到清单 20-37 中的代码，看看过程宏的实际操作！使用 `cargo new pancakes`  在咱们的 *projects* 目录下创建一个新的二进制项目。我们需要在 `pancakes` 代码箱的 `Cargo.toml` 中，作为依赖项添加 `hello_macro` 及 `hello_macro_derive`。当咱们把咱们版本的 `hello_macro` 与 `hello_macro_derive` 发布在 [crates.io](https://crates.io/) 上时，他们就属于常规依赖项；而在没有发布时，咱们可以像下面这样指定他们为 `path` 依赖项：
+此时，在 `hello_macro` 和 `hello_macro_derive` 下的 `cargo build` 都应成功完成。我们来将这两个代码箱连接到清单 20-37 中的代码，看看过程宏的实际操作！使用 `cargo new pancakes`  在咱们的 `projects` 目录下创建一个新的二进制项目。我们需要在 `pancakes` 代码箱的 `Cargo.toml` 中，作为依赖项添加 `hello_macro` 及 `hello_macro_derive`。当咱们把咱们版本的 `hello_macro` 与 `hello_macro_derive` 发布在 [crates.io](https://crates.io/) 上时，他们就属于常规依赖项；而在没有发布时，咱们可以像下面这样指定他们为 `path` 依赖项：
 
 文件名：`projects/pancakes/Cargo.toml`
 
