@@ -131,7 +131,7 @@
     - [高级函数与闭包](advanced_features/adv_fns_and_closures.md)
     - [宏，macro](advanced_features/macros.md)
 
-- [最后项目：构建多线程的 Web 服务器](Ch21_Final_Project_Building_a_Multithreaded_Web_Server.md)
+- [最终项目：构建多线程的 Web 服务器](Ch21_Final_Project_Building_a_Multithreaded_Web_Server.md)
     - [构建单线程的 Web 服务器](final_project/single-threaded.md)
     - [从单线程服务器到多线程服务器](final_project/multithreaded.md)
     - [优雅关机与清理](final_project/graceful_shutdown.md)
