@@ -218,48 +218,66 @@ headers CRLF
 message-body
 ```
 
-其中第一行是包含在响应中用到的 HTTP 版本的 *状态行，status line*、汇总了请求结果的一个数字的状态码、以及提供了状态码文字描述的一个原因短语，a reason phrase。在那个 CRLF 之后是一些 HTTP 头、另一个 CRLF 序列、及响应的响应体。
+第一行是 *状态行*，包含响应中使用的 HTTP 版本、概括请求结果的数字状态码，以及提供状态码文本描述的原因短语。CRLF 序列之后是任何的头部、另一个 CRLF 序列，以及响应正文。
 
-下面就是一个使用了 HTTP 版本 1.1 的示例响应，有着状态码 `200`、一个 `OK` 的原因短语、没有头部、也没有响应体。
+下面是一个示例响应，使用 HTTP 版本 1.1，状态码为 `200`、`OK` 原因短语、没有头部，也没有正文。
 
 ```text
 HTTP/1.1 200 OK\r\n\r\n
 ```
 
-状态代码 `200` 是标准的成功响应。这个文本便是个极小的成功 HTTP 响应。下面来把这个响应，作为咱们到成功请求的响应，写到 TCP 流！在那个 `handle_conn` 函数中，移除曾是打印请求数据的 `println!`，而将其替换为下面清单 20-3 中的代码。
+状态代码 `200` 是标准的成功响应。这段文本便是个简短的成功 HTTP 响应。我们来写入这个响应到流，作为对成功请求的响应！在 `handle_connection` 函数中，移除原本用于打印请求数据的 `println!`，并以下面清单 21-3 中的代码替换他。
 
+<a name="listing_21-3"></a>
 文件名：`src/main.rs`
 
 ```rust
-fn handle_conn(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
-    let http_req: Vec<_> = buf_reader
+    let http_request: Vec<_> = buf_reader
         .lines()
         .map(|res| res.unwrap())
         .take_while(|line| !line.is_empty())
         .collect();
 
-    let resp = "HTTP/1.1 200 OK\r\n\r\n";
+    let response = "HTTP/1.1 200 OK\r\n\r\n";
 
-    stream.write_all(resp.as_bytes()).unwrap();
+    stream.write_all(response.as_bytes()).unwrap();
 }
 ```
 
-*清单 20-3：将一个极小的成功 HTTP 响应写到 TCP 流*
+**清单 21-3**：写入一个极小的成功 HTTP 响应到流
 
-那第一行定义了保存成功消息数据的 `resp` 变量。随后咱们在咱们的 `resp` 上调用 `as_bytes`，将字符串数据转换为一些字节。`stream` 上的 `write_all` 方法，会取一个 `&[u8]` 并将那些字节直接发送到 TCP 连接。由于 `write_all` 操作可能失败，咱们就像前面一样，于任何的错误结果上使用 `unwrap`。再次，在真实应用中，咱们会在这里加上错误处理。
+第一个新行定义了 `response` 变量，包含成功消息的数据。然后，我们对 `response` 调用 `as_bytes`，转换字符串数据为字节。`stream` 上的 `write_all` 方法取一个 `&[u8]`，并直接发送这些字节到连接。由于 `write_all` 操作可能失败，因此我们像之前一样对任何错误结果使用 `unwrap`。同样，在真实应用中，咱们将在这里添加错误处理。
 
-有了这些修改，咱们来运行咱们的代码，并构造一次请求。咱们就不再打印任何数据到终端，因此咱们不会看到除 Cargo 的输出外，其他任何的输出。当咱们在 web 浏览器中加载 `127.0.0.1:7878` 时，咱们应得到一个空白页而非报错。咱们刚刚已经硬编码了接收 HTTP 请求并发送一次响应了！
+在这些修改下，我们来运行代码并发出请求。我们不再打印任何数据到终端，因此除了 Cargo 的输出外，我们不会看到其他任何输出。当咱们在 web 浏览器中加载 `127.0.0.1:7878` 时，应得到一个空白页而不是报错。咱们刚刚亲手编写了接收 HTTP 请求并发送响应的代码！
+
+> **译注**：使用 `curl 127.0.0.1:7878 -v` 命令测试现在的 web 服务器，输出如下。
+>
+> ```console
+> $ curl 127.0.0.1:7878 -v
+> *   Trying 127.0.0.1:7878...
+> * Established connection to 127.0.0.1 (127.0.0.1 port 7878) from 127.0.0.1 port 51618
+> * using HTTP/1.x
+> > GET / HTTP/1.1
+> > Host: 127.0.0.1:7878
+> > User-Agent: curl/8.19.0
+> > Accept: */*
+> >
+> * Request completely sent off
+> < HTTP/1.1 200 OK
+> * no chunk, no close, no size. Assume close to signal end
+> <
+> * shutting down connection #0
+> ```
 
 
-## 返回真正的 HTML
+## 返回真实的 HTML
 
-**Returning Real HTML**
+我们来实现返回非空白页面的功能。请在项目目录的根目录下，而非 `src` 目录中，创建新文件 `hello.html`。咱们可输入任何咱们想要的 HTML；下面清单 21-4 展示了一种可能。
 
-
-下面来实现返回相比空白页更多内容的功能。请在咱们的项目目录根处，而非 `src` 目录中创建一个新文件 `hello.html`。咱们可放入任何咱们想要的 HTML；下面清单 20-4 给出了一种可能。
-
-文件名：`hello.html`
+<a name="listing_21-4"></a>
+文件名：`projects/hello/hello.html`
 
 ```html
 <!DOCTYPE html>
@@ -275,33 +293,24 @@ fn handle_conn(mut stream: TcpStream) {
 </html>
 ```
 
-*清单 20-4：要在响应中返回的一个样例 HTML 文件*
+**清单 21-4**：在响应中返回的示例 HTML 文件
 
-这是个带有一个与一些文本的最小 HTML5 文档。要在收到一个请求时从服务器返回这个文档，咱们将如下清单 20-5 中所示那样，修改 `handle_conn` 来读取这个 HTML 文件，将其作为响应体，添加到一个响应，并将其发送。
+这是个最小的 HTML5 文档，带有标题和一些文本。为了在收到请求时从服务器返回这个文档，我们将按照下面清单 21-5 中所示，修改 `handle_connection` 以读取这个 HTML 文件，作为响应正文添加到响应，然后发送他。
 
-文件名：`src/main.rs`
+<a name="listing_21-5"></a>
+文件名：`projects/hello/src/main.rs`
 
 ```rust
-#![allow(warnings)]
 use std::{
     fs,
     io::{prelude::*, BufReader},
     net::{TcpListener, TcpStream},
 };
+// -- 跳过代码 --
 
-fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-
-        handle_conn(stream);
-    }
-}
-
-fn handle_conn(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
-    let http_req: Vec<_> = buf_reader
+    let http_request: Vec<_> = buf_reader
         .lines()
         .map(|res| res.unwrap())
         .take_while(|line| !line.is_empty())
@@ -311,66 +320,75 @@ fn handle_conn(mut stream: TcpStream) {
     let contents = fs::read_to_string("hello.html").unwrap();
     let length = contents.len();
 
-    let resp =
+    let response =
         format! ("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
 
-    stream.write_all(resp.as_bytes()).unwrap();
+    stream.write_all(response.as_bytes()).unwrap();
 }
 ```
 
-*清单 20-5：将 `hello.html` 的内容作为响应的响应体发送*
+**清单 21-5**：作为响应正文发送 `hello.html` 的内容
 
-咱们已添加 `fs` 到那个 `use` 语句，来将标准库的文件系统模组带入到作用域中。把文件内容读取到一个字符串的代码应看起来不陌生；在第 12 章，于清单 12-4 中为咱们的 I/O 项目读取一个文件的内容时，咱们曾用到过他。
+我们已添加 `fs` 到 `use` 语句中，以带入标准库的文件系统模组到作用域。读取文件内容到字符串中的代码应该看起来很熟悉；我们在 [清单 12-4](../io_project/reading_a_file.md#listing_12-4) 中为 I/O 项目读取文件内容时就用过他。
 
-接下来，咱们使用了 `format!` 宏，来将那个文件的内容，添加为这个成功响应的响应体。为确保一个有效的 HTTP 响应，咱们添加了被设置为咱们的响应体大小的一个 `Content-Length` 头部，在这个示例中就是 `hello.html` 的大小。
+接下来，我们使用 `format!` 宏，以添加文件内容为成功响应的正文。为了确保有效的 HTTP 响应，我们要添加 `Content-Length` 头部，其被设置为响应正文的大小 -- 在这一情形下，就是 `hello.html` 的大小。
 
-以 `cargo run` 运行这段代码，并在浏览器中加载 `127.0.0.1:7878`；咱们应看到咱们的 HTML 被渲染了！
+通过 `cargo run` 运行这段代码，并在浏览器中加载 `127.0.0.1:7878`；咱们应能看到咱们的 HTML 被渲染了！
 
-目前，咱们忽略了 `http_req` 中的响应数据，而只是无条件地发回那个 HTML 文件的内容。那就意味着当咱们在浏览器中尝试请求 `127.0.0.1:7878/something-else` 时，咱们将仍然得到这同样的 HTML 响应。此刻，咱们的服务器是非常有限的，且不会完成绝大多数 web 服务器所完成的那些事情。咱们打算根据请求定制咱们的响应，并只为格式良好的到 `/` 请求，发回这个 HTML 文件。
-
-
-## 对请求加以验证并有选择地进行响应
-
-**Validating the Request and Selectively Responding**
+目前，我们忽略了 `http_request` 中的请求数据，而仅无条件地发回 HTML 文件的内容。这就意味着，当咱们在浏览器中尝试请求 `127.0.0.1:7878/something-else` 时，将仍然得到这一相同的 HTML 响应。目前，我们的服务器非常有限，不会实现大多数 web 服务器能做的事情。我们希望根据请求自定义响应，进而只针对到 `/` 的格式正确的请求，发回这个 HTML 文件。
 
 
-现在，咱们的 web 服务器将始终返回那个文件中的 HTML，而不管客户端请求的是什么。下面来添加在返回那个 HTML 文件前，检查浏览器是在请求 `/`，并在浏览器请求其他路径时，返回一个错误的功能。为此，咱们需要如下面清单 20-6 中所示的那样修改 `handle_conn`。这段新代码会将收到的请求，与咱们所知的 `/` 请求看起来的样子对比检查，并添加了 `if` 及 `else` 代码块来分别对待各种请求。
+## 验证请求并有选择地响应
 
+目前，无论客户端请求什么，我们的 web 服务器都会返回该文件中的 HTML。我们来添加功能，在返回 HTML 文件之前先检查浏览器是否请求了 `/`，并在浏览器请求了其他路径时返回错误。为此，我们需要 `handle_connection`，如下清单 21-6 中所示。这段新代码会将收到的请求，与我们已知的 `/` 请求格式对比，并添加 `if` 和 `else` 代码块来以不同方式处理请求。
+
+<a name="listing_21-6"></a>
 文件名：`src/main.rs`
 
 ```rust
-fn handle_conn(mut stream: TcpStream) {
-    let buf_reader = BufReader::new(&mut stream);
-    let req_line = buf_reader.lines().next().unwrap().unwrap();
+// -- 跳过代码 --
 
-    if req_line == "GET / HTTP/1.1" {
+fn handle_connection(mut stream: TcpStream) {
+    let buf_reader = BufReader::new(&stream);
+    let request_line = buf_reader.lines().next().unwrap().unwrap();
+
+    if request_line == "GET / HTTP/1.1" {
         let status_line = "HTTP/1.1 200 OK";
         let contents = fs::read_to_string("hello.html").unwrap();
         let length = contents.len();
 
-        let resp =
-            format! ("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+        let response = format!(
+            "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}"
+        );
 
-        stream.write_all(resp.as_bytes()).unwrap();
+        stream.write_all(response.as_bytes()).unwrap();
     } else {
-        // 别的一些请求
+        // some other request
     }
 }
 ```
 
-*清单 20-6：以不同于其他请求方式，处理到 `/` 的请求*
+**清单 21-6**：以不同于其他请求方式，处理到 `/` 的请求
 
-咱们只打算看看 HTTP 请求的第一行，因此就不再将整个请求读取到一个矢量值了，咱们调用了 `next` 来从那个迭代器得到第一个条目。这里的首个 `unwrap` 会注意其中的 `Option`，并在迭代器没有条目时停止这个程序。第二个 `unwrap` 则会处理其中的 `Result`，并与清单 20-2 中所添加的 `map` 里的那个 `unwrap` 有着同样的效果。
+我们只会查看 HTTP 请求的第一行，因此我们不会读取整个请求到矢量值中，而是调用 `next` 获取迭代器中的第一个项目。第一个 `unwrap` 处理 `Option`，并在迭代器没有项目时停止程序。第二个 `unwrap` 处理 `Result`，并与清单 21-2 中添加的 `map` 里的 `unwrap` 有着相同效果。
 
-接下来，咱们检查了 `req_line`，来看看其是否等于到 `/` 路径 `GET` 请求的请求行。在其等于时，那个 `if` 代码块就会返回咱们 HTML 文件的内容。
+接下来，我们检查 `request_line` 是否等于到 `/` 路径的 `GET` 请求的请求行。当等于时，`if` 代码块就返回 HTML 文件的内容。
 
-若 `req_line` *不* 等于到 `/` 路径 `GET` 请求的第一行时，就意味着咱们收到了一些别的请求。稍后咱们将添加代码到那个 `else` 代码块，来响应全部其他请求。
+当 `request_line` *不* 等于到 `/` 路径的 `GET` 请求时，则意味着我们收到了其他请求。稍后，我们将添加代码到 `else` 代码块，以响应所有其他请求。
 
-现在请运行此代码，并请求 `127.0.0.1:7878`；咱们应获取到 `hello.html` 中的 HTML。在咱们构造任何其他请求时，比如 `127.0.0.1:7878/something-else`，就将得到像是咱们曾在运行清单 20-1 及清单 20-2 中的代码时，所看到连接错误。
+现在请运行这段代码并请求 `127.0.0.1:7878`；咱们应该获取到 `hello.html` 中的 HTML。当咱们发出任何其他请求时，比如 `127.0.0.1:7878/something-else`，咱们将得到连接错误，就像咱们在运行清单 21-1 及清单 21-2 中的代码时看到的那样。
 
-现在来将清单 20-7 中的代码，添加到那个 `else` 代码块，以返回一个带有状态代码 `404` 的响应，这通告了请求的内容未找到。咱们还将返回一些在浏览器中要渲染页面的 HTML，将这种响应表示给终端用户。
+> **译注**：当通过命令 `curl 127.0.0.1:7878/something-else` 连接现在的服务器时，输出如下。
+>
+> ```console
+> $ curl 127.0.0.1:7878/something-else
+> curl: (52) Empty reply from server
+> ```
 
-文件名：`src/main.rs`
+现在，我们来将添加下面清单 21-7 中的代码到 `else` 代码块，以返回状态代码为 `404` 的响应，这表示请求的内容未找到。我们还将返回一些 HTML 代码，以便在浏览器中渲染页面，向最终用户表示响应。
+
+<a name="listing_21-7"></a>
+文件名：`projects/hello/src/main.rs`
 
 ```rust
     // --跳过代码--
@@ -386,48 +404,76 @@ fn handle_conn(mut stream: TcpStream) {
     }
 ```
 
-*清单 20-7：在请求的是除 `/` 外的其他路径时以状态代码 `404` 及一个错误页面进行响应*
+**清单 21-7**：当请求除 `/` 外的任何路径时，响应以状态代码 `404` 和错误页面
 
-此处，咱们的响应有着一个代码状态代码 `404`，及原因短语 `NOT FOUND` 的状态行。该响应的响应体，将是文件 `404.html` 中的 HTML。咱们将需要创建 `hello.html` 旁边，用于错误页面的 `404.html` 文件；请再次随意使用咱们想要的任何 HTML，或使用下面清单 20-8 中的示例 HTML。
+在这里，我们的响应包含一个状态行，有着状态代码 `404` 以及原因短语 `NOT FOUND`。响应正文是文件 `404.html` 中的 HTML。咱们需要在 `hello.html` 旁边创建一个 `404.html` 文件作为错误页面； 同样，咱们可以随意使用任何 HTML，或者使用下面清单 21-8 中的示例 HTML。
 
-文件名：`404.html`
+<a name="listing_21-8"></a>
+文件名：`projects/hello/404.html`
 
 ```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>你好!</title>
+    <title>你好！</title>
   </head>
   <body>
-    <h1>糟糕!</h1>
-    <p>抱歉，我不明白你要什么。</p>
+    <h1>哎呀！</h1>
+    <p>抱歉，我不明白你请求的是什么。</p>
   </body>
 </html>
 ```
 
-*清单 20-8：全部 404 响应下要发回页面的示例内容*
+**清单 21-8**：与任何 404 响应一起发回的页面的示例内容
 
-在这些修改下，请再次运行咱们的服务器。请求 `127.0.0.1:7878` 应返回 `hello.html` 的内容，而任何别的请求，像是 `127.0.0.1:foo`，就应返回 `404.html` 中的报错 HTML。
+在这些修改下，再次运行咱们的服务器。请求 `127.0.0.1:7878` 应返回 `hello.html` 的内容，而任何其他请求，比如 `127.0.0.1:7878/foo`，都应返回 `404.html` 中的报错 HTML。
 
+> **译注**：命令 `curl 127.0.0.1:7878/foo -v` 的输出如下。
+>
+> ```console
+> $ curl 127.0.0.1:7878/foo -v
+> *   Trying 127.0.0.1:7878...
+> * Established connection to 127.0.0.1 (127.0.0.1 port 7878) from 127.0.0.1 port 50990
+> * using HTTP/1.x
+> > GET /foo HTTP/1.1
+> > Host: 127.0.0.1:7878
+> > User-Agent: curl/8.19.0
+> > Accept: */*
+> >
+> * Request completely sent off
+> < HTTP/1.1 404 NOT FOUND
+> < Content-Length: 215
+> <
+> <!DOCTYPE html>
+> <html lang="en">
+>   <head>
+>     <meta charset="utf-8">
+>     <title>你好！</title>
+>   </head>
+>   <body>
+>     <h1>哎呀！</h1>
+>     <p>抱歉，我不明白你请求的是什么。</p>
+>   </body>
+> </html>
+> * Connection #0 to host 127.0.0.1:7878 left intact
+> ```
 
-## 初试重构
+## 重构
 
-**A Touch of Refactoring**
+目前，`if` 与 `else` 两个代码块有着很多重复：他们都在读取文件并写入文件内容到流。唯二区别就是状态行和文件名。我们来提取这些差异到单独的 `if` 和 `else` 行，把状态行和文件名指派给变量；这样，我们就可以在代码中，无条件地使用这两个变量来读取文件并写入响应。下面清单 21-9 展示了替换大段的 `if` 与 `else` 代码块后的最终代码。
 
-
-此时的 `if` 与 `else` 两个代码块，有着很多重复：他们都在读取文件及将文件内容写到 TCP 流。唯二区别就是响应的状态行与文件名。下面就来通过抽取处这些差异到单独的 `if` 和 `else` 行，这些行将把响应状态行与文件名，赋值给两个变量；随后咱们就可以在代码中，不带条件地使用这两个变量，来读取文件并写下响应。下面清单 20-9 给出了替换了大段的 `if` 与 `else` 代码块后的最终代码。
-
-文件名：`src/main.rs`
+<a name="listing_21-9"></a>
+文件名：`projects/hello/src/main.rs`
 
 ```rust
-// --跳过代码--
-fn handle_conn(mut stream: TcpStream) {
-    let buf_reader = BufReader::new(&mut stream);
-    let req_line = buf_reader.lines().next().unwrap().unwrap();
+// -- 跳过代码 --
 
-    let (status_line, filename) = if req_line == "GET / HTTP/1.1" {
-        ( "HTTP/1.1 200 OK", "hello.html")
+fn handle_connection(mut stream: TcpStream) {
+    // -- 跳过代码 --
+
+    let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
+        ("HTTP/1.1 200 OK", "hello.html")
     } else {
         ("HTTP/1.1 404 NOT FOUND", "404.html")
     };
@@ -435,16 +481,16 @@ fn handle_conn(mut stream: TcpStream) {
     let contents = fs::read_to_string(filename).unwrap();
     let length = contents.len();
 
-    let resp =
-        format! ("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+    let response =
+        format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
 
-    stream.write_all(resp.as_bytes()).unwrap();
+    stream.write_all(response.as_bytes()).unwrap();
 }
 ```
 
-*清单 20-9：将 `if` 和 `else` 代码块重构为只包含两种情况下不同的代码*
+**清单 21-9**：重构 `if` 和 `else` 代码块，以仅包含两种情形之间不同的代码
 
-现在 `if` 与 `else` 两个代码块，就只会返回一个元组中，响应状态行与文件名的相应值了；随后咱们运用第 18 章中曾讨论过的 `let` 语句中的模式，而使用了解构特性，来将这两个值复制给 `status_line` 与 `filename`。
+现在，`if` 和 `else` 代码块仅返回元组中的状态行与文件名的相应值；然后，我们使用正如第 19 章讨论的 [`let` 语句中的模式](../patterns/all_places.md#let-语句)，使用解构特性将这两个值指派给 `status_line` 与 `filename`。
 
 原先那些重复代码，现在便是在 `if` 与 `else` 两个代码块外面，并使用了 `status_line` 与 `filename` 两个变量。这令到看出两种情况之间的差别更为容易，并意味着在咱们打算修改文件读取与响应写入工作方式时，只有一处要更新代码。清单 20-9 中代码的行为，将与清单 20-8 中的一致。
 
