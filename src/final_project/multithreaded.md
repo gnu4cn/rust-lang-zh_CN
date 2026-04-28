@@ -59,9 +59,9 @@ fn handle_connection(mut stream: TcpStream) {
 
 这种技术只是提高 web 服务器吞吐量的众多方法之一。咱们可能探索的其他选项，比如
 
-- 分叉汇合模型，fork/join model、
-- 单线程异步 I/O 模型，single-threaded async I/O model，
-- 以及多线程异步 I/O 模型，multi-threaded async I/O model 等等。
+- [分叉汇合模型，fork/join model](https://en.wikipedia.org/wiki/Fork%E2%80%93join_model)、
+- [单线程异步 I/O 模型，single-threaded async I/O model](https://medium.com/@sairaju.atukuri123/how-does-async-handle-api-requests-in-a-single-thread-1eeff8480dab)，
+- 以及 [多线程异步 I/O 模型，multi-threaded async I/O model](https://en.wikipedia.org/wiki/Asynchronous_I/O) 等等。
 
 若咱们对这一主题感兴趣，可以进一步了解其他解决方案并尝试实现他们；对于 Rust 这样的底层编程语言，所有这些选项都是可行的。
 
@@ -100,7 +100,7 @@ fn main() {
 咱们可能还记得第 17 章中的内容，这正是异步和等待真正大显身手的情形！在我们构建线程池时请记住这一点，并思考在异步下会有何不同或相同点。
 
 
-### 创建有限数目的线程
+### 创建有限数量的线程
 
 我们希望线程池以类似、熟悉的方式工作，这样在使用我们 API 的代码中，从单线程切换到线程池是，就无需进行大量更改。下面清单 21-12 展示了我们打算用来替换 `thread::spawn` 的 `ThreadPool` 结构体的假设接口。
 
@@ -144,42 +144,42 @@ For more information about this error, try `rustc --explain E0433`.
 error: could not compile `hello` (bin "hello") due to 1 previous error
 ```
 
-太好了！这个错误告诉我们，我们需要一个 `ThreadPool` 类型或模组，所以我们现在就构建一个。我们的 `ThreadPool` 实现将独立于我们的 web 服务器正在执行的工作类别。因此，咱们就来将这个 `hello` 代码箱，从二进制代码箱切换为一个库代码箱，来保存咱们的 `ThreadPool` 实现。在咱们改变为库代码箱后，咱们就可以在打算用到线程池的任何项目，而不只是用来服务 web 请求中，也可以使用这个独立的线程池了。
+太好了！这个错误告诉我们，我们需要一个 `ThreadPool` 类型或模组，所以我们现在就构建一个。我们的 `ThreadPool` 实现将独立于我们的 web 服务器正在执行的工作类别。因此，我们来将 `hello` 代码箱，从二进制代码箱切换为库代码箱，来保存我们的 `ThreadPool` 实现。更改为库代码箱后，我们还可以针对我们打算使用线程池来完成的任何工作，都使用这个独立的线程池，而不仅仅用于服务 web 请求。
 
-请创建一个包含了下面这个咱们目前所能有的 `ThreadPool` 结构体极简定义的 `src/lib.rs` 文件：
+请创建一个 `src/lib.rs` 文件，包含以下代码，这是目前我们可以实现的 `ThreadPool` 结构体的最简单定义：
 
-文件名：`src/lib.rs`
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 pub struct ThreadPool;
 ```
 
-随后编辑 `main.rs`，来通过加入下面的代码到 `src/main.rs` 顶部，将 `ThreadPool` 从那个库代码箱，带入作用域：
+然后，编辑 `main.rs`，通过添加以下代码到 `src/main.rs` 的顶部，从库代码箱带入 `ThreadPool` 作用域：
 
-文件名：`src/main.rs`
+文件名：`projects/hello/src/main.rs`
 
 ```rust
 use hello::ThreadPool;
 ```
 
-这段代码仍不会工作，但咱们就来再检查一边，以得到咱们需要解决的下一报错：
+这段代码仍然无法运行，但我们来再检查一遍，以得到下一个我们需要解决的报错：
 
 ```console
 $ cargo check
-    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+    Checking hello v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello)
 error[E0599]: no function or associated item named `new` found for struct `ThreadPool` in the current scope
-  --> src/main.rs:14:28
+  --> src/main.rs:13:28
    |
-14 |     let pool = ThreadPool::new(4);
+13 |     let pool = ThreadPool::new(4);
    |                            ^^^ function or associated item not found in `ThreadPool`
 
 For more information about this error, try `rustc --explain E0599`.
-error: could not compile `hello` due to previous error
+error: could not compile `hello` (bin "hello") due to 1 previous error
 ```
 
-此报错表明，接下来咱们就要给 `ThreadPool` 创建一个名为 `new` 的关联函数。咱们还知道了那个 `new` 需要有一个可将 `4` 作为实参接收的形参，并应返回一个 `ThreadPool` 的实例。下面就来实现将有着那些特性的这个极简 `new` 函数：
+这个报错表明，接下来我们需要为 `ThreadPool` 创建一个名为 `new` 的关联函数。我们还知道，`new` 需要有个形参，可以接受 `4` 作为实参，并且应该返回一个 `ThreadPool` 实例。我们来实现一个有着这些特征的最简单的 `new` 函数：
 
-文件名：`src/lib.rs`
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 pub struct ThreadPool;
@@ -191,26 +191,26 @@ impl ThreadPool {
 }
 ```
 
-由于咱们清楚一个负的线程数目不会有任何意义，因此咱们选择了 `usize` 作为那个 `size` 参数的类型。咱们还知道咱们将使用这个 `4` 作为线程集合中原始的个数，那即使这个 `usize` 类型的目的所在，正如第三章的 [整数类型](Ch03_Common_Programming_Concepts.md#整形) 小节中曾讨论过的。
+我们选择 `usize` 作为 `size` 参数的类型，因为我们知道负数的线程数毫无意义。我们还知道，我们将使用 `4` 作为线程集合中元素的个数，这就是 `usize` 类型的用途，正如第 3 章中 [整型](../programming_concepts/data_types.md#整型) 小节中讨论的那样。
 
-下面来再次检查：
+我们来再次检查代码：
 
 ```console
 $ cargo check
-    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
+    Checking hello v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello)
 error[E0599]: no method named `execute` found for struct `ThreadPool` in the current scope
-  --> src/main.rs:19:14
+  --> src/main.rs:18:14
    |
-19 |         pool.execute(|| {
-   |              ^^^^^^^ method not found in `ThreadPool`
+18 |         pool.execute(|| {
+   |         -----^^^^^^^ method not found in `ThreadPool`
 
 For more information about this error, try `rustc --explain E0599`.
-error: could not compile `hello` due to previous error
+error: could not compile `hello` (bin "hello") due to 1 previous error
 ```
 
-现在的报错之所以出现，是因为在 `ThreadPool` 上咱们没有一个 `execute` 方法。回顾 ["创建有限数目的线程"](#创建有限数目的线程) 小节到，咱们已决定咱们的线程池，应有一个类似与 `thread::spawn` 的接口。此外，咱们将实现这个 `execute` 函数，如此其便会取那个给到他的闭包，并将其交给线程池中的某个空闲进程运行。
+现在报错出现，是因为我们在 `ThreadPool` 上没有 `execute` 方法。回顾 [创建有限数量的线程](#创建有限数量的线程) 小节，我们决定线程池应该有个类似于 `thread::spawn` 的接口。此外，我们将实现 `execute` 函数，使其取得给予他的闭包，并将该闭包交给线程池中的空闲线程运行。
 
-咱们将在 `ThreadPool` 上定义这个 `execute` 方法，来取一个闭包作为参数。回顾第 13 章中 [“将捕获值迁移出闭包与 `Fn` 特质”](Ch13_Functional_Language_Features_Iterators_and_Closures.md#将捕获到的值迁移出闭包与-fn-特质) 到咱们可以三种不同特质，将闭包取作参数：`Fn`、`FnMut` 与 `FnOnce`。咱们需要确定出这里要使用何种类别的闭包。咱们清楚咱们将以完成一些类似于标准库的 `thread::spawn` 实现类似的东西结束，因此咱们就可以看看 `thread::spawn` 的签名在其参数上有些什么。文档给出咱们下面的东西：
+我们将定义 `ThreadPool` 上的 `execute` 方法为取一个闭包作为参数。回顾第 13 章中的 [从闭包中迁出捕获值](../functional_features/closures.md#从闭包中迁出捕获值) 小节，我们可以通过三种不同特质取闭包作为参数：`Fn`、`FnMut` 与 `FnOnce`。我们需要决定在这里使用哪种闭包类别。我们知道我们最终将执行一些类似于标准库的 `thread::spawn` 实现的操作，因此我们可以查看 `thread::spawn` 的签名，在参数上有哪些边界。文档向我们展示了以下内容：
 
 ```rust
 pub fn spawn<F, T>(f: F) -> JoinHandle<T>
@@ -220,17 +220,15 @@ pub fn spawn<F, T>(f: F) -> JoinHandle<T>
         T: Send + 'static,
 ```
 
-其中的 `F` 类型参数，就是咱们在这里所关心的那个；那个 `T` 类型参数于返回值相关，而咱们并不关心那个。咱们可以看出，`spawn` 使用 `FnOnce` 作为 `F` 上的特质边界。由于咱们将最终将把咱们在 `execute` 中获得的实参，传递给 `spawn`，因此这或许也正是咱们想要的。由于为运行某个请求的线程，将只执行那个请求的闭包一次，而这是与 `FnOnce` 中的 `Once` 是相匹配的，故咱们可以进一步确信，`FnOnce` 便是咱们要用到的特质。
+其中 `F` 类型参数是我们在这里关心的；`T` 类型参数与返回值有关，而我们并不关心这点。我们可以看到，`spawn` 使用 `FnOnce` 作为 `F` 的特质边界。这很可能也是我们想要的，因为我们最终将传递 `execute` 中获得的实参给 `spawn`。由于运行请求的线程将只执行该请求的闭包一次，这与 `FnOnce` 中的 `Once` 一致，因此我们可以进一步确信 `FnOnce` 就是我们要使用的特质。
 
-其中的 `F` 类型参数，还有着特质边界 `Send` 与生命周期边界 `'static`，在咱们这种情况下他们是有用的：咱们需要 `Send` 来将闭包，从一个线程转移到另一线程，并由于咱们不知道那个线程将耗时多久来执行，因此而需要 `'static`。下面咱们就来在 `ThreadPool` 上，创建出将取到有着这些边界的，类型 `F` 的泛型参数的 `execute` 方法：
+`F` 类型参数还有着特质边界 `Send` 和生命周期边界 `'static`，这在我们的情形下非常有用：我们需要 `Send` 来从一个线程转移闭包到另一线程，需要 `'static` 是由于我们不知道线程执行需要多长时间。我们来对 `ThreadPool` 创建一个 `execute` 方法，将取有着以下边界的类型 `F` 的泛型参数：
 
 文件名：`src/lib.rs`
 
 ```rust
-#![allow(warnings)]
-pub struct ThreadPool;
-
 impl ThreadPool {
+    // -- 跳过代码 --
     pub fn execute<F>(&self, f: F)
         where
             F: FnOnce() + Send + 'static,
@@ -239,39 +237,39 @@ impl ThreadPool {
 }
 ```
 
-由于这个 `FnOnce` 表示一个不会取参数，且返回的是单元类型 `()` 的闭包，因此咱们仍旧使用了 `FnOnce` 后的 `()`。就跟函数定义一样，返回值类型可以在签名中省略，但即使咱们没有参数，咱们仍需这对括号。
+我们在 `FnOnce` 之后仍然使用 `()`，因为这个 `FnOnce` 表示一个不取参数且返回单元值类型 `()` 的闭包。就像函数定义一样，返回值类型可在签名中省略，但即使我们没有参数，我们仍然需要这对括号。
 
-又一次，这仍是那个 `execute` 方法的极简实现：他什么也没做，但咱们只是在试着让咱们的代码编译。咱们再来对其加以检查：
+同样，这是 `execute` 方法的最简单实现：他什么也不做，但我们只是试图让代码编译。我们来再次检查一下：
 
 ```console
 $ cargo check
-    Checking hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.36s
+    Checking hello v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
 ```
 
-他编译了！不过请注意，当咱们尝试 `cargo run` 并在浏览器中构造一次请求时，咱们将看到浏览器中，一些咱们在本章开头曾看到过的报错。咱们的库尚未真正调用传递给 `execute` 的那个闭包！
+他编译了！但请注意，当咱们尝试运行 `cargo run` 并在浏览器中发出请求时，咱们将看到浏览器中看到在本章开头曾看到的那些报错。我们的库实际上还没有调用传递给 `execute` 的闭包！
 
-> 注意：咱们或许听说过与有着严格编译器语言，比如 Haskell 与 Rust，有关的一种说法，即 “若代码编译了，他就会工作。” 然而这种说法并非一概而论。咱们的项目编译了，但他绝对什么也没干！若咱们是在构建一个真实、完整的项目，那么此时就将是开始编写检查代码编译与否，*以及* 是否具有咱们想要的行为的单元测试的好时机。
+> **注意**：关于像 Haskell 和 Rust 这样有着严格编译器的语言，咱们或许听说过一种说法，即 “当代码编译时，他就会运行。” 但这种说法并非放之四海而皆准。我们的项目编译了，但他什么也没做！若我们正在构建一个真实且完整的项目，那么现在正是开始编写单元测试的好时机，以验证代码不仅会编译，*还* 有着我们想要的行为。
 
-
-### 在 `new` 中验证线程数目
-
-**Validating the Number of Threads in `new`**
+请思考：若我们即将执行一个未来值而不是闭包，这里会有什么不同？
 
 
-咱们没有对 `new` 与 `execute` 的参数做任何事情。下面就来以咱们打算的行为，实现这两个函数的函数体。咱们来构思一下 `new`，作为开始。早先由于负的线程数目没有意义，因此咱们给那个 `size` 参数，选择了一个无符号整数类型。不过尽管零也是相当有效的 `usize`，但零个线程的线程池，同样是无意义的。咱们将在返回一个 `ThreadPool` 实例前，添加检查 `size` 大于零的代码，并在程序收到一个零时，通过使用 `assert!` 宏，让程序终止运行，如下面清单 20-13 中所示。
+### 验证 `new` 中的线程数量
 
-文件名：`src/lib.rs`
+我们没有对 `new` 和 `execute` 的参数执行任何操作。我们来以我们希望的行为实现这两个函数的主体。首先，我们来思考一下 `new`。之前我们为 `size` 参数选择了无符号类型，因为线程数为负的线程池没有意义。然而，有着零个线程的线程池也没有意义，但零是完全有效的 `usize`。在返回 `ThreadPool` 实例之前，我们将添加检查 `size` 是否大于零的代码，在返回一个 `ThreadPool` 实例前，添加检查 `size` 大于零的代码，并当程序通过使用 `assert!` 宏收到零时让程序终止运行，如下清单 21-13 中所示。
+
+<a name="listing_21-13"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 impl ThreadPool {
-    /// 创建出一个新的 ThreadPool。
+    /// 创建一个新的 ThreadPool。
     ///
-    /// 其中的 size 为线程池中线程的数目。
+    /// 其中 size 为线程池中线程的数量。
     ///
-    /// # 终止运行
+    /// # Panics
     ///
-    /// 这个 `new` 函数将在 size 为零时终止运行。
+    /// `new` 函数将在 size 为零时终止运行。
     pub fn new(size: usize) -> ThreadPool {
         assert! (size > 0);
 
@@ -282,23 +280,24 @@ impl ThreadPool {
 }
 ```
 
-*清单 20-13：将 `ThreadPool` 实现为在 `size` 为零时终止运行*
+**清单 21-13**：实现 `ThreadPool` 为当 `size` 为零时终止运行
 
-咱们还以一些文档注释，doc comments，给咱们的 `ThreadPool` 结构体添加了一些文档。请注意咱们通过添加如同第 14 章中曾讨论过的，一个会呼出咱们的函数可能终止运行时的那些情形的小节，而遵循了良好的文档实践。请尝试运行 `cargo doc --open` 并点击那个 `ThreadPool` 结构体，来看到为 `new` 生成的文档看起来是怎样的！
+我们还通过 [文档注释](../crates-io/publishing.md#制作有用的文档注释) 为我们的 `ThreadPool` 添加了一些文档。请注意，我们遵循了良好的文档实践，添加了一个小节，之处我们的函数可能会终止运行的情况，正如第 14 章中所讨论的那样。请尝试运行 `cargo doc --open` 并点击 `ThreadPool` 结构体，看看为 `new` 生成的文档是什么样的！
 
-与其如咱们在这里所做的添加这个 `assert!` 宏，咱们则可把 `new` 改为 `build`，并像咱们曾在清单 12-9 中那个 I/O 项目里的 `Config::build` 下所做的那样，返回一个 `Result`。但咱们已经决定，在此示例中是在尝试创建一个，其中全部线程都不应是不可恢复错误的线程池。若你觉得信心满满，那就请编写一个名为 `build`，有着下面签名的函数，来与这个 `new` 函数相比较：
+> **译注**：此时 `new` 的文档如下。
+>
+> ![](../images/21-01.doc_for_new.png)
+
+与其像这里这样添加 `assert!` 宏，我们也可以改 `new` 为 `build`，并像在 [清单 12-9](../io_project/refactoring.md#listing_12-9) 中 I/O 项目中的 `Config::build` 那样返回一个 `Result`。但我们已经决定在这种情况下，尝试创建一个没有任何线程的线程池应该是不可恢复的错误。若咱们感兴趣，那就编写一个有着以下签名的名为 `build` 的函数，与 `new` 函数比较：
 
 ```rust
 pub fn build(size: usize) -> Result<ThreadPool, PoolCreationError> {
 ```
 
 
-### 创建空间来存储这些线程
+### 创建空间来存储线程
 
-**Creating Space to Store the Threads**
-
-
-既然咱们有了获悉咱们有着要在线程池中存储线程有效数目的一种办法了，咱们便可以创建出这些线程，并在返回这个 `ThreadPool` 结构体前，将他们存储在该结构体中。但是咱们要怎么 “存储” 一个线程呢？下面又来看看那个 `thread::spawn` 签名：
+现在我们有一种方法知道，我们有要存储在池中的有效线程数量，我们可以创建这些线程并在 `ThreadPool` 结构体中存储他们。但我们要怎样 “存储” 线程呢？我们再看看 `thread::spawn` 的签名：
 
 ```rust
 pub fn spawn<F, T>(f: F) -> JoinHandle<T>
@@ -308,11 +307,12 @@ pub fn spawn<F, T>(f: F) -> JoinHandle<T>
         T: Send + 'static,
 ```
 
-`spawn` 函数返回了一个 `JoinHandle<T>`，其中的 `T` 为闭包所返回的类型。咱们也来尝试使用 `JoinHandle`，并观察会发生什么。在咱们的用例中，咱们传递给线程池的闭包，将处理 TCP 连接，而不会返回任何东西，因此其中的 `T` 将是单元类型 `()`。
+`spawn` 函数返回一个 `JoinHandle<T>`，其中 `T` 是闭包返回的类型。我们也来尝试使用 `JoinHandle`，看看会发生什么。在我们的情形下，传递给线程池的闭包将处理连接，并且不返回任何值，因此 `T` 将是单元值类型 `()`。
 
-下面清单 20-14 中的代码将会编译，但尚不会创建任何线程。咱们已将 `ThreadPool` 的定义，修改为保存了一个 `thread::JoinHandle<()>` 实例的矢量值，以 `size` 大小初始化了这个矢量值，还建立了一个将运行某些代码来创建出那些线程的 `for` 循环，并返回了一个包含着这些线程的 `ThreadPool` 实例。
+下面清单 21-14 中的代码虽然将编译，当目前尚未创建任何线程。我们已修改 `ThreadPool` 的定义为包含一个 `thread::JoinHandle<()>` 实例的矢量值，初始化该矢量值的容量为 `size`，设置了一个 `for` 循环，将运行一些代码来创建线程，并返回一个包含这些线程的 `ThreadPool` 实例。
 
-文件名：`src/lib.rs`
+<a name="listing_21-14"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 use std::thread;
@@ -329,7 +329,7 @@ impl ThreadPool {
         let mut threads = Vec::with_capacity(size);
 
         for _ in 0..size {
-            // 创建出一些线程并将他们存储在那个矢量中
+            // 创建出一些线程并将其存储在矢量中
         }
 
         ThreadPool { threads }
@@ -338,40 +338,39 @@ impl ThreadPool {
 }
 ```
 
-*清单 20-14：为保存那些线程而给 `ThreadPool` 创建一个矢量值*
+**清单 21-14**：为 `ThreadPool` 创建一个用于保存线程的矢量值
 
-由于咱们正使用 `thread::JoinHandle` 作为 `ThreadPool` 中那个矢量值条目的类型，因此咱们已将 `std::thread` 带入到这个库代码箱的作用域。
+我们在库代码箱中带入了 `std::thread` 到作用域，因为我们使用 `thread::JoinHandle` 作为 `ThreadPool` 中矢量值项目的类型。
 
-一旦收到有效的大小，咱们的 `ThreadPool` 就会创建出可保存 `size` 个条目的一个新矢量值。那个 `with_capacity` 函数，执行的是与 `Vec::new` 同意的任务，但有个重要的不同之处：他会预先分配那个矢量值中的空间。由于咱们清楚咱们需要在那个矢量值中存储 `size` 个元素，那么预先完成这种分配，相比使用在有元素插入时调整自身的 `Vec::new`，就会稍微更具效率。
+一旦收到有效的大小，我们的 `ThreadPool` 就会创建一个可包含 `size` 个条目的新矢量值。`with_capacity` 函数执行与 `Vec::new` 相同的任务，但有个重要的区别：他会预先分配矢量值中的空间。由于我们知道需要在矢量值中存储 `size` 个元素，因此预先完成这种分配比使用 `Vec::new` 稍微高效一些，后者会在元素插入时调整自身大小。
 
-在再度运行 `cargo check` 时，其应成功。
-
-
-### 负责将代码从 `ThreadPool` 发送给某个线程的 `Worker` 结构体
-
-**A `Worker` Struct Responsible for Sending Code from the `ThreadPoll` to a Thread**
+在咱们再次运行 `cargo check` 时，他应该会成功。
 
 
-在清单 20-14 中的那个 `for` 循环里，咱们留了一个有关线程创建过程的注释。这里，咱们将看看咱们具体要怎么创建出那些线程来。标准库提供了 `thread::spawn` 作为创建线程的一种方式，而 `thread::spawn` 则期望得到一些线程在其一创建出来，就应立即运行的代码。然而，在咱们的示例中，咱们打算创建出这些线程，并让他们 *等待，wait* 咱们稍后将要发送的那些代码。标准库的线程实现，没有包含任何实现那样做法的方式；咱们必须亲自实现他。
+### 发送 `ThreadPool` 中的代码到线程
 
-咱们将通过引入介于 `ThreadPool` 与那些线程之间，将对这种新行为加以管理的一种新数据结构，来实现这样的行为。咱们将把这种数据结构称作 `Worker`，在线程池实现中，这是个常见的术语。`Worker` 会拾取需要运行的代码，并在该 `Worker` 的线程中运行那些代码。设想某家饭馆中工作的人们：工人们会一直等待，直到有顾客点的菜单进来，而随后他们就负责接下这些菜单，并让顾客们满意。
+我们在清单 21-14 中的 `for` 循环中，留下了关于线程创建的注释。在这里，我们将探讨如何实际创建线程。标准库提供了 `thread::spawn` 作为创建线程的方式，而 `thread::spawn` 期望在线程创建后，立即获得该线程应该运行的一些代码。然而，在我们的情形下，我们打算先创建线程，然后让他们 *等待* 我们稍后将发送的代码。标准库的线程实现并未包含这样做的任何方式；我们必须手动实现他。
 
-在线程池中存储的，不再是 `JoinHandle<()>` 实例的矢量值，咱们将存储这个 `Worker` 结构体的实例。每个 `Worker` 都将存储一个单独的 `JoinHandler<()>` 实例。随后咱们将在 `Worker` 上实现一个，将取得要运行代码的闭包，并将其发送到已经运行着的线程去执行的方法。咱们还将给到每个 `Worker` 一个 `id`，如此咱们就可以在日志记录或调试时，区分出线程池中那些不同的 `Worker`。
+我们将通过在 `ThreadPool` 与线程之间引入一种新的数据结构来实现这种行为，该数据结构将管理这种新行为。我们称这一数据结构为 *Worker*，这是线程池实现中常用的术语。`Worker` 会选取需要运行的代码，并他的线程中运行这些代码。
+
+设想餐厅厨房里的工作人员：工作人员会等待顾客下但，然后负责接收菜单并完成烹饪。
+
+我们不再在线程池中存储 `JoinHandle<()>` 实例的矢量值，而是存储 `Worker` 结构体的实例。每个 `Worker` 都将存储单个 `JoinHandler<()>` 实例。然后，我们将对 `Worker` 实现一个方法，该方法将取一个要运行的代码闭包，并将闭包发送到已经运行的线程来执行。我们还将给予每个 `Worker` 一个 `id`，以便在日志记录或调试时，能够区分线程池中不同的 `Worker` 实例。
+
+以下是在创建 `ThreadPool` 时将发生的新过程。在以这种方式设置好 `Worker` 后，我们将实现发送闭包到线程的代码：
+
+1. 定义一个 `Worker` 结构体，包含一个 `id` 和一个 `JoinHandler<()>`；
+2. 修改 `ThreadPool` 为包含一个 `Worker` 实例的矢量值；
+3. 定义一个 `Worker::new` 函数，取一个 `id` 编号并一个 `Worker` 实例，包含该 `id` 和一个以空闭包生成的线程；
+4. 在 `ThreadPool::new` 中，使用 `for` 循环计数器生成一个 `id`，使用该 `id` 创建一个新的 `Worker`，并存储该 `Worker` 于矢量值中。
 
 
-以下便是在咱们创建一个 `ThreadPool` 时，将发生的一个新过程。咱们将在以此方式建立起 `Worker` 结构体后，再实现把闭包发送给线程的那些代码：
+若咱们愿意接受挑战，不妨在查看清单 21-15 中的代码之前，先尝试自己实现这些修改。
 
-1. 定义出一个保存了一个 `id` 与一个 `JoinHandler<()>` 的 `Worker` 结构体；
-2. 把 `ThreadPool` 修改为保存一个 `Worker` 实例构成的矢量值；
-3. 定义出会取一个 `id` 数字，并返回保存着这个 `id`，以及带有所生成的有着一个空闭包的线程的一个 `Worker` 实例，这样一个 `Worker::new` 函数；
-4. 在 `Thread::new` 中，会使用那个 `for` 循环的计数器，来生成一个 `id`、用那个 `id` 创建出一个新的 `Worker`，并将该 `Worker` 存储在那个矢量值中。
+准备好了吗？下面是清单 21-15，有着一种进行上述修改的方式。
 
-
-若咱们准备挑战一下，那么请尝试在查看清单 20-15 中代码之前，自己实现这些修改。
-
-准备好了吗？下面就是有着一种做出前面那些修改的一种方式的清单 20-15。
-
-文件名：`src/lib.rs`
+<a name="listing_21-15"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 use std::thread;
@@ -410,16 +409,16 @@ impl Worker {
 }
 ```
 
-*清单 20-15：将 `ThreadPool` 修改为保存 `Worker` 实例而非直接保存线程*
+**清单 21-15**：修改 `ThreadPool` 为包含 `Worker` 实例，而非直接包含线程
 
-由于 `ThreadPool` 现在保存的是一些 `Worker` 实例而非 `JoinHandle<()>` 实例，因此咱们已将其上那个字段的名字，从 `threads` 修改为了 `workers`。咱们将那个 `for` 循环中的计数器，用作给 `Worker::new` 的参数，同时咱们将每个新的 `Worker`，存储在那个名为 `workers` 的矢量值中。
+我们将 `ThreadPool` 中的字段名字从 `threads` 修改为了 `workers`，因为他现在包含的是 `Worker` 实例，而非 `JoinHandle<()>` 实例。我们使用 `for` 循环中的计数器作为 `Worker::new` 的参数，并存储每个新的 `Worker` 在名为 `workers` 的矢量值中。
 
-外部代码（就像 `src/main.rs` 中咱们的服务器），无需知悉 `ThreadPool` 里某个 `Worker` 结构体使用方面的实现细节，因此咱们是将这个 `Worker` 结构体及其 `new` 函数，构造为了私有。`Worker::new` 函数使用了咱们给他的那个 `id`，并将经由使用空闭包而生成一个新线程，而创建出的一个 `JoinHandle<()>` 实例存储起来。
+外部代码（如 `projects/hello/src/main.rs` 中的服务器）不需要知道有关 `ThreadPool` 中使用 `Worker` 结构体的实现细节，因此我们构造 `Worker` 结构体及其 `new` 函数为私有。`Worker::new` 函数使用我们给予他的 `id`，并存储一个由使用空闭包生成新线程创建的 `JoinHandler<()>` 实例。
 
 
-> 注意：若操作系统因没有足够系统资源而无法创建出一个线程，那么 `thread::spawn` 就将终止运行。那样的话，即使一些线程创建可能成功，也将导致咱们整个服务器终止运行。为简化起见，这种实现做法是无可厚非的，但在生产的线程池实现中，咱们就大概打算使用 [`std::thread::Builder`](https://doc.rust-lang.org/std/thread/struct.Builder.html) 与他的返回 `Result` 的 [`spawn`](https://doc.rust-lang.org/std/thread/struct.Builder.html#method.spawn) 方法了。
+> **注意**：当操作系统因没有足够系统资源，而无法创建线程时，`thread::spawn` 将终止运行。这会导致整个服务器终止运行，即使部分线程的创建可能成功。为了简化起见，这种实现行为是可以接受的，但在生产环境的线程池实现中，咱们可能更希望使用 [`std::thread::Builder`](https://doc.rust-lang.org/std/thread/struct.Builder.html)，及其返回 `Result` 的 [`spawn`](https://doc.rust-lang.org/std/thread/struct.Builder.html#method.spawn) 方法。
 
-这段代码将编译，并将咱们指定给 `ThreadPool::new` 数目的 `Worker` 实例存储起来。但咱们 *仍* 未处理咱们在 `execute` 中得到的闭包。接下来就要看看怎样完成那一步。
+这段代码将编译，并将存储我们作为参数指定给 `ThreadPool::new` 数量的 `Worker` 实例。但我们 *仍然* 没有处理我们在 `execute` 中得到的闭包。我们来看看怎样做到这点。
 
 
 ### 经由通道把请求发送给线程
