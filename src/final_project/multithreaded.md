@@ -418,7 +418,7 @@ impl Worker {
 
 > **注意**：当操作系统因没有足够系统资源，而无法创建线程时，`thread::spawn` 将终止运行。这会导致整个服务器终止运行，即使部分线程的创建可能成功。为了简化起见，这种实现行为是可以接受的，但在生产环境的线程池实现中，咱们可能更希望使用 [`std::thread::Builder`](https://doc.rust-lang.org/std/thread/struct.Builder.html)，及其返回 `Result` 的 [`spawn`](https://doc.rust-lang.org/std/thread/struct.Builder.html#method.spawn) 方法。
 
-这段代码将编译，并将存储我们作为参数指定给 `ThreadPool::new` 数量的 `Worker` 实例。但我们 *仍然* 没有处理我们在 `execute` 中得到的闭包。我们来看看怎样做到这点。
+这段代码将编译，并将存储我们作为参数指定给 `ThreadPool::new` 数量的 `Worker` 实例。但我们 *仍然* 没有处理我们在 `execute` 中得到的闭包。接下来，我们来看看怎样做到这点。
 
 
 ### 经由通道把请求发送给线程
