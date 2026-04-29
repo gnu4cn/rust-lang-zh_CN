@@ -421,26 +421,24 @@ impl Worker {
 这段代码将编译，并将存储我们作为参数指定给 `ThreadPool::new` 数量的 `Worker` 实例。但我们 *仍然* 没有处理我们在 `execute` 中得到的闭包。接下来，我们来看看怎样做到这点。
 
 
-### 经由通道把请求发送给线程
+### 通过信道发送请求到线程
 
-**Sending Requests to Threads via Channels**
+接下来我们将解决的问题是，给予到 `thread::spawn` 的闭包不执行任何操作。目前，我们在 `execute` 方法中得到了打算执行的闭包。但在创建 `ThreadPool` 期间创建每个 `Worker` 时，我们需要给予 `thread::spawn` 一个要运行的闭包。
 
+我们希望刚刚创建的 `Worker` 结构体，从包含于 `ThreadPool` 中的一个队列中获取要运行的代码，并发送该代码到其线程以运行。
 
-接下来咱们将要解决的，便是所给到 `thread::spawn` 的那些闭包什么也没做的问题。当前，咱们在那个 `execute` 方法中，获取到了咱们打算执行的那个闭包。但咱们需要于那个 `ThreadPool` 创建期间，在咱们创建出各个 `Worker` 时，给到 `thread::spawn` 一个闭包。
+我们在第 16 章中学过的 [信道](../concurrency/message_passing.md) -- 一种用于两个线程之间通信的简单方式 -- 非常适合这一用例。我们将使用信道作为作业队列，而 `execute` 将发送 `ThreadPool` 中的作业到`Worker` 实例，`Worker` 实例再发送作业到他的线程。该方案如下：
 
-咱们想要咱们刚创建出的那些 `Worker` 结构体，从一个保存在 `ThreadPool` 中的队列中获取要运行的代码，并把那些代码发送他的线程运行。
+1. `ThreadPool` 将创建一个信道并保留发送器；
+2. 每个 `Worker` 都将保留接收器；
+3. 我们将创建一个新的 `Job` 结构体，他将包含我们打算通过通道发送的闭包；
+4. `execute` 方法将通过发送器发送他希望执行的作业；
+5. 在其线程中，`Worker` 实例将对其接收器循环，并执行收到的所有任务的闭包。
 
-第 16 章中咱们学过的通道 -- 两个线程间通信的一种简单方式 -- 对于这个用例将是最佳的。咱们将使用一个函数的通道，作为作业队列，the queue of jobs，而 `execute` 将把来自 `ThreadPool` 的某项作业，发送到那些 `Worker` 实例，其将把该项作业，发送给他的线程。下面便是这个方案：
+首先，我们在 `ThreadPool::new` 中创建一个信道，并将发送器保存在 `ThreadPool` 实例中，如下清单 21-16 中所示。`Job` 结构体现在没有包含任何内容，但将是保存我们通过信道发送的项目的类型。
 
-1. `ThreadPool` 将创建出一个通道，并保存于 `sender` 上；
-2. 每个 `Worker` 实例，将保存于 `receiver` 上；
-3. 咱们将创建出将保存那些咱们打算下发到通道上闭包的一个新 `Job` 结构体；
-4. `execute` 方法将经由那个 `sender`，发送其打算执行的作业；
-5. 在 `Worker` 实例的线程中，其将遍历其 `receiver` 并执行其所接收到的任何作业的闭包。
-
-咱们来通过在 `ThreadPool::new` 中创建一个通道，并在 `ThreadPool` 实例中保存 `send` 开始，如下清单 20-16 中所示。其中的 `Job` 结构体现在没有保存任何东西，但将保存咱们下发到通道项目类型。
-
-文件名：`src/lib.rs`
+<a name="listing_21-16"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 use std::{sync::mpsc, thread};
@@ -472,13 +470,14 @@ impl ThreadPool {
 }
 ```
 
-*清单 20-16：将 `ThreadPool` 修改为存储传递 `Job` 实例通道的 `sender`*
+**清单 21-16**：修改 `ThreadPool` 为存储传输 `Job` 实例的信道的发送器
 
-在 `ThreadPool::new` 中，咱们创建出来咱们的新通道，并让线程池保存了该通道的 `sender`。这段代码将成功编译。
+在 `ThreadPool::new` 中，我们创建新通道，并让线程池包含发送器。这段代码将成功编译。
 
-下面就来尝试在这个线程池创建出该通道时，把其 `receiver` 传入各个 `worker`。咱们清楚咱们是要在那些 `workers` 生成的线程中使用这个 `receiver`，因此咱们将在那个闭包中，引用这个 `receiver` 参数。下面清单 20-17 中的代码尚不会很好地编译。
+我们来尝试在线程池创建信道时，传递信道的接收器到每个 `worker` 中。我们知道，我们希望在 `workers` 实例生成的线程中使用接收器，因此我们将在闭包中引用 `receiver` 参数。下面清单 21-17 中的代码还不能完全编译。
 
-文件名：`src/lib.rs`
+<a name="listing_21-17"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 impl ThreadPool {
@@ -501,6 +500,7 @@ impl ThreadPool {
 }
 
 // --跳过代码--
+
 impl Worker {
     fn new(id: usize, receiver: mpsc::Receiver<Job>) -> Worker {
         let thread = thread::spawn(|| {
@@ -512,35 +512,50 @@ impl Worker {
 }
 ```
 
-*清单 20-17：将 `receiver` 传递给 `workers`*
+**清单 21-17**：传递 `receiver` 给每个 `Worker`
 
-咱们作出了一些小而简单直接的修改：咱们把那个 `receiver` 传入到 `Worker::new`，并随后在那个闭包里使用了他。
+我们进行了一些小而直接的修改：我们传递接收器到 `Worker::new` 中，然后在闭包内使用他。
 
-当咱们尝试检查这段代码时，就会得到如下报错：
+当我们尝试检查这段代码时，会得到下面这样的报错：
 
 ```console
 $ cargo check
-    Checking hello v0.1.0 (/home/peng/rust-lang-zh_CN/hello)
+    Checking hello v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello)
 error[E0382]: use of moved value: `receiver`
-  --> src/lib.rs:27:42
+  --> src/lib.rs:26:42
    |
-22 |         let (sender, receiver) = mpsc::channel();
+21 |         let (sender, receiver) = mpsc::channel();
    |                      -------- move occurs because `receiver` has type `std::sync::mpsc::Receiver<Job>`, which does not implement the `Copy` trait
 ...
-27 |             workers.push(Worker::new(id, receiver));
+25 |         for id in 0..size {
+   |         ----------------- inside of this loop
+26 |             workers.push(Worker::new(id, receiver));
    |                                          ^^^^^^^^ value moved here, in previous iteration of loop
+   |
+note: consider changing this parameter type in method `new` to borrow instead if owning the value isn't necessary
+  --> src/lib.rs:45:33
+   |
+45 |     fn new(id: usize, receiver: mpsc::Receiver<Job>) -> Worker {
+   |        --- in this method       ^^^^^^^^^^^^^^^^^^^ this parameter takes ownership of the value
+help: consider moving the expression out of the loop so it is only moved once
+   |
+25 ~         let mut value = Worker::new(id, receiver);
+26 ~         for id in 0..size {
+27 ~             workers.push(value);
+   |
 
 For more information about this error, try `rustc --explain E0382`.
-error: could not compile `hello` due to previous error
+error: could not compile `hello` (lib) due to 1 previous error
 ```
 
-这段代码试图将 `receiver` 传递给多个 `Worker` 实例。正如回顾到第 16 章，这样做不会工作：Rust 所提供的通道实现，属于多 `producer`、单 `consumer` 的。这意味着咱们不能只克隆通道的消费端来修复这段代码。咱们也不打算将一条消息，多次发送给多个消费者；咱们是要一个带有多个 `worker` 的消息列表，如此每条消息，都将被一次性处理。
+这段代码试图传递 `receiver` 给多个 `Worker` 实例。这行不通，正如咱们回顾第 16 章：Rust 提供的信道实现，属于多 *生产者*、单 *消费者*。这意味着我们不能仅仅克隆信道的消费端来修复这段代码。我们也不希望多次发送一条消息到多个消费者；我们想要带有多个 `Worker`  实例的消息列表，以便每条消息都会被处理一次。
 
-此外，从通道队列里取出一项作业，还涉及到令 `receiver` 可变，因此这些县城就需要一种共用与修改 `receiver` 的安全方式；否则，咱们就会面临竞争情形（如同第 16 章中所讲到的）。
+此外，从信道队列中取出作业涉及修改 `receiver`，因此线程需要一种安全的方式来共用和修改 `receiver`；否则，我们可能会遇到竞争条件（如第 16 章中所述）。
 
-回顾第 16 章中曾讨论过的线程安全灵巧指针：为在多个线程间共用所有权，以及实现这些线程修改值，咱们需要用到 `Arc<Mutex<T>>`。`Arc` 类型将实现多个 `worker` 都拥有那个 `receiver`，而 `Mutex` 将确保某个时刻只有一个 `worker` 从 `receiver` 获取一项作业。下面清单 20-18 给出了咱们需要作出的修改。
+回顾第 16 章中讨论的线程安全的灵巧指针：为了在多个线程之间共用所有权并允许实现线程修改值，我们需要使用 `Arc<Mutex<T>>`。`Arc` 类型将允许多个 `Worker` 实例都拥有 `receiver`，而 `Mutex` 将确保一次只有一个 `worker` 获取一项接收器中的作业。下面清单 21-18 展示了我们需要进行的修改。
 
-文件名：`src/lib.rs`
+<a name="listing_21-18"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 use std::{
@@ -579,21 +594,19 @@ impl Worker {
 }
 ```
 
-*清单 20-18：运用 `Arc` 与 `Mutex` 在那些 `worker` 间共用 `receiver`*
+**清单 21-18**：使用 `Arc` 和 `Mutex` 在 `Worker` 实例间共用接收器
 
-在 `ThreadPool::new` 中，咱们把 `receiver` 放入到一个 `Arc` 与一个 `Mutex` 中。对于各个新 `worker`，咱们克隆了那个 `Arc`，从而增加了引用计数，这样那些 `worker` 就可以共用 `receiver` 的所有权。
+在 `ThreadPool::new` 中，我们放置接收器于 `Arc` 和 `Mutex` 中。对于每个新的 `Worker`，我们克隆 `Arc` 以增加引用计数，以便 `Worker` 实例可以共用接收器的所有权。
 
-有了这些修改，代码就会编译了！咱们就要达到目的了！
+通过这些修改，代码就会编译了！我们快成功了！
 
 
 ### 实现 `execute` 方法
 
-**Implementing the `execute` method**
+最后，我们来对 `ThreadPool` 实现 `execute` 方法。我们还将把 `Job` 从结构体修改为特质对象的类型别名，包含 `execute` 接收的闭包类型。正如第 20 章中 [类型同义词和类型别名](../advanced_features/adv_types.md#类型同义词和类型别名) 小节中讨论的，类型别名允许我们使长类型变短以方便使用。请看下面清单 21-19.
 
-
-咱们来最终实现那个 `ThreadPool` 上的 `execute` 方法。咱们还将把 `Job` 从结构体，修改为保存着 `execute` 接收到闭包类型的特质对象的类型别名。正如第 19 章 [“使用类型别名创建类型义词”](Ch19_Advanced_Features.md#使用类型别名创建类型同义词) 小节中曾讨论过的，类型别名实现了为易于使用而将长类型构造缩短。请看看下面清单 20-19.
-
-文件名：`src/lib.rs`
+<a name="listing_21-19"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 // --跳过代码--
@@ -612,94 +625,29 @@ impl ThreadPool {
         self.sender.send(job).unwrap();
     }
 }
+
 // --跳过代码--
 ```
 
-*清单 20-19：为保存着各个闭包的 `Box` 创建出 `Job` 类型别名，并于随后把作业下发到通道*
+**清单 21-19**：为包含每个闭包的 `Box` 创建 `Job` 类型的别名，然后发送作业到信道
 
-使用咱们在 `execute` 中得到的闭包创建出一个新的 `Job` 实例后，咱们便把那项作业下发到通道的发送端。对于发送失败的情形，咱们调用了 `send` 上的 `unwrap` 方法。在比如咱们停止全部线程执行，即表示接收端已停止接收新消息时，发送失败就可能发生。在那个时刻，咱们是无法停止咱们的线程执行的：只要这个线程池存在，咱们的线程就会继续执行。咱们使用 `unwrap` 的原因，就是咱们清楚这样的失败情况不会发生，但编译器是不了解这点的。
+使用从 `execute` 中得到的闭包创建一个新的 `Job` 实例后，我们就发送该作业到信道的发送端。对于发送失败的情形，我们对 `send` 调用 `unwrap` 方法。这种情况可能会发生，比如当我们停止所有线程的执行时，意味着已停止接收新的消息。目前，我们无法停止线程的执行：只要线程池存在，我们的线程就会继续执行。我们使用 `unwrap` 的原因是，我们知道这种失败情况不会发生，但编译器并不知道这点。
 
-但咱们还没有大功告成！在 `worker` 里，传递给 `thread::spawn` 的闭包，仍然只 *引用* 了通道的接收端。相反，咱们需要闭包一直循环，向通道接收端请求一项作业，并在其获取到一项作业时运行该项作业。下面咱们就来完成下面清单 20-20 中所给出的对 `Worker::new` 的修改。
+但我们还没有完全搞定！在 `Worker` 中，传递给 `thread::spawn` 的闭包仍然只 *引用* 了信道的接收端。相反，我们需要闭包一直循环，不断向信道的接收端请求作业，并获取作业时运行该项作业。我们来对 `Worker::new` 进行下面清单 21-20 中所示的修改。
 
-文件名：`src/lib.rs`
+<a name="listing_21-20"></a>
+文件名：`projects/hello/src/lib.rs`
 
 ```rust
 // --跳过代码--
 
-impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(move || loop {
-            let job = receiver.lock().unwrap().recv().unwrap();
-
-            println! ("Worker {id} 获取到一项作业；执行中。");
-
-            job();
-        });
-
-        Worker { id, thread }
-    }
-}
-```
-
-*清单 20-20：在 `worker` 的线程中接收并执行作业*
-
-这里，咱们首选调用了 `receiver` 上的 `lock` 来请求那个互斥量，mutex，并于随后调用 `unwrap` 来在出现任何错误时终止运行。在互斥量处于 *中毒，poisoned* 状态时，请求锁就会失败，在有别的某个线程终止运行的同时，持有着而没有释放该锁时，这种情况便会发生。在这种情况下，调用 `unrap` 来让这个线程终止运行，便是要采取的正确措施。请放心地把这个 `unwrap`，修改为一个带有对咱们有意义报错信息的 `expect`。
-
-当咱们获得了那个互斥量上的锁时，咱们就会调用 `recv` 来从通道接收一个 `Job`。最后的 `unwrap` 也会带过这里的任何错误，在持有 `sender` 的线程已关闭时就会发生这些错误，就跟 `receiver` 关闭时那个 `send` 方法会返回 `Err` 类似。
-
-到 `recv` 的调用会阻塞，因此在尚无作业时，当前线程将等待，直到有某项作业可用。`Mutex<T>` 确保了一次只有一个 `Worker` 线程是在尝试请求作业。
-
-咱们的线程池现在就处于工作状态了！给他一次 `cargo run` 并构造一些请求：
-
-
-```console
-$ cargo run
-   Compiling hello v0.1.0 (/home/lenny.peng/rust-lang-zh_CN/hello)
-warning: field `workers` is never read
- --> src/lib.rs:7:5
-  |
-6 | pub struct ThreadPool {
-  |            ---------- field in this struct
-7 |     workers: Vec<Worker>,
-  |     ^^^^^^^
-  |
-  = note: `#[warn(dead_code)]` on by default
-
-warning: fields `id` and `thread` are never read
-  --> src/lib.rs:48:5
-   |
-47 | struct Worker {
-   |        ------ fields in this struct
-48 |     id: usize,
-   |     ^^
-49 |     thread: thread::JoinHandle<()>,
-   |     ^^^^^^
-
-warning: `hello` (lib) generated 2 warnings
-    Finished dev [unoptimized + debuginfo] target(s) in 0.60s
-     Running `target/debug/hello`
-Worker 1 获取到一项作业；执行中。
-Worker 0 获取到一项作业；执行中。
-Worker 2 获取到一项作业；执行中。
-Worker 3 获取到一项作业；执行中。
-Worker 1 获取到一项作业；执行中。
-Worker 0 获取到一项作业；执行中。
-```
-
-成功了！咱们现在有了一个会异步执行 TCP 连接的线程池。绝不会有超过四个线程被创建出来，因此在服务器收到很多请求时，咱们的系统将不会过载。在咱们构造了一个到 `/sleep` 的请求时，服务器通过让另一线程运行别的一些请求，而将能服务这些请求。
-
-> 注意：若咱们在多个窗口同时打开 `/sleep`，他们可能会在设置的时间间隔每次加载一个。有些 web 浏览器会出于缓存原因，而顺序执行同一请求的多个实例。这样的局限并不是由咱们的服务器导致的。
-
-在了解了第 18 章中的 `while let` 循环后，咱们可能想知道，为何咱们没有如下清单 20-21 中所示的那样，编写 `worker` 线程的代码。
-
-文件名：`src/lib.rs`
-
-```rust
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || {
-            while let Ok(job) = receiver.lock().unwrap().recv() {
-                println! ("Worker {id} 获取到一项作业；执行中。");
+            loop {
+                let job = receiver.lock().unwrap().recv().unwrap();
+
+                println! ("Worker {id} 获得一项作业；执行中。");
 
                 job();
             }
@@ -710,13 +658,61 @@ impl Worker {
 }
 ```
 
-*清单 20-21：使用 `while let` 的一种 `Worker::new` 替代实现*
+**清单 21-20**：在 `Worker` 实例的线程中接收并执行作业
 
-这段代码将会编译及运行，但不会产生所需的线程行为：慢速请求仍将导致别的请求等待被处理。至于原因则有点微妙：由于锁的所有权是基于 `lock` 方法返回的 `LockResult<MutexGuard<T>>` 中，`MutexGuard<T>` 的生命周期，因此这个 `Mutex` 结构体没有公开的 `unlock` 方法。在编译时，借用检查器可于随后，就除非咱们拿着 `Mutex` 所守卫的某项资源的锁，否则无法访问该项资源这一规则强制加以检查。但是，若咱们没有注意到 `MutexGuard<T>` 的生命周期，那么这样的实现同样能导致锁相较预期被占用更长时间。
+在这里，我们首选对 `receiver` 调用 `lock` 来获取互斥量，然后调用 `unwrap` 来对任何错误终止运行。当互斥量处于 *中毒* 状态时，则获取锁可能失败，这种情况会在某个其他线于持有锁期间终止运行，而非释放锁时发生。在这种情况下，调用 `unrap` 来让这个线程终止运行，便是要采取的正确操作。咱们可以修改这个 `unwrap` 为带有对咱们有意义的报错信息的 `expect`。
 
-由于在 `let` 之下，等号右侧的表达式中用到的任何临时值，都会在 `let` 语句结束时被立即丢弃，因此使用了 `let job = receiver.lock().unwrap().recv().unwrap();` 的清单 20-20 中代码是工作的。但是，`while let`（以及 `if let` 与 `match`） 则是在相关代码块结束前，不会丢弃那些临时值。在清单 20-21 中，锁会在到 `job()` 的调用其将保持被持有，这意味着别的 `worker` 就没法收到作业。
+当我们获得了对互斥量的锁时，我们就调用 `recv` 来接收信道中的一个 `Job`。最后一个 `unwrap` 也会消除这里的任何错误，这些错误可能会在持有发送器的线程已关闭时发生，这与 `send` 方法会在接收器关闭时返回 `Err` 的方式类似。
+
+到 `recv` 的调用会阻塞，因此当还没有作业时，当前线程将等待，直到有作业可用。`Mutex<T>` 确保一次只有一个 `Worker` 线程是尝试请求作业。
+
+我们的线程池现在就处于运行状态！运行 `cargo run` 并发出一些请求：
 
 
-（End）
+```console
+$ cargo run
+   Compiling hello v0.1.0 (/home/hector/rust-lang-zh_CN/projects/hello)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running `target/debug/hello`
+Worker 0 获得一项作业；执行中。
+Worker 1 获得一项作业；执行中。
+Worker 2 获得一项作业；执行中。
+Worker 3 获得一项作业；执行中。
+Worker 0 获得一项作业；执行中。
+
+```
+
+成功了！我们现在有了个能够异步执行连接的线程池。创建的线程永远不会超过四个，因此当服务器收到大量请求时，系统也不会过载。当我们发出到 `/sleep` 的请求时，服务器将能够通过让另一个线程运行其他请求而服务这些请求。
+
+> **注意**：当咱们同时在多个浏览器窗口中打开 `/sleep` 时，他们可能会以五秒的间隔一次加载。出于缓存原因，某些 web 浏览器将顺序执行同一请求的多个实例。这一限制并非由我们的服务器引起。
+
+现在是停下来思考一下的好时机，若我们针对要完成的工作，使用未来值而不是闭包，那么清单 21-18、21-19 和 21-20 中的代码会有什么不同。哪些类型会发生变化？方法签名会有什么不同，如果有的话？代码的哪些部分会保持不变？
+
+在了解了第 17 章和第 19 章中的 `while let` 循环之后，咱们可能想知道，为什么我们没有编写如同清单 21-21 中所示的 `Worker` 线程代码。
+
+<a name="listing_21-20"></a>
+文件名：`projects/hello/src/lib.rs`
+
+```rust
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+        let thread = thread::spawn(move || {
+            while let Ok(job) = receiver.lock().unwrap().recv() {
+                println! ("Worker {id} 获得一项作业；执行中。");
+
+                job();
+            }
+        });
+
+        Worker { id, thread }
+    }
+}
+```
+
+**清单 21-21**：使用 `while let` 的 `Worker::new` 替代实现
+
+这段代码可以编译并运行，但不会产生所需的线程行为：慢速请求仍将导致其他请求等待处理。原因有些微妙：`Mutex` 结构体没有公开的 `unlock` 方法，因为锁的所有权基于 `lock` 方法返回的 `LockResult<MutexGuard<T>>` 内 `MutexGuard<T>` 的生命周期。在编译时，借用检查器就会强制执行这样的规则：除非我们持有锁，否则无法访问由 `Mutex` 保护的资源。然而，当我们没有注意到 `MutexGuard<T>` 的生命周期时，这种实现也会导致锁被持有的时间超过预期。
+
+清单 21-20 中使用 `let job = receiver.lock().unwrap().recv().unwrap();` 的代码之所以有效，是因为在 `let` 下，等号右侧表达式中使用的任何临时值都会在 `let` 语句结束时被立即弃用。然而，` while let`（以及 `if let` 和 `match`）则不会在相关代码块结束前弃用临时值。 在清单 21-21 中，锁在调用 `job()` 期间一直被持有状态，这意味着其他 `Worker` 实例无法接收作业。
 
 
