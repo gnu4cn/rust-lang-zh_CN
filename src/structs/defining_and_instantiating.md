@@ -104,7 +104,7 @@ fn build_user(email: String, username: String) -> User {
 在这里，我们正创建 `User` 结构体的一个新实例，其有个名为 `email` 的字段。我们希望将 `email` 字段的值设置为 `build_user` 函数 `email` 参数中的值。因为 `email` 字段和 `email` 参数有着相同的名字，所以我们只需写下 `email` 而不是 `email: email`。
 
 
-## 以结构体更新语法创建实例
+## 通过结构体更新语法创建实例
 
 创建包含另一实例中的大部分值，而更改其中一些值的新实例通常很有用。咱们可以使用 *结构体更新语法，struct update syntax* 完成这点。
 
