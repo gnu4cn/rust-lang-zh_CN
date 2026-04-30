@@ -140,7 +140,7 @@
     - [A - 关键字](appendix/keywords.md)
     - [B - 运算符与符号](appendix/ops_and_symbols.md)
     - [C - 派生特质](appendix/derivable_traits.md)
-    - [D - 有用开发工具](appendix/dev_tools.md)
+    - [D - 有用的开发工具](appendix/dev_tools.md)
     - [E - 关于版本](appendix/editions.md)
     - [F - 本书译本](appendix/translations.md)
     - [G - Rust 是怎样构造出来的与 “每日 Rust”](appendix/releases.md)
