@@ -142,7 +142,7 @@
     - [C - 派生特质](appendix/derivable_traits.md)
     - [D - 有用开发工具](appendix/dev_tools.md)
     - [E - 关于版本](appendix/editions.md)
-    - [F - 本书的一些译本](appendix/translations.md)
+    - [F - 本书译本](appendix/translations.md)
     - [G - Rust 是怎样构造出来的与 “每日 Rust”](appendix/releases.md)
     - [H - 有用笔记](appendix/notes.md)
     - [I - 术语清单](appendix/terminology_list.md)
