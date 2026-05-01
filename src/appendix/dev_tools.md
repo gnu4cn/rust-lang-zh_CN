@@ -66,7 +66,7 @@ $ cargo fix --allow-no-vcs
 >   * src/appendix/dev_tools.md (dirty)
 > ```
 
-当我们再次看到 `src/main.rs` 时，将发现 `cargo fix` 已修改了代码：
+当我们再次查看 `src/main.rs` 时，将发现 `cargo fix` 已修改了代码：
 
 文件名：`projects/myprogram/src/main.rs`
 
