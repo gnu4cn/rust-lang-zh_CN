@@ -111,7 +111,7 @@ fn parse_config(args: &[String]) -> Config {
 
 > **使用 `clone` 的权衡**
 >
-> 由于 `clone` 的运行时开销，许多 Rustaceans 倾向于避免使用 `clone` 来解决所有权问题。在 [第 13 章](./Ch13_Functional_Language_Features_Iterators_and_Closures) 中，咱们将学习如何在这种情形下使用更高效的方法。但目前，复制几个字符串以继续取得进展是可以的，因为咱们只会构造一次这些拷贝，并且咱们的文件路径和查询字符串都非常小。相比于一开始就尝试过渡优化代码，hyperoptimize code，有个不那么高效的正常运行的程序会更好。随着咱们对 Rust 日益熟练，从最高效的解决方案入手就会变得更容易，但目前，调用 `clone` 完全是可接受的。
+> 由于 `clone` 的运行时开销，许多 Rustaceans 倾向于避免使用 `clone` 来解决所有权问题。在 [第 13 章](../Ch13_Functional_Language_Features_Iterators_and_Closures.md) 中，咱们将学习如何在这种情形下使用更高效的方法。但目前，复制几个字符串以继续取得进展是可以的，因为咱们只会构造一次这些拷贝，并且咱们的文件路径和查询字符串都非常小。相比于一开始就尝试过渡优化代码，hyperoptimize code，有个不那么高效的正常运行的程序会更好。随着咱们对 Rust 日益熟练，从最高效的解决方案入手就会变得更容易，但目前，调用 `clone` 完全是可接受的。
 
 我们已更新 `main` 以便其放置由 `parse_config` 返回的 `Config` 实例到名为 `config` 的变量中，并且更新了之前使用单独的 `query` 和 `file_path` 的代码，以便其现在改用 `Config` 结构体上的字段。
 
