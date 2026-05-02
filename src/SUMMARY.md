@@ -76,7 +76,7 @@
 - [函数式语言特性：迭代器与闭包](Ch13_Functional_Language_Features_Iterators_and_Closures.md)
     - [闭包](functional_features/closures.md)
     - [以迭代器处理一序列项目](functional_features/iterators.md)
-    - [改进咱们的 I/O 项目](functional_features/improving_io_project.md)
+    - [改进我们的 I/O 项目](functional_features/improving_io_project.md)
     - [循环与迭代器下的性能问题](functional_features/performance.md)
 
 - [Cargo 的其他方面及 Crates.io](Ch14_More_about_Cargo_and_Crates-io.md)
