@@ -108,37 +108,33 @@ beta-x86_64-pc-windows-msvc
 nightly-x86_64-pc-windows-msvc
 ```
 
-> 在 Linux 系统上的输出如下：
+> **译注**：在 Linux 系统上的输出如下：
+>
+> ```console
+> $ rustup toolchain list
+> stable-x86_64-unknown-linux-gnu (active, default)
+> nightly-x86_64-unknown-linux-gnu
+> ```
 
-```console
-$ rustup toolchain list
-stable-x86_64-unknown-linux-gnu (default)
-```
-
-可以看到，稳定发布的工具链是默认的。绝大多数 Rust 用户会在多数时候使用稳定发布。咱们可能想要在多数时候使用稳定发布，又因为咱们关心某项最新特性，而会在特定项目使用每日发布。要这样做，就可以在那个项目目录下，使用 `rustup override` 来将每日发布工具链，设置为当咱们位处那个目录中时，`rustup` 使用的那个工具链：
+如咱们所见，稳定工具链是默认的。大多数 Rust 用户大部分时间都使用稳定发布。咱们可能大部分时间都希望使用稳定发布，但会对某个特定项目使用每日发布，因为关注某项前沿特性。为此，咱们可以在该项目的目录下使用 `rustup override`，来设置每日发布工具链为当在该目录下时，`rustup` 应使用的工具链：
 
 ```console
 $ cd ~/projects/needs-nightly
 $ rustup override set nightly
 ```
 
-现在，当咱们每次在 `~/projects/needs-nightly` 目录下调用 `rustc` 或 `cargo` 时，`rustup` 都会确保咱们在使用每日发布的 Rust，而非咱们默认的稳定发布 Rust 了。再有很多 Rust 项目时，这就会排上用场!
+现在，每当咱们在 `~/projects/needs-nightly` 目录下调用 `rustc` 或 `cargo` 时，`rustup` 都将确保咱们使用的是 Rust 每日发布，而不是默认的稳定发布。当咱们有很多 Rust 项目时，这排上用场!
 
 
-## 请求评议流程与各种团队
+## RFC 流程与团队
 
-**The RFC Process and Teams**
+那么，如何了解到这些新特性呢？Rust 的开发模型，遵循了 *征求意见流程，Request For Comments(RFC) process*。当咱们希望某项 Rust 改进时，可以撰写一份提案，即 RFC。
 
+任何人都可以撰写 RFC 来改进 Rust，这些提案将由 Rust 团队审查和讨论，该团队由多个专题子团队组成。[Rust 网站](https://www.rust-lang.org/governance) 上列出了完整的团队列表，其中包括项目各个领域的团队：语言设计、编译器实现、基础设施、文档等等。相关的团队会阅读提案和评论，写下自己的一些评论，最终就该特性的采纳或否决达成共识。
 
-那么咱们该怎么了解到这些新特性呢？Rust 的开发模型，遵循了 *请求评议流程，Request For Comments(RFC) process*。如你想要 Rust 的一项改进，那么就可以编写一个名为请求评议，RFC 的提议。
+当该特性被接受时，就会在 Rust 代码仓库上打开一个 issue，然后其他人可以实现他。实现得非常非常的人，未必就是最初提出这个特性的人！当实现准备就绪后，他会通过就会特性闸门，a feature gate，合并到主分支，正如我们在 [不稳定特性](#不稳定特性) 小节中讨论的那样。
 
-人人都可以编写请求评议来改进 Rust，同时这些提议会经过由许多议题子团队所组成的 Rust 团队审阅和讨论。[在 Rust 网站上](https://www.rust-lang.org/governance) 有这些团队的完整清单，其中包括了该项目各领域：语言设计、编译器实现、基础设施、文档及其他等的团队。恰当的团队会阅读提议与评论，撰写出他们自己的一些评论，并在最后，便有了接受或拒绝该特性的共识。
+一段时间后，一旦使用每日发布的 Rust 开发者能够试用这项新特性，Rust 团队成员对这项特性及其在每日发布上的表现加以讨论，并决定是否应该将其纳入稳定发布 Rust。当决定推进时，该特性的门槛将被移除，该特性就被认为是稳定的！他就会搭上列车，进入进 Rust 的新的稳定发布。
 
-若该特性被接受了，就会在 Rust 代码仓库上开出一个 issue，同时某个人就可以实现他。将其实现得非常棒的那个人，可能不是最早提议这项特性的那人！在实现准备好时，其就会落地于 `master` 分支的特性门，a feature gate，之后，如同咱们曾在 [“不稳定特性”](#不稳定特性) 小节中曾讨论过的那样。
-
-过了一段时间后，一旦那些用到每日发布的 Rust 开发者们，能够试用这项新特性，那么 Rust 团队成员将讨论这项特性，怎样将其编制到每日发布上，并决定其是否有那个被构造到稳定发布 Rust。而若决定是继续推进，那么特性门就会被移除，同时这项特性就被认为是稳定的了！他就会搭上列车，进到一个新的稳定发布 Rust  中。
-
-
-（End）
 
 
