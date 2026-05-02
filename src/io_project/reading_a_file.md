@@ -2,7 +2,7 @@
 
 现在，我们将添加读取于 `file_path` 参数中指定的文件的功能。首先，我们需要以一个样本文件来测试他：我们将使用一个带有多行少量文本、有一些重复单词的文件。下面清单 12-3 有一首 Emily Dickinson 的诗，非常合适！在咱们项目的根目录处创建一个名为 `poem.txt` 的文件，并输入这首诗 “I'm Nobody! Who are you?”
 
-<a name="listing_12-3">
+<a name="listing_12-3"></a>
 文件名：`poem.txt`
 
 ```txt
@@ -22,7 +22,7 @@ To an admiring bog!
 
 文本就位后，编辑 `src/main.rs` 并添加代码来读取该文件，如下清单 12-4 中所示。
 
-<a name="listing_12-4">
+<a name="listing_12-4"></a>
 文件名：`src/main.rs`
 
 ```rust
