@@ -95,22 +95,16 @@ curl --proto '=https' --tlsv1.2 -sSf https://rsproxy.cn/rustup-init.sh | sh
 
 而要获得构建工具，咱们需要安装 Visual Studio 2022。当被问及要安装哪些工作负载时，要包括下面这些：
 
-
 - “使用 C++ 进行桌面开发”
-
 - Windows 10 或 11 SDK
-
 - 英语语言包组件，以及咱们所选的任何其他语言包
-
 
 本书的其余部分使用了，可同时在 *cmd.exe* 和 PowerShell 中运行的命令。如果存在某些具体差异，我们将解释要使用哪个。
 
 
 ### 设置镜像加速
 
-
 以管理员权限启动 Powershell，执行以下命令设置 `RUSTUP_DIST_SERER` 和 `RUSTUP_UPDATE_ROOT` 两个环境变量。
-
 
 ```powershell
 [environment]::SetEnvironmentvariable("RUSTUP_DIST_SERVER", "https://mirrors.ustc.edu.cn/rust-static", "User")
