@@ -189,7 +189,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 **清单 12-8**：添加对参数数目的检查
 
-这段代码类似于 [我们在清单 9-13 中编写的 `Guess::new` 函数](../error_handling/panic_or_not.md#listing_9-13) ，其中我们在 `value` 参数超出有效值范围时调用了 `panic!`。这里我们不再检查值的范围，而是检查 `args` 的长度是否至少为 `3`，进而函数的其余部分可以在此条件满足的假设下运行。当 `args` 的项目少于三个时，这一条件将为 `true`，进而我们调用 `panic!` 宏来立即结束程序。
+这段代码类似于我们在 [清单 9-13](../error_handling/panic_or_not.md#listing_9-13) 中编写的 `Guess::new` 函数，其中我们在 `value` 参数超出有效值范围时调用了 `panic!`。这里我们不再检查值的范围，而是检查 `args` 的长度是否至少为 `3`，进而函数的其余部分可以在此条件满足的假设下运行。当 `args` 的项目少于三个时，这一条件将为 `true`，进而我们调用 `panic!` 宏来立即结束程序。
 
 在`new` 中的额外这几行代码下，我们来再次不带任何参数运行该程序，看看报错现在如何：
 
