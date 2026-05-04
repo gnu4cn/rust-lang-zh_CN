@@ -511,7 +511,7 @@ fn longest_with_an_announcement<'a, T>(
 where
     T: Display,
 {
-    println! ("通知！{}", ann);
+    println! ("通知！{ann}");
     if x.len() > y.len() { x } else { y }
 }
 ```
