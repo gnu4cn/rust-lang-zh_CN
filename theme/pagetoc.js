@@ -49,7 +49,7 @@ window.addEventListener('load', function() {
 window.addEventListener("scroll", updateFunction);
 
 if(document.querySelector("#document-not-found404")) {
-  let timeLeft = 10;
+  let timeLeft = 3;
 
   var timerId = setInterval(() => {
     if(timeLeft == -1) {
