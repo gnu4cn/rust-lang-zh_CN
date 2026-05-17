@@ -2,6 +2,7 @@
 
 
 [序和前言](Ch00_Forword_and_Introduction.md)
+[在本地阅读](local_serving.md)
 
 ---
 
