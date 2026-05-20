@@ -78,11 +78,11 @@ fn first_word(s: &String) -> usize {
 fn main() {
     let mut s = String::from("The quick brown fox jumps over the lazy dog.");
 
-    let word = first_word(&s);  // word 将得到值 5
+    let word = first_word(&s);  // word 将得到值 3
 
     s.clear();  // 这会清空那个 String，令其等于 ""
 
-    // word 在这里仍有着值 5，但 s 已不再有咱们可对值 5
+    // word 在这里仍有着值 3，但 s 已不再有咱们可对值 3
     // 有意义地运用的任何内容。因此 word 现在完全无效！
 }
 ```
