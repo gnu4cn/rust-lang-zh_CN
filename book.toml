@@ -4,6 +4,7 @@ language = "zh"
 src = "src"
 title = "Yet another Chinese rust-lang book."
 description = "又一本 rust-lang 书，Yet another Chinese rust-lang book。"
+mdbook_version = "0.4.29"
 
 [preprocessor.last-changed]
 command = "mdbook-last-changed"
@@ -18,10 +19,12 @@ git-repository-url = "https://github.com/gnu4cn/rust-lang-zh_CN"
 git-repository-icon = "fa-github"
 
 [output.html.print]
-enable = false
+enable = true
 
 [output.html.search]
 enable = false
 
 [output.html.favicon]
 png = true
+
+[output.epub]

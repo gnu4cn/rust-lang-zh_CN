@@ -4,3 +4,8 @@ Cargo.lock
 /index.html
 *.tar.gz
 pdf
+
+
+# Added by cargo
+
+/target
