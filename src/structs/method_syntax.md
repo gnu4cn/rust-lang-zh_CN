@@ -163,14 +163,7 @@ impl Rectangle {
 当我们以清单 5-14 中的 `main` 函数运行这段代码时，我们将得到我们想要的输出。方法可以取我们于 `self` 参数后添加到签名的多个参数，而这些参数会与函数中的参数一样生效。
 
 
-> **译注**：实际上，这个 `can_hold` 的实现有错误，因为其没有考虑到矩形倒转后可以容纳的情况，改进后的 `can_hold` 如下。
->
-> ```rust
->     fn can_hold(&self, other: &Rectangle) -> bool {
->         (self.width > other.width && self.height > other.height)
->             || (self.width > other.height && self.height > other.width)
->     }
-> ```
+> **译注**：实际上，英文原版的 can_hold 实现未考虑矩形旋转后仍可容纳的情况，此处已修正。
 
 
 ## 关联函数
