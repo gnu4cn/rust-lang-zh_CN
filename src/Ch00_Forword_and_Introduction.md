@@ -115,7 +115,7 @@ Rust 语言希望也能支持许多其他用户；这里提到的只是一些最
 
 [第 13 章](./Ch13_Functional_Language_Features_Iterators_and_Closures.md) 探讨了闭包和迭代器：来自于函数式编程语言的 Rust 特性。在 [第 14 章](./Ch14_More_about_Cargo_and_Crates-io.md) 中，我们将更深入地研究 Cargo，并讲到与他人共享库的最佳实践。[第 15 章](./Ch15_Smart_Pointers.md) 讨论了标准库提供的灵巧指针和实现其功能的特质。
 
-[第 16 章](./Ch16_Fearless_Concurrency.md)，咱们将过目不同的并发编程模型，并探讨 Rust 如何帮助咱们大胆地以多线程方式编程。在 [第 17 章](./Ch16_1_async_programming.md) 中，我们在此基础上探讨 Rust 的 `async` 与 `await` 语法，以及任务、未来值与流，以及他们所实现的轻量级并发模型。
+[第 16 章](./Ch16_Fearless_Concurrency.md)，咱们将过目不同的并发编程模型，并探讨 Rust 如何帮助咱们大胆地以多线程方式编程。在 [第 17 章](./Ch17_async_programming.md) 中，我们在此基础上探讨 Rust 的 `async` 与 `await` 语法，以及任务、未来值与流，以及他们所实现的轻量级并发模型。
 
 
 [第 18 章](./Ch18_Object_Oriented_Programming_Features_of_Rust.md) 着眼于 Rust 习语如何与咱们可能熟悉的面向对象编程原则进行比较。[第 19 章](./Ch18_Patterns_and_Matching.md) 是关于模式和模式匹配的参考，他们是在整个 Rust 程序中表达思想的强大方式。[第 20 章](./Ch19_Advanced_Features.md) 包含大量有趣的高级主题，包括不安全的 Rust、宏，以及更多关于生命周期、特征、类型、函数和闭包的内容。
