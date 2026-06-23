@@ -152,7 +152,7 @@ pub trait Future {
     - 或者封装了到该类型的引用的 `Pin`。
 
 
-我们将在 [第 18 章](../Ch17_Object_Oriented_Programming_Features_of_Rust.md) 中看到有关这一语法的更多内容。目前只需知道，当我们打算轮询某个未来值，来检查他处于 `Pending` 还是 `Ready(Output)` 状态时，就需要一个由 `Pin` 封装的指向该类型的可变引用。
+我们将在 [第 18 章](../Ch18_Object_Oriented_Programming_Features_of_Rust.md) 中看到有关这一语法的更多内容。目前只需知道，当我们打算轮询某个未来值，来检查他处于 `Pending` 还是 `Ready(Output)` 状态时，就需要一个由 `Pin` 封装的指向该类型的可变引用。
 
 `Pin` 是针对 `&`、`&mut`、`Box` 和 `Rc` 等类指针类型的封装器。（从技术上讲，`Pin` 适用于实现 `Deref` 或 `DerefMut` 特质的类型，但这实际上相当于仅适用于引用和灵巧指针。）`Pin` 本身并非指针，也不具备 `Rc` 和 `Arc` 那样带有引用计数的自身行为；他纯粹是编译器用来强制执行指针使用约束的工具。
 
