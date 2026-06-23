@@ -16,7 +16,7 @@ rustc 1.93.1 (01f6ddf75 2026-02-11)
 
 在线阅读: [rust-lang.xfoss.com](https://rust-lang.xfoss.com)
 
-本地阅读：[`mdbook` 本地运行](./local_serving.md)
+本地阅读：[`mdbook` 本地运行](./src/local_serving.md)
 
 ---
 
