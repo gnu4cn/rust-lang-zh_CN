@@ -171,8 +171,8 @@ fn main() {
 
 
 ```rust
-    io:stdin()
-        .readline(&mut guess)
+    io::stdin()
+        .read_line(&mut guess)
 ```
 
 若我们没有在程序开头，以 `use std::io;` 导入 `io` 库，我们仍就可以通过将这一函数调用，写作 `std::io::stdin` 使用这个函数。`stdin` 函数会返回 [`std::io::Stdin`](https://doc.rust-lang.org/std/io/struct.Stdin.html) 的一个实例，而这是表示终端标准输入句柄的一种类型，a type that represents a handle to the standard input for your terminal。
