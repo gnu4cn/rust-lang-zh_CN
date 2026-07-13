@@ -171,8 +171,8 @@ fn main() {
 
 
 ```rust
-    io:stdin()
-        .readline(&mut guess)
+    io::stdin()
+        .read_line(&mut guess)
 ```
 
 若我们没有在程序开头，以 `use std::io;` 导入 `io` 库，我们仍就可以通过将这一函数调用，写作 `std::io::stdin` 使用这个函数。`stdin` 函数会返回 [`std::io::Stdin`](https://doc.rust-lang.org/std/io/struct.Stdin.html) 的一个实例，而这是表示终端标准输入句柄的一种类型，a type that represents a handle to the standard input for your terminal。
@@ -459,7 +459,7 @@ fn main() {
 
 首先，我们要添加行 `use rand::Rng;`。`Rng` 这个特质定义了随机数生成器所实现的一些方法，而这个特质必须要在咱们要用到那些方法的作用域中。[第 10 章](./generic_types_traits_and_lifetimes/traits.md) 将详细介绍特质。
 
-接下来，我们在中间添加了两行。在第一行中，我们调用了 `rand:thread_rng` 这个函数，他给到我们即将用到的特定随机数生成器，the particular random number generator：一个属于当前执行线程本地的，由操作系统提供种子的随机数生成器。然后，我们调用了这个随机数生成器上的 `gen_range` 方法。这个方法是由我们以 `use rand::Rng;` 语句，带入到作用域的 `Rng` 特质定义的。`gen_range` 方法会取一个范围表达式作为参数，生成该范围中的一个随机数。我们这里使用的范围表达式类别，采用了 `start..=end` 形式，并包含下上边界，因此我们需要指定 `1...=100`，请求一个 1 和 100 之间的数字。
+接下来，我们在中间添加了两行。在第一行中，我们调用了 `rand::thread_rng` 这个函数，他给到我们即将用到的特定随机数生成器，the particular random number generator：一个属于当前执行线程本地的，由操作系统提供种子的随机数生成器。然后，我们调用了这个随机数生成器上的 `gen_range` 方法。这个方法是由我们以 `use rand::Rng;` 语句，带入到作用域的 `Rng` 特质定义的。`gen_range` 方法会取一个范围表达式作为参数，生成该范围中的一个随机数。我们这里使用的范围表达式类别，采用了 `start..=end` 形式，并包含上下边界，因此我们需要指定 `1..=100`，请求一个 1 和 100 之间的数字。
 
 
 > **注意**：咱们不会凭空知道要使用哪个特质、调用某个代码箱中的哪些方法与函数，因此每个代码箱都有使用说明文档。Cargo 的另一巧妙特性便是，运行 `cargo doc --open` 命令就将在本地构建出有所有咱们依赖项所提供的文档，并在咱们浏览器中打开。例如，当咱们对 `rand` 代码箱中别的功能感兴趣时，那么就运行 `cargo doc --open`，并点击左侧边栏中的 `rand`。
