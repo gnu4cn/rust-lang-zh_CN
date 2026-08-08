@@ -120,7 +120,7 @@ Rust 语言希望也能支持许多其他用户；这里提到的只是一些最
 
 [第 18 章](./Ch18_Object_Oriented_Programming_Features_of_Rust.md) 着眼于 Rust 习语如何与咱们可能熟悉的面向对象编程原则进行比较。[第 19 章](./Ch18_Patterns_and_Matching.md) 是关于模式和模式匹配的参考，他们是在整个 Rust 程序中表达思想的强大方式。[第 20 章](./Ch19_Advanced_Features.md) 包含大量有趣的高级主题，包括不安全的 Rust、宏，以及更多关于生命周期、特征、类型、函数和闭包的内容。
 
-在 [第 21 章](./Ch20_Final_Project_Building_a_Multithreaded_Web_Server.md)，咱们将完成其中实现了底层线程化 web 服务器的一个项目！
+在 [第 21 章](./Ch21_Final_Project_Building_a_Multithreaded_Web_Server.md)，咱们将完成其中实现了底层线程化 web 服务器的一个项目！
 
 最后，一些附录以更类似于参考的格式，包含有关这门语言的有用信息。[附录 A](./appendix/keywords.md) 涵盖了 Rust 的关键字，[附录 B](./appendix/ops_and_symbols.md) 涵盖了 Rust 的运算符和符号，[附录 C](./appendix/derivable_traits.md) 涵盖了标准库提供的可派生特质，[附录 D](./appendix/dev_tools.md) 涵盖了一些有用的开发工具，[附录 E](./appendix/editions.md) 解释了 Rust 版本。在 [附录 F](./appendix/translations.md) 中，你可以找到这本书的翻译，在 [附录 G](./appendix/releases.md) 中，我们将介绍 Rust 是如何构造的以及什么是每日 Rust, nightly Rust。
 
